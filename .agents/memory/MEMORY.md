@@ -1,0 +1,2 @@
+- [Orval query options cast](orval-query-options.md) — useQuery `enabled` option must be cast `as any`; never add queryKey:[] (breaks shared cache key).
+- [Admin API response shapes](admin-api-shapes.md) — admin/users wraps array in { users, total, page, limit }; recentLogins field is `loginAt` not `createdAt`.

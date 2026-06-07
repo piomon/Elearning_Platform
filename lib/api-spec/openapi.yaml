@@ -1,22 +1,27 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Physics Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: auth
+  - name: courses
+  - name: progress
+  - name: quizzes
+  - name: ai
+  - name: payments
+  - name: contact
+  - name: admin
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +29,1996 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── AUTH ────────────────────────────────────────────────────────────────────
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email already in use
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ─── COURSES ─────────────────────────────────────────────────────────────────
+  /courses:
+    get:
+      operationId: listCourses
+      tags: [courses]
+      responses:
+        "200":
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+
+  /courses/{slug}:
+    get:
+      operationId: getCourse
+      tags: [courses]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Course with sections
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseWithSections"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /sections/{sectionId}/topics:
+    get:
+      operationId: listTopics
+      tags: [courses]
+      parameters:
+        - name: sectionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Topics in section
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Topic"
+
+  /topics/{topicId}:
+    get:
+      operationId: getTopic
+      tags: [courses]
+      parameters:
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Topic detail with elements
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TopicDetail"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: No access to course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ─── PROGRESS ────────────────────────────────────────────────────────────────
+  /progress/me:
+    get:
+      operationId: getMyProgress
+      tags: [progress]
+      responses:
+        "200":
+          description: My progress records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Progress"
+
+  /progress:
+    post:
+      operationId: upsertProgress
+      tags: [progress]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgressInput"
+      responses:
+        "200":
+          description: Updated progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Progress"
+
+  /progress/continue:
+    get:
+      operationId: getContinueProgress
+      tags: [progress]
+      responses:
+        "200":
+          description: Last position to continue from
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContinueProgress"
+
+  # ─── QUIZZES ─────────────────────────────────────────────────────────────────
+  /quizzes/{quizId}:
+    get:
+      operationId: getQuiz
+      tags: [quizzes]
+      parameters:
+        - name: quizId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Quiz with questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /quizzes/{quizId}/attempts:
+    post:
+      operationId: submitQuizAttempt
+      tags: [quizzes]
+      parameters:
+        - name: quizId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizAttemptInput"
+      responses:
+        "201":
+          description: Attempt result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizAttemptResult"
+
+  # ─── AI ──────────────────────────────────────────────────────────────────────
+  /ai/check-task:
+    post:
+      operationId: checkTask
+      tags: [ai]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskCheckInput"
+      responses:
+        "200":
+          description: AI feedback
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskCheckResult"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ─── PAYMENTS ────────────────────────────────────────────────────────────────
+  /payments/create:
+    post:
+      operationId: createPayment
+      tags: [payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentInput"
+      responses:
+        "200":
+          description: Payment created with redirect URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentCreated"
+
+  /payments/webhook:
+    post:
+      operationId: paymentWebhook
+      tags: [payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookInput"
+      responses:
+        "200":
+          description: Webhook processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /payments/me:
+    get:
+      operationId: getMyPayments
+      tags: [payments]
+      responses:
+        "200":
+          description: My payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+
+  # ─── CONTACT ─────────────────────────────────────────────────────────────────
+  /contact:
+    post:
+      operationId: submitContact
+      tags: [contact]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactInput"
+      responses:
+        "201":
+          description: Message received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── ADMIN ───────────────────────────────────────────────────────────────────
+  /admin/dashboard:
+    get:
+      operationId: getAdminDashboard
+      tags: [admin]
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDashboard"
+
+  /admin/users:
+    get:
+      operationId: listAdminUsers
+      tags: [admin]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+            enum: [all, active, no_access, banned]
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUserList"
+
+  /admin/users/{id}:
+    get:
+      operationId: getAdminUser
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User profile with details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUserDetail"
+
+  /admin/users/{id}/login-stats/{month}:
+    get:
+      operationId: getUserLoginStats
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Login statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginStats"
+
+  /admin/users/{id}/ban:
+    post:
+      operationId: banUser
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BanInput"
+      responses:
+        "200":
+          description: User banned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/users/{id}/unban:
+    post:
+      operationId: unbanUser
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User unbanned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/users/{id}/access:
+    post:
+      operationId: grantAccess
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccessInput"
+      responses:
+        "200":
+          description: Access granted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+    delete:
+      operationId: revokeAccess
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Access revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/payments:
+    get:
+      operationId: listAdminPayments
+      tags: [admin]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Payment list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminPayment"
+
+  /admin/payments/{paymentId}/refund:
+    post:
+      operationId: refundPayment
+      tags: [admin]
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefundInput"
+      responses:
+        "200":
+          description: Refund initiated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefundResult"
+
+  /admin/contact-messages:
+    get:
+      operationId: listContactMessages
+      tags: [admin]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [new, read, closed]
+      responses:
+        "200":
+          description: Contact messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContactMessage"
+
+  /admin/contact-messages/{id}:
+    patch:
+      operationId: updateContactMessage
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactMessageUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactMessage"
+
+  /admin/logs:
+    get:
+      operationId: listAdminLogs
+      tags: [admin]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Admin logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminLog"
+
+  # ─── ADMIN CRUD: COURSES ──────────────────────────────────────────────────────
+  /admin/courses:
+    get:
+      operationId: listAdminCourses
+      tags: [admin]
+      responses:
+        "200":
+          description: All courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+    post:
+      operationId: createCourse
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+
+  /admin/courses/{id}:
+    put:
+      operationId: updateCourse
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+    delete:
+      operationId: deleteCourse
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── ADMIN CRUD: SECTIONS ─────────────────────────────────────────────────────
+  /admin/sections:
+    post:
+      operationId: createSection
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SectionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Section"
+
+  /admin/sections/{id}:
+    put:
+      operationId: updateSection
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SectionInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Section"
+    delete:
+      operationId: deleteSection
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── ADMIN CRUD: TOPICS ──────────────────────────────────────────────────────
+  /admin/topics:
+    post:
+      operationId: createTopic
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TopicInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Topic"
+
+  /admin/topics/{id}:
+    put:
+      operationId: updateTopic
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TopicInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Topic"
+    delete:
+      operationId: deleteTopic
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── ADMIN CRUD: VIDEOS ──────────────────────────────────────────────────────
+  /admin/videos:
+    post:
+      operationId: createVideo
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /admin/videos/{id}:
+    put:
+      operationId: updateVideo
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+    delete:
+      operationId: deleteVideo
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── ADMIN CRUD: QUIZZES ─────────────────────────────────────────────────────
+  /admin/quizzes:
+    post:
+      operationId: createQuiz
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+
+  /admin/quizzes/{id}:
+    put:
+      operationId: updateQuiz
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+    delete:
+      operationId: deleteQuiz
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/quizzes/{id}/questions:
+    post:
+      operationId: createQuizQuestion
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizQuestionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizQuestion"
+
+  /admin/questions/{questionId}:
+    put:
+      operationId: updateQuizQuestion
+      tags: [admin]
+      parameters:
+        - name: questionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizQuestionInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizQuestion"
+    delete:
+      operationId: deleteQuizQuestion
+      tags: [admin]
+      parameters:
+        - name: questionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/questions/{questionId}/answers:
+    post:
+      operationId: createQuizAnswer
+      tags: [admin]
+      parameters:
+        - name: questionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizAnswerInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizAnswer"
+
+  /admin/answers/{answerId}:
+    put:
+      operationId: updateQuizAnswer
+      tags: [admin]
+      parameters:
+        - name: answerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizAnswerInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizAnswer"
+    delete:
+      operationId: deleteQuizAnswer
+      tags: [admin]
+      parameters:
+        - name: answerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── ADMIN CRUD: TASKS ───────────────────────────────────────────────────────
+  /admin/tasks:
+    post:
+      operationId: createTask
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /admin/tasks/{id}:
+    put:
+      operationId: updateTask
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+    delete:
+      operationId: deleteTask
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    MessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    # ─── AUTH SCHEMAS ─────────────────────────────────────────────────────────
+    RegisterInput:
+      type: object
+      required: [email, password, firstName, lastName]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        firstName:
+          type: string
+          minLength: 1
+        lastName:
+          type: string
+          minLength: 1
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    User:
+      type: object
+      required: [id, email, firstName, lastName, role, isBanned, createdAt]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        isBanned:
+          type: boolean
+        bannedReason:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        lastLoginAt:
+          type: ["string", "null"]
+
+    AuthResponse:
+      type: object
+      required: [user, token]
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+
+    # ─── COURSE SCHEMAS ───────────────────────────────────────────────────────
+    Course:
+      type: object
+      required: [id, title, slug, description, isPublished, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+
+    Section:
+      type: object
+      required: [id, courseId, title, slug, sortOrder, createdAt]
+      properties:
+        id:
+          type: integer
+        courseId:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        sortOrder:
+          type: integer
+        topicCount:
+          type: integer
+        createdAt:
+          type: string
+
+    CourseWithSections:
+      type: object
+      required: [id, title, slug, description, isPublished, sections]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        isPublished:
+          type: boolean
+        sections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Section"
+
+    Topic:
+      type: object
+      required: [id, sectionId, title, slug, sortOrder, createdAt]
+      properties:
+        id:
+          type: integer
+        sectionId:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+        hasVideo:
+          type: boolean
+        hasQuiz:
+          type: boolean
+        hasTasks:
+          type: boolean
+        createdAt:
+          type: string
+
+    Video:
+      type: object
+      required: [id, topicId, title, createdAt]
+      properties:
+        id:
+          type: integer
+        topicId:
+          type: integer
+        bunnyVideoId:
+          type: ["string", "null"]
+        videoUrl:
+          type: ["string", "null"]
+        title:
+          type: string
+        durationSeconds:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    Task:
+      type: object
+      required: [id, topicId, title, createdAt]
+      properties:
+        id:
+          type: integer
+        topicId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        initialImageUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    TopicDetail:
+      type: object
+      required: [id, sectionId, title, slug, sortOrder]
+      properties:
+        id:
+          type: integer
+        sectionId:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+        video:
+          oneOf:
+            - $ref: "#/components/schemas/Video"
+            - type: "null"
+        quiz:
+          oneOf:
+            - $ref: "#/components/schemas/Quiz"
+            - type: "null"
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+
+    # ─── QUIZ SCHEMAS ─────────────────────────────────────────────────────────
+    QuizAnswer:
+      type: object
+      required: [id, questionId, answerLabel, answerText, isCorrect]
+      properties:
+        id:
+          type: integer
+        questionId:
+          type: integer
+        answerLabel:
+          type: string
+        answerText:
+          type: string
+        isCorrect:
+          type: boolean
+
+    QuizQuestion:
+      type: object
+      required: [id, quizId, questionText, sortOrder, answers]
+      properties:
+        id:
+          type: integer
+        quizId:
+          type: integer
+        questionText:
+          type: string
+        sortOrder:
+          type: integer
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizAnswer"
+
+    Quiz:
+      type: object
+      required: [id, topicId, title, questions]
+      properties:
+        id:
+          type: integer
+        topicId:
+          type: integer
+        title:
+          type: string
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizQuestion"
+
+    QuizAttemptAnswerInput:
+      type: object
+      required: [questionId, selectedAnswerId]
+      properties:
+        questionId:
+          type: integer
+        selectedAnswerId:
+          type: integer
+
+    QuizAttemptInput:
+      type: object
+      required: [answers]
+      properties:
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizAttemptAnswerInput"
+
+    QuizAttemptAnswerResult:
+      type: object
+      required: [questionId, selectedAnswerId, isCorrect, correctAnswerId]
+      properties:
+        questionId:
+          type: integer
+        selectedAnswerId:
+          type: integer
+        isCorrect:
+          type: boolean
+        correctAnswerId:
+          type: integer
+
+    QuizAttemptResult:
+      type: object
+      required: [score, totalQuestions, percentage, answers]
+      properties:
+        score:
+          type: integer
+        totalQuestions:
+          type: integer
+        percentage:
+          type: integer
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizAttemptAnswerResult"
+
+    # ─── PROGRESS SCHEMAS ─────────────────────────────────────────────────────
+    Progress:
+      type: object
+      required: [id, userId, courseId, topicId, updatedAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        courseId:
+          type: integer
+        sectionId:
+          type: ["integer", "null"]
+        topicId:
+          type: integer
+        currentElementType:
+          type: ["string", "null"]
+        status:
+          type: string
+        videoCompleted:
+          type: boolean
+        quizCompleted:
+          type: boolean
+        taskStarted:
+          type: boolean
+        taskCheckedByAi:
+          type: boolean
+        updatedAt:
+          type: string
+
+    ProgressInput:
+      type: object
+      required: [courseId, topicId]
+      properties:
+        courseId:
+          type: integer
+        sectionId:
+          type: ["integer", "null"]
+        topicId:
+          type: integer
+        currentElementType:
+          type: string
+          enum: [video, quiz, task]
+        videoCompleted:
+          type: boolean
+        quizCompleted:
+          type: boolean
+        taskStarted:
+          type: boolean
+        taskCheckedByAi:
+          type: boolean
+
+    ContinueProgress:
+      type: object
+      properties:
+        topicId:
+          type: ["integer", "null"]
+        sectionId:
+          type: ["integer", "null"]
+        courseId:
+          type: ["integer", "null"]
+        topicTitle:
+          type: ["string", "null"]
+        sectionTitle:
+          type: ["string", "null"]
+        currentElementType:
+          type: ["string", "null"]
+
+    # ─── AI SCHEMAS ───────────────────────────────────────────────────────────
+    TaskCheckInput:
+      type: object
+      required: [taskId, imageBase64]
+      properties:
+        taskId:
+          type: integer
+        imageBase64:
+          type: string
+
+    TaskCheckResult:
+      type: object
+      required: [feedback]
+      properties:
+        feedback:
+          type: string
+        checkId:
+          type: ["integer", "null"]
+
+    # ─── PAYMENT SCHEMAS ──────────────────────────────────────────────────────
+    PaymentInput:
+      type: object
+      required: [courseId]
+      properties:
+        courseId:
+          type: integer
+        returnUrl:
+          type: string
+
+    PaymentCreated:
+      type: object
+      required: [redirectUrl, paymentId]
+      properties:
+        redirectUrl:
+          type: string
+        paymentId:
+          type: integer
+
+    Payment:
+      type: object
+      required: [id, userId, provider, amount, currency, status, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        provider:
+          type: string
+        providerPaymentId:
+          type: ["string", "null"]
+        amount:
+          type: integer
+        currency:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+
+    WebhookInput:
+      type: object
+      properties:
+        merchantId:
+          type: ["string", "null"]
+        posId:
+          type: ["string", "null"]
+        sessionId:
+          type: ["string", "null"]
+        amount:
+          type: ["integer", "null"]
+        currency:
+          type: ["string", "null"]
+        orderId:
+          type: ["string", "null"]
+        sign:
+          type: ["string", "null"]
+
+    # ─── CONTACT SCHEMAS ──────────────────────────────────────────────────────
+    ContactInput:
+      type: object
+      required: [name, email, subject, message]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        subject:
+          type: string
+          minLength: 1
+        message:
+          type: string
+          minLength: 10
+        consent:
+          type: boolean
+
+    ContactMessage:
+      type: object
+      required: [id, name, email, subject, message, status, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        subject:
+          type: string
+        message:
+          type: string
+        status:
+          type: string
+          enum: [new, read, closed]
+        createdAt:
+          type: string
+
+    ContactMessageUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [new, read, closed]
+
+    # ─── ADMIN SCHEMAS ────────────────────────────────────────────────────────
+    AdminDashboard:
+      type: object
+      required: [totalUsers, activeAccess, totalPayments, recentLogins, recentMessages]
+      properties:
+        totalUsers:
+          type: integer
+        activeAccess:
+          type: integer
+        totalPayments:
+          type: integer
+        totalRevenue:
+          type: integer
+        recentLogins:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecentLogin"
+        recentMessages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContactMessage"
+
+    RecentLogin:
+      type: object
+      required: [userId, email, firstName, lastName, loginAt]
+      properties:
+        userId:
+          type: integer
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        loginAt:
+          type: string
+
+    AdminUserList:
+      type: object
+      required: [users, total, page, limit]
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminUserSummary"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    AdminUserSummary:
+      type: object
+      required: [id, email, firstName, lastName, role, isBanned, hasAccess, createdAt]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+        isBanned:
+          type: boolean
+        hasAccess:
+          type: boolean
+        lastLoginAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    AdminUserDetail:
+      type: object
+      required: [id, email, firstName, lastName, role, isBanned, createdAt]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+        isBanned:
+          type: boolean
+        bannedReason:
+          type: ["string", "null"]
+        bannedAt:
+          type: ["string", "null"]
+        hasAccess:
+          type: boolean
+        accessGrant:
+          type: ["object", "null"]
+        createdAt:
+          type: string
+        lastLoginAt:
+          type: ["string", "null"]
+        loginCountThisMonth:
+          type: integer
+        payments:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminPayment"
+        progressSummary:
+          type: ["object", "null"]
+
+    LoginStats:
+      type: object
+      required: [userId, month, count, events]
+      properties:
+        userId:
+          type: integer
+        month:
+          type: string
+        count:
+          type: integer
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/LoginEvent"
+
+    LoginEvent:
+      type: object
+      required: [id, createdAt]
+      properties:
+        id:
+          type: integer
+        ipAddress:
+          type: ["string", "null"]
+        userAgent:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    BanInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+
+    AccessInput:
+      type: object
+      required: [courseId]
+      properties:
+        courseId:
+          type: integer
+
+    AdminPayment:
+      type: object
+      required: [id, userId, userEmail, provider, amount, currency, status, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        userEmail:
+          type: string
+        userFirstName:
+          type: string
+        userLastName:
+          type: string
+        provider:
+          type: string
+        providerPaymentId:
+          type: ["string", "null"]
+        amount:
+          type: integer
+        currency:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+        refunds:
+          type: array
+          items:
+            $ref: "#/components/schemas/Refund"
+
+    Refund:
+      type: object
+      required: [id, paymentId, amount, status, createdAt]
+      properties:
+        id:
+          type: integer
+        paymentId:
+          type: integer
+        amount:
+          type: integer
+        status:
+          type: string
+        reason:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    RefundInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+
+    RefundResult:
+      type: object
+      required: [status, message]
+      properties:
+        status:
+          type: string
+          enum: [success, manual]
+        message:
+          type: string
+        refundId:
+          type: ["integer", "null"]
+
+    AdminLog:
+      type: object
+      required: [id, adminId, action, entityType, createdAt]
+      properties:
+        id:
+          type: integer
+        adminId:
+          type: integer
+        adminEmail:
+          type: string
+        action:
+          type: string
+        entityType:
+          type: string
+        entityId:
+          type: ["integer", "null"]
+        metadata:
+          type: ["object", "null"]
+        createdAt:
+          type: string
+
+    # ─── ADMIN INPUT SCHEMAS ──────────────────────────────────────────────────
+    CourseInput:
+      type: object
+      required: [title, slug, description]
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        isPublished:
+          type: boolean
+
+    SectionInput:
+      type: object
+      required: [courseId, title, slug, sortOrder]
+      properties:
+        courseId:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        sortOrder:
+          type: integer
+
+    TopicInput:
+      type: object
+      required: [sectionId, title, slug, sortOrder]
+      properties:
+        sectionId:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        sortOrder:
+          type: integer
+
+    VideoInput:
+      type: object
+      required: [topicId, title]
+      properties:
+        topicId:
+          type: integer
+        title:
+          type: string
+        bunnyVideoId:
+          type: string
+        videoUrl:
+          type: string
+        durationSeconds:
+          type: integer
+
+    QuizInput:
+      type: object
+      required: [topicId, title]
+      properties:
+        topicId:
+          type: integer
+        title:
+          type: string
+
+    QuizQuestionInput:
+      type: object
+      required: [questionText, sortOrder]
+      properties:
+        questionText:
+          type: string
+        sortOrder:
+          type: integer
+
+    QuizAnswerInput:
+      type: object
+      required: [answerLabel, answerText, isCorrect]
+      properties:
+        answerLabel:
+          type: string
+        answerText:
+          type: string
+        isCorrect:
+          type: boolean
+
+    TaskInput:
+      type: object
+      required: [topicId, title]
+      properties:
+        topicId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        initialImageUrl:
+          type: string

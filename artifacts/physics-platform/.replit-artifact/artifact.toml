@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Platforma Fizyki"
+version = "1.0.0"
+id = "artifacts/physics-platform"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22165
+
+[services.development]
+run = "pnpm --filter @workspace/physics-platform run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/physics-platform", "run", "build" ]
+publicDir = "artifacts/physics-platform/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22165"
+BASE_PATH = "/"

@@ -1,0 +1,1440 @@
+Jesteś senior full-stack developerem, architektem aplikacji webowych, specjalistą od platform edukacyjnych, PWA, UX/UI dla dzieci i rodziców, bezpieczeństwa, płatności internetowych oraz testów automatycznych.
+
+Twoim zadaniem jest stworzenie kompletnej, profesjonalnej, komercyjnej aplikacji PWA zgodnej z umową oraz dodatkowymi wytycznymi klienta.
+
+Nazwa projektu:
+„Platforma edukacyjna z modułem AI — kursy fizyki”
+
+Rodzaj aplikacji:
+Autorska aplikacja webowa / PWA do sprzedaży i prowadzenia kursów z fizyki online.
+
+To NIE ma być WordPress, landing page ani prosty prototyp. To ma być kompletna aplikacja komercyjna MVP, gotowa do wdrożenia, sprzedaży kursu, obsługi uczniów, płatności, lekcji, quizów, zadań, AI oraz panelu administracyjnego.
+
+Aplikacja ma być wykonana jako MVP zgodne z umową, ale z uwzględnieniem dodatkowych ustaleń przekazanych po rozmowie telefonicznej. Jeżeli dana funkcja może formalnie wykraczać poza pierwotny MVP, zaimplementuj ją jako wymaganie z dodatkowych wytycznych klienta, ale nie rozbudowuj jej ponad opisany zakres.
+
+==================================================
+
+1. GŁÓWNY CEL APLIKACJI
+   ==================================================
+
+Celem aplikacji jest stworzenie profesjonalnej platformy edukacyjnej PWA do sprzedaży i prowadzenia kursu fizyki dla uczniów 7. klasy.
+
+Platforma ma umożliwiać:
+
+1. Rodzicowi:
+
+* wejście na piękną, profesjonalną stronę sprzedażową,
+* zapoznanie się z ofertą kursu,
+* zrozumienie korzyści dla dziecka,
+* zakup dostępu do kursu,
+* kontakt przez formularz.
+
+2. Uczniowi:
+
+* zalogowanie się do panelu ucznia,
+* wejście do kursu,
+* przechodzenie przez działy i tematy,
+* oglądanie filmów,
+* rozwiązywanie quizów,
+* wykonywanie zadań na tablicy interaktywnej Excalidraw,
+* sprawdzanie rozwiązania przez AI Gemini,
+* kontynuowanie nauki od miejsca, w którym ostatnio skończył.
+
+3. Administratorowi:
+
+* zarządzanie użytkownikami,
+* zarządzanie dostępami,
+* zarządzanie działami, tematami, lekcjami, filmami, quizami i zadaniami,
+* sprawdzanie liczby logowań użytkownika w danym miesiącu,
+* banowanie i odbanowywanie użytkowników,
+* obsługę płatności,
+* wykonanie lub oznaczenie zwrotu środków z poziomu profilu użytkownika,
+* obsługę formularza kontaktowego,
+* kontrolę działania kursu.
+
+==================================================
+2. CHARAKTER APLIKACJI
+======================
+
+Aplikacja ma być:
+
+* profesjonalna,
+* komercyjna,
+* nowoczesna,
+* stabilna,
+* bezpieczna,
+* estetyczna,
+* edukacyjna,
+* responsywna,
+* PWA-ready,
+* przygotowana do wdrożenia na VPS,
+* przygotowana pod Docker / Docker Compose,
+* prosta dla ucznia 7. klasy,
+* atrakcyjna dla rodzica kupującego kurs,
+* gotowa do dalszej rozbudowy po MVP.
+
+Nie twórz aplikacji wyglądającej jak panel techniczny. Ma wyglądać jak gotowy produkt edukacyjny.
+
+==================================================
+3. ZAKRES MVP Z UMOWY
+=====================
+
+Zakres MVP obejmuje:
+
+1. Stronę główną / sprzedażową.
+2. Konto ucznia.
+3. Rejestrację.
+4. Logowanie.
+5. Profil użytkownika.
+6. Panel ucznia.
+7. Widok dostępnych materiałów po zalogowaniu.
+8. Strukturę kursu podzieloną na 3 główne działy.
+9. Lekcje w ramach działów.
+10. Materiały wideo.
+11. Integrację z Bunny.net Stream albo osadzenie materiałów z Bunny.net.
+12. Zadania w lekcji.
+13. Tablicę interaktywną Excalidraw.
+14. Przycisk „Sprawdź zadanie”.
+15. Wykonanie zrzutu rozwiązania ucznia z tablicy.
+16. Przesłanie obrazu do backendu.
+17. Komunikację backendu z Google Gemini API.
+18. Ukryty prompt systemowy po stronie backendu.
+19. Wyświetlenie odpowiedzi AI uczniowi.
+20. Quizy jednokrotnego wyboru A/B/C/D.
+21. Wynik quizu.
+22. Informację o poprawnej odpowiedzi przy błędnym zaznaczeniu.
+23. Integrację z jedną bramką płatności: Przelewy24 albo PayU.
+24. Dostęp do kursu po zakupie lub nadaniu dostępu.
+25. Panel administratora.
+26. Zarządzanie użytkownikami.
+27. Zarządzanie dostępem do kursu.
+28. Zarządzanie działami.
+29. Zarządzanie lekcjami.
+30. Zarządzanie quizami.
+31. Backend API.
+32. Bazę PostgreSQL.
+33. Podstawową strukturę danych: użytkownicy, lekcje, quizy, odpowiedzi, dostęp, płatności i postępy.
+34. Responsywność na komputer, tablet i telefon.
+35. Dokumentację uruchomienia.
+36. Przygotowanie do wdrożenia na VPS.
+37. Przygotowanie Docker / Docker Compose.
+38. Opis zmiennych środowiskowych.
+39. Podstawową dokumentację projektu.
+
+==================================================
+4. DODATKOWE WYTYCZNE KLIENTA PO ROZMOWIE TELEFONICZNEJ
+=======================================================
+
+Uwzględnij dodatkowo następujące wymagania klienta:
+
+1. Panel administratora:
+
+* administrator musi widzieć liczbę logowań każdego użytkownika w danym miesiącu,
+* administrator musi móc zbanować użytkownika,
+* administrator musi móc odbanować użytkownika,
+* administrator musi mieć opcję dokonania zwrotu środków bezpośrednio z profilu danego użytkownika w panelu,
+* jeżeli automatyczny zwrot przez API bramki płatności nie jest możliwy, system ma utworzyć wpis „zwrot do obsługi ręcznej” i zapisać log administracyjny.
+
+2. Budowa kursu:
+
+* konstrukcja kursu ma dokładnie odzwierciedlać układ materiałów przekazanych w folderach,
+* uczeń po zalogowaniu widzi np. „Dział pierwszy”,
+* po kliknięciu działu widzi konkretne tematy,
+* po kliknięciu tematu widzi elementy w kolejności:
+
+  1. filmik,
+  2. quiz,
+  3. zadania,
+* elementy mają być oddzielone wizualnie i logicznie,
+* uczeń zawsze ma wiedzieć, co jest następnym krokiem.
+
+3. Prostota dla ucznia:
+
+* platforma ma być w 100% przyjazna dla ucznia 7. klasy,
+* nie używaj trudnego języka,
+* przyciski mają być jasne i intuicyjne,
+* widoki mają być proste,
+* uczeń nie może się zgubić w aplikacji,
+* każde działanie ma być opisane krótkim, prostym komunikatem.
+
+4. Zapamiętywanie postępów:
+
+* aplikacja ma zapamiętywać miejsce, w którym uczeń skończył naukę,
+* po ponownym zalogowaniu uczeń ma widzieć przycisk „Kontynuuj naukę”,
+* kliknięcie „Kontynuuj naukę” ma otworzyć dokładnie ostatni dział, temat i element kursu,
+* system ma zapisywać ostatnią lekcję, ostatni typ elementu, status filmu, wynik quizu i status zadania.
+
+5. Wersja mobilna:
+
+* wnętrze kursu nie musi być idealne do nauki na telefonie, bo slajdy i zadania mogą być nieczytelne,
+* mimo tego aplikacja nie może się rozsypywać na telefonie,
+* na małych ekranach w zadaniach można pokazać komunikat: „Do wygodnego rozwiązywania zadań zalecamy tablet lub komputer”,
+* strona główna / sprzedażowa MUSI wyglądać perfekcyjnie na smartfonach,
+* strona główna mobile-first jest priorytetem, ponieważ rodzice mogą podejmować decyzję zakupową na telefonie.
+
+6. Wygląd:
+
+* przygotuj estetyczną propozycję z przyjemnym błękitnym tłem,
+* używaj jasnych kart,
+* stosuj spokojną edukacyjną kolorystykę,
+* całość ma wyglądać ładnie, profesjonalnie i wiarygodnie,
+* aplikacja ma sprawiać wrażenie dopracowanego produktu.
+
+7. Formularz kontaktowy:
+
+* dodaj formularz kontaktowy na stronie głównej,
+* formularz ma być wygodny na telefonie,
+* wiadomości mają trafiać do panelu administratora,
+* jeżeli SMTP jest skonfigurowane, można wysłać powiadomienie e-mail do administratora.
+
+==================================================
+5. FUNKCJE POZA MVP — NIE IMPLEMENTUJ BEZ WYRAŹNEJ POTRZEBY
+===========================================================
+
+Nie implementuj jako część MVP:
+
+* aplikacji natywnej iOS / Android,
+* marketplace wielu kursów,
+* forum,
+* czatu na żywo,
+* certyfikatów,
+* systemu abonamentowego,
+* automatycznych faktur,
+* panelu rodzica,
+* raportów dla rodziców,
+* zaawansowanej analityki,
+* rozbudowanego CRM,
+* afiliacji,
+* programu partnerskiego,
+* zaawansowanych kampanii marketingowych,
+* zaawansowanego SEO,
+* nagrywania filmów,
+* tworzenia treści kursu,
+* pisania regulaminu i polityki prywatności jako usługi prawnej,
+* stałej administracji serwerem,
+* całodobowego monitoringu.
+
+Możesz przygotować miejsca techniczne na regulamin, politykę prywatności i zgody, ale nie generuj treści prawnych jako finalnych dokumentów prawnych.
+
+==================================================
+6. STACK TECHNOLOGICZNY
+=======================
+
+Frontend:
+
+* React,
+* TypeScript,
+* Vite,
+* React Router,
+* responsywny layout,
+* PWA-ready,
+* komponenty wielokrotnego użycia,
+* walidacja formularzy,
+* obsługa stanu użytkownika,
+* obsługa błędów,
+* obsługa loading state,
+* estetyczny UI.
+
+Backend:
+
+* Node.js,
+* Express,
+* TypeScript,
+* REST API,
+* autoryzacja,
+* role,
+* dostęp do kursu,
+* logika płatności,
+* logika quizów,
+* logika postępów,
+* logika AI,
+* logika panelu admina.
+
+Baza danych:
+
+* PostgreSQL,
+* migracje,
+* seed danych demonstracyjnych,
+* relacje między użytkownikami, kursami, działami, tematami, lekcjami, quizami, zadaniami, płatnościami i postępami.
+
+Integracje:
+
+* Bunny.net Stream,
+* Excalidraw,
+* Google Gemini API,
+* Przelewy24 albo PayU,
+* SMTP opcjonalnie.
+
+Wdrożenie:
+
+* VPS,
+* Docker,
+* Docker Compose,
+* .env.example,
+* instrukcja deploymentu.
+
+Testy:
+
+* testy jednostkowe,
+* testy integracyjne,
+* testy komponentów,
+* testy E2E,
+* mocki dla płatności,
+* mocki dla Gemini,
+* mocki dla Bunny.net.
+
+==================================================
+7. PWA — WYMAGANIA
+==================
+
+Aplikacja ma być przygotowana jako profesjonalna PWA.
+
+Zaimplementuj:
+
+* manifest.webmanifest,
+* service worker,
+* ikony aplikacji,
+* kolor motywu zgodny z błękitnym stylem,
+* podstawowy ekran offline,
+* cache statycznych assetów,
+* responsywny layout,
+* poprawne meta tagi,
+* poprawne title i description,
+* obsługę instalacji aplikacji, jeśli przeglądarka na to pozwala.
+
+PWA nie oznacza aplikacji natywnej w sklepach App Store / Google Play. Chodzi o webową aplikację PWA uruchamianą w przeglądarce.
+
+Testy PWA:
+
+* manifest jest dostępny,
+* service worker się rejestruje,
+* aplikacja ma poprawny theme_color,
+* offline fallback działa,
+* strona główna działa poprawnie po cache,
+* brak błędów konsoli związanych z PWA.
+
+==================================================
+8. UX/UI — PROFESJONALNY WYGLĄD
+===============================
+
+Aplikacja ma mieć błękitny, edukacyjny, spokojny i profesjonalny styl.
+
+Kolorystyka:
+
+* tło: jasny błękit, np. #EAF6FF albo podobny,
+* karty: białe lub prawie białe,
+* główne akcje: niebieski / granatowy,
+* tekst: ciemny granat / grafit,
+* akcenty: delikatny żółty, zielony albo pomarańczowy tylko pomocniczo,
+* błędy: czerwony,
+* sukces: zielony.
+
+Styl:
+
+* zaokrąglone karty,
+* czytelne nagłówki,
+* duże CTA,
+* krótkie komunikaty,
+* dużo przestrzeni,
+* brak chaosu,
+* brak przeładowania,
+* estetyczne ikony edukacyjne,
+* klimat nauki fizyki: energia, ruch, fale, wzory, światło, ale subtelnie.
+
+Strona główna:
+
+* zaprojektowana mobile-first,
+* perfekcyjna na smartfonie,
+* lekka,
+* szybka,
+* sprzedażowa,
+* wiarygodna.
+
+Panel ucznia:
+
+* maksymalnie prosty,
+* czytelne kafelki,
+* widoczny przycisk „Kontynuuj naukę”,
+* widoczna struktura kursu,
+* widoczny status postępu.
+
+Panel administratora:
+
+* bardziej techniczny, ale nadal czytelny,
+* wygodne tabele,
+* filtry,
+* szybkie akcje,
+* widok profilu użytkownika.
+
+==================================================
+9. STRONA GŁÓWNA / SPRZEDAŻOWA
+==============================
+
+Stwórz profesjonalną stronę sprzedażową skierowaną głównie do rodziców.
+
+Sekcje:
+
+1. Hero:
+
+* nagłówek: kurs fizyki dla ucznia 7. klasy,
+* krótka obietnica wartości,
+* CTA: „Kup dostęp do kursu”,
+* drugi przycisk: „Zobacz, jak działa kurs”,
+* estetyczna grafika edukacyjna.
+
+2. Problem:
+
+* fizyka bywa trudna,
+* uczeń potrzebuje prostych wyjaśnień,
+* rodzic chce mieć pewność, że dziecko ma jasny plan nauki.
+
+3. Rozwiązanie:
+
+* kurs krok po kroku,
+* film,
+* quiz,
+* zadania,
+* sprawdzenie przez AI,
+* powrót do ostatniego miejsca.
+
+4. Jak działa platforma:
+
+* zaloguj się,
+* wybierz dział,
+* obejrzyj film,
+* rozwiąż quiz,
+* wykonaj zadanie,
+* sprawdź rozwiązanie z AI.
+
+5. Program:
+
+* Dział 1,
+* Dział 2,
+* Dział 3,
+* tematy w ramach działów mogą być pobierane z bazy.
+
+6. Dlaczego warto:
+
+* prostota dla ucznia 7. klasy,
+* nauka we własnym tempie,
+* zadania na interaktywnej tablicy,
+* quizy po lekcji,
+* AI jako pomoc w nauce.
+
+7. Płatność i dostęp:
+
+* informacja, że po zakupie uczeń otrzymuje dostęp do kursu.
+
+8. FAQ:
+
+* dla kogo jest kurs,
+* czy działa na telefonie,
+* czy do zadań potrzebny jest komputer,
+* jak wygląda dostęp,
+* co zrobić w razie problemu.
+
+9. Formularz kontaktowy:
+
+* imię,
+* e-mail,
+* temat,
+* wiadomość,
+* zgoda / informacja techniczna o kontakcie.
+
+10. Stopka:
+
+* regulamin,
+* polityka prywatności,
+* kontakt,
+* dane podstawowe.
+
+Wymagania mobilne:
+
+* strona główna musi wyglądać perfekcyjnie na 360 px, 375 px, 390 px, 414 px,
+* brak poziomego scrolla,
+* CTA widoczne od razu,
+* formularz kontaktowy wygodny na telefonie,
+* szybkie ładowanie,
+* czytelna typografia.
+
+==================================================
+10. PANEL UCZNIA
+================
+
+Panel ucznia ma być bardzo prosty.
+
+Po zalogowaniu uczeń widzi:
+
+1. Powitanie:
+   „Cześć, [imię]! Gotowy na fizykę?”
+
+2. Duży przycisk:
+   „Kontynuuj naukę”
+
+3. Informację:
+   „Ostatnio skończyłeś: Dział X → Temat Y → Film/Quiz/Zadanie”
+
+4. Kafelki działów:
+
+* Dział 1,
+* Dział 2,
+* Dział 3.
+
+5. Status postępu:
+
+* rozpoczęte,
+* ukończone,
+* następny krok.
+
+6. Komunikat pomocniczy:
+   „Najlepiej ucz się na komputerze lub tablecie, szczególnie przy zadaniach na tablicy.”
+
+Panel ucznia nie może wyglądać jak skomplikowany LMS. Ma być prosty jak aplikacja edukacyjna dla dziecka.
+
+==================================================
+11. STRUKTURA KURSU ZGODNA Z FOLDERAMI
+======================================
+
+Struktura kursu musi odwzorowywać materiały przekazane w folderach.
+
+Model:
+
+Kurs:
+
+* Fizyka — klasa 7
+
+Działy:
+
+* Dział pierwszy
+* Dział drugi
+* Dział trzeci
+
+W każdym dziale:
+
+* tematy
+
+W każdym temacie:
+
+1. filmik,
+2. quiz,
+3. zadania.
+
+Przykład:
+
+Dział pierwszy
+Temat 1
+1. Filmik
+2. Quiz
+3. Zadania
+Temat 2
+1. Filmik
+2. Quiz
+3. Zadania
+
+W panelu admina umożliw:
+
+* dodanie działu,
+* edycję działu,
+* ustawienie kolejności działów,
+* dodanie tematu,
+* edycję tematu,
+* ustawienie kolejności tematów,
+* dodanie elementów tematu,
+* ustawienie kolejności: filmik -> quiz -> zadania.
+
+==================================================
+12. LEKCJA / TEMAT
+==================
+
+Widok tematu ma być podzielony na trzy jasne kroki:
+
+Krok 1: Filmik
+
+* osadzony materiał wideo,
+* krótki opis,
+* przycisk „Oznacz film jako obejrzany” albo automatyczny zapis postępu.
+
+Krok 2: Quiz
+
+* kilka pytań A/B/C/D,
+* przycisk „Sprawdź odpowiedzi”,
+* wynik,
+* informacja o poprawnej odpowiedzi przy błędzie.
+
+Krok 3: Zadania
+
+* treść zadania,
+* tablica Excalidraw,
+* przycisk „Sprawdź zadanie z AI”,
+* odpowiedź AI.
+
+Uczeń ma widzieć, na którym kroku jest.
+
+==================================================
+13. ZAPAMIĘTYWANIE POSTĘPÓW
+===========================
+
+Zaimplementuj dokładne zapamiętywanie postępów.
+
+System ma zapisywać:
+
+* ostatni dział,
+* ostatni temat,
+* ostatni element tematu,
+* status filmu,
+* wynik quizu,
+* status zadania,
+* czy zadanie było sprawdzone przez AI,
+* datę ostatniej aktywności.
+
+Po ponownym logowaniu:
+
+* uczeń widzi przycisk „Kontynuuj naukę”,
+* system otwiera dokładnie ostatnie miejsce,
+* nie zaczyna kursu od początku.
+
+Nie przechowuj postępów wyłącznie w localStorage. Postęp musi być zapisany w bazie po stronie backendu, aby działał po zalogowaniu na innym urządzeniu.
+
+==================================================
+14. WIDEO / BUNNY.NET
+=====================
+
+Zaimplementuj obsługę wideo:
+
+* lekcja ma mieć przypisany identyfikator lub URL wideo,
+* wideo pochodzi z Bunny.net Stream albo osadzenia Bunny.net,
+* klucze Bunny.net nie mogą być widoczne we frontendzie,
+* panel admina pozwala przypisać wideo do tematu,
+* brak wideo pokazuje czytelny komunikat.
+
+==================================================
+15. QUIZY
+=========
+
+Quizy w MVP:
+
+* jednokrotnego wyboru,
+* odpowiedzi A/B/C/D,
+* 5–10 pytań na quiz,
+* jedna poprawna odpowiedź,
+* wynik po zakończeniu,
+* pokazanie poprawnej odpowiedzi przy błędnej,
+* zapis wyniku w bazie,
+* powiązanie quizu z tematem.
+
+Panel admina:
+
+* tworzenie quizu,
+* dodanie pytań,
+* dodanie odpowiedzi,
+* oznaczenie poprawnej odpowiedzi,
+* edycja quizu.
+
+==================================================
+16. ZADANIA I EXCALIDRAW
+========================
+
+Zaimplementuj zadania na tablicy Excalidraw.
+
+Wymagania:
+
+* Excalidraw osadzony w temacie,
+* uczeń może rysować i rozwiązywać zadania,
+* zadanie może mieć treść i opcjonalny obraz / slajd,
+* uczeń klika „Sprawdź zadanie z AI”,
+* system wykonuje zrzut tablicy,
+* obraz jest wysyłany do backendu.
+
+Na małych ekranach:
+
+* widok ma działać, ale może pokazywać ostrzeżenie:
+  „Do wygodnego rozwiązywania zadań zalecamy tablet lub komputer.”
+
+==================================================
+17. MODUŁ AI / GEMINI
+=====================
+
+Zaimplementuj sprawdzanie zadań przez Google Gemini API.
+
+Przepływ:
+
+1. Uczeń rozwiązuje zadanie na Excalidraw.
+2. Kliknie „Sprawdź zadanie z AI”.
+3. Frontend tworzy obraz PNG/base64.
+4. Frontend wysyła obraz do backendu.
+5. Backend pobiera:
+
+* obraz,
+* dane zadania,
+* dane lekcji,
+* ukryty prompt systemowy.
+
+6. Backend wysyła zapytanie do Gemini API.
+7. Backend odbiera odpowiedź.
+8. Backend zapisuje wynik w bazie.
+9. Frontend pokazuje odpowiedź uczniowi.
+
+Prompt systemowy:
+
+* ma być ukryty przed uczniem,
+* ma być trzymany po stronie backendu,
+* ma prosić AI o ocenę rozwiązania prostym językiem ucznia 7. klasy,
+* ma wskazywać, co jest dobrze,
+* ma wskazywać, co poprawić,
+* ma nie wyśmiewać ucznia,
+* ma nie być zbyt długi,
+* ma mieć ton pomocnego nauczyciela.
+
+Komunikat przy wyniku:
+„AI pomaga w nauce, ale może się pomylić. Potraktuj tę odpowiedź jako wskazówkę.”
+
+==================================================
+18. PŁATNOŚCI I DOSTĘP
+======================
+
+Zaimplementuj jedną wybraną bramkę płatności:
+
+* Przelewy24 albo PayU.
+
+Wymagania:
+
+* zakup dostępu do kursu,
+* utworzenie płatności,
+* przekierowanie do operatora,
+* webhook / callback,
+* zapis statusu płatności,
+* automatyczne nadanie dostępu po płatności zakończonej sukcesem,
+* ręczne nadanie dostępu przez administratora,
+* cofnięcie dostępu przez administratora,
+* blokada kursu dla użytkownika bez aktywnego dostępu.
+
+Panel admina:
+
+* widok płatności użytkownika,
+* status płatności,
+* data,
+* kwota,
+* operator,
+* przycisk zwrotu środków.
+
+==================================================
+19. ZWROTY ŚRODKÓW
+==================
+
+W profilu użytkownika w panelu admina dodaj funkcję zwrotu środków.
+
+Wymagania:
+
+* administrator widzi listę płatności użytkownika,
+* przy płatności zakończonej sukcesem widzi przycisk „Zwróć środki”,
+* kliknięcie wymaga potwierdzenia,
+* administrator może podać powód zwrotu,
+* system próbuje wykonać zwrot przez API operatora, jeżeli bramka i konfiguracja to obsługują,
+* jeżeli automatyczny zwrot nie jest możliwy, system zapisuje status „zwrot do obsługi ręcznej”,
+* każdy zwrot zapisuje się w bazie,
+* każda akcja zapisuje się w logu admina,
+* po zwrocie administrator może cofnąć dostęp użytkownikowi.
+
+==================================================
+20. PANEL ADMINISTRATORA
+========================
+
+Panel administratora ma zawierać:
+
+1. Dashboard:
+
+* liczba użytkowników,
+* liczba aktywnych dostępów,
+* liczba płatności,
+* ostatnie logowania,
+* ostatnie wiadomości z formularza.
+
+2. Użytkownicy:
+
+* lista użytkowników,
+* wyszukiwarka,
+* filtr: aktywny dostęp / brak dostępu / zbanowany,
+* profil użytkownika.
+
+3. Profil użytkownika:
+
+* dane użytkownika,
+* status dostępu,
+* data rejestracji,
+* ostatnie logowanie,
+* liczba logowań w bieżącym miesiącu,
+* historia logowań,
+* płatności,
+* zwroty,
+* postęp w kursie,
+* przycisk „Nadaj dostęp”,
+* przycisk „Cofnij dostęp”,
+* przycisk „Zbanuj”,
+* przycisk „Odbanuj”,
+* przycisk „Zwróć środki” przy płatności.
+
+4. Kurs:
+
+* działy,
+* tematy,
+* filmy,
+* quizy,
+* zadania,
+* kolejność elementów.
+
+5. Kontakt:
+
+* lista wiadomości,
+* status: nowe / przeczytane / zamknięte.
+
+6. Logi:
+
+* banowanie,
+* odbanowanie,
+* nadanie dostępu,
+* cofnięcie dostępu,
+* zwrot,
+* zmiany kursu,
+* zmiany quizu.
+
+==================================================
+21. LICZBA LOGOWAŃ UŻYTKOWNIKA
+==============================
+
+Zaimplementuj zapis logowań.
+
+Po każdym poprawnym logowaniu:
+
+* zapisz user_id,
+* datę,
+* IP,
+* user agent.
+
+W panelu admina:
+
+* pokaż liczbę logowań użytkownika w danym miesiącu,
+* pokaż ostatnie logowanie,
+* opcjonalnie pokaż listę ostatnich logowań.
+
+Nie licz nieudanych prób jako logowań miesięcznych, chyba że osobno zapisujesz je jako failed_login_events.
+
+==================================================
+22. BANOWANIE UŻYTKOWNIKÓW
+==========================
+
+Administrator może zbanować użytkownika.
+
+Wymagania:
+
+* przycisk „Zbanuj użytkownika”,
+* powód bana,
+* data bana,
+* admin, który wykonał akcję,
+* zbanowany użytkownik nie może korzystać z kursu,
+* przy próbie logowania lub wejścia do kursu widzi jasny komunikat,
+* admin może odbanować użytkownika,
+* wszystko zapisuje się w logach admina.
+
+==================================================
+23. FORMULARZ KONTAKTOWY
+========================
+
+Dodaj formularz kontaktowy na stronie głównej.
+
+Pola:
+
+* imię,
+* e-mail,
+* temat,
+* wiadomość,
+* zgoda / informacja o kontakcie.
+
+Wymagania:
+
+* walidacja pól,
+* zapis wiadomości w bazie,
+* komunikat sukcesu,
+* widok wiadomości w panelu admina,
+* zmiana statusu wiadomości,
+* opcjonalne powiadomienie e-mail, jeśli SMTP jest skonfigurowane.
+
+==================================================
+24. MODEL BAZY DANYCH
+=====================
+
+Zaprojektuj PostgreSQL z tabelami co najmniej:
+
+users:
+
+* id,
+* email,
+* password_hash,
+* first_name,
+* last_name,
+* role,
+* is_banned,
+* banned_reason,
+* banned_at,
+* created_at,
+* updated_at,
+* last_login_at.
+
+login_events:
+
+* id,
+* user_id,
+* ip_address,
+* user_agent,
+* created_at.
+
+courses:
+
+* id,
+* title,
+* slug,
+* description,
+* is_published,
+* created_at,
+* updated_at.
+
+sections:
+
+* id,
+* course_id,
+* title,
+* slug,
+* sort_order,
+* created_at,
+* updated_at.
+
+topics:
+
+* id,
+* section_id,
+* title,
+* slug,
+* description,
+* sort_order,
+* created_at,
+* updated_at.
+
+topic_elements:
+
+* id,
+* topic_id,
+* type,
+* title,
+* sort_order,
+* config_json,
+* created_at,
+* updated_at.
+
+videos:
+
+* id,
+* topic_id,
+* bunny_video_id,
+* video_url,
+* title,
+* duration_seconds,
+* created_at,
+* updated_at.
+
+quizzes:
+
+* id,
+* topic_id,
+* title,
+* created_at,
+* updated_at.
+
+quiz_questions:
+
+* id,
+* quiz_id,
+* question_text,
+* sort_order,
+* created_at,
+* updated_at.
+
+quiz_answers:
+
+* id,
+* question_id,
+* answer_label,
+* answer_text,
+* is_correct,
+* created_at,
+* updated_at.
+
+quiz_attempts:
+
+* id,
+* user_id,
+* quiz_id,
+* score,
+* total_questions,
+* completed_at,
+* created_at.
+
+quiz_attempt_answers:
+
+* id,
+* attempt_id,
+* question_id,
+* selected_answer_id,
+* is_correct,
+* created_at.
+
+tasks:
+
+* id,
+* topic_id,
+* title,
+* description,
+* initial_image_url,
+* ai_prompt_config,
+* created_at,
+* updated_at.
+
+ai_checks:
+
+* id,
+* user_id,
+* task_id,
+* topic_id,
+* image_storage_path,
+* ai_response,
+* status,
+* created_at.
+
+learning_progress:
+
+* id,
+* user_id,
+* course_id,
+* section_id,
+* topic_id,
+* current_element_type,
+* current_element_id,
+* status,
+* video_progress_seconds,
+* quiz_completed,
+* task_started,
+* task_checked_by_ai,
+* updated_at.
+
+payments:
+
+* id,
+* user_id,
+* provider,
+* provider_payment_id,
+* amount,
+* currency,
+* status,
+* created_at,
+* updated_at.
+
+payment_refunds:
+
+* id,
+* payment_id,
+* user_id,
+* admin_id,
+* provider,
+* amount,
+* status,
+* provider_refund_id,
+* reason,
+* created_at,
+* updated_at.
+
+access_grants:
+
+* id,
+* user_id,
+* course_id,
+* source,
+* payment_id,
+* granted_by_admin_id,
+* status,
+* valid_from,
+* valid_to,
+* created_at,
+* updated_at.
+
+contact_messages:
+
+* id,
+* name,
+* email,
+* subject,
+* message,
+* status,
+* created_at,
+* updated_at.
+
+admin_logs:
+
+* id,
+* admin_id,
+* action,
+* entity_type,
+* entity_id,
+* metadata_json,
+* created_at.
+
+==================================================
+25. API
+=======
+
+Zaprojektuj REST API.
+
+Auth:
+
+* POST /api/auth/register
+* POST /api/auth/login
+* POST /api/auth/logout
+* GET /api/auth/me
+
+Kurs:
+
+* GET /api/courses
+* GET /api/courses/:slug
+* GET /api/sections/:sectionId/topics
+* GET /api/topics/:topicId
+
+Postępy:
+
+* GET /api/progress/me
+* POST /api/progress
+* GET /api/progress/continue
+
+Quizy:
+
+* GET /api/quizzes/:quizId
+* POST /api/quizzes/:quizId/attempts
+
+AI:
+
+* POST /api/ai/check-task
+
+Płatności:
+
+* POST /api/payments/create
+* POST /api/payments/webhook
+* GET /api/payments/me
+
+Kontakt:
+
+* POST /api/contact
+
+Admin:
+
+* GET /api/admin/dashboard
+* GET /api/admin/users
+* GET /api/admin/users/:id
+* GET /api/admin/users/:id/login-stats?month=YYYY-MM
+* POST /api/admin/users/:id/ban
+* POST /api/admin/users/:id/unban
+* POST /api/admin/users/:id/access
+* DELETE /api/admin/users/:id/access
+* GET /api/admin/payments
+* POST /api/admin/payments/:paymentId/refund
+* GET /api/admin/contact-messages
+* PATCH /api/admin/contact-messages/:id
+* GET /api/admin/logs
+
+Admin CRUD:
+
+* courses,
+* sections,
+* topics,
+* videos,
+* quizzes,
+* quiz questions,
+* quiz answers,
+* tasks.
+
+==================================================
+26. BEZPIECZEŃSTWO
+==================
+
+Wymagania:
+
+* hasła hashowane,
+* sesje albo JWT zabezpieczone,
+* role USER i ADMIN,
+* endpointy admina tylko dla ADMIN,
+* użytkownik bez dostępu nie może wejść do kursu,
+* użytkownik zbanowany nie może korzystać z kursu,
+* klucze API tylko po stronie backendu,
+* prompt Gemini tylko po stronie backendu,
+* webhook płatności musi być weryfikowany,
+* API nie może zwracać password_hash,
+* walidacja danych wejściowych,
+* ochrona przed prostymi nadużyciami endpointu AI,
+* rate limit dla logowania i AI,
+* brak sekretów w repozytorium,
+* .env.example bez prawdziwych danych.
+
+==================================================
+27. TESTY — KAŻDA FUNKCJONALNOŚĆ MA BYĆ POKRYTA TESTAMI
+=======================================================
+
+Nie uznawaj żadnej funkcji za zakończoną, jeśli nie ma testów.
+
+Wymagane typy testów:
+
+1. Testy backendu:
+
+* auth,
+* role,
+* kursy,
+* postępy,
+* quizy,
+* AI,
+* płatności,
+* zwroty,
+* banowanie,
+* logowania miesięczne,
+* formularz kontaktowy,
+* admin.
+
+2. Testy frontendu:
+
+* strona główna,
+* formularz kontaktowy,
+* logowanie,
+* rejestracja,
+* panel ucznia,
+* widok kursu,
+* widok tematu,
+* quiz,
+* zadania,
+* Excalidraw,
+* panel admina.
+
+3. Testy E2E:
+
+* rodzic wchodzi na stronę główną na telefonie,
+* użytkownik rejestruje konto,
+* użytkownik loguje się,
+* użytkownik kupuje kurs w trybie testowym,
+* użytkownik wchodzi do kursu,
+* użytkownik klika dział,
+* użytkownik klika temat,
+* użytkownik ogląda film,
+* użytkownik rozwiązuje quiz,
+* użytkownik wykonuje zadanie,
+* użytkownik sprawdza zadanie przez AI mock,
+* użytkownik wraca po ponownym logowaniu do ostatniego miejsca,
+* admin loguje się,
+* admin widzi liczbę logowań,
+* admin banuje użytkownika,
+* admin odbanowuje użytkownika,
+* admin nadaje dostęp,
+* admin wykonuje zwrot lub oznacza zwrot ręczny,
+* admin obsługuje wiadomość z formularza.
+
+4. Testy responsywności:
+
+* mobile 360 px,
+* mobile 375 px,
+* mobile 390 px,
+* tablet,
+* desktop,
+* brak poziomego scrolla,
+* CTA widoczne na mobile,
+* formularz działa na mobile.
+
+5. Testy PWA:
+
+* manifest,
+* service worker,
+* offline fallback,
+* theme color,
+* ikony,
+* brak błędów konsoli.
+
+6. Testy bezpieczeństwa:
+
+* user nie wchodzi do admina,
+* niezalogowany nie wchodzi do kursu,
+* użytkownik bez dostępu nie wchodzi do lekcji,
+* zbanowany nie korzysta z kursu,
+* webhook z błędnym podpisem jest odrzucony,
+* frontend nie ma kluczy Gemini,
+* frontend nie ma kluczy Bunny,
+* API nie zwraca password_hash.
+
+==================================================
+28. DANE DEMONSTRACYJNE
+=======================
+
+Przygotuj seed:
+
+* administrator,
+* uczeń z dostępem,
+* uczeń bez dostępu,
+* uczeń zbanowany,
+* kurs „Fizyka — klasa 7”,
+* 3 działy,
+* kilka tematów,
+* film testowy / placeholder Bunny,
+* quiz testowy,
+* zadanie testowe,
+* przykładowe sprawdzenie AI,
+* przykładowe płatności,
+* przykładowe zwroty,
+* przykładowe logowania,
+* przykładowe wiadomości kontaktowe.
+
+==================================================
+29. DOKUMENTACJA
+================
+
+Przygotuj dokumentację:
+
+* README,
+* opis projektu,
+* opis architektury,
+* instrukcja uruchomienia lokalnego,
+* instrukcja konfiguracji .env,
+* instrukcja konfiguracji Bunny.net,
+* instrukcja konfiguracji Gemini API,
+* instrukcja konfiguracji Przelewy24 albo PayU,
+* instrukcja wdrożenia na VPS,
+* instrukcja Docker Compose,
+* opis bazy danych,
+* opis panelu administratora,
+* opis panelu ucznia,
+* opis testów,
+* checklista odbioru MVP.
+
+==================================================
+30. .env.example
+================
+
+Przygotuj plik .env.example:
+
+APP_ENV=
+APP_URL=
+API_URL=
+DATABASE_URL=
+SESSION_SECRET=
+JWT_SECRET=
+
+BUNNY_STREAM_LIBRARY_ID=
+BUNNY_STREAM_API_KEY=
+BUNNY_STREAM_CDN_HOSTNAME=
+
+GEMINI_API_KEY=
+GEMINI_MODEL=
+GEMINI_SYSTEM_PROMPT_VERSION=
+
+PAYMENT_PROVIDER=
+P24_MERCHANT_ID=
+P24_POS_ID=
+P24_API_KEY=
+P24_CRC=
+
+PAYU_CLIENT_ID=
+PAYU_CLIENT_SECRET=
+PAYU_POS_ID=
+PAYU_SECOND_KEY=
+
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+CONTACT_EMAIL=
+
+==================================================
+31. DEFINICJA UKOŃCZENIA MVP
+============================
+
+MVP jest ukończone tylko wtedy, gdy:
+
+* aplikacja działa jako PWA,
+* frontend działa,
+* backend działa,
+* PostgreSQL działa,
+* Docker Compose działa,
+* jest .env.example,
+* jest seed danych,
+* działa strona główna,
+* strona główna wygląda perfekcyjnie na telefonie,
+* działa formularz kontaktowy,
+* działa rejestracja,
+* działa logowanie,
+* działa panel ucznia,
+* działa struktura kursu z 3 działami,
+* działy prowadzą do tematów,
+* temat ma kolejność: filmik -> quiz -> zadania,
+* działa wideo,
+* działa quiz,
+* działa Excalidraw,
+* działa sprawdzanie zadania przez Gemini albo mock w środowisku testowym,
+* działa zapamiętywanie postępów,
+* działa „Kontynuuj naukę”,
+* działa płatność albo tryb testowy płatności,
+* działa nadawanie dostępu,
+* działa blokada dostępu bez płatności,
+* działa panel admina,
+* admin widzi liczbę logowań użytkownika w miesiącu,
+* admin może banować,
+* admin może odbanować,
+* admin może obsłużyć zwrot,
+* działa log administracyjny,
+* każda funkcjonalność ma testy,
+* dokumentacja jest kompletna,
+* aplikacja nie zawiera sekretów w kodzie,
+* aplikacja spełnia założenia MVP z umowy i dodatkowe wytyczne klienta.
+
+==================================================
+32. TRYB PRACY
+==============
+
+Pracuj etapami.
+
+Najpierw:
+
+1. Przedstaw dokładny plan implementacji.
+2. Wypisz architekturę.
+3. Wypisz strukturę katalogów.
+4. Wypisz model bazy danych.
+5. Wypisz listę testów.
+6. Dopiero potem rozpocznij implementację.
+
+Po każdym etapie pokaż:
+
+* co zostało wykonane,
+* jakie pliki zostały utworzone,
+* jakie testy zostały dodane,
+* jak uruchomić testy,
+* czy etap jest zgodny z MVP,
+* czy są jakiekolwiek ryzyka albo brakujące dane.
+
+Nie przechodź do kolejnego etapu bez testów dla wykonanego zakresu.
+
+==================================================
+33. POLECENIE KOŃCOWE
+=====================
+
+Stwórz kompletną, profesjonalną, komercyjną aplikację PWA „Platforma edukacyjna z modułem AI — kursy fizyki” zgodną z umową MVP oraz dodatkowymi wytycznymi klienta.
+
+Najważniejsze priorytety:
+
+1. Profesjonalna aplikacja PWA, a nie zwykła strona.
+2. Perfekcyjna strona główna na smartfonach.
+3. Prosty panel ucznia dla 7. klasy.
+4. Struktura kursu zgodna z folderami: dział -> temat -> filmik -> quiz -> zadania.
+5. Zapamiętywanie postępów i kontynuacja od ostatniego miejsca.
+6. Excalidraw do zadań.
+7. Gemini AI do sprawdzania rozwiązań.
+8. Panel admina z logowaniami miesięcznymi, banowaniem i zwrotami.
+9. Formularz kontaktowy.
+10. Błękitny, piękny, edukacyjny wygląd.
+11. Każda funkcjonalność pokryta testami.
