@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -54,79 +54,43 @@
 }
 
 :root {
-  --background: 206 100% 96%; /* #EAF6FF */
-  --foreground: 215 18% 19%; /* #1E293B - text dark navy */
+  --background: 222 47% 4%;
+  --foreground: 213 31% 91%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 215 18% 19%;
-  --card-border: 214 32% 91%;
+  --card: 222 40% 7%;
+  --card-foreground: 213 31% 91%;
+  --card-border: 220 30% 14%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 215 18% 19%;
-  --popover-border: 214 32% 91%;
+  --popover: 222 40% 7%;
+  --popover-foreground: 213 31% 91%;
+  --popover-border: 220 30% 14%;
 
-  --primary: 226 71% 40%; /* #1E40AF - deep blue */
+  --primary: 217 91% 60%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
+  --secondary: 222 40% 12%;
+  --secondary-foreground: 213 31% 80%;
 
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
+  --muted: 222 40% 10%;
+  --muted-foreground: 215 20% 50%;
 
-  --accent: 210 40% 96%;
-  --accent-foreground: 222 47% 11%;
+  --accent: 270 76% 65%;
+  --accent-foreground: 0 0% 100%;
 
-  --destructive: 0 72% 51%; /* #DC2626 */
+  --destructive: 0 72% 56%;
   --destructive-foreground: 0 0% 100%;
 
-  --success: 142 76% 36%; /* #16A34A */
+  --success: 142 76% 42%;
   --success-foreground: 0 0% 100%;
 
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 226 71% 40%;
+  --border: 220 30% 14%;
+  --input: 220 30% 12%;
+  --ring: 217 91% 60%;
 
   --radius: 0.75rem;
 
   --opaque-button-border-intensity: -8;
   --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-}
-
-.dark {
-  /* Minimal dark mode support, mostly keeping default for now or forcing light since the brief emphasized light blue sky */
-  --background: 222 47% 11%;
-  --foreground: 210 40% 98%;
-
-  --card: 222 47% 11%;
-  --card-foreground: 210 40% 98%;
-  --card-border: 217 32% 17%;
-
-  --popover: 222 47% 11%;
-  --popover-foreground: 210 40% 98%;
-  --popover-border: 217 32% 17%;
-
-  --primary: 226 71% 40%;
-  --primary-foreground: 0 0% 100%;
-
-  --secondary: 217 32% 17%;
-  --secondary-foreground: 210 40% 98%;
-
-  --muted: 217 32% 17%;
-  --muted-foreground: 215 20.2% 65.1%;
-
-  --accent: 217 32% 17%;
-  --accent-foreground: 210 40% 98%;
-
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-
-  --success: 142 76% 25%;
-  --success-foreground: 0 0% 100%;
-
-  --border: 217 32% 17%;
-  --input: 217 32% 17%;
-  --ring: 224 76% 48%;
 }
 
 @layer base {
@@ -135,5 +99,43 @@
   }
   body {
     @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 50%, #34D399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-blue {
+    background: linear-gradient(135deg, #60A5FA 0%, #818CF8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.3), 0 0 80px rgba(59, 130, 246, 0.1);
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.3), 0 0 80px rgba(139, 92, 246, 0.1);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .hero-bg {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(59, 130, 246, 0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 90% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 10% 90%, rgba(52, 211, 153, 0.08) 0%, transparent 60%),
+      hsl(222 47% 4%);
   }
 }
