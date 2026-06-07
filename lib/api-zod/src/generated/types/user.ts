@@ -19,4 +19,5 @@ export interface User {
   createdAt: string;
   /** @nullable */
   lastLoginAt?: string | null;
+  hasAccess?: boolean;
 }

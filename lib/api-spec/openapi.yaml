@@ -1240,6 +1240,8 @@ components:
           type: string
         lastLoginAt:
           type: ["string", "null"]
+        hasAccess:
+          type: boolean
 
     AuthResponse:
       type: object

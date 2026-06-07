@@ -282,7 +282,7 @@ router.post("/admin/users/:id/unban", async (req: AuthRequest, res) => {
   }
 });
 
-router.post("/admin/users/:id/grant-access", async (req: AuthRequest, res) => {
+router.post("/admin/users/:id/access", async (req: AuthRequest, res) => {
   try {
     const userId = Number(req.params.id);
     const { courseId, validTo } = req.body;
@@ -317,7 +317,7 @@ router.post("/admin/users/:id/grant-access", async (req: AuthRequest, res) => {
   }
 });
 
-router.post("/admin/users/:id/revoke-access", async (req: AuthRequest, res) => {
+router.delete("/admin/users/:id/access", async (req: AuthRequest, res) => {
   try {
     const userId = Number(req.params.id);
     await db

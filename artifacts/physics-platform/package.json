@@ -75,6 +75,8 @@
     "zod": "catalog:"
   },
   "dependencies": {
-    "@excalidraw/excalidraw": "^0.18.1"
+    "@excalidraw/excalidraw": "^0.18.1",
+    "@types/canvas-confetti": "^1.9.0",
+    "canvas-confetti": "^1.9.4"
   }
 }

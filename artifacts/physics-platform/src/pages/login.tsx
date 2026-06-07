@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { BookOpen, ArrowRight } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Nieprawidłowy adres email" }),
@@ -64,57 +65,68 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md shadow-lg border-primary/10">
-        <CardHeader className="space-y-2 text-center">
-          <CardTitle className="text-2xl font-bold">Witaj ponownie</CardTitle>
-          <CardDescription>Zaloguj się do swojego konta, aby kontynuować naukę</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="jan@example.com"
-                {...form.register("email")}
-                className={form.formState.errors.email ? "border-destructive" : ""}
-              />
-              {form.formState.errors.email && (
-                <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
-              )}
+    <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4 bg-muted/30">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center gap-2 justify-center mb-6 hover:opacity-80 transition-opacity">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-primary-foreground font-bold shadow-lg bg-primary">
+              <BookOpen className="w-6 h-6" />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Hasło</Label>
-              <Input
-                id="password"
-                type="password"
-                {...form.register("password")}
-                className={form.formState.errors.password ? "border-destructive" : ""}
-              />
-              {form.formState.errors.password && (
-                <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>
-              )}
-            </div>
+          </Link>
+          <h1 className="text-3xl font-black font-display tracking-tight text-foreground">Witaj ponownie</h1>
+          <p className="text-muted-foreground mt-2">Zaloguj się, aby kontynuować naukę fizyki</p>
+        </div>
 
-            <Button 
-              type="submit" 
-              className="w-full text-lg" 
-              size="lg"
-              disabled={loginMutation.isPending}
-            >
-              {loginMutation.isPending ? "Logowanie..." : "Zaloguj się"}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">
-            Nie masz konta? <Link href="/register" className="text-primary hover:underline font-medium">Zarejestruj się</Link>
-          </p>
-        </CardFooter>
-      </Card>
+        <Card className="shadow-xl border-border rounded-3xl overflow-hidden">
+          <CardContent className="p-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="font-semibold text-foreground/80">Adres email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="jan@example.com"
+                  {...form.register("email")}
+                  className={`h-12 rounded-xl bg-muted/50 ${form.formState.errors.email ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                />
+                {form.formState.errors.email && (
+                  <p className="text-sm text-destructive font-medium">{form.formState.errors.email.message}</p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="font-semibold text-foreground/80">Hasło</Label>
+                  <a href="#" className="text-sm font-medium text-primary hover:underline">Zapomniałeś hasła?</a>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  {...form.register("password")}
+                  className={`h-12 rounded-xl bg-muted/50 ${form.formState.errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                />
+                {form.formState.errors.password && (
+                  <p className="text-sm text-destructive font-medium">{form.formState.errors.password.message}</p>
+                )}
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full text-base font-bold h-14 rounded-full mt-4 group"
+                disabled={loginMutation.isPending}
+              >
+                {loginMutation.isPending ? "Logowanie..." : "Zaloguj się"} 
+                {!loginMutation.isPending && <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />}
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="bg-muted/30 p-6 flex justify-center border-t border-border">
+            <p className="text-sm font-medium text-muted-foreground">
+              Nie masz jeszcze konta? <Link href="/register" className="text-primary hover:underline ml-1">Załóż konto</Link>
+            </p>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 }

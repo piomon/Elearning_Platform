@@ -45,7 +45,8 @@ export const LoginResponse = zod.object({
   "isBanned": zod.boolean(),
   "bannedReason": zod.string().nullish(),
   "createdAt": zod.string(),
-  "lastLoginAt": zod.string().nullish()
+  "lastLoginAt": zod.string().nullish(),
+  "hasAccess": zod.boolean().optional()
 }),
   "token": zod.string()
 })
@@ -65,7 +66,8 @@ export const GetMeResponse = zod.object({
   "isBanned": zod.boolean(),
   "bannedReason": zod.string().nullish(),
   "createdAt": zod.string(),
-  "lastLoginAt": zod.string().nullish()
+  "lastLoginAt": zod.string().nullish(),
+  "hasAccess": zod.boolean().optional()
 })
 
 

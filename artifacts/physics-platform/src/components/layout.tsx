@@ -1,77 +1,83 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
+import { Moon, Sun, BookOpen } from "lucide-react";
+import { useTheme } from "@/components/theme-provider";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const [location] = useLocation();
+  const { theme, setTheme } = useTheme();
 
   const isAdmin = user?.role === "admin";
   const isDashboard = location.startsWith("/dashboard") || location.startsWith("/courses") || location.startsWith("/sections") || location.startsWith("/topics");
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-background">
+    <div className="min-h-[100dvh] flex flex-col bg-background selection:bg-primary/20">
       <header
-        className="sticky top-0 z-50 border-b border-white/5"
-        style={{ background: "rgba(6, 8, 20, 0.85)", backdropFilter: "blur(20px)" }}
+        className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl"
       >
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href={user ? (isAdmin ? "/admin" : "/dashboard") : "/"} className="flex items-center gap-2.5 group">
+          <Link href={user ? (isAdmin ? "/admin" : "/dashboard") : "/"} className="flex items-center gap-2 group transition-transform hover:scale-105 active:scale-95">
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-base shadow-lg"
-              style={{ background: "linear-gradient(135deg, #3B82F6, #8B5CF6)" }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-primary-foreground font-bold shadow-sm bg-primary"
             >
-              F
+              <BookOpen className="w-5 h-5" />
             </div>
             <span
-              className="font-bold text-xl hidden sm:block"
-              style={{
-                background: "linear-gradient(135deg, #60A5FA, #A78BFA)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
+              className="font-display font-bold text-xl tracking-tight hidden sm:block text-foreground"
             >
               FizykaAI
             </span>
           </Link>
 
-          <nav className="flex items-center gap-3">
+          <nav className="flex items-center gap-2 sm:gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              className="rounded-full w-9 h-9"
+              aria-label="Zmień motyw"
+            >
+              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-muted-foreground" />
+              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-muted-foreground" />
+            </Button>
+
             {!user ? (
               <>
-                <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5">
+                <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 hidden sm:block">
                   Zaloguj się
                 </Link>
                 <Link href="/register">
                   <Button
                     size="sm"
-                    className="text-white font-semibold"
-                    style={{ background: "linear-gradient(135deg, #3B82F6, #8B5CF6)" }}
+                    className="font-semibold rounded-full px-5 shadow-sm"
                   >
-                    Zarejestruj się
+                    Załóż konto
                   </Button>
                 </Link>
               </>
             ) : (
-              <div className="flex items-center gap-3">
-                {isAdmin && (
-                  <Link href="/admin" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <div className="flex items-center gap-1 sm:gap-3">
+                {isAdmin ? (
+                  <Link href="/admin" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 hidden sm:block">
                     Panel Admina
                   </Link>
-                )}
-                {!isAdmin && (
-                  <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                ) : (
+                  <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 hidden sm:block">
                     Moja nauka
                   </Link>
                 )}
-                <span className="text-sm text-muted-foreground hidden sm:block border-l border-white/10 pl-3">
+                
+                <span className="text-sm font-medium text-foreground bg-muted px-3 py-1 rounded-full hidden md:block">
                   {user.firstName}
                 </span>
+                
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={logout}
-                  className="text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground font-medium"
                 >
                   Wyloguj
                 </Button>
@@ -81,23 +87,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="flex-1 flex flex-col">
         {children}
       </main>
 
       {!isDashboard && !location.startsWith("/admin") && (
-        <footer className="border-t border-white/5 py-10">
-          <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
+        <footer className="border-t border-border/40 py-12 bg-card mt-auto">
+          <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
               <div
-                className="w-5 h-5 rounded flex items-center justify-center text-white font-bold text-xs"
-                style={{ background: "linear-gradient(135deg, #3B82F6, #8B5CF6)" }}
+                className="w-6 h-6 rounded flex items-center justify-center text-primary-foreground font-bold text-xs bg-primary"
               >
-                F
+                <BookOpen className="w-3 h-3" />
               </div>
-              <span className="font-medium">FizykaAI</span>
+              <span className="font-display font-bold tracking-tight text-foreground">FizykaAI</span>
             </div>
-            <p>&copy; {new Date().getFullYear()} FizykaAI. Wszelkie prawa zastrzeżone.</p>
+            <p className="text-center md:text-left">
+              &copy; {new Date().getFullYear()} FizykaAI. Edukacja z przyszłością.
+            </p>
           </div>
         </footer>
       )}

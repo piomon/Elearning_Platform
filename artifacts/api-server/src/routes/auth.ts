@@ -1,8 +1,8 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
 import { db } from "@workspace/db";
-import { users, loginEvents } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { users, loginEvents, accessGrants } from "@workspace/db";
+import { eq, and } from "drizzle-orm";
 import { generateToken, requireAuth, type AuthRequest } from "../middlewares/auth";
 import { logger } from "../lib/logger";
 
@@ -116,7 +116,14 @@ router.get("/auth/me", requireAuth as any, async (req: AuthRequest, res) => {
       res.status(404).json({ error: "Użytkownik nie znaleziony" });
       return;
     }
-    res.json(user);
+
+    const [grant] = await db
+      .select({ id: accessGrants.id })
+      .from(accessGrants)
+      .where(and(eq(accessGrants.userId, user.id), eq(accessGrants.status, "active")))
+      .limit(1);
+
+    res.json({ ...user, hasAccess: user.role === "admin" || !!grant });
   } catch (err) {
     req.log.error({ err }, "GetMe error");
     res.status(500).json({ error: "Błąd serwera" });

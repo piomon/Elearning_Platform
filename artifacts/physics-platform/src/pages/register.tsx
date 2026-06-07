@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { BookOpen, ArrowRight } from "lucide-react";
 
 const registerSchema = z.object({
   firstName: z.string().min(1, { message: "Imię jest wymagane" }),
@@ -55,83 +56,91 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md shadow-lg border-primary/10">
-        <CardHeader className="space-y-2 text-center">
-          <CardTitle className="text-2xl font-bold">Rozpocznij naukę</CardTitle>
-          <CardDescription>Załóż konto dla siebie lub swojego dziecka</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+    <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4 bg-muted/30">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center gap-2 justify-center mb-6 hover:opacity-80 transition-opacity">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-primary-foreground font-bold shadow-lg bg-primary">
+              <BookOpen className="w-6 h-6" />
+            </div>
+          </Link>
+          <h1 className="text-3xl font-black font-display tracking-tight text-foreground">Rozpocznij naukę</h1>
+          <p className="text-muted-foreground mt-2">Załóż konto dla siebie lub swojego dziecka</p>
+        </div>
+
+        <Card className="shadow-xl border-border rounded-3xl overflow-hidden">
+          <CardContent className="p-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="font-semibold text-foreground/80">Imię</Label>
+                  <Input
+                    id="firstName"
+                    {...form.register("firstName")}
+                    className={`h-12 rounded-xl bg-muted/50 ${form.formState.errors.firstName ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                  />
+                  {form.formState.errors.firstName && (
+                    <p className="text-sm text-destructive font-medium">{form.formState.errors.firstName.message}</p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="font-semibold text-foreground/80">Nazwisko</Label>
+                  <Input
+                    id="lastName"
+                    {...form.register("lastName")}
+                    className={`h-12 rounded-xl bg-muted/50 ${form.formState.errors.lastName ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                  />
+                  {form.formState.errors.lastName && (
+                    <p className="text-sm text-destructive font-medium">{form.formState.errors.lastName.message}</p>
+                  )}
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="firstName">Imię</Label>
+                <Label htmlFor="email" className="font-semibold text-foreground/80">Email</Label>
                 <Input
-                  id="firstName"
-                  {...form.register("firstName")}
-                  className={form.formState.errors.firstName ? "border-destructive" : ""}
+                  id="email"
+                  type="email"
+                  placeholder="jan@example.com"
+                  {...form.register("email")}
+                  className={`h-12 rounded-xl bg-muted/50 ${form.formState.errors.email ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
-                {form.formState.errors.firstName && (
-                  <p className="text-sm text-destructive">{form.formState.errors.firstName.message}</p>
+                {form.formState.errors.email && (
+                  <p className="text-sm text-destructive font-medium">{form.formState.errors.email.message}</p>
                 )}
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="lastName">Nazwisko</Label>
+                <Label htmlFor="password" className="font-semibold text-foreground/80">Hasło</Label>
                 <Input
-                  id="lastName"
-                  {...form.register("lastName")}
-                  className={form.formState.errors.lastName ? "border-destructive" : ""}
+                  id="password"
+                  type="password"
+                  {...form.register("password")}
+                  className={`h-12 rounded-xl bg-muted/50 ${form.formState.errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
-                {form.formState.errors.lastName && (
-                  <p className="text-sm text-destructive">{form.formState.errors.lastName.message}</p>
+                {form.formState.errors.password && (
+                  <p className="text-sm text-destructive font-medium">{form.formState.errors.password.message}</p>
                 )}
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="jan@example.com"
-                {...form.register("email")}
-                className={form.formState.errors.email ? "border-destructive" : ""}
-              />
-              {form.formState.errors.email && (
-                <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Hasło</Label>
-              <Input
-                id="password"
-                type="password"
-                {...form.register("password")}
-                className={form.formState.errors.password ? "border-destructive" : ""}
-              />
-              {form.formState.errors.password && (
-                <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>
-              )}
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full text-lg" 
-              size="lg"
-              disabled={registerMutation.isPending}
-            >
-              {registerMutation.isPending ? "Rejestrowanie..." : "Zarejestruj się"}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">
-            Masz już konto? <Link href="/login" className="text-primary hover:underline font-medium">Zaloguj się</Link>
-          </p>
-        </CardFooter>
-      </Card>
+              <Button 
+                type="submit" 
+                className="w-full text-base font-bold h-14 rounded-full mt-4 group"
+                disabled={registerMutation.isPending}
+              >
+                {registerMutation.isPending ? "Rejestrowanie..." : "Załóż konto"}
+                {!registerMutation.isPending && <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />}
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="bg-muted/30 p-6 flex justify-center border-t border-border">
+            <p className="text-sm font-medium text-muted-foreground">
+              Masz już konto? <Link href="/login" className="text-primary hover:underline ml-1">Zaloguj się</Link>
+            </p>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 }
