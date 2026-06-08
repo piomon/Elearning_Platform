@@ -2,20 +2,48 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { tasks, aiChecks, learningProgress } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
-import rateLimit from "express-rate-limit";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
+import { aiLimiter } from "../middlewares/rate-limit";
 import { requireCourseAccess, getCourseIdByTaskId } from "../lib/access";
 import { config, isGeminiConfigured } from "../config/env";
 
 const router = Router();
 
-const aiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  message: { error: "Zbyt wiele zapytań do AI. Spróbuj ponownie za kilka minut." },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024; // 4 MB decoded
+const IMAGE_DATA_URL_RE = /^data:image\/(png|jpe?g|webp);base64,(.+)$/i;
+const BASE64_RE = /^[A-Za-z0-9+/]+={0,2}$/;
+
+type ImageValidation =
+  | { ok: true; mimeType: string; data: string }
+  | { ok: false; status: number; error: string };
+
+// Stricter, dedicated validation path for AI image uploads: enforce an allowed
+// image format and a decoded-size cap independent of the global body limit.
+function validateImageUpload(input: unknown): ImageValidation {
+  if (typeof input !== "string" || input.trim() === "") {
+    return { ok: false, status: 400, error: "imageBase64 jest wymagane" };
+  }
+  const match = input.match(IMAGE_DATA_URL_RE);
+  if (!match) {
+    return {
+      ok: false,
+      status: 400,
+      error: "Nieobsługiwany format obrazu. Dozwolone: PNG, JPEG, WEBP.",
+    };
+  }
+  const ext = match[1].toLowerCase();
+  const mimeType = ext === "jpg" ? "image/jpeg" : `image/${ext}`;
+  const raw = match[2];
+  if (!BASE64_RE.test(raw)) {
+    return { ok: false, status: 400, error: "Nieprawidłowe dane obrazu" };
+  }
+  const padding = raw.endsWith("==") ? 2 : raw.endsWith("=") ? 1 : 0;
+  const sizeBytes = Math.floor((raw.length * 3) / 4) - padding;
+  if (sizeBytes > MAX_IMAGE_BYTES) {
+    return { ok: false, status: 413, error: "Obraz jest zbyt duży (maks. 4 MB)" };
+  }
+  return { ok: true, mimeType, data: raw };
+}
 
 const SYSTEM_PROMPT = `Jesteś pomocnym nauczycielem fizyki. Oceniasz rozwiązanie ucznia klasy 7. 
 Odpowiedz po polsku, krótko i przyjaźnie. 
@@ -27,7 +55,8 @@ Odpowiedz po polsku, krótko i przyjaźnie.
 - Odpowiedź powinna być max 3-4 zdania`;
 
 async function checkWithGemini(
-  imageBase64: string,
+  imageData: string,
+  mimeType: string,
   taskDescription: string,
 ): Promise<string> {
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
@@ -39,8 +68,8 @@ async function checkWithGemini(
     `Treść zadania: ${taskDescription}`,
     {
       inlineData: {
-        data: imageBase64.replace(/^data:image\/[a-z]+;base64,/, ""),
-        mimeType: "image/png",
+        data: imageData,
+        mimeType,
       },
     },
     "Oceń to rozwiązanie ucznia:",
@@ -56,8 +85,14 @@ router.post(
   async (req: AuthRequest, res) => {
     try {
       const { taskId, imageBase64 } = req.body;
-      if (!taskId || !imageBase64) {
-        res.status(400).json({ error: "taskId i imageBase64 są wymagane" });
+      if (!taskId) {
+        res.status(400).json({ error: "taskId jest wymagane" });
+        return;
+      }
+
+      const image = validateImageUpload(imageBase64);
+      if (!image.ok) {
+        res.status(image.status).json({ error: image.error });
         return;
       }
 
@@ -79,7 +114,7 @@ router.post(
           "Sprawdzanie AI działa w trybie demonstracyjnym. Skonfiguruj GEMINI_API_KEY, aby włączyć prawdziwe sprawdzanie. Twoje rozwiązanie wygląda na staranne!";
       } else {
         try {
-          feedback = await checkWithGemini(imageBase64, task.description ?? task.title);
+          feedback = await checkWithGemini(image.data, image.mimeType, task.description ?? task.title);
         } catch (aiErr) {
           req.log.error({ err: aiErr }, "Gemini check failed");
           res.status(502).json({

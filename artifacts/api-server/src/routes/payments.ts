@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { payments, accessGrants, courses } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
+import { paymentLimiter } from "../middlewares/rate-limit";
 import { logger } from "../lib/logger";
 import { config, isP24Configured } from "../config/env";
 
@@ -38,7 +39,7 @@ router.get("/payments/price", async (_req, res) => {
   res.json({ price: config.coursePriceGrosz, currency: config.currency });
 });
 
-router.post("/payments/create", requireAuth as any, async (req: AuthRequest, res) => {
+router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: AuthRequest, res) => {
   try {
     const { courseId, returnUrl } = req.body;
     const cId = courseId ?? 1;
@@ -187,6 +188,59 @@ router.post("/payments/webhook", async (req, res) => {
           "Webhook amount mismatch",
         );
         res.status(400).json({ error: "Niezgodna kwota płatności" });
+        return;
+      }
+
+      // Confirm the transaction directly with Przelewy24 before completing it.
+      // The webhook body alone is not authoritative — P24 requires an explicit
+      // verify call, and only a "success" status should grant access.
+      const verifySign = crypto
+        .createHash("sha384")
+        .update(
+          JSON.stringify({
+            sessionId,
+            orderId,
+            amount,
+            currency,
+            crc: config.p24.crc,
+          }),
+        )
+        .digest("hex");
+
+      let verifyStatus: string | undefined;
+      try {
+        const verifyRes = await fetch(
+          `${config.p24.baseUrl}/api/v1/transaction/verify`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${Buffer.from(`${config.p24.posId}:${config.p24.apiKey}`).toString("base64")}`,
+            },
+            body: JSON.stringify({
+              merchantId: Number(config.p24.merchantId),
+              posId: Number(config.p24.posId),
+              sessionId,
+              amount: Number(amount),
+              currency: currency ?? payment.currency,
+              orderId,
+              sign: verifySign,
+            }),
+          },
+        );
+        const verifyData = (await verifyRes.json()) as {
+          data?: { status?: string };
+        };
+        verifyStatus = verifyData?.data?.status;
+      } catch (verifyErr) {
+        logger.error({ verifyErr, paymentId }, "P24 verify request failed");
+        res.status(502).json({ error: "Weryfikacja płatności nie powiodła się" });
+        return;
+      }
+
+      if (verifyStatus !== "success") {
+        logger.warn({ paymentId, verifyStatus }, "P24 verify not successful");
+        res.status(400).json({ error: "Płatność nie została potwierdzona" });
         return;
       }
     } else if (config.isProd) {

@@ -4,11 +4,12 @@ import { db } from "@workspace/db";
 import { users, loginEvents } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { generateToken, requireAuth, type AuthRequest } from "../middlewares/auth";
+import { authLimiter } from "../middlewares/rate-limit";
 import { getActiveAccessGrants } from "../lib/access";
 
 const router = Router();
 
-router.post("/auth/register", async (req, res) => {
+router.post("/auth/register", authLimiter, async (req, res) => {
   try {
     const { email, password, firstName, lastName } = req.body;
     if (!email || !password || !firstName || !lastName) {
@@ -53,7 +54,7 @@ router.post("/auth/register", async (req, res) => {
   }
 });
 
-router.post("/auth/login", async (req, res) => {
+router.post("/auth/login", authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {

@@ -2,11 +2,12 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { contactMessages } from "@workspace/db";
 import { logger } from "../lib/logger";
+import { contactLimiter } from "../middlewares/rate-limit";
 import { config, isSmtpConfigured } from "../config/env";
 
 const router = Router();
 
-router.post("/contact", async (req, res) => {
+router.post("/contact", contactLimiter, async (req, res) => {
   try {
     const { name, email, subject, message, consent } = req.body;
     if (!name || !email || !subject || !message) {

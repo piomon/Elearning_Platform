@@ -37,14 +37,14 @@ app.use(
 app.use(
   cors({
     origin(origin, callback) {
+      // Allow non-browser clients (no Origin header): curl, server-to-server,
+      // health checks, and same-origin requests proxied without an Origin.
       if (!origin) {
         callback(null, true);
         return;
       }
-      if (config.isDev) {
-        callback(null, true);
-        return;
-      }
+      // Strict allowlist in every environment. In development the allowlist is
+      // seeded from the Replit dev domain + localhost (see config/env.ts).
       if (config.allowedOrigins.includes(origin)) {
         callback(null, true);
         return;
