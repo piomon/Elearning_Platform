@@ -131,19 +131,32 @@ Skonfiguruj plik `.env` na podstawie `.env.example`:
 cp .env.example .env
 ```
 
+Legenda kolumny *Wymagana*: ✅ = zawsze · **prod** = wymagana w produkcji
+(serwer API waliduje to przy starcie w `src/config/env.ts` i nie wstanie bez
+niej) · — = opcjonalna.
+
 | Zmienna | Wymagana | Opis |
 |---------|:--------:|------|
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | ✅ | Dane bazy w kontenerze `db`; z nich składany jest `DATABASE_URL`. |
-| `JWT_SECRET` | ✅ | Sekret do podpisywania tokenów JWT. Wygeneruj: `openssl rand -hex 32`. |
+| `JWT_SECRET` | ✅ | Sekret do podpisywania tokenów JWT (min. 32 znaki). Wygeneruj: `openssl rand -hex 32`. |
 | `SESSION_SECRET` | ✅ | Sekret sesji. Inny niż JWT. `openssl rand -hex 32`. |
 | `NODE_ENV` | — | `production` (domyślnie). |
 | `LOG_LEVEL` | — | Poziom logów: `info`, `debug`, `warn`, `error`. |
-| `APP_URL` / `API_URL` | — | Publiczne adresy (linki w e-mailach). |
+| `APP_URL` / `API_URL` | prod | Publiczne adresy (linki w e-mailach, walidacja `returnUrl` płatności). |
+| `ALLOWED_ORIGINS` | prod | Dozwolone originy CORS (po przecinku). Zwykle = `APP_URL`. |
+| `COURSE_PRICE_GROSZ` | — | Cena kursu w groszach (domyślnie `19900` = 199,00 zł). |
+| `P24_MERCHANT_ID` / `P24_POS_ID` / `P24_API_KEY` / `P24_CRC` | prod | Dane Przelewy24. Bez nich w dev działa płatność „mock". |
+| `P24_ENV` | — | `sandbox` (domyślnie) lub `production`. |
+| `BUNNY_LIBRARY_ID` / `BUNNY_CDN_HOSTNAME` | prod | Hosting wideo Bunny.net. |
+| `GEMINI_API_KEY` | prod | Sprawdzanie zadań przez AI. Bez klucza w dev działa tryb demonstracyjny. |
+| `GEMINI_MODEL` | — | Model Gemini (domyślnie `gemini-1.5-flash`). |
+| `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` | prod | Serwer SMTP do wysyłki e-mail. |
+| `SMTP_PORT` | — | Port SMTP (domyślnie `587`). |
+| `CONTACT_FROM_EMAIL` | prod | Adres nadawcy (From) wiadomości. |
+| `CONTACT_EMAIL` | — | Adres odbiorcy zgłoszeń z formularza kontaktowego. |
 | `DOMAIN` | prod | Domena dla Traefik/SSL (bez `https://`). |
 | `ACME_EMAIL` | prod | E-mail rejestracji certyfikatu Let's Encrypt. |
 | `WEB_PORT` | — | Port localhost do podglądu lokalnego (domyślnie 8080). |
-| `GEMINI_API_KEY` / `GEMINI_MODEL` | — | Sprawdzanie zadań przez AI. Bez klucza działa tryb demonstracyjny. |
-| `CONTACT_EMAIL`, `SMTP_*` | — | Formularz kontaktowy / wysyłka e-mail. |
 
 > **Nigdy** nie commituj pliku `.env` — zawiera sekrety. Repozytorium śledzi tylko `.env.example`.
 

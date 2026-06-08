@@ -1,5 +1,6 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
+import { z } from "zod/v4";
 import { db } from "@workspace/db";
 import { users, loginEvents } from "@workspace/db";
 import { eq } from "drizzle-orm";
@@ -9,17 +10,26 @@ import { getActiveAccessGrants } from "../lib/access";
 
 const router = Router();
 
+const registerSchema = z.object({
+  email: z.email("Nieprawidłowy adres email").max(255),
+  password: z.string().min(6, "Hasło musi mieć co najmniej 6 znaków").max(128),
+  firstName: z.string().trim().min(1, "Imię jest wymagane").max(100),
+  lastName: z.string().trim().min(1, "Nazwisko jest wymagane").max(100),
+});
+
+const loginSchema = z.object({
+  email: z.email("Nieprawidłowy adres email"),
+  password: z.string().min(1, "Hasło jest wymagane"),
+});
+
 router.post("/auth/register", authLimiter, async (req, res) => {
   try {
-    const { email, password, firstName, lastName } = req.body;
-    if (!email || !password || !firstName || !lastName) {
-      res.status(400).json({ error: "Wszystkie pola są wymagane" });
+    const parsed = registerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Nieprawidłowe dane" });
       return;
     }
-    if (password.length < 6) {
-      res.status(400).json({ error: "Hasło musi mieć co najmniej 6 znaków" });
-      return;
-    }
+    const { email, password, firstName, lastName } = parsed.data;
 
     const [existing] = await db.select({ id: users.id }).from(users).where(eq(users.email, email.toLowerCase())).limit(1);
     if (existing) {
@@ -56,11 +66,12 @@ router.post("/auth/register", authLimiter, async (req, res) => {
 
 router.post("/auth/login", authLimiter, async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      res.status(400).json({ error: "Email i hasło są wymagane" });
+    const parsed = loginSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Nieprawidłowe dane" });
       return;
     }
+    const { email, password } = parsed.data;
 
     const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
     if (!user) {

@@ -298,7 +298,17 @@ router.post("/admin/users/:id/access", async (req: AuthRequest, res) => {
   try {
     const userId = Number(req.params.id);
     const { courseId, validTo } = req.body;
-    const cId = courseId ?? 1;
+    const cId = Number(courseId);
+    if (!Number.isInteger(cId) || cId <= 0) {
+      res.status(400).json({ error: "Nieprawidłowy identyfikator kursu" });
+      return;
+    }
+
+    const [course] = await db.select({ id: courses.id }).from(courses).where(eq(courses.id, cId)).limit(1);
+    if (!course) {
+      res.status(404).json({ error: "Kurs nie znaleziony" });
+      return;
+    }
 
     const [existing] = await db
       .select({ id: accessGrants.id })
@@ -784,11 +794,32 @@ router.delete("/admin/questions/:questionId", async (req: AuthRequest, res) => {
 });
 
 // Quiz Answers
+const ANSWER_LABELS = ["A", "B", "C", "D"] as const;
+
 router.post("/admin/questions/:questionId/answers", async (req: AuthRequest, res) => {
   try {
     const questionId = Number(req.params.questionId);
     const { answerLabel, answerText, isCorrect } = req.body;
-    const a = await db.transaction(async (tx) => {
+
+    // Enforce the A–D answer model expected by the student quiz UI.
+    if (!ANSWER_LABELS.includes(answerLabel)) {
+      res.status(400).json({ error: "Etykieta odpowiedzi musi być jedną z: A, B, C, D" });
+      return;
+    }
+
+    const result = await db.transaction(async (tx) => {
+      const siblings = await tx
+        .select({ id: quizAnswers.id, answerLabel: quizAnswers.answerLabel })
+        .from(quizAnswers)
+        .where(eq(quizAnswers.questionId, questionId));
+
+      if (siblings.length >= ANSWER_LABELS.length) {
+        return { tooMany: true } as const;
+      }
+      if (siblings.some((s) => s.answerLabel === answerLabel)) {
+        return { duplicate: true } as const;
+      }
+
       const [created] = await tx
         .insert(quizAnswers)
         .values({ questionId, answerLabel, answerText, isCorrect: isCorrect ?? false })
@@ -800,9 +831,19 @@ router.post("/admin/questions/:questionId/answers", async (req: AuthRequest, res
           .set({ isCorrect: false, updatedAt: new Date() })
           .where(and(eq(quizAnswers.questionId, questionId), ne(quizAnswers.id, created.id)));
       }
-      return created;
+      return { answer: created } as const;
     });
-    res.status(201).json(a);
+
+    if ("tooMany" in result) {
+      res.status(400).json({ error: "Pytanie może mieć maksymalnie 4 odpowiedzi (A–D)" });
+      return;
+    }
+    if ("duplicate" in result) {
+      res.status(409).json({ error: "Odpowiedź z tą etykietą już istnieje" });
+      return;
+    }
+    await logAdminAction(req.user!.id, "create", "quiz_answer", result.answer.id);
+    res.status(201).json(result.answer);
   } catch (err) {
     req.log.error({ err }, "Create answer error");
     res.status(500).json({ error: "Błąd serwera" });
@@ -813,6 +854,10 @@ router.put("/admin/answers/:answerId", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.answerId);
     const { answerLabel, answerText, isCorrect } = req.body;
+    if (answerLabel !== undefined && !ANSWER_LABELS.includes(answerLabel)) {
+      res.status(400).json({ error: "Etykieta odpowiedzi musi być jedną z: A, B, C, D" });
+      return;
+    }
     const result = await db.transaction(async (tx) => {
       const [existing] = await tx
         .select()
@@ -820,6 +865,14 @@ router.put("/admin/answers/:answerId", async (req: AuthRequest, res) => {
         .where(eq(quizAnswers.id, id))
         .limit(1);
       if (!existing) return { notFound: true } as const;
+      if (answerLabel !== undefined && answerLabel !== existing.answerLabel) {
+        const [dup] = await tx
+          .select({ id: quizAnswers.id })
+          .from(quizAnswers)
+          .where(and(eq(quizAnswers.questionId, existing.questionId), eq(quizAnswers.answerLabel, answerLabel), ne(quizAnswers.id, id)))
+          .limit(1);
+        if (dup) return { duplicate: true } as const;
+      }
       // Prevent leaving the question with zero correct answers.
       if (existing.isCorrect && !isCorrect) {
         const [other] = await tx
@@ -844,7 +897,9 @@ router.put("/admin/answers/:answerId", async (req: AuthRequest, res) => {
       return { answer: u } as const;
     });
     if ("notFound" in result) { res.status(404).json({ error: "Odpowiedź nie znaleziona" }); return; }
+    if ("duplicate" in result) { res.status(409).json({ error: "Odpowiedź z tą etykietą już istnieje" }); return; }
     if ("invalid" in result) { res.status(400).json({ error: "Pytanie musi mieć co najmniej jedną poprawną odpowiedź" }); return; }
+    await logAdminAction(req.user!.id, "update", "quiz_answer", id);
     res.json(result.answer);
   } catch (err) {
     req.log.error({ err }, "Update answer error");

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowRight, Loader2, Clock } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useEffect, useRef, useState } from "react";
-import { useGetMyPayments } from "@workspace/api-client-react";
+import { useGetMyPayments, useMockCompletePayment } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 
 const POLL_MS = 3000;
@@ -31,6 +31,26 @@ export default function PaymentSuccess() {
   const { user, refresh } = useAuth();
   const [pollCount, setPollCount] = useState(0);
   const celebrated = useRef(false);
+  const mockTriggered = useRef(false);
+
+  const mockComplete = useMockCompletePayment();
+
+  // Development-only: the backend issues a `?mock=true&paymentId=…` return URL
+  // when no real payment provider is configured. Completing that payment here
+  // exercises the full post-payment flow locally. In production the mock route
+  // does not exist, so this call simply 404s and is ignored.
+  useEffect(() => {
+    if (mockTriggered.current) return;
+    const sp = new URLSearchParams(window.location.search);
+    const paymentId = Number(sp.get("paymentId"));
+    if (sp.get("mock") === "true" && Number.isFinite(paymentId) && paymentId > 0) {
+      mockTriggered.current = true;
+      mockComplete.mutate(
+        { paymentId },
+        { onSuccess: () => refresh(), onError: () => {} },
+      );
+    }
+  }, [mockComplete, refresh]);
 
   const isPaid = user?.hasAccess ?? false;
   const stillPolling = !isPaid && pollCount < MAX_POLLS;

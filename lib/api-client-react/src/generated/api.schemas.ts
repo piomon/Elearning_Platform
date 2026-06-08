@@ -285,16 +285,13 @@ export const ProgressInputCurrentElementType = {
   task: 'task',
 } as const;
 
+/**
+ * Client may only declare its position in a lesson. courseId/sectionId are derived server-side from the topic, and the completion flags quizCompleted/taskCheckedByAi are set only by the quiz/AI routes after a real pass — they are never accepted from the client here.
+ */
 export interface ProgressInput {
-  courseId: number;
-  /** @nullable */
-  sectionId?: number | null;
   topicId: number;
   currentElementType?: ProgressInputCurrentElementType;
   videoCompleted?: boolean;
-  quizCompleted?: boolean;
-  taskStarted?: boolean;
-  taskCheckedByAi?: boolean;
 }
 
 export interface ContinueProgress {
@@ -649,6 +646,10 @@ export interface TaskInput {
   initialImageUrl?: string;
   aiPromptConfig?: TaskInputAiPromptConfig;
 }
+
+export type MockCompletePayment200 = {
+  message: string;
+};
 
 export type ListAdminUsersParams = {
 search?: string;

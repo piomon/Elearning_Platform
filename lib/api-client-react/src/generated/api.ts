@@ -46,6 +46,7 @@ import type {
   LoginInput,
   LoginStats,
   MessageResponse,
+  MockCompletePayment200,
   Payment,
   PaymentCreated,
   PaymentInput,
@@ -1469,6 +1470,77 @@ export function useGetMyPayments<TData = Awaited<ReturnType<typeof getMyPayments
 
 
 
+
+export const getMockCompletePaymentUrl = (paymentId: number,) => {
+
+
+
+
+  return `/api/payments/mock-complete/${paymentId}`
+}
+
+/**
+ * Only registered when the server runs outside production (no real payment provider configured). Completes the caller's own pending payment and grants course access so the post-payment flow can be exercised locally. Returns 404 in production.
+ * @summary Simulate a completed payment (development/test only)
+ */
+export const mockCompletePayment = async (paymentId: number, options?: RequestInit): Promise<MockCompletePayment200> => {
+
+  return customFetch<MockCompletePayment200>(getMockCompletePaymentUrl(paymentId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getMockCompletePaymentMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof mockCompletePayment>>, TError,{paymentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof mockCompletePayment>>, TError,{paymentId: number}, TContext> => {
+
+const mutationKey = ['mockCompletePayment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof mockCompletePayment>>, {paymentId: number}> = (props) => {
+          const {paymentId} = props ?? {};
+
+          return  mockCompletePayment(paymentId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type MockCompletePaymentMutationResult = NonNullable<Awaited<ReturnType<typeof mockCompletePayment>>>
+
+    export type MockCompletePaymentMutationError = ErrorType<void>
+
+    /**
+ * @summary Simulate a completed payment (development/test only)
+ */
+export const useMockCompletePayment = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof mockCompletePayment>>, TError,{paymentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof mockCompletePayment>>,
+        TError,
+        {paymentId: number},
+        TContext
+      > => {
+      return useMutation(getMockCompletePaymentMutationOptions(options));
+    }
 
 export const getSubmitContactUrl = () => {
 

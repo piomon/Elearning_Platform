@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, BookOpen } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+import { MobileNav } from "@/components/mobile-nav";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -87,9 +88,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col">
+      <main className={`flex-1 flex flex-col ${user && !isAdmin ? "pb-20 sm:pb-0" : ""}`}>
         {children}
       </main>
+
+      <MobileNav />
 
       {!isDashboard && !location.startsWith("/admin") && (
         <footer className="border-t border-border/40 py-12 bg-card mt-auto">

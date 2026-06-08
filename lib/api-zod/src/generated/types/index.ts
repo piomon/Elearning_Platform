@@ -45,6 +45,7 @@ export * from './loginEvent';
 export * from './loginInput';
 export * from './loginStats';
 export * from './messageResponse';
+export * from './mockCompletePayment200';
 export * from './payment';
 export * from './paymentCreated';
 export * from './paymentInput';

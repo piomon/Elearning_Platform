@@ -5,7 +5,8 @@ import {
   useGetMyProgress, 
   useUpsertProgress, 
   useSubmitQuizAttempt,
-  useCheckTask
+  useCheckTask,
+  useListTopics
 } from "@workspace/api-client-react";
 import { Excalidraw, exportToBlob } from "@excalidraw/excalidraw";
 import { Button } from "@/components/ui/button";
@@ -45,7 +46,19 @@ export default function TopicDetail() {
   const submitQuizMutation = useSubmitQuizAttempt();
   const checkTaskMutation = useCheckTask();
 
+  const { data: siblingTopics } = useListTopics(topic?.sectionId ?? 0, {
+    query: { enabled: !!topic?.sectionId } as any,
+  });
+
   const currentProgress = allProgress?.find(p => p.topicId === topicId);
+
+  const orderedSiblings = [...(siblingTopics ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
+  const currentIndex = orderedSiblings.findIndex(t => t.id === topicId);
+  const prevTopic = currentIndex > 0 ? orderedSiblings[currentIndex - 1] : null;
+  const nextTopic =
+    currentIndex >= 0 && currentIndex < orderedSiblings.length - 1
+      ? orderedSiblings[currentIndex + 1]
+      : null;
 
   // Initialize step based on progress
   useEffect(() => {
@@ -76,7 +89,6 @@ export default function TopicDetail() {
   const handleVideoComplete = () => {
     progressMutation.mutate({
       data: {
-        courseId: 1, // We'd ideally get this from the topic, mocked for now
         topicId: topic.id,
         currentElementType: "quiz",
         videoCompleted: true
@@ -108,10 +120,8 @@ export default function TopicDetail() {
         if (result.percentage >= 50) { 
           progressMutation.mutate({
             data: {
-              courseId: 1,
               topicId: topic.id,
-              currentElementType: "task",
-              quizCompleted: true
+              currentElementType: "task"
             }
           }, {
             onSuccess: () => refetchProgress()
@@ -242,10 +252,8 @@ export default function TopicDetail() {
           setAiFeedback(result.feedback);
           progressMutation.mutate({
             data: {
-              courseId: 1,
               topicId: topic.id,
-              currentElementType: "task",
-              taskCheckedByAi: true
+              currentElementType: "task"
             }
           }, {
             onSuccess: () => refetchProgress()
@@ -591,6 +599,35 @@ export default function TopicDetail() {
           </Card>
         )}
       </div>
+
+      {(prevTopic || nextTopic) && (
+        <nav className="flex flex-col sm:flex-row items-stretch gap-3 pt-8 border-t" aria-label="Nawigacja między tematami">
+          {prevTopic ? (
+            <button
+              onClick={() => { setLocation(`/topics/${prevTopic.id}`); window.scrollTo({ top: 0 }); }}
+              className="flex-1 group flex items-center gap-3 p-4 rounded-2xl border bg-card hover:border-primary/40 hover:bg-muted/50 transition-all text-left"
+            >
+              <ChevronLeft className="w-5 h-5 text-muted-foreground shrink-0 group-hover:-translate-x-0.5 transition-transform" />
+              <div className="min-w-0">
+                <div className="text-xs text-muted-foreground font-medium">Poprzedni temat</div>
+                <div className="font-bold truncate">{prevTopic.title}</div>
+              </div>
+            </button>
+          ) : <div className="flex-1 hidden sm:block" />}
+          {nextTopic ? (
+            <button
+              onClick={() => { setLocation(`/topics/${nextTopic.id}`); window.scrollTo({ top: 0 }); }}
+              className="flex-1 group flex items-center justify-end gap-3 p-4 rounded-2xl border bg-card hover:border-primary/40 hover:bg-muted/50 transition-all text-right"
+            >
+              <div className="min-w-0">
+                <div className="text-xs text-muted-foreground font-medium">Następny temat</div>
+                <div className="font-bold truncate">{nextTopic.title}</div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          ) : <div className="flex-1 hidden sm:block" />}
+        </nav>
+      )}
     </div>
   );
 }

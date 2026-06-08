@@ -1,2 +1,3 @@
 - [Payments & access](payments-access.md) — payment success uses status "completed" (not "paid"); access is gated only by server `user.hasAccess`, never granted client-side.
+- [Env contract & testing](env-contract-and-testing.md) — env.ts is the source of truth; keep .env.example/docker-compose/README in lockstep. Prod-gated routes can't be unit-tested (env.ts throws on prod import).
 - [Monorepo build & test quirks](monorepo-build-quirks.md) — typecheck only at root (builds project refs); never set root `packageManager`; detached installs; tests need real Postgres + drizzle generate for schema changes.

@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "FjPdLoMk7cFty5nmlran3"
+uri = "file://RAPORT_MVP.md"
+type = "text"
+title = "Raport końcowy MVP — FizykaAI"

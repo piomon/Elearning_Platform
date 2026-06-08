@@ -209,15 +209,10 @@ export const GetMyProgressResponse = zod.array(GetMyProgressResponseItem)
 
 
 export const UpsertProgressBody = zod.object({
-  "courseId": zod.number(),
-  "sectionId": zod.number().nullish(),
   "topicId": zod.number(),
   "currentElementType": zod.enum(['video', 'quiz', 'task']).optional(),
-  "videoCompleted": zod.boolean().optional(),
-  "quizCompleted": zod.boolean().optional(),
-  "taskStarted": zod.boolean().optional(),
-  "taskCheckedByAi": zod.boolean().optional()
-})
+  "videoCompleted": zod.boolean().optional()
+}).describe('Client may only declare its position in a lesson. courseId\/sectionId are derived server-side from the topic, and the completion flags quizCompleted\/taskCheckedByAi are set only by the quiz\/AI routes after a real pass — they are never accepted from the client here.')
 
 export const UpsertProgressResponse = zod.object({
   "id": zod.number(),
@@ -343,6 +338,19 @@ export const GetMyPaymentsResponseItem = zod.object({
   "createdAt": zod.string()
 })
 export const GetMyPaymentsResponse = zod.array(GetMyPaymentsResponseItem)
+
+
+/**
+ * Only registered when the server runs outside production (no real payment provider configured). Completes the caller's own pending payment and grants course access so the post-payment flow can be exercised locally. Returns 404 in production.
+ * @summary Simulate a completed payment (development/test only)
+ */
+export const MockCompletePaymentParams = zod.object({
+  "paymentId": zod.coerce.number()
+})
+
+export const MockCompletePaymentResponse = zod.object({
+  "message": zod.string()
+})
 
 
 
