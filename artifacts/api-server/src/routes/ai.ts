@@ -4,7 +4,7 @@ import { tasks, aiChecks, learningProgress } from "@workspace/db";
 import { eq, and, gte, sql } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import { aiLimiter } from "../middlewares/rate-limit";
-import { requireCourseAccess, getCourseIdByTaskId } from "../lib/access";
+import { requireCourseAccess, getCourseIdByTaskId, getTopicLocation } from "../lib/access";
 import { config, isGeminiConfigured } from "../config/env";
 
 const router = Router();
@@ -105,8 +105,9 @@ router.post(
     const startedAt = Date.now();
     const userId = req.user!.id;
     try {
-      const { taskId, imageBase64 } = req.body;
-      if (!taskId) {
+      const { imageBase64 } = req.body;
+      const taskId = Number(req.body?.taskId);
+      if (!Number.isInteger(taskId) || taskId <= 0) {
         res.status(400).json({ error: "taskId jest wymagane" });
         return;
       }
@@ -196,15 +197,24 @@ router.post(
 
       const [check] = await logCheck("completed", { aiResponse: feedback });
 
-      await db
-        .update(learningProgress)
-        .set({ taskCheckedByAi: true, updatedAt: new Date() })
-        .where(
-          and(
-            eq(learningProgress.userId, userId),
-            eq(learningProgress.topicId, task.topicId),
-          ),
-        );
+      // Upsert: the student may reach the AI check before any progress row was
+      // created for this topic, so insert one rather than no-op on a missing row.
+      const location = await getTopicLocation(task.topicId);
+      if (location) {
+        await db
+          .insert(learningProgress)
+          .values({
+            userId,
+            courseId: location.courseId,
+            sectionId: location.sectionId,
+            topicId: task.topicId,
+            taskCheckedByAi: true,
+          })
+          .onConflictDoUpdate({
+            target: [learningProgress.userId, learningProgress.topicId],
+            set: { taskCheckedByAi: true, updatedAt: new Date() },
+          });
+      }
 
       res.json({ feedback, checkId: check.id });
     } catch (err) {

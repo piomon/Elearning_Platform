@@ -2,7 +2,7 @@ import { Router } from "express";
 import crypto from "crypto";
 import { db } from "@workspace/db";
 import { payments, accessGrants, courses } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import { paymentLimiter } from "../middlewares/rate-limit";
 import { logger } from "../lib/logger";
@@ -10,29 +10,41 @@ import { config, isP24Configured } from "../config/env";
 
 const router = Router();
 
-async function grantCourseAccess(userId: number, courseId: number, paymentId: number) {
-  const existing = await db
-    .select({ id: accessGrants.id })
-    .from(accessGrants)
-    .where(
-      and(
-        eq(accessGrants.userId, userId),
-        eq(accessGrants.courseId, courseId),
-        eq(accessGrants.status, "active"),
-      ),
-    )
-    .limit(1);
+// Prevent open-redirect: only honor a client-supplied returnUrl when it points
+// back to our own configured app origin. Anything else falls back to the safe
+// default success page.
+function safeReturnUrl(returnUrl: unknown): string {
+  const fallback = `${config.appUrl}/payment/success`;
+  if (typeof returnUrl !== "string" || returnUrl.trim() === "") {
+    return fallback;
+  }
+  try {
+    const candidate = new URL(returnUrl, config.appUrl);
+    const appOrigin = new URL(config.appUrl).origin;
+    if (candidate.origin !== appOrigin) {
+      return fallback;
+    }
+    return candidate.toString();
+  } catch {
+    return fallback;
+  }
+}
 
-  if (existing.length === 0) {
-    await db.insert(accessGrants).values({
+async function grantCourseAccess(userId: number, courseId: number, paymentId: number) {
+  // Atomic and idempotent: concurrent provider callbacks (P24 retries) can race
+  // here, so rely on the partial unique index over active grants
+  // (access_grants_active_user_course_uniq) instead of select-then-insert.
+  await db
+    .insert(accessGrants)
+    .values({
       userId,
       courseId,
       source: "payment",
       paymentId,
       status: "active",
       validFrom: new Date(),
-    });
-  }
+    })
+    .onConflictDoNothing();
 }
 
 router.get("/payments/price", async (_req, res) => {
@@ -42,10 +54,14 @@ router.get("/payments/price", async (_req, res) => {
 router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: AuthRequest, res) => {
   try {
     const { courseId, returnUrl } = req.body;
-    const cId = courseId ?? 1;
+    const cId = Number(courseId);
+    if (!Number.isInteger(cId) || cId <= 0) {
+      res.status(400).json({ error: "Nieprawidłowy identyfikator kursu" });
+      return;
+    }
 
     const [course] = await db.select().from(courses).where(eq(courses.id, cId)).limit(1);
-    if (!course) {
+    if (!course || !course.isPublished) {
       res.status(404).json({ error: "Kurs nie znaleziony" });
       return;
     }
@@ -94,7 +110,7 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
       email: req.user!.email,
       country: "PL",
       language: "pl",
-      urlReturn: returnUrl ?? `${config.appUrl}/payment/success`,
+      urlReturn: safeReturnUrl(returnUrl),
       urlStatus: `${config.apiUrl}/api/payments/webhook`,
       sign,
     };
@@ -118,7 +134,11 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
 
     await db
       .update(payments)
-      .set({ providerPaymentId: sessionId, updatedAt: new Date() })
+      .set({
+        providerPaymentId: sessionId,
+        providerSessionId: sessionId,
+        updatedAt: new Date(),
+      })
       .where(eq(payments.id, payment.id));
     res.json({
       redirectUrl: `${config.p24.baseUrl}/trnRequest/${token}`,
@@ -249,16 +269,22 @@ router.post("/payments/webhook", async (req, res) => {
       return;
     }
 
+    if (payment.courseId == null) {
+      logger.error({ paymentId }, "Payment has no associated course");
+      res.status(500).json({ error: "Płatność bez przypisanego kursu" });
+      return;
+    }
+
     await db
       .update(payments)
       .set({
         status: "completed",
-        providerPaymentId: orderId ? String(orderId) : payment.providerPaymentId,
+        providerOrderId: orderId != null ? String(orderId) : payment.providerOrderId,
         updatedAt: new Date(),
       })
       .where(eq(payments.id, paymentId));
 
-    await grantCourseAccess(payment.userId, payment.courseId ?? 1, payment.id);
+    await grantCourseAccess(payment.userId, payment.courseId, payment.id);
 
     res.json({ message: "OK" });
   } catch (err) {
@@ -308,6 +334,11 @@ if (config.isDev || config.isTest) {
           return;
         }
 
+        if (payment.courseId == null) {
+          res.status(500).json({ error: "Płatność bez przypisanego kursu" });
+          return;
+        }
+
         if (payment.status !== "completed") {
           await db
             .update(payments)
@@ -315,7 +346,7 @@ if (config.isDev || config.isTest) {
             .where(eq(payments.id, paymentId));
         }
 
-        await grantCourseAccess(payment.userId, payment.courseId ?? 1, payment.id);
+        await grantCourseAccess(payment.userId, payment.courseId, payment.id);
 
         res.json({ message: "Dostęp aktywowany!" });
       } catch (err) {

@@ -4,6 +4,18 @@ import { topics, sections, quizzes, tasks, accessGrants } from "@workspace/db";
 import { and, eq, or, gt, lte, isNull } from "drizzle-orm";
 import type { AuthRequest } from "../middlewares/auth";
 
+export async function getCourseIdBySectionId(
+  sectionId: number,
+): Promise<number | null> {
+  if (!Number.isFinite(sectionId)) return null;
+  const [row] = await db
+    .select({ courseId: sections.courseId })
+    .from(sections)
+    .where(eq(sections.id, sectionId))
+    .limit(1);
+  return row?.courseId ?? null;
+}
+
 export async function getCourseIdByTopicId(
   topicId: number,
 ): Promise<number | null> {
@@ -15,6 +27,19 @@ export async function getCourseIdByTopicId(
     .where(eq(topics.id, topicId))
     .limit(1);
   return row?.courseId ?? null;
+}
+
+export async function getTopicLocation(
+  topicId: number,
+): Promise<{ courseId: number; sectionId: number } | null> {
+  if (!Number.isFinite(topicId)) return null;
+  const [row] = await db
+    .select({ courseId: sections.courseId, sectionId: sections.id })
+    .from(topics)
+    .innerJoin(sections, eq(topics.sectionId, sections.id))
+    .where(eq(topics.id, topicId))
+    .limit(1);
+  return row ? { courseId: row.courseId, sectionId: row.sectionId } : null;
 }
 
 export async function getCourseIdByQuizId(

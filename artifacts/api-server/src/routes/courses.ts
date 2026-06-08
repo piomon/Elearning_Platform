@@ -3,10 +3,30 @@ import { db } from "@workspace/db";
 import { courses, sections, topics, videos, quizzes, quizQuestions, quizAnswers, tasks } from "@workspace/db";
 import { eq, asc, and, inArray } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
-import { requireCourseAccess, getCourseIdByTopicId } from "../lib/access";
+import {
+  requireCourseAccess,
+  getCourseIdByTopicId,
+  getCourseIdBySectionId,
+} from "../lib/access";
 import { config } from "../config/env";
+import type { Request, Response, NextFunction } from "express";
 
 const router = Router();
+
+// Rejects route params that are not positive integers with a 400 before any
+// access control runs, so callers get "bad request" (not "not found") for
+// malformed ids like "abc" or "-1".
+function requirePositiveIntParam(param: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const raw = req.params[param];
+    const value = Number(raw);
+    if (!Number.isInteger(value) || value <= 0) {
+      res.status(400).json({ error: `Nieprawidłowe ${param}` });
+      return;
+    }
+    next();
+  };
+}
 
 // Build a single agreed embed URL for the lesson video. Prefer a Bunny Stream
 // iframe (library + video id), then fall back to a raw videoUrl.
@@ -53,7 +73,14 @@ router.get("/courses/:slug", async (req, res) => {
   }
 });
 
-router.get("/sections/:sectionId/topics", async (req, res) => {
+router.get(
+  "/sections/:sectionId/topics",
+  requirePositiveIntParam("sectionId"),
+  requireAuth as any,
+  requireCourseAccess((req) =>
+    getCourseIdBySectionId(Number(req.params.sectionId)),
+  ) as any,
+  async (req: AuthRequest, res) => {
   try {
     const sectionId = Number(req.params.sectionId);
     const topicList = await db.select().from(topics).where(eq(topics.sectionId, sectionId)).orderBy(asc(topics.sortOrder));
@@ -76,7 +103,8 @@ router.get("/sections/:sectionId/topics", async (req, res) => {
     req.log.error({ err }, "List topics error");
     res.status(500).json({ error: "Błąd serwera" });
   }
-});
+  },
+);
 
 router.get(
   "/topics/:topicId",
@@ -120,8 +148,32 @@ router.get(
     // Strip the teacher-only AI prompt config; students must never receive it.
     const publicTasks = taskList.map(({ aiPromptConfig: _omit, ...rest }) => rest);
 
+    // Resolve the owning course and the neighbouring lessons within the same
+    // section so the client never has to hardcode courseId or guess navigation.
+    const [section] = await db
+      .select({ courseId: sections.courseId })
+      .from(sections)
+      .where(eq(sections.id, topic.sectionId))
+      .limit(1);
+
+    const siblings = await db
+      .select({ id: topics.id })
+      .from(topics)
+      .where(eq(topics.sectionId, topic.sectionId))
+      .orderBy(asc(topics.sortOrder), asc(topics.id));
+    const currentIndex = siblings.findIndex((s) => s.id === topic.id);
+    const previousTopicId =
+      currentIndex > 0 ? siblings[currentIndex - 1].id : null;
+    const nextTopicId =
+      currentIndex >= 0 && currentIndex < siblings.length - 1
+        ? siblings[currentIndex + 1].id
+        : null;
+
     res.json({
       ...topic,
+      courseId: section?.courseId ?? null,
+      previousTopicId,
+      nextTopicId,
       video: video
         ? { ...video, embedUrl: buildVideoEmbedUrl(video) }
         : null,

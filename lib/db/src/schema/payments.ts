@@ -10,6 +10,8 @@ export const payments = pgTable(
     userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
     provider: text("provider").notNull().default("przelewy24"),
     providerPaymentId: text("provider_payment_id"),
+    providerSessionId: text("provider_session_id"),
+    providerOrderId: text("provider_order_id"),
     amount: integer("amount").notNull(),
     currency: text("currency").notNull().default("PLN"),
     status: text("status").notNull().default("pending"),

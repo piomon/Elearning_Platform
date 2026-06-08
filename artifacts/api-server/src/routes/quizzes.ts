@@ -10,7 +10,7 @@ import {
 } from "@workspace/db";
 import { eq, and, asc, inArray } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
-import { requireCourseAccess, getCourseIdByQuizId } from "../lib/access";
+import { requireCourseAccess, getCourseIdByQuizId, getTopicLocation } from "../lib/access";
 
 const router = Router();
 
@@ -138,6 +138,13 @@ router.post(
         seenQuestions.add(questionId);
       }
 
+      // A submission must answer every question in the quiz — partial attempts
+      // are rejected so quizCompleted reflects a genuinely finished quiz.
+      if (seenQuestions.size !== quizQuestionIds.size) {
+        res.status(400).json({ error: "Należy odpowiedzieć na wszystkie pytania" });
+        return;
+      }
+
       // Score against every question in the quiz (server-side authority).
       const totalQuestions = quizQuestionIds.size;
       const submittedByQuestion = new Map(
@@ -156,6 +163,12 @@ router.post(
 
       const percentage =
         totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+      const location = await getTopicLocation(quiz.topicId);
+      if (!location) {
+        res.status(404).json({ error: "Temat nie znaleziony" });
+        return;
+      }
 
       await db.transaction(async (tx) => {
         const [attempt] = await tx
@@ -181,15 +194,22 @@ router.post(
           );
         }
 
+        // Upsert: a learning-progress row may not exist yet (e.g. the student
+        // jumped straight to the quiz), so create it rather than silently
+        // no-opping on a missing row.
         await tx
-          .update(learningProgress)
-          .set({ quizCompleted: true, updatedAt: new Date() })
-          .where(
-            and(
-              eq(learningProgress.userId, req.user!.id),
-              eq(learningProgress.topicId, quiz.topicId),
-            ),
-          );
+          .insert(learningProgress)
+          .values({
+            userId: req.user!.id,
+            courseId: location.courseId,
+            sectionId: location.sectionId,
+            topicId: quiz.topicId,
+            quizCompleted: true,
+          })
+          .onConflictDoUpdate({
+            target: [learningProgress.userId, learningProgress.topicId],
+            set: { quizCompleted: true, updatedAt: new Date() },
+          });
       });
 
       res.status(201).json({

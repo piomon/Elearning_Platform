@@ -1,10 +1,24 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { learningProgress, topics, sections } from "@workspace/db";
-import { eq, and, desc, count } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
+import { z } from "zod/v4";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
+import { userHasCourseAccess } from "../lib/access";
 
 const router = Router();
+
+// The client may only declare *where* it is in a lesson, never the completion
+// flags. quizCompleted is set exclusively by routes/quizzes.ts after a real
+// pass; taskCheckedByAi exclusively by routes/ai.ts after a real AI check;
+// videoCompleted only via a genuine video event. courseId/sectionId are always
+// derived server-side from the topic so the client can never grant itself
+// progress in a course it has no access to.
+const progressSchema = z.object({
+  topicId: z.coerce.number().int().positive(),
+  currentElementType: z.enum(["video", "quiz", "task"]).optional(),
+  videoCompleted: z.boolean().optional(),
+});
 
 router.get("/progress/me", requireAuth as any, async (req: AuthRequest, res) => {
   try {
@@ -92,51 +106,64 @@ router.get("/progress/continue", requireAuth as any, async (req: AuthRequest, re
 
 router.post("/progress", requireAuth as any, async (req: AuthRequest, res) => {
   try {
-    const {
-      courseId,
-      sectionId,
-      topicId,
-      currentElementType,
-      videoCompleted,
-      quizCompleted,
-      taskStarted,
-      taskCheckedByAi,
-      status,
-    } = req.body;
-    if (!courseId || !topicId) {
-      res.status(400).json({ error: "courseId i topicId są wymagane" });
+    const parsed = progressSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Nieprawidłowe dane", details: parsed.error.issues });
+      return;
+    }
+    const { topicId, currentElementType, videoCompleted } = parsed.data;
+
+    // Derive section/course from the topic itself — never trust the client.
+    const [topicRow] = await db
+      .select({ sectionId: topics.sectionId, courseId: sections.courseId })
+      .from(topics)
+      .innerJoin(sections, eq(topics.sectionId, sections.id))
+      .where(eq(topics.id, topicId))
+      .limit(1);
+
+    if (!topicRow) {
+      res.status(404).json({ error: "Temat nie znaleziony" });
       return;
     }
 
-    const data = {
-      userId: req.user!.id,
-      courseId,
-      sectionId: sectionId ?? null,
-      topicId,
-      currentElementType: currentElementType ?? null,
-      videoCompleted: videoCompleted ?? false,
-      quizCompleted: quizCompleted ?? false,
-      taskStarted: taskStarted ?? false,
-      taskCheckedByAi: taskCheckedByAi ?? false,
-      status: status ?? "in_progress",
-      updatedAt: new Date(),
-    };
+    const isAdmin = req.user!.role === "admin";
+    if (!isAdmin) {
+      const hasAccess = await userHasCourseAccess(req.user!.id, topicRow.courseId);
+      if (!hasAccess) {
+        res
+          .status(403)
+          .json({ error: "Brak dostępu do kursu. Kup dostęp, aby kontynuować." });
+        return;
+      }
+    }
+
+    const markVideoCompleted = videoCompleted === true;
 
     const [result] = await db
       .insert(learningProgress)
-      .values(data)
+      .values({
+        userId: req.user!.id,
+        courseId: topicRow.courseId,
+        sectionId: topicRow.sectionId,
+        topicId,
+        currentElementType: currentElementType ?? null,
+        videoCompleted: markVideoCompleted,
+        quizCompleted: false,
+        taskStarted: false,
+        taskCheckedByAi: false,
+        status: "in_progress",
+        updatedAt: new Date(),
+      })
       .onConflictDoUpdate({
         target: [learningProgress.userId, learningProgress.topicId],
         set: {
-          courseId: data.courseId,
-          sectionId: data.sectionId,
-          currentElementType: data.currentElementType,
-          videoCompleted: data.videoCompleted,
-          quizCompleted: data.quizCompleted,
-          taskStarted: data.taskStarted,
-          taskCheckedByAi: data.taskCheckedByAi,
-          status: data.status,
-          updatedAt: data.updatedAt,
+          // Always safe to refresh from the (server-derived) topic.
+          courseId: topicRow.courseId,
+          sectionId: topicRow.sectionId,
+          currentElementType: currentElementType ?? null,
+          // Completion is monotonic: only ever flip false -> true, never reset.
+          videoCompleted: sql`${learningProgress.videoCompleted} OR ${markVideoCompleted}`,
+          updatedAt: new Date(),
         },
       })
       .returning();
