@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useListAdminUsers, ListAdminUsersFilter } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Users, Search, ChevronLeft, ChevronRight, Filter } from "lucide-react";
+
+const LIMIT = 20;
 
 export default function AdminUsers() {
   const [search, setSearch] = useState("");
@@ -19,8 +21,11 @@ export default function AdminUsers() {
     search: search || undefined,
     filter: filter,
     page,
-    limit: 20
+    limit: LIMIT,
   });
+
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-6 max-w-7xl">
@@ -39,8 +44,8 @@ export default function AdminUsers() {
           <div className="p-4 sm:p-6 bg-muted/30 border-b border-border/50 flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input 
-                placeholder="Szukaj po e-mailu lub nazwisku..." 
+              <Input
+                placeholder="Szukaj po e-mailu lub nazwisku..."
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                 className="pl-9 h-11 rounded-xl bg-background border-border/50 shadow-sm"
@@ -146,16 +151,16 @@ export default function AdminUsers() {
               </TableBody>
             </Table>
           </div>
-          
+
           <div className="p-4 border-t border-border/50 flex items-center justify-between bg-muted/10">
             <span className="text-sm text-muted-foreground ml-2">
-              Strona {page}
+              Strona {page} z {totalPages} · {total} {total === 1 ? "użytkownik" : "użytkowników"}
             </span>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage(p => p - 1)} className="rounded-full px-4 border-border/60">
+              <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="rounded-full px-4 border-border/60">
                 <ChevronLeft className="w-4 h-4 mr-1" /> Poprzednia
               </Button>
-              <Button variant="outline" size="sm" disabled={!data || data.users.length < 20} onClick={() => setPage(p => p + 1)} className="rounded-full px-4 border-border/60">
+              <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-full px-4 border-border/60">
                 Następna <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>

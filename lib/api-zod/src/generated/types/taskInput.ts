@@ -5,10 +5,12 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { TaskInputAiPromptConfig } from './taskInputAiPromptConfig';
 
 export interface TaskInput {
   topicId: number;
   title: string;
   description?: string;
   initialImageUrl?: string;
+  aiPromptConfig?: TaskInputAiPromptConfig;
 }

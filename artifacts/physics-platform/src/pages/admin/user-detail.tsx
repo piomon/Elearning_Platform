@@ -1,14 +1,32 @@
+import { useState } from "react";
 import { useRoute } from "wouter";
-import { useGetAdminUser, useBanUser, useUnbanUser, useGrantAccess, useRevokeAccess, useGetUserLoginStats, useRefundPayment } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  useGetAdminUser,
+  useBanUser,
+  useUnbanUser,
+  useGrantAccess,
+  useRevokeAccess,
+  useGetUserLoginStats,
+  useRefundPayment,
+  useListAdminCourses,
+} from "@workspace/api-client-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { UserCog, ShieldAlert, ShieldCheck, KeyRound, Lock, CreditCard, Activity, ArrowLeft, RotateCcw } from "lucide-react";
+import { UserCog, ShieldAlert, ShieldCheck, KeyRound, Lock, CreditCard, Activity, ArrowLeft, RotateCcw, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
+import { formatPLN } from "@/lib/utils";
 
 export default function AdminUserDetail() {
-  const [match, params] = useRoute("/admin/users/:id");
+  const [, params] = useRoute("/admin/users/:id");
   const id = params?.id ? parseInt(params.id, 10) : 0;
   const { toast } = useToast();
 
@@ -20,12 +38,22 @@ export default function AdminUserDetail() {
   const { data: loginStats } = useGetUserLoginStats(id, currentMonth, {
     query: { enabled: !!id } as any,
   });
+  const { data: courses } = useListAdminCourses();
 
   const banUser = useBanUser();
   const unbanUser = useUnbanUser();
   const grantAccess = useGrantAccess();
   const revokeAccess = useRevokeAccess();
   const refundPayment = useRefundPayment();
+
+  const [banOpen, setBanOpen] = useState(false);
+  const [banReason, setBanReason] = useState("");
+  const [grantOpen, setGrantOpen] = useState(false);
+  const [grantCourseId, setGrantCourseId] = useState<string>("");
+  const [grantValidTo, setGrantValidTo] = useState<string>("");
+  const [refundOpen, setRefundOpen] = useState(false);
+  const [refundPaymentId, setRefundPaymentId] = useState<number | null>(null);
+  const [refundReason, setRefundReason] = useState("");
 
   if (isLoading) {
     return (
@@ -38,7 +66,7 @@ export default function AdminUserDetail() {
       </div>
     );
   }
-  
+
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-24 text-center max-w-md">
@@ -53,26 +81,51 @@ export default function AdminUserDetail() {
     );
   }
 
-  const handleBan = () => {
-    const reason = prompt("Podaj powód blokady:");
-    if (reason) {
-      banUser.mutate({ id, data: { reason } }, { onSuccess: () => { refetch(); toast({ title: "Zablokowano konto", variant: "destructive" }); } });
-    }
+  const submitBan = () => {
+    if (!banReason.trim()) return;
+    banUser.mutate(
+      { id, data: { reason: banReason.trim() } },
+      {
+        onSuccess: () => {
+          setBanOpen(false); setBanReason(""); refetch();
+          toast({ title: "Zablokowano konto", variant: "destructive" });
+        },
+        onError: () => toast({ title: "Błąd", description: "Nie udało się zablokować konta.", variant: "destructive" }),
+      },
+    );
   };
 
-  const handleGrant = () => {
-    // Hardcoded courseId 1 for now based on instructions
-    grantAccess.mutate({ id, data: { courseId: 1 } }, { onSuccess: () => { refetch(); toast({ title: "Przyznano dostęp", className: "bg-success text-success-foreground border-success/20" }); } });
+  const submitGrant = () => {
+    const courseId = parseInt(grantCourseId, 10);
+    if (!courseId) return;
+    grantAccess.mutate(
+      { id, data: { courseId, validTo: grantValidTo ? new Date(grantValidTo).toISOString() : null } },
+      {
+        onSuccess: () => {
+          setGrantOpen(false); setGrantCourseId(""); setGrantValidTo(""); refetch();
+          toast({ title: "Przyznano dostęp", className: "bg-success text-success-foreground border-success/20" });
+        },
+        onError: () => toast({ title: "Błąd", description: "Nie udało się przyznać dostępu.", variant: "destructive" }),
+      },
+    );
   };
 
-  const handleRefund = (paymentId: number) => {
-    const reason = prompt("Podaj powód zwrotu:");
-    if (reason) {
-      refundPayment.mutate({ paymentId, data: { reason } }, {
-        onSuccess: () => { refetch(); toast({ title: "Zlecono zwrot", className: "bg-success text-success-foreground border-success/20" }); },
-        onError: () => toast({ title: "Błąd", description: "Nie udało się zlecić zwrotu.", variant: "destructive" })
-      });
-    }
+  const submitRefund = () => {
+    if (refundPaymentId == null || !refundReason.trim()) return;
+    refundPayment.mutate(
+      { paymentId: refundPaymentId, data: { reason: refundReason.trim() } },
+      {
+        onSuccess: (result) => {
+          setRefundOpen(false); setRefundReason(""); setRefundPaymentId(null); refetch();
+          toast({
+            title: "Zwrot zarejestrowany",
+            description: result?.message ?? "Zwrot wymaga ręcznego przetworzenia u operatora płatności.",
+            className: "bg-success text-success-foreground border-success/20",
+          });
+        },
+        onError: () => toast({ title: "Błąd", description: "Nie udało się zlecić zwrotu.", variant: "destructive" }),
+      },
+    );
   };
 
   return (
@@ -87,13 +140,11 @@ export default function AdminUserDetail() {
             {user.firstName[0]}{user.lastName[0]}
           </div>
           <div>
-            <h1 className="text-3xl font-black tracking-tight font-display">
-              {user.firstName} {user.lastName}
-            </h1>
+            <h1 className="text-3xl font-black tracking-tight font-display">{user.firstName} {user.lastName}</h1>
             <p className="text-muted-foreground font-medium">{user.email}</p>
           </div>
         </div>
-        
+
         <div className="flex flex-wrap gap-2">
           {user.isBanned ? (
             <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-destructive/10 text-destructive border border-destructive/20 uppercase tracking-wider">
@@ -104,7 +155,6 @@ export default function AdminUserDetail() {
               <ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Aktywny
             </span>
           )}
-          
           {user.hasAccess ? (
             <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
               <KeyRound className="w-3.5 h-3.5 mr-1.5" /> Pełny Dostęp
@@ -116,7 +166,7 @@ export default function AdminUserDetail() {
           )}
         </div>
       </div>
-      
+
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="rounded-3xl border-border shadow-sm bg-card overflow-hidden">
           <CardHeader className="bg-muted/30 border-b border-border/50 px-6 py-5">
@@ -146,28 +196,26 @@ export default function AdminUserDetail() {
 
             <div className="space-y-4 pt-4 border-t border-border/50">
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-3">Akcje Administracyjne</h3>
-              
               <div className="grid grid-cols-2 gap-3">
                 {user.isBanned ? (
-                  <Button variant="outline" className="rounded-xl h-12 border-success/30 text-success hover:bg-success/10 hover:text-success" 
+                  <Button variant="outline" className="rounded-xl h-12 border-success/30 text-success hover:bg-success/10 hover:text-success"
                     onClick={() => unbanUser.mutate({ id }, { onSuccess: () => { refetch(); toast({ title: "Odblokowano konto", className: "bg-success text-white" }); } })}>
                     <ShieldCheck className="w-4 h-4 mr-2" /> Odblokuj
                   </Button>
                 ) : (
-                  <Button variant="outline" className="rounded-xl h-12 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive" 
-                    onClick={handleBan}>
+                  <Button variant="outline" className="rounded-xl h-12 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => setBanOpen(true)}>
                     <ShieldAlert className="w-4 h-4 mr-2" /> Zablokuj
                   </Button>
                 )}
-                
                 {user.hasAccess ? (
-                  <Button variant="outline" className="rounded-xl h-12" 
+                  <Button variant="outline" className="rounded-xl h-12"
                     onClick={() => revokeAccess.mutate({ id }, { onSuccess: () => { refetch(); toast({ title: "Zabrano dostęp" }); } })}>
                     <Lock className="w-4 h-4 mr-2" /> Zabierz dostęp
                   </Button>
                 ) : (
-                  <Button className="rounded-xl h-12 bg-primary hover:bg-primary/90 text-primary-foreground" 
-                    onClick={handleGrant}>
+                  <Button className="rounded-xl h-12 bg-primary hover:bg-primary/90 text-primary-foreground"
+                    onClick={() => setGrantOpen(true)}>
                     <KeyRound className="w-4 h-4 mr-2" /> Nadaj dostęp
                   </Button>
                 )}
@@ -175,7 +223,7 @@ export default function AdminUserDetail() {
             </div>
           </CardContent>
         </Card>
-        
+
         <div className="space-y-6">
           <Card className="rounded-3xl border-border shadow-sm bg-card overflow-hidden">
             <CardHeader className="bg-muted/30 border-b border-border/50 px-6 py-5">
@@ -188,7 +236,6 @@ export default function AdminUserDetail() {
                 <span className="font-medium">Logowania w tym miesiącu</span>
                 <span className="text-2xl font-black font-display text-primary">{loginStats?.count ?? 0}</span>
               </div>
-              
               {loginStats && loginStats.events && loginStats.events.length > 0 ? (
                 <div className="space-y-3 mt-6">
                   <h4 className="text-sm font-bold text-muted-foreground mb-2">Ostatnie sesje</h4>
@@ -214,11 +261,11 @@ export default function AdminUserDetail() {
             <CardContent className="p-0">
               {user.payments && user.payments.length > 0 ? (
                 <div className="divide-y divide-border">
-                  {user.payments.map(p => (
+                  {user.payments.map((p) => (
                     <div key={p.id} className="p-6 hover:bg-muted/10 transition-colors">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <p className="font-bold text-lg">{p.amount} {p.currency}</p>
+                          <p className="font-bold text-lg">{formatPLN(p.amount, p.currency)}</p>
                           <p className="text-xs text-muted-foreground">{format(new Date(p.createdAt), "dd MMM yyyy, HH:mm", { locale: pl })}</p>
                         </div>
                         <span className={`text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wider
@@ -226,25 +273,22 @@ export default function AdminUserDetail() {
                           {p.status}
                         </span>
                       </div>
-                      
                       {p.status === 'completed' && (!p.refunds || p.refunds.length === 0) && (
                         <div className="mt-4 pt-4 border-t border-border/50 flex justify-end">
                           <Button variant="outline" size="sm" className="rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
-                            onClick={() => handleRefund(p.id)}
-                            disabled={refundPayment.isPending}
-                          >
-                            <RotateCcw className="w-3.5 h-3.5 mr-1.5" /> Zleć zwrot (Refund)
+                            onClick={() => { setRefundPaymentId(p.id); setRefundReason(""); setRefundOpen(true); }}
+                            disabled={refundPayment.isPending}>
+                            <RotateCcw className="w-3.5 h-3.5 mr-1.5" /> Zleć zwrot
                           </Button>
                         </div>
                       )}
-                      
                       {p.refunds && p.refunds.length > 0 && (
                         <div className="mt-4 bg-destructive/5 border border-destructive/10 p-3 rounded-xl">
                           <p className="text-xs font-bold text-destructive uppercase tracking-wider mb-1">Status zwrotu</p>
-                          {p.refunds.map(r => (
+                          {p.refunds.map((r) => (
                             <div key={r.id} className="flex justify-between text-sm">
-                              <span>Kwota: {r.amount}</span>
-                              <span className="font-medium text-destructive">{r.status}</span>
+                              <span>Kwota: {formatPLN(r.amount)}</span>
+                              <span className="font-medium text-destructive">{r.status === "manual" ? "do ręcznego przetworzenia" : r.status}</span>
                             </div>
                           ))}
                         </div>
@@ -262,6 +306,80 @@ export default function AdminUserDetail() {
           </Card>
         </div>
       </div>
+
+      {/* Ban dialog */}
+      <Dialog open={banOpen} onOpenChange={(o) => { setBanOpen(o); if (!o) setBanReason(""); }}>
+        <DialogContent className="rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <ShieldAlert className="w-5 h-5" /> Zablokuj konto
+            </DialogTitle>
+            <DialogDescription>Zablokowany użytkownik nie będzie mógł się zalogować. Podaj powód.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="ban-reason">Powód blokady</Label>
+            <Textarea id="ban-reason" value={banReason} onChange={(e) => setBanReason(e.target.value)} placeholder="np. Naruszenie regulaminu" className="rounded-xl" rows={4} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-xl" onClick={() => { setBanOpen(false); setBanReason(""); }}>Anuluj</Button>
+            <Button variant="destructive" className="rounded-xl" disabled={!banReason.trim() || banUser.isPending} onClick={submitBan}>Zablokuj</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Grant access dialog */}
+      <Dialog open={grantOpen} onOpenChange={(o) => { setGrantOpen(o); if (!o) { setGrantCourseId(""); setGrantValidTo(""); } }}>
+        <DialogContent className="rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><KeyRound className="w-5 h-5 text-primary" /> Nadaj dostęp</DialogTitle>
+            <DialogDescription>Wybierz kurs i opcjonalnie datę wygaśnięcia dostępu.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Kurs</Label>
+              <Select value={grantCourseId} onValueChange={setGrantCourseId}>
+                <SelectTrigger className="rounded-xl"><SelectValue placeholder="Wybierz kurs" /></SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  {courses?.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.title}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="grant-valid-to">Dostęp ważny do (opcjonalnie)</Label>
+              <Input id="grant-valid-to" type="date" value={grantValidTo} onChange={(e) => setGrantValidTo(e.target.value)} className="rounded-xl" />
+              <p className="text-xs text-muted-foreground">Pozostaw puste, aby nadać dostęp bezterminowy.</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-xl" onClick={() => { setGrantOpen(false); setGrantCourseId(""); setGrantValidTo(""); }}>Anuluj</Button>
+            <Button className="rounded-xl" disabled={!grantCourseId || grantAccess.isPending} onClick={submitGrant}>Nadaj dostęp</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Refund dialog */}
+      <Dialog open={refundOpen} onOpenChange={(o) => { setRefundOpen(o); if (!o) { setRefundReason(""); setRefundPaymentId(null); } }}>
+        <DialogContent className="rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive"><RotateCcw className="w-5 h-5" /> Zleć zwrot</DialogTitle>
+            <DialogDescription>Podaj powód zwrotu płatności.</DialogDescription>
+          </DialogHeader>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-700 dark:text-amber-400">
+              Zwrot zostanie zarejestrowany jako oczekujący na <strong>ręczne przetworzenie</strong> w panelu operatora płatności. System nie wykona automatycznego przelewu zwrotnego.
+            </p>
+          </div>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="refund-reason">Powód zwrotu</Label>
+            <Textarea id="refund-reason" value={refundReason} onChange={(e) => setRefundReason(e.target.value)} placeholder="np. Rezygnacja klienta" className="rounded-xl" rows={3} />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="rounded-xl" onClick={() => { setRefundOpen(false); setRefundReason(""); setRefundPaymentId(null); }}>Anuluj</Button>
+            <Button variant="destructive" className="rounded-xl" disabled={!refundReason.trim() || refundPayment.isPending} onClick={submitRefund}>Zarejestruj zwrot</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,18 +1,40 @@
+import { useMemo } from "react";
 import { useGetAdminDashboard } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, CreditCard, MessageSquare, Activity, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
+import { formatPLN } from "@/lib/utils";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 export default function AdminDashboard() {
   const { data: dashboard, isLoading } = useGetAdminDashboard();
+
+  const loginsByDay = useMemo(() => {
+    if (!dashboard) return [];
+    const map = new Map<string, number>();
+    for (const login of dashboard.recentLogins) {
+      if (!login.loginAt) continue;
+      const key = format(new Date(login.loginAt), "dd.MM", { locale: pl });
+      map.set(key, (map.get(key) ?? 0) + 1);
+    }
+    return Array.from(map, ([day, count]) => ({ day, count })).reverse();
+  }, [dashboard]);
 
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 space-y-8 max-w-7xl">
         <div className="h-10 w-64 bg-muted animate-pulse rounded-lg" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1,2,3,4].map(i => <div key={i} className="h-32 bg-muted animate-pulse rounded-2xl" />)}
+          {[1, 2, 3, 4].map((i) => <div key={i} className="h-32 bg-muted animate-pulse rounded-2xl" />)}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="h-96 bg-muted animate-pulse rounded-2xl" />
@@ -25,10 +47,10 @@ export default function AdminDashboard() {
   if (!dashboard) return null;
 
   const statCards = [
-    { title: "Użytkownicy", value: dashboard.totalUsers, icon: <Users className="h-5 w-5 text-blue-500" />, bg: "bg-blue-500/10" },
-    { title: "Aktywne dostępy", value: dashboard.activeAccess, icon: <ShieldCheck className="h-5 w-5 text-emerald-500" />, bg: "bg-emerald-500/10" },
-    { title: "Liczba płatności", value: dashboard.totalPayments, icon: <CreditCard className="h-5 w-5 text-violet-500" />, bg: "bg-violet-500/10" },
-    { title: "Przychód", value: `${dashboard.totalRevenue?.toFixed(2) || 0} PLN`, icon: <Activity className="h-5 w-5 text-amber-500" />, bg: "bg-amber-500/10" }
+    { title: "Użytkownicy", value: String(dashboard.totalUsers), icon: <Users className="h-5 w-5 text-blue-500" />, bg: "bg-blue-500/10" },
+    { title: "Aktywne dostępy", value: String(dashboard.activeAccess), icon: <ShieldCheck className="h-5 w-5 text-emerald-500" />, bg: "bg-emerald-500/10" },
+    { title: "Liczba płatności", value: String(dashboard.totalPayments), icon: <CreditCard className="h-5 w-5 text-violet-500" />, bg: "bg-violet-500/10" },
+    { title: "Przychód", value: formatPLN(dashboard.totalRevenue ?? 0), icon: <Activity className="h-5 w-5 text-amber-500" />, bg: "bg-amber-500/10" },
   ];
 
   return (
@@ -58,6 +80,42 @@ export default function AdminDashboard() {
           </Card>
         ))}
       </div>
+
+      <Card className="rounded-2xl border-border shadow-sm bg-card overflow-hidden">
+        <CardHeader className="bg-muted/30 border-b border-border/50 px-6 py-4">
+          <div className="flex items-center gap-2">
+            <Activity className="w-5 h-5 text-primary" />
+            <CardTitle className="text-lg font-bold">Aktywność logowań</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          {loginsByDay.length > 0 ? (
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={loginsByDay} margin={{ top: 10, right: 12, left: -16, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="loginsFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" vertical={false} />
+                  <XAxis dataKey="day" tickLine={false} axisLine={false} className="text-xs" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis allowDecimals={false} tickLine={false} axisLine={false} className="text-xs" stroke="hsl(var(--muted-foreground))" width={32} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
+                    labelStyle={{ fontWeight: 700 }}
+                    formatter={(value: number) => [`${value}`, "Logowania"]}
+                  />
+                  <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#loginsFill)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-72 flex items-center justify-center text-muted-foreground">Brak danych o aktywności</div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         <Card className="rounded-2xl border-border shadow-sm bg-card overflow-hidden flex flex-col">
@@ -108,7 +166,7 @@ export default function AdminDashboard() {
                     <div className="flex justify-between items-start gap-4 mb-2">
                       <p className="font-bold text-sm truncate">{msg.subject}</p>
                       <span className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider shrink-0
-                        ${msg.status === 'new' ? 'bg-primary/20 text-primary' : 
+                        ${msg.status === 'new' ? 'bg-primary/20 text-primary' :
                           msg.status === 'read' ? 'bg-amber-500/20 text-amber-600' : 'bg-muted text-muted-foreground'}`}>
                         {msg.status}
                       </span>

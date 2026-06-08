@@ -9,4 +9,6 @@ import type { ListContactMessagesStatus } from './listContactMessagesStatus';
 
 export type ListContactMessagesParams = {
 status?: ListContactMessagesStatus;
+page?: number;
+limit?: number;
 };

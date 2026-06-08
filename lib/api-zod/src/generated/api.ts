@@ -182,6 +182,9 @@ export const GetTopicResponse = zod.object({
   "title": zod.string(),
   "description": zod.string().nullish(),
   "initialImageUrl": zod.string().nullish(),
+  "aiPromptConfig": zod.object({
+
+}).passthrough().nullish(),
   "createdAt": zod.string()
 })).optional()
 })
@@ -374,7 +377,7 @@ export const GetAdminDashboardResponse = zod.object({
   "email": zod.string(),
   "subject": zod.string(),
   "message": zod.string(),
-  "status": zod.enum(['new', 'read', 'closed']),
+  "status": zod.enum(['new', 'read', 'replied', 'closed']),
   "createdAt": zod.string()
 }))
 })
@@ -497,7 +500,8 @@ export const GrantAccessParams = zod.object({
 })
 
 export const GrantAccessBody = zod.object({
-  "courseId": zod.number()
+  "courseId": zod.number(),
+  "validTo": zod.string().nullish()
 })
 
 export const GrantAccessResponse = zod.object({
@@ -559,19 +563,25 @@ export const RefundPaymentResponse = zod.object({
 
 
 export const ListContactMessagesQueryParams = zod.object({
-  "status": zod.enum(['new', 'read', 'closed']).optional()
+  "status": zod.enum(['new', 'read', 'replied', 'closed']).optional(),
+  "page": zod.coerce.number().optional(),
+  "limit": zod.coerce.number().optional()
 })
 
-export const ListContactMessagesResponseItem = zod.object({
+export const ListContactMessagesResponse = zod.object({
+  "messages": zod.array(zod.object({
   "id": zod.number(),
   "name": zod.string(),
   "email": zod.string(),
   "subject": zod.string(),
   "message": zod.string(),
-  "status": zod.enum(['new', 'read', 'closed']),
+  "status": zod.enum(['new', 'read', 'replied', 'closed']),
   "createdAt": zod.string()
+})),
+  "total": zod.number(),
+  "page": zod.number(),
+  "limit": zod.number()
 })
-export const ListContactMessagesResponse = zod.array(ListContactMessagesResponseItem)
 
 
 export const UpdateContactMessageParams = zod.object({
@@ -579,7 +589,7 @@ export const UpdateContactMessageParams = zod.object({
 })
 
 export const UpdateContactMessageBody = zod.object({
-  "status": zod.enum(['new', 'read', 'closed']).optional()
+  "status": zod.enum(['new', 'read', 'replied', 'closed']).optional()
 })
 
 export const UpdateContactMessageResponse = zod.object({
@@ -588,20 +598,24 @@ export const UpdateContactMessageResponse = zod.object({
   "email": zod.string(),
   "subject": zod.string(),
   "message": zod.string(),
-  "status": zod.enum(['new', 'read', 'closed']),
+  "status": zod.enum(['new', 'read', 'replied', 'closed']),
   "createdAt": zod.string()
 })
 
 
 export const ListAdminLogsQueryParams = zod.object({
+  "action": zod.coerce.string().optional(),
+  "entityType": zod.coerce.string().optional(),
   "page": zod.coerce.number().optional(),
   "limit": zod.coerce.number().optional()
 })
 
-export const ListAdminLogsResponseItem = zod.object({
+export const ListAdminLogsResponse = zod.object({
+  "logs": zod.array(zod.object({
   "id": zod.number(),
   "adminId": zod.number(),
   "adminEmail": zod.string().optional(),
+  "adminFirstName": zod.string().optional(),
   "action": zod.string(),
   "entityType": zod.string(),
   "entityId": zod.number().nullish(),
@@ -609,8 +623,11 @@ export const ListAdminLogsResponseItem = zod.object({
 
 }).passthrough().nullish(),
   "createdAt": zod.string()
+})),
+  "total": zod.number(),
+  "page": zod.number(),
+  "limit": zod.number()
 })
-export const ListAdminLogsResponse = zod.array(ListAdminLogsResponseItem)
 
 
 export const ListAdminCoursesResponseItem = zod.object({
@@ -619,7 +636,60 @@ export const ListAdminCoursesResponseItem = zod.object({
   "slug": zod.string(),
   "description": zod.string(),
   "isPublished": zod.boolean(),
+  "createdAt": zod.string().optional(),
+  "sections": zod.array(zod.object({
+  "id": zod.number(),
+  "courseId": zod.number(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "sortOrder": zod.number(),
+  "topics": zod.array(zod.object({
+  "id": zod.number(),
+  "sectionId": zod.number(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string().nullish(),
+  "sortOrder": zod.number(),
+  "video": zod.union([zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "bunnyVideoId": zod.string().nullish(),
+  "videoUrl": zod.string().nullish(),
+  "title": zod.string(),
+  "durationSeconds": zod.number().nullish(),
   "createdAt": zod.string()
+}),zod.null()]).optional(),
+  "quiz": zod.union([zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "title": zod.string(),
+  "questions": zod.array(zod.object({
+  "id": zod.number(),
+  "quizId": zod.number(),
+  "questionText": zod.string(),
+  "sortOrder": zod.number(),
+  "answers": zod.array(zod.object({
+  "id": zod.number(),
+  "questionId": zod.number(),
+  "answerLabel": zod.string(),
+  "answerText": zod.string(),
+  "isCorrect": zod.boolean()
+}))
+}))
+}),zod.null()]).optional(),
+  "tasks": zod.array(zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "initialImageUrl": zod.string().nullish(),
+  "aiPromptConfig": zod.object({
+
+}).passthrough().nullish(),
+  "createdAt": zod.string()
+}))
+}))
+}))
 })
 export const ListAdminCoursesResponse = zod.array(ListAdminCoursesResponseItem)
 
@@ -916,7 +986,10 @@ export const CreateTaskBody = zod.object({
   "topicId": zod.number(),
   "title": zod.string(),
   "description": zod.string().optional(),
-  "initialImageUrl": zod.string().optional()
+  "initialImageUrl": zod.string().optional(),
+  "aiPromptConfig": zod.object({
+
+}).passthrough().optional()
 })
 
 
@@ -928,7 +1001,10 @@ export const UpdateTaskBody = zod.object({
   "topicId": zod.number(),
   "title": zod.string(),
   "description": zod.string().optional(),
-  "initialImageUrl": zod.string().optional()
+  "initialImageUrl": zod.string().optional(),
+  "aiPromptConfig": zod.object({
+
+}).passthrough().optional()
 })
 
 export const UpdateTaskResponse = zod.object({
@@ -937,6 +1013,9 @@ export const UpdateTaskResponse = zod.object({
   "title": zod.string(),
   "description": zod.string().nullish(),
   "initialImageUrl": zod.string().nullish(),
+  "aiPromptConfig": zod.object({
+
+}).passthrough().nullish(),
   "createdAt": zod.string()
 })
 

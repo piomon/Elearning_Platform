@@ -12,5 +12,6 @@ export type ListContactMessagesStatus = typeof ListContactMessagesStatus[keyof t
 export const ListContactMessagesStatus = {
   new: 'new',
   read: 'read',
+  replied: 'replied',
   closed: 'closed',
 } as const;

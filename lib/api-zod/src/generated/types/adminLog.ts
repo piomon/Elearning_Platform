@@ -11,6 +11,7 @@ export interface AdminLog {
   id: number;
   adminId: number;
   adminEmail?: string;
+  adminFirstName?: string;
   action: string;
   entityType: string;
   /** @nullable */

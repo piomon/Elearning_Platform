@@ -7,6 +7,8 @@
  */
 
 export type ListAdminLogsParams = {
+action?: string;
+entityType?: string;
 page?: number;
 limit?: number;
 };

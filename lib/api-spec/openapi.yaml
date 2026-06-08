@@ -651,16 +651,22 @@ paths:
           in: query
           schema:
             type: string
-            enum: [new, read, closed]
+            enum: [new, read, replied, closed]
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
       responses:
         "200":
           description: Contact messages
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ContactMessage"
+                $ref: "#/components/schemas/ContactMessageList"
 
   /admin/contact-messages/{id}:
     patch:
@@ -691,6 +697,14 @@ paths:
       operationId: listAdminLogs
       tags: [admin]
       parameters:
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: entityType
+          in: query
+          schema:
+            type: string
         - name: page
           in: query
           schema:
@@ -705,9 +719,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AdminLog"
+                $ref: "#/components/schemas/AdminLogList"
 
   # ─── ADMIN CRUD: COURSES ──────────────────────────────────────────────────────
   /admin/courses:
@@ -722,7 +734,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Course"
+                  $ref: "#/components/schemas/AdminCourseTree"
     post:
       operationId: createCourse
       tags: [admin]
@@ -1423,6 +1435,8 @@ components:
           type: ["string", "null"]
         initialImageUrl:
           type: ["string", "null"]
+        aiPromptConfig:
+          type: ["object", "null"]
         createdAt:
           type: string
 
@@ -1454,6 +1468,75 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Task"
+
+    AdminTopicTree:
+      type: object
+      required: [id, sectionId, title, slug, sortOrder, tasks]
+      properties:
+        id:
+          type: integer
+        sectionId:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+        video:
+          oneOf:
+            - $ref: "#/components/schemas/Video"
+            - type: "null"
+        quiz:
+          oneOf:
+            - $ref: "#/components/schemas/Quiz"
+            - type: "null"
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+
+    AdminSectionTree:
+      type: object
+      required: [id, courseId, title, slug, sortOrder, topics]
+      properties:
+        id:
+          type: integer
+        courseId:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        sortOrder:
+          type: integer
+        topics:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminTopicTree"
+
+    AdminCourseTree:
+      type: object
+      required: [id, title, slug, description, isPublished, sections]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+        sections:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminSectionTree"
 
     # ─── QUIZ SCHEMAS ─────────────────────────────────────────────────────────
     QuizAnswer:
@@ -1799,7 +1882,7 @@ components:
           type: string
         status:
           type: string
-          enum: [new, read, closed]
+          enum: [new, read, replied, closed]
         createdAt:
           type: string
 
@@ -1808,7 +1891,7 @@ components:
       properties:
         status:
           type: string
-          enum: [new, read, closed]
+          enum: [new, read, replied, closed]
 
     # ─── ADMIN SCHEMAS ────────────────────────────────────────────────────────
     AdminDashboard:
@@ -1963,6 +2046,8 @@ components:
       properties:
         courseId:
           type: integer
+        validTo:
+          type: ["string", "null"]
 
     AdminPayment:
       type: object
@@ -2041,6 +2126,8 @@ components:
           type: integer
         adminEmail:
           type: string
+        adminFirstName:
+          type: string
         action:
           type: string
         entityType:
@@ -2051,6 +2138,36 @@ components:
           type: ["object", "null"]
         createdAt:
           type: string
+
+    ContactMessageList:
+      type: object
+      required: [messages, total, page, limit]
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContactMessage"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    AdminLogList:
+      type: object
+      required: [logs, total, page, limit]
+      properties:
+        logs:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminLog"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
 
     # ─── ADMIN INPUT SCHEMAS ──────────────────────────────────────────────────
     CourseInput:
@@ -2150,3 +2267,5 @@ components:
           type: string
         initialImageUrl:
           type: string
+        aiPromptConfig:
+          type: object

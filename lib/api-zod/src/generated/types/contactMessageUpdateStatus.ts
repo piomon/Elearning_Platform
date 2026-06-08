@@ -12,5 +12,6 @@ export type ContactMessageUpdateStatus = typeof ContactMessageUpdateStatus[keyof
 export const ContactMessageUpdateStatus = {
   new: 'new',
   read: 'read',
+  replied: 'replied',
   closed: 'closed',
 } as const;

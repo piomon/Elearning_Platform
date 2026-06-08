@@ -6,8 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface AccessInput {
-  courseId: number;
-  /** @nullable */
-  validTo?: string | null;
-}
+/**
+ * @nullable
+ */
+export type TaskAiPromptConfig = { [key: string]: unknown } | null;

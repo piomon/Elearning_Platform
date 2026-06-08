@@ -1,2 +1,1 @@
-- [Orval query options cast](orval-query-options.md) — useQuery `enabled` option must be cast `as any`; never add queryKey:[] (breaks shared cache key).
-- [Admin API response shapes](admin-api-shapes.md) — admin/users wraps array in { users, total, page, limit }; recentLogins field is `loginAt` not `createdAt`.
+- [Radix Dialog form reset](radix-dialog-form-reset.md) — separate dialog-body components stay mounted; reset form state on the `open` prop, not on mount/`[]`.

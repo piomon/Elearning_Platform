@@ -21,8 +21,9 @@ import type {
 
 import type {
   AccessInput,
+  AdminCourseTree,
   AdminDashboard,
-  AdminLog,
+  AdminLogList,
   AdminPayment,
   AdminUserDetail,
   AdminUserList,
@@ -30,6 +31,7 @@ import type {
   BanInput,
   ContactInput,
   ContactMessage,
+  ContactMessageList,
   ContactMessageUpdate,
   ContinueProgress,
   Course,
@@ -2248,9 +2250,9 @@ export const getListContactMessagesUrl = (params?: ListContactMessagesParams,) =
   return stringifiedParams.length > 0 ? `/api/admin/contact-messages?${stringifiedParams}` : `/api/admin/contact-messages`
 }
 
-export const listContactMessages = async (params?: ListContactMessagesParams, options?: RequestInit): Promise<ContactMessage[]> => {
+export const listContactMessages = async (params?: ListContactMessagesParams, options?: RequestInit): Promise<ContactMessageList> => {
 
-  return customFetch<ContactMessage[]>(getListContactMessagesUrl(params),
+  return customFetch<ContactMessageList>(getListContactMessagesUrl(params),
   {
     ...options,
     method: 'GET'
@@ -2392,9 +2394,9 @@ export const getListAdminLogsUrl = (params?: ListAdminLogsParams,) => {
   return stringifiedParams.length > 0 ? `/api/admin/logs?${stringifiedParams}` : `/api/admin/logs`
 }
 
-export const listAdminLogs = async (params?: ListAdminLogsParams, options?: RequestInit): Promise<AdminLog[]> => {
+export const listAdminLogs = async (params?: ListAdminLogsParams, options?: RequestInit): Promise<AdminLogList> => {
 
-  return customFetch<AdminLog[]>(getListAdminLogsUrl(params),
+  return customFetch<AdminLogList>(getListAdminLogsUrl(params),
   {
     ...options,
     method: 'GET'
@@ -2463,9 +2465,9 @@ export const getListAdminCoursesUrl = () => {
   return `/api/admin/courses`
 }
 
-export const listAdminCourses = async ( options?: RequestInit): Promise<Course[]> => {
+export const listAdminCourses = async ( options?: RequestInit): Promise<AdminCourseTree[]> => {
 
-  return customFetch<Course[]>(getListAdminCoursesUrl(),
+  return customFetch<AdminCourseTree[]>(getListAdminCoursesUrl(),
   {
     ...options,
     method: 'GET'

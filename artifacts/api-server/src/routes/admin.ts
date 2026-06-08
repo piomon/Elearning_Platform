@@ -18,7 +18,7 @@ import {
   adminLogs,
   learningProgress,
 } from "@workspace/db";
-import { eq, and, desc, asc, count, sum, ilike, or, sql } from "drizzle-orm";
+import { eq, ne, and, desc, asc, count, sum, ilike, or, sql } from "drizzle-orm";
 import { requireAuth, requireAdmin, type AuthRequest } from "../middlewares/auth";
 
 const router = Router();
@@ -100,6 +100,8 @@ router.get("/admin/dashboard", async (req: AuthRequest, res) => {
 router.get("/admin/users", async (req: AuthRequest, res) => {
   try {
     const { search, filter } = req.query as { search?: string; filter?: string };
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
 
     let userList = await db
       .select({
@@ -146,11 +148,15 @@ router.get("/admin/users", async (req: AuthRequest, res) => {
       ? enriched.filter((u) => !u.hasAccess && !u.isBanned)
       : enriched;
 
+    const total = finalList.length;
+    const start = (page - 1) * limit;
+    const paged = finalList.slice(start, start + limit);
+
     res.json({
-      users: finalList,
-      total: finalList.length,
-      page: 1,
-      limit: 20,
+      users: paged,
+      total,
+      page,
+      limit,
     });
   } catch (err) {
     req.log.error({ err }, "Admin list users error");
@@ -397,7 +403,7 @@ router.post("/admin/payments/:paymentId/refund", async (req: AuthRequest, res) =
         adminId: req.user!.id,
         provider: payment.provider,
         amount: payment.amount,
-        status: "completed",
+        status: "manual",
         reason: reason ?? null,
       })
       .returning();
@@ -408,8 +414,17 @@ router.post("/admin/payments/:paymentId/refund", async (req: AuthRequest, res) =
       .set({ status: "revoked", updatedAt: new Date() })
       .where(and(eq(accessGrants.paymentId, paymentId), eq(accessGrants.status, "active")));
 
-    await logAdminAction(req.user!.id, "refund", "payment", paymentId, { reason, amount: payment.amount });
-    res.json({ message: "Zwrot zrealizowany", refund });
+    await logAdminAction(req.user!.id, "refund", "payment", paymentId, {
+      reason,
+      amount: payment.amount,
+      type: "manual",
+    });
+    res.json({
+      status: "manual",
+      message:
+        "Zwrot ręczny odnotowany. Wykonaj rzeczywisty zwrot środków w panelu operatora płatności.",
+      refundId: refund.id,
+    });
   } catch (err) {
     req.log.error({ err }, "Refund error");
     res.status(500).json({ error: "Błąd serwera" });
@@ -421,9 +436,13 @@ router.post("/admin/payments/:paymentId/refund", async (req: AuthRequest, res) =
 router.get("/admin/contact-messages", async (req: AuthRequest, res) => {
   try {
     const { status } = req.query as { status?: string };
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
     let msgs = await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
     if (status) msgs = msgs.filter((m) => m.status === status);
-    res.json(msgs);
+    const total = msgs.length;
+    const start = (page - 1) * limit;
+    res.json({ messages: msgs.slice(start, start + limit), total, page, limit });
   } catch (err) {
     req.log.error({ err }, "List contact messages error");
     res.status(500).json({ error: "Błąd serwera" });
@@ -454,6 +473,19 @@ router.patch("/admin/contact-messages/:id", async (req: AuthRequest, res) => {
 
 router.get("/admin/logs", async (req: AuthRequest, res) => {
   try {
+    const { action, entityType } = req.query as { action?: string; entityType?: string };
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 50));
+    const conds = [];
+    if (action) conds.push(eq(adminLogs.action, action));
+    if (entityType) conds.push(eq(adminLogs.entityType, entityType));
+    const whereExpr = conds.length ? and(...conds) : undefined;
+
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(adminLogs)
+      .where(whereExpr);
+
     const logs = await db
       .select({
         id: adminLogs.id,
@@ -468,9 +500,11 @@ router.get("/admin/logs", async (req: AuthRequest, res) => {
       })
       .from(adminLogs)
       .leftJoin(users, eq(adminLogs.adminId, users.id))
+      .where(whereExpr)
       .orderBy(desc(adminLogs.createdAt))
-      .limit(200);
-    res.json(logs);
+      .limit(limit)
+      .offset((page - 1) * limit);
+    res.json({ logs, total: Number(total), page, limit });
   } catch (err) {
     req.log.error({ err }, "List admin logs error");
     res.status(500).json({ error: "Błąd serwera" });
@@ -532,7 +566,7 @@ router.post("/admin/courses", async (req: AuthRequest, res) => {
   }
 });
 
-router.patch("/admin/courses/:id", async (req: AuthRequest, res) => {
+router.put("/admin/courses/:id", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
     const { title, slug, description, isPublished } = req.body;
@@ -571,7 +605,7 @@ router.post("/admin/sections", async (req: AuthRequest, res) => {
   }
 });
 
-router.patch("/admin/sections/:id", async (req: AuthRequest, res) => {
+router.put("/admin/sections/:id", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
     const { title, slug, sortOrder } = req.body;
@@ -610,7 +644,7 @@ router.post("/admin/topics", async (req: AuthRequest, res) => {
   }
 });
 
-router.patch("/admin/topics/:id", async (req: AuthRequest, res) => {
+router.put("/admin/topics/:id", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
     const { title, slug, description, sortOrder } = req.body;
@@ -649,7 +683,7 @@ router.post("/admin/videos", async (req: AuthRequest, res) => {
   }
 });
 
-router.patch("/admin/videos/:id", async (req: AuthRequest, res) => {
+router.put("/admin/videos/:id", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
     const { bunnyVideoId, videoUrl, title, durationSeconds } = req.body;
@@ -687,7 +721,7 @@ router.post("/admin/quizzes", async (req: AuthRequest, res) => {
   }
 });
 
-router.patch("/admin/quizzes/:id", async (req: AuthRequest, res) => {
+router.put("/admin/quizzes/:id", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
     const { title } = req.body;
@@ -725,7 +759,7 @@ router.post("/admin/quizzes/:id/questions", async (req: AuthRequest, res) => {
   }
 });
 
-router.patch("/admin/questions/:questionId", async (req: AuthRequest, res) => {
+router.put("/admin/questions/:questionId", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.questionId);
     const { questionText, sortOrder } = req.body;
@@ -754,7 +788,20 @@ router.post("/admin/questions/:questionId/answers", async (req: AuthRequest, res
   try {
     const questionId = Number(req.params.questionId);
     const { answerLabel, answerText, isCorrect } = req.body;
-    const [a] = await db.insert(quizAnswers).values({ questionId, answerLabel, answerText, isCorrect: isCorrect ?? false }).returning();
+    const a = await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(quizAnswers)
+        .values({ questionId, answerLabel, answerText, isCorrect: isCorrect ?? false })
+        .returning();
+      // Enforce exactly one correct answer per question.
+      if (isCorrect) {
+        await tx
+          .update(quizAnswers)
+          .set({ isCorrect: false, updatedAt: new Date() })
+          .where(and(eq(quizAnswers.questionId, questionId), ne(quizAnswers.id, created.id)));
+      }
+      return created;
+    });
     res.status(201).json(a);
   } catch (err) {
     req.log.error({ err }, "Create answer error");
@@ -762,11 +809,25 @@ router.post("/admin/questions/:questionId/answers", async (req: AuthRequest, res
   }
 });
 
-router.patch("/admin/answers/:answerId", async (req: AuthRequest, res) => {
+router.put("/admin/answers/:answerId", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.answerId);
     const { answerLabel, answerText, isCorrect } = req.body;
-    const [updated] = await db.update(quizAnswers).set({ answerLabel, answerText, isCorrect, updatedAt: new Date() }).where(eq(quizAnswers.id, id)).returning();
+    const updated = await db.transaction(async (tx) => {
+      const [u] = await tx
+        .update(quizAnswers)
+        .set({ answerLabel, answerText, isCorrect, updatedAt: new Date() })
+        .where(eq(quizAnswers.id, id))
+        .returning();
+      // Enforce exactly one correct answer per question.
+      if (u && isCorrect) {
+        await tx
+          .update(quizAnswers)
+          .set({ isCorrect: false, updatedAt: new Date() })
+          .where(and(eq(quizAnswers.questionId, u.questionId), ne(quizAnswers.id, u.id)));
+      }
+      return u;
+    });
     if (!updated) { res.status(404).json({ error: "Odpowiedź nie znaleziona" }); return; }
     res.json(updated);
   } catch (err) {
@@ -799,7 +860,7 @@ router.post("/admin/tasks", async (req: AuthRequest, res) => {
   }
 });
 
-router.patch("/admin/tasks/:id", async (req: AuthRequest, res) => {
+router.put("/admin/tasks/:id", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
     const { title, description, initialImageUrl, aiPromptConfig } = req.body;

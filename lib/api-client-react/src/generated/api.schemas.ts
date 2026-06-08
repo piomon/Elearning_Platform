@@ -126,6 +126,11 @@ export interface Video {
   createdAt: string;
 }
 
+/**
+ * @nullable
+ */
+export type TaskAiPromptConfig = { [key: string]: unknown } | null;
+
 export interface Task {
   id: number;
   topicId: number;
@@ -134,6 +139,8 @@ export interface Task {
   description?: string | null;
   /** @nullable */
   initialImageUrl?: string | null;
+  /** @nullable */
+  aiPromptConfig?: TaskAiPromptConfig;
   createdAt: string;
 }
 
@@ -193,6 +200,38 @@ export interface Quiz {
   topicId: number;
   title: string;
   questions: QuizQuestion[];
+}
+
+export interface AdminTopicTree {
+  id: number;
+  sectionId: number;
+  title: string;
+  slug: string;
+  /** @nullable */
+  description?: string | null;
+  sortOrder: number;
+  video?: Video | null;
+  quiz?: Quiz | null;
+  tasks: Task[];
+}
+
+export interface AdminSectionTree {
+  id: number;
+  courseId: number;
+  title: string;
+  slug: string;
+  sortOrder: number;
+  topics: AdminTopicTree[];
+}
+
+export interface AdminCourseTree {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  isPublished: boolean;
+  createdAt?: string;
+  sections: AdminSectionTree[];
 }
 
 export interface QuizAttemptAnswerInput {
@@ -351,6 +390,7 @@ export type ContactMessageStatus = typeof ContactMessageStatus[keyof typeof Cont
 export const ContactMessageStatus = {
   new: 'new',
   read: 'read',
+  replied: 'replied',
   closed: 'closed',
 } as const;
 
@@ -370,6 +410,7 @@ export type ContactMessageUpdateStatus = typeof ContactMessageUpdateStatus[keyof
 export const ContactMessageUpdateStatus = {
   new: 'new',
   read: 'read',
+  replied: 'replied',
   closed: 'closed',
 } as const;
 
@@ -495,6 +536,8 @@ export interface BanInput {
 
 export interface AccessInput {
   courseId: number;
+  /** @nullable */
+  validTo?: string | null;
 }
 
 export interface RefundInput {
@@ -525,6 +568,7 @@ export interface AdminLog {
   id: number;
   adminId: number;
   adminEmail?: string;
+  adminFirstName?: string;
   action: string;
   entityType: string;
   /** @nullable */
@@ -532,6 +576,20 @@ export interface AdminLog {
   /** @nullable */
   metadata?: AdminLogMetadata;
   createdAt: string;
+}
+
+export interface ContactMessageList {
+  messages: ContactMessage[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface AdminLogList {
+  logs: AdminLog[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 export interface CourseInput {
@@ -580,11 +638,14 @@ export interface QuizAnswerInput {
   isCorrect: boolean;
 }
 
+export type TaskInputAiPromptConfig = { [key: string]: unknown };
+
 export interface TaskInput {
   topicId: number;
   title: string;
   description?: string;
   initialImageUrl?: string;
+  aiPromptConfig?: TaskInputAiPromptConfig;
 }
 
 export type ListAdminUsersParams = {
@@ -611,6 +672,8 @@ limit?: number;
 
 export type ListContactMessagesParams = {
 status?: ListContactMessagesStatus;
+page?: number;
+limit?: number;
 };
 
 export type ListContactMessagesStatus = typeof ListContactMessagesStatus[keyof typeof ListContactMessagesStatus];
@@ -619,10 +682,13 @@ export type ListContactMessagesStatus = typeof ListContactMessagesStatus[keyof t
 export const ListContactMessagesStatus = {
   new: 'new',
   read: 'read',
+  replied: 'replied',
   closed: 'closed',
 } as const;
 
 export type ListAdminLogsParams = {
+action?: string;
+entityType?: string;
 page?: number;
 limit?: number;
 };
