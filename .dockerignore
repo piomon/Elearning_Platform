@@ -1,0 +1,39 @@
+# Keep the Docker build context small and force a clean, in-image install
+# (so native modules like bcrypt are compiled for the image platform).
+
+# Dependencies — always reinstalled inside the image
+**/node_modules
+
+# Build output — always rebuilt inside the image
+**/dist
+**/out-tsc
+**/.tsbuildinfo
+*.tsbuildinfo
+
+# Version control & CI
+.git
+.gitignore
+
+# Local environment / secrets (never bake into images)
+.env
+.env.*
+!.env.example
+letsencrypt/
+acme.json
+
+# Editor / OS noise
+.idea
+.vscode
+.DS_Store
+Thumbs.db
+
+# Replit-specific tooling (not needed for VPS deploy)
+.cache/
+.local/
+.upm
+.config
+
+# Logs
+*.log
+npm-debug.log
+yarn-error.log
