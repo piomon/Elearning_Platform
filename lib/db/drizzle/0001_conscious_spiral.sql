@@ -1,5 +1,5 @@
 ALTER TABLE "login_events" ALTER COLUMN "user_id" SET DATA TYPE integer;--> statement-breakpoint
-ALTER TABLE "admin_logs" ALTER COLUMN "metadata_json" SET DATA TYPE jsonb;--> statement-breakpoint
+ALTER TABLE "admin_logs" ALTER COLUMN "metadata_json" SET DATA TYPE jsonb USING "metadata_json"::jsonb;--> statement-breakpoint
 ALTER TABLE "contact_messages" ADD COLUMN "consent" boolean DEFAULT false NOT NULL;--> statement-breakpoint
 ALTER TABLE "contact_messages" ADD COLUMN "consent_at" timestamp;--> statement-breakpoint
 CREATE INDEX "access_grants_user_course_status_idx" ON "access_grants" USING btree ("user_id","course_id","status");--> statement-breakpoint
