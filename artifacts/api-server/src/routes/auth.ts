@@ -1,10 +1,10 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
 import { db } from "@workspace/db";
-import { users, loginEvents, accessGrants } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { users, loginEvents } from "@workspace/db";
+import { eq } from "drizzle-orm";
 import { generateToken, requireAuth, type AuthRequest } from "../middlewares/auth";
-import { logger } from "../lib/logger";
+import { getActiveAccessGrants } from "../lib/access";
 
 const router = Router();
 
@@ -117,13 +117,13 @@ router.get("/auth/me", requireAuth as any, async (req: AuthRequest, res) => {
       return;
     }
 
-    const [grant] = await db
-      .select({ id: accessGrants.id })
-      .from(accessGrants)
-      .where(and(eq(accessGrants.userId, user.id), eq(accessGrants.status, "active")))
-      .limit(1);
+    const accessGrants = await getActiveAccessGrants(user.id);
 
-    res.json({ ...user, hasAccess: user.role === "admin" || !!grant });
+    res.json({
+      ...user,
+      hasAccess: user.role === "admin" || accessGrants.length > 0,
+      accessGrants,
+    });
   } catch (err) {
     req.log.error({ err }, "GetMe error");
     res.status(500).json({ error: "Błąd serwera" });

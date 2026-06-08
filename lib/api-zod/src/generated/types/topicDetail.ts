@@ -5,7 +5,7 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
-import type { Quiz } from './quiz';
+import type { QuizPublic } from './quizPublic';
 import type { Task } from './task';
 import type { Video } from './video';
 
@@ -18,6 +18,6 @@ export interface TopicDetail {
   description?: string | null;
   sortOrder: number;
   video?: Video | null;
-  quiz?: Quiz | null;
+  quiz?: QuizPublic | null;
   tasks?: Task[];
 }

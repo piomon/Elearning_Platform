@@ -1,107 +1,208 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { quizzes, quizQuestions, quizAnswers, quizAttempts, quizAttemptAnswers, learningProgress } from "@workspace/db";
-import { eq, and, asc } from "drizzle-orm";
+import {
+  quizzes,
+  quizQuestions,
+  quizAnswers,
+  quizAttempts,
+  quizAttemptAnswers,
+  learningProgress,
+} from "@workspace/db";
+import { eq, and, asc, inArray } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
+import { requireCourseAccess, getCourseIdByQuizId } from "../lib/access";
 
 const router = Router();
 
-router.get("/quizzes/:quizId", requireAuth as any, async (req: AuthRequest, res) => {
-  try {
-    const quizId = Number(req.params.quizId);
-    const [quiz] = await db.select().from(quizzes).where(eq(quizzes.id, quizId)).limit(1);
-    if (!quiz) {
-      res.status(404).json({ error: "Quiz nie znaleziony" });
-      return;
-    }
+const quizAccess = requireCourseAccess((req) =>
+  getCourseIdByQuizId(Number(req.params.quizId)),
+);
 
-    const questionList = await db.select().from(quizQuestions).where(eq(quizQuestions.quizId, quizId)).orderBy(asc(quizQuestions.sortOrder));
-    const questionsWithAnswers = await Promise.all(
-      questionList.map(async (q) => {
-        const answers = await db.select({
+router.get(
+  "/quizzes/:quizId",
+  requireAuth as any,
+  quizAccess as any,
+  async (req: AuthRequest, res) => {
+    try {
+      const quizId = Number(req.params.quizId);
+      const [quiz] = await db.select().from(quizzes).where(eq(quizzes.id, quizId)).limit(1);
+      if (!quiz) {
+        res.status(404).json({ error: "Quiz nie znaleziony" });
+        return;
+      }
+
+      const questionList = await db
+        .select()
+        .from(quizQuestions)
+        .where(eq(quizQuestions.quizId, quizId))
+        .orderBy(asc(quizQuestions.sortOrder));
+
+      const questionsWithAnswers = await Promise.all(
+        questionList.map(async (q) => {
+          // Student-facing DTO must not leak which answer is correct.
+          const answers = await db
+            .select({
+              id: quizAnswers.id,
+              questionId: quizAnswers.questionId,
+              answerLabel: quizAnswers.answerLabel,
+              answerText: quizAnswers.answerText,
+            })
+            .from(quizAnswers)
+            .where(eq(quizAnswers.questionId, q.id))
+            .orderBy(asc(quizAnswers.answerLabel));
+          return { ...q, answers };
+        }),
+      );
+
+      res.json({ ...quiz, questions: questionsWithAnswers });
+    } catch (err) {
+      req.log.error({ err }, "Get quiz error");
+      res.status(500).json({ error: "Błąd serwera" });
+    }
+  },
+);
+
+router.post(
+  "/quizzes/:quizId/attempts",
+  requireAuth as any,
+  quizAccess as any,
+  async (req: AuthRequest, res) => {
+    try {
+      const quizId = Number(req.params.quizId);
+      const { answers } = req.body as {
+        answers?: Array<{ questionId: number; selectedAnswerId: number }>;
+      };
+
+      if (!answers || !Array.isArray(answers) || answers.length === 0) {
+        res.status(400).json({ error: "Nieprawidłowe dane" });
+        return;
+      }
+
+      const [quiz] = await db.select().from(quizzes).where(eq(quizzes.id, quizId)).limit(1);
+      if (!quiz) {
+        res.status(404).json({ error: "Quiz nie znaleziony" });
+        return;
+      }
+
+      // All questions that belong to this quiz.
+      const questionRows = await db
+        .select({ id: quizQuestions.id })
+        .from(quizQuestions)
+        .where(eq(quizQuestions.quizId, quizId));
+      const quizQuestionIds = new Set(questionRows.map((q) => q.id));
+
+      if (quizQuestionIds.size === 0) {
+        res.status(400).json({ error: "Quiz nie ma pytań" });
+        return;
+      }
+
+      // All answers that belong to this quiz's questions (scoped, not global).
+      const answerRows = await db
+        .select({
           id: quizAnswers.id,
           questionId: quizAnswers.questionId,
-          answerLabel: quizAnswers.answerLabel,
-          answerText: quizAnswers.answerText,
           isCorrect: quizAnswers.isCorrect,
-        }).from(quizAnswers).where(eq(quizAnswers.questionId, q.id));
-        return { ...q, answers };
-      })
-    );
+        })
+        .from(quizAnswers)
+        .where(inArray(quizAnswers.questionId, [...quizQuestionIds]));
 
-    res.json({ ...quiz, questions: questionsWithAnswers });
-  } catch (err) {
-    req.log.error({ err }, "Get quiz error");
-    res.status(500).json({ error: "Błąd serwera" });
-  }
-});
+      const answerById = new Map(answerRows.map((a) => [a.id, a]));
+      const correctByQuestion = new Map<number, number>();
+      for (const a of answerRows) {
+        if (a.isCorrect) correctByQuestion.set(a.questionId, a.id);
+      }
 
-router.post("/quizzes/:quizId/attempts", requireAuth as any, async (req: AuthRequest, res) => {
-  try {
-    const quizId = Number(req.params.quizId);
-    const { answers } = req.body as { answers: Array<{ questionId: number; selectedAnswerId: number }> };
+      // Validate that every submitted answer references a question and answer
+      // that genuinely belong to this quiz, and that there are no duplicates.
+      const seenQuestions = new Set<number>();
+      for (const a of answers) {
+        const questionId = Number(a?.questionId);
+        const selectedAnswerId = Number(a?.selectedAnswerId);
+        if (!Number.isInteger(questionId) || !Number.isInteger(selectedAnswerId)) {
+          res.status(400).json({ error: "Nieprawidłowe dane odpowiedzi" });
+          return;
+        }
+        if (!quizQuestionIds.has(questionId)) {
+          res.status(400).json({ error: "Pytanie nie należy do tego quizu" });
+          return;
+        }
+        const selected = answerById.get(selectedAnswerId);
+        if (!selected || selected.questionId !== questionId) {
+          res.status(400).json({ error: "Odpowiedź nie należy do tego pytania" });
+          return;
+        }
+        if (seenQuestions.has(questionId)) {
+          res.status(400).json({ error: "Zduplikowana odpowiedź na pytanie" });
+          return;
+        }
+        seenQuestions.add(questionId);
+      }
 
-    if (!answers || !Array.isArray(answers)) {
-      res.status(400).json({ error: "Nieprawidłowe dane" });
-      return;
+      // Score against every question in the quiz (server-side authority).
+      const totalQuestions = quizQuestionIds.size;
+      const submittedByQuestion = new Map(
+        answers.map((a) => [Number(a.questionId), Number(a.selectedAnswerId)]),
+      );
+
+      let score = 0;
+      const answerResults = [...quizQuestionIds].map((questionId) => {
+        const selectedAnswerId = submittedByQuestion.get(questionId) ?? null;
+        const correctAnswerId = correctByQuestion.get(questionId) ?? null;
+        const isCorrect =
+          selectedAnswerId !== null && selectedAnswerId === correctAnswerId;
+        if (isCorrect) score++;
+        return { questionId, selectedAnswerId, isCorrect, correctAnswerId };
+      });
+
+      const percentage =
+        totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+      await db.transaction(async (tx) => {
+        const [attempt] = await tx
+          .insert(quizAttempts)
+          .values({
+            userId: req.user!.id,
+            quizId,
+            score,
+            totalQuestions,
+            completedAt: new Date(),
+          })
+          .returning();
+
+        const persistable = answerResults.filter((r) => r.selectedAnswerId !== null);
+        if (persistable.length > 0) {
+          await tx.insert(quizAttemptAnswers).values(
+            persistable.map((r) => ({
+              attemptId: attempt.id,
+              questionId: r.questionId,
+              selectedAnswerId: r.selectedAnswerId as number,
+              isCorrect: r.isCorrect,
+            })),
+          );
+        }
+
+        await tx
+          .update(learningProgress)
+          .set({ quizCompleted: true, updatedAt: new Date() })
+          .where(
+            and(
+              eq(learningProgress.userId, req.user!.id),
+              eq(learningProgress.topicId, quiz.topicId),
+            ),
+          );
+      });
+
+      res.status(201).json({
+        score,
+        totalQuestions,
+        percentage,
+        answers: answerResults,
+      });
+    } catch (err) {
+      req.log.error({ err }, "Submit quiz attempt error");
+      res.status(500).json({ error: "Błąd serwera" });
     }
-
-    const [quiz] = await db.select().from(quizzes).where(eq(quizzes.id, quizId)).limit(1);
-    if (!quiz) {
-      res.status(404).json({ error: "Quiz nie znaleziony" });
-      return;
-    }
-
-    const correctAnswers = await db
-      .select({ id: quizAnswers.id, questionId: quizAnswers.questionId, isCorrect: quizAnswers.isCorrect })
-      .from(quizAnswers)
-      .where(eq(quizAnswers.isCorrect, true));
-
-    const correctMap = Object.fromEntries(correctAnswers.map((a) => [a.questionId, a.id]));
-
-    let score = 0;
-    const answerResults = answers.map((a) => {
-      const isCorrect = correctMap[a.questionId] === a.selectedAnswerId;
-      if (isCorrect) score++;
-      return {
-        questionId: a.questionId,
-        selectedAnswerId: a.selectedAnswerId,
-        isCorrect,
-        correctAnswerId: correctMap[a.questionId] ?? a.selectedAnswerId,
-      };
-    });
-
-    const [attempt] = await db.insert(quizAttempts).values({
-      userId: req.user!.id,
-      quizId,
-      score,
-      totalQuestions: answers.length,
-      completedAt: new Date(),
-    }).returning();
-
-    await db.insert(quizAttemptAnswers).values(
-      answers.map((a) => ({
-        attemptId: attempt.id,
-        questionId: a.questionId,
-        selectedAnswerId: a.selectedAnswerId,
-        isCorrect: correctMap[a.questionId] === a.selectedAnswerId,
-      }))
-    );
-
-    await db.update(learningProgress).set({ quizCompleted: true, updatedAt: new Date() }).where(
-      and(eq(learningProgress.userId, req.user!.id))
-    );
-
-    res.status(201).json({
-      score,
-      totalQuestions: answers.length,
-      percentage: Math.round((score / answers.length) * 100),
-      answers: answerResults,
-    });
-  } catch (err) {
-    req.log.error({ err }, "Submit quiz attempt error");
-    res.status(500).json({ error: "Błąd serwera" });
-  }
-});
+  },
+);
 
 export default router;

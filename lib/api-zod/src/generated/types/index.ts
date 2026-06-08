@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './accessGrant';
 export * from './accessInput';
 export * from './adminDashboard';
 export * from './adminLog';
@@ -42,19 +43,24 @@ export * from './messageResponse';
 export * from './payment';
 export * from './paymentCreated';
 export * from './paymentInput';
+export * from './paymentPrice';
 export * from './progress';
 export * from './progressInput';
 export * from './progressInputCurrentElementType';
+export * from './progressSummary';
 export * from './quiz';
 export * from './quizAnswer';
 export * from './quizAnswerInput';
+export * from './quizAnswerPublic';
 export * from './quizAttemptAnswerInput';
 export * from './quizAttemptAnswerResult';
 export * from './quizAttemptInput';
 export * from './quizAttemptResult';
 export * from './quizInput';
+export * from './quizPublic';
 export * from './quizQuestion';
 export * from './quizQuestionInput';
+export * from './quizQuestionPublic';
 export * from './recentLogin';
 export * from './refund';
 export * from './refundInput';

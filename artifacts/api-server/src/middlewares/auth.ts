@@ -3,8 +3,9 @@ import jwt from "jsonwebtoken";
 import { db } from "@workspace/db";
 import { users } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { config } from "../config/env";
 
-const JWT_SECRET = process.env.JWT_SECRET ?? process.env.SESSION_SECRET ?? "dev_secret_change_me";
+const JWT_SECRET = config.jwtSecret;
 
 export interface AuthRequest extends Request {
   user?: {
@@ -64,32 +65,3 @@ export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction
   next();
 }
 
-export async function requireAccess(req: AuthRequest, res: Response, next: NextFunction) {
-  if (!req.user) {
-    res.status(401).json({ error: "Brak autoryzacji" });
-    return;
-  }
-  if (req.user.role === "admin") {
-    next();
-    return;
-  }
-  const { accessGrants, courses } = await import("@workspace/db");
-  const { and, eq: eqD, gt } = await import("drizzle-orm");
-  const now = new Date();
-  const [grant] = await db
-    .select({ id: accessGrants.id })
-    .from(accessGrants)
-    .where(
-      and(
-        eqD(accessGrants.userId, req.user.id),
-        eqD(accessGrants.status, "active"),
-      ),
-    )
-    .limit(1);
-
-  if (!grant) {
-    res.status(403).json({ error: "Brak dostępu do kursu. Kup dostęp, aby kontynuować." });
-    return;
-  }
-  next();
-}

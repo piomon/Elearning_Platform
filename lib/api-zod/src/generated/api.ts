@@ -46,7 +46,15 @@ export const LoginResponse = zod.object({
   "bannedReason": zod.string().nullish(),
   "createdAt": zod.string(),
   "lastLoginAt": zod.string().nullish(),
-  "hasAccess": zod.boolean().optional()
+  "hasAccess": zod.boolean().optional(),
+  "accessGrants": zod.array(zod.object({
+  "id": zod.number(),
+  "courseId": zod.number(),
+  "source": zod.string(),
+  "status": zod.string(),
+  "validFrom": zod.string(),
+  "validTo": zod.string().nullish()
+})).optional()
 }),
   "token": zod.string()
 })
@@ -67,7 +75,15 @@ export const GetMeResponse = zod.object({
   "bannedReason": zod.string().nullish(),
   "createdAt": zod.string(),
   "lastLoginAt": zod.string().nullish(),
-  "hasAccess": zod.boolean().optional()
+  "hasAccess": zod.boolean().optional(),
+  "accessGrants": zod.array(zod.object({
+  "id": zod.number(),
+  "courseId": zod.number(),
+  "source": zod.string(),
+  "status": zod.string(),
+  "validFrom": zod.string(),
+  "validTo": zod.string().nullish()
+})).optional()
 })
 
 
@@ -156,8 +172,7 @@ export const GetTopicResponse = zod.object({
   "id": zod.number(),
   "questionId": zod.number(),
   "answerLabel": zod.string(),
-  "answerText": zod.string(),
-  "isCorrect": zod.boolean()
+  "answerText": zod.string()
 }))
 }))
 }),zod.null()]).optional(),
@@ -216,6 +231,15 @@ export const UpsertProgressResponse = zod.object({
 })
 
 
+export const GetProgressSummaryResponse = zod.object({
+  "startedTopics": zod.number(),
+  "completedTopics": zod.number(),
+  "videosCompleted": zod.number(),
+  "quizzesCompleted": zod.number(),
+  "tasksChecked": zod.number()
+})
+
+
 export const GetContinueProgressResponse = zod.object({
   "topicId": zod.number().nullish(),
   "sectionId": zod.number().nullish(),
@@ -243,8 +267,7 @@ export const GetQuizResponse = zod.object({
   "id": zod.number(),
   "questionId": zod.number(),
   "answerLabel": zod.string(),
-  "answerText": zod.string(),
-  "isCorrect": zod.boolean()
+  "answerText": zod.string()
 }))
 }))
 })
@@ -270,6 +293,12 @@ export const CheckTaskBody = zod.object({
 export const CheckTaskResponse = zod.object({
   "feedback": zod.string(),
   "checkId": zod.number().nullish()
+})
+
+
+export const GetCoursePriceResponse = zod.object({
+  "price": zod.number(),
+  "currency": zod.string()
 })
 
 

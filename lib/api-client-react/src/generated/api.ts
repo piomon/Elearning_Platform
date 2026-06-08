@@ -47,14 +47,17 @@ import type {
   Payment,
   PaymentCreated,
   PaymentInput,
+  PaymentPrice,
   Progress,
   ProgressInput,
+  ProgressSummary,
   Quiz,
   QuizAnswer,
   QuizAnswerInput,
   QuizAttemptInput,
   QuizAttemptResult,
   QuizInput,
+  QuizPublic,
   QuizQuestion,
   QuizQuestionInput,
   RefundInput,
@@ -849,6 +852,77 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       return useMutation(getUpsertProgressMutationOptions(options));
     }
 
+export const getGetProgressSummaryUrl = () => {
+
+
+
+
+  return `/api/progress/summary`
+}
+
+export const getProgressSummary = async ( options?: RequestInit): Promise<ProgressSummary> => {
+
+  return customFetch<ProgressSummary>(getGetProgressSummaryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetProgressSummaryQueryKey = () => {
+    return [
+    `/api/progress/summary`
+    ] as const;
+    }
+
+
+export const getGetProgressSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getProgressSummary>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProgressSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProgressSummaryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProgressSummary>>> = ({ signal }) => getProgressSummary({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProgressSummary>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetProgressSummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getProgressSummary>>>
+export type GetProgressSummaryQueryError = ErrorType<unknown>
+
+
+
+export function useGetProgressSummary<TData = Awaited<ReturnType<typeof getProgressSummary>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProgressSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetProgressSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
 export const getGetContinueProgressUrl = () => {
 
 
@@ -928,9 +1002,9 @@ export const getGetQuizUrl = (quizId: number,) => {
   return `/api/quizzes/${quizId}`
 }
 
-export const getQuiz = async (quizId: number, options?: RequestInit): Promise<Quiz> => {
+export const getQuiz = async (quizId: number, options?: RequestInit): Promise<QuizPublic> => {
 
-  return customFetch<Quiz>(getGetQuizUrl(quizId),
+  return customFetch<QuizPublic>(getGetQuizUrl(quizId),
   {
     ...options,
     method: 'GET'
@@ -1121,6 +1195,77 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getCheckTaskMutationOptions(options));
     }
+
+export const getGetCoursePriceUrl = () => {
+
+
+
+
+  return `/api/payments/price`
+}
+
+export const getCoursePrice = async ( options?: RequestInit): Promise<PaymentPrice> => {
+
+  return customFetch<PaymentPrice>(getGetCoursePriceUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCoursePriceQueryKey = () => {
+    return [
+    `/api/payments/price`
+    ] as const;
+    }
+
+
+export const getGetCoursePriceQueryOptions = <TData = Awaited<ReturnType<typeof getCoursePrice>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoursePrice>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCoursePriceQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCoursePrice>>> = ({ signal }) => getCoursePrice({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCoursePrice>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCoursePriceQueryResult = NonNullable<Awaited<ReturnType<typeof getCoursePrice>>>
+export type GetCoursePriceQueryError = ErrorType<unknown>
+
+
+
+export function useGetCoursePrice<TData = Awaited<ReturnType<typeof getCoursePrice>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCoursePrice>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCoursePriceQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getCreatePaymentUrl = () => {
 

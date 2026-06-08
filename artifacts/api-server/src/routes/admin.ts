@@ -37,7 +37,7 @@ async function logAdminAction(
     action,
     entityType,
     entityId: entityId ?? null,
-    metadataJson: meta ? JSON.stringify(meta) : null,
+    metadata: meta ?? null,
   });
 }
 
@@ -85,7 +85,7 @@ router.get("/admin/dashboard", async (req: AuthRequest, res) => {
       totalUsers,
       activeAccess,
       totalPayments,
-      revenue: Number(revenue ?? 0),
+      totalRevenue: Number(revenue ?? 0),
       recentLogins,
       recentMessages,
     });
@@ -230,8 +230,13 @@ router.get("/admin/users/:id/login-stats/:month", async (req: AuthRequest, res) 
     const start = new Date(year, m - 1, 1);
     const end = new Date(year, m, 1);
 
-    const logins = await db
-      .select({ id: loginEvents.id, createdAt: loginEvents.createdAt })
+    const events = await db
+      .select({
+        id: loginEvents.id,
+        ipAddress: loginEvents.ipAddress,
+        userAgent: loginEvents.userAgent,
+        createdAt: loginEvents.createdAt,
+      })
       .from(loginEvents)
       .where(
         and(
@@ -239,9 +244,10 @@ router.get("/admin/users/:id/login-stats/:month", async (req: AuthRequest, res) 
           sql`${loginEvents.createdAt} >= ${start}`,
           sql`${loginEvents.createdAt} < ${end}`
         )
-      );
+      )
+      .orderBy(desc(loginEvents.createdAt));
 
-    res.json({ month, loginCount: logins.length, logins });
+    res.json({ userId, month, count: events.length, events });
   } catch (err) {
     req.log.error({ err }, "Login stats error");
     res.status(500).json({ error: "Błąd serwera" });
@@ -412,7 +418,7 @@ router.post("/admin/payments/:paymentId/refund", async (req: AuthRequest, res) =
 
 // ── Contact Messages ──────────────────────────────────────────────────────────
 
-router.get("/admin/contact", async (req: AuthRequest, res) => {
+router.get("/admin/contact-messages", async (req: AuthRequest, res) => {
   try {
     const { status } = req.query as { status?: string };
     let msgs = await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
@@ -424,7 +430,7 @@ router.get("/admin/contact", async (req: AuthRequest, res) => {
   }
 });
 
-router.patch("/admin/contact/:id", async (req: AuthRequest, res) => {
+router.patch("/admin/contact-messages/:id", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
     const { status } = req.body;
@@ -457,7 +463,7 @@ router.get("/admin/logs", async (req: AuthRequest, res) => {
         action: adminLogs.action,
         entityType: adminLogs.entityType,
         entityId: adminLogs.entityId,
-        metadataJson: adminLogs.metadataJson,
+        metadata: adminLogs.metadata,
         createdAt: adminLogs.createdAt,
       })
       .from(adminLogs)

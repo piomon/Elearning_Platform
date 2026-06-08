@@ -237,6 +237,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/Progress"
 
+  /progress/summary:
+    get:
+      operationId: getProgressSummary
+      tags: [progress]
+      responses:
+        "200":
+          description: Aggregated progress summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressSummary"
+
   /progress/continue:
     get:
       operationId: getContinueProgress
@@ -266,7 +278,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quiz"
+                $ref: "#/components/schemas/QuizPublic"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: No access to course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: Not found
           content:
@@ -324,6 +348,18 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 
   # ─── PAYMENTS ────────────────────────────────────────────────────────────────
+  /payments/price:
+    get:
+      operationId: getCoursePrice
+      tags: [payments]
+      responses:
+        "200":
+          description: Current course price
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentPrice"
+
   /payments/create:
     post:
       operationId: createPayment
@@ -1242,6 +1278,27 @@ components:
           type: ["string", "null"]
         hasAccess:
           type: boolean
+        accessGrants:
+          type: array
+          items:
+            $ref: "#/components/schemas/AccessGrant"
+
+    AccessGrant:
+      type: object
+      required: [id, courseId, source, status, validFrom]
+      properties:
+        id:
+          type: integer
+        courseId:
+          type: integer
+        source:
+          type: string
+        status:
+          type: string
+        validFrom:
+          type: string
+        validTo:
+          type: ["string", "null"]
 
     AuthResponse:
       type: object
@@ -1391,7 +1448,7 @@ components:
             - type: "null"
         quiz:
           oneOf:
-            - $ref: "#/components/schemas/Quiz"
+            - $ref: "#/components/schemas/QuizPublic"
             - type: "null"
         tasks:
           type: array
@@ -1445,6 +1502,51 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/QuizQuestion"
+
+    QuizAnswerPublic:
+      type: object
+      required: [id, questionId, answerLabel, answerText]
+      properties:
+        id:
+          type: integer
+        questionId:
+          type: integer
+        answerLabel:
+          type: string
+        answerText:
+          type: string
+
+    QuizQuestionPublic:
+      type: object
+      required: [id, quizId, questionText, sortOrder, answers]
+      properties:
+        id:
+          type: integer
+        quizId:
+          type: integer
+        questionText:
+          type: string
+        sortOrder:
+          type: integer
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizAnswerPublic"
+
+    QuizPublic:
+      type: object
+      required: [id, topicId, title, questions]
+      properties:
+        id:
+          type: integer
+        topicId:
+          type: integer
+        title:
+          type: string
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizQuestionPublic"
 
     QuizAttemptAnswerInput:
       type: object
@@ -1560,6 +1662,21 @@ components:
         currentElementType:
           type: ["string", "null"]
 
+    ProgressSummary:
+      type: object
+      required: [startedTopics, completedTopics, videosCompleted, quizzesCompleted, tasksChecked]
+      properties:
+        startedTopics:
+          type: integer
+        completedTopics:
+          type: integer
+        videosCompleted:
+          type: integer
+        quizzesCompleted:
+          type: integer
+        tasksChecked:
+          type: integer
+
     # ─── AI SCHEMAS ───────────────────────────────────────────────────────────
     TaskCheckInput:
       type: object
@@ -1580,6 +1697,15 @@ components:
           type: ["integer", "null"]
 
     # ─── PAYMENT SCHEMAS ──────────────────────────────────────────────────────
+    PaymentPrice:
+      type: object
+      required: [price, currency]
+      properties:
+        price:
+          type: integer
+        currency:
+          type: string
+
     PaymentInput:
       type: object
       required: [courseId]

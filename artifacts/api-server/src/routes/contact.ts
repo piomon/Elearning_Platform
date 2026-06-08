@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { contactMessages } from "@workspace/db";
 import { logger } from "../lib/logger";
+import { config, isSmtpConfigured } from "../config/env";
 
 const router = Router();
 
@@ -16,22 +17,35 @@ router.post("/contact", async (req, res) => {
       res.status(400).json({ error: "Wiadomość jest za krótka (minimum 10 znaków)" });
       return;
     }
+    if (consent !== true) {
+      res.status(400).json({
+        error: "Wymagana jest zgoda na przetwarzanie danych osobowych",
+      });
+      return;
+    }
 
-    await db.insert(contactMessages).values({ name, email, subject, message, status: "new" });
+    await db.insert(contactMessages).values({
+      name,
+      email,
+      subject,
+      message,
+      status: "new",
+      consent: true,
+      consentAt: new Date(),
+    });
 
-    const smtpHost = process.env.SMTP_HOST;
-    const contactEmail = process.env.CONTACT_EMAIL;
-    if (smtpHost && contactEmail) {
+    if (isSmtpConfigured()) {
       try {
         const { createTransport } = await import("nodemailer");
         const transporter = createTransport({
-          host: smtpHost,
-          port: Number(process.env.SMTP_PORT ?? 587),
-          auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+          host: config.smtp.host,
+          port: config.smtp.port,
+          auth: { user: config.smtp.user, pass: config.smtp.pass },
         });
         await transporter.sendMail({
-          from: process.env.SMTP_USER,
-          to: contactEmail,
+          from: config.smtp.fromEmail,
+          to: config.smtp.toEmail,
+          replyTo: email,
           subject: `[Fizyka] Nowa wiadomość: ${subject}`,
           text: `Od: ${name} <${email}>\n\n${message}`,
         });

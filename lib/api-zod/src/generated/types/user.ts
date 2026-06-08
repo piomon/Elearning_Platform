@@ -5,6 +5,7 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { AccessGrant } from './accessGrant';
 import type { UserRole } from './userRole';
 
 export interface User {
@@ -20,4 +21,5 @@ export interface User {
   /** @nullable */
   lastLoginAt?: string | null;
   hasAccess?: boolean;
+  accessGrants?: AccessGrant[];
 }

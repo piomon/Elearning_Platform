@@ -40,6 +40,16 @@ export const UserRole = {
   admin: 'admin',
 } as const;
 
+export interface AccessGrant {
+  id: number;
+  courseId: number;
+  source: string;
+  status: string;
+  validFrom: string;
+  /** @nullable */
+  validTo?: string | null;
+}
+
 export interface User {
   id: number;
   email: string;
@@ -53,6 +63,7 @@ export interface User {
   /** @nullable */
   lastLoginAt?: string | null;
   hasAccess?: boolean;
+  accessGrants?: AccessGrant[];
 }
 
 export interface AuthResponse {
@@ -126,6 +137,41 @@ export interface Task {
   createdAt: string;
 }
 
+export interface QuizAnswerPublic {
+  id: number;
+  questionId: number;
+  answerLabel: string;
+  answerText: string;
+}
+
+export interface QuizQuestionPublic {
+  id: number;
+  quizId: number;
+  questionText: string;
+  sortOrder: number;
+  answers: QuizAnswerPublic[];
+}
+
+export interface QuizPublic {
+  id: number;
+  topicId: number;
+  title: string;
+  questions: QuizQuestionPublic[];
+}
+
+export interface TopicDetail {
+  id: number;
+  sectionId: number;
+  title: string;
+  slug: string;
+  /** @nullable */
+  description?: string | null;
+  sortOrder: number;
+  video?: Video | null;
+  quiz?: QuizPublic | null;
+  tasks?: Task[];
+}
+
 export interface QuizAnswer {
   id: number;
   questionId: number;
@@ -147,19 +193,6 @@ export interface Quiz {
   topicId: number;
   title: string;
   questions: QuizQuestion[];
-}
-
-export interface TopicDetail {
-  id: number;
-  sectionId: number;
-  title: string;
-  slug: string;
-  /** @nullable */
-  description?: string | null;
-  sortOrder: number;
-  video?: Video | null;
-  quiz?: Quiz | null;
-  tasks?: Task[];
 }
 
 export interface QuizAttemptAnswerInput {
@@ -238,6 +271,14 @@ export interface ContinueProgress {
   currentElementType?: string | null;
 }
 
+export interface ProgressSummary {
+  startedTopics: number;
+  completedTopics: number;
+  videosCompleted: number;
+  quizzesCompleted: number;
+  tasksChecked: number;
+}
+
 export interface TaskCheckInput {
   taskId: number;
   imageBase64: string;
@@ -247,6 +288,11 @@ export interface TaskCheckResult {
   feedback: string;
   /** @nullable */
   checkId?: number | null;
+}
+
+export interface PaymentPrice {
+  price: number;
+  currency: string;
 }
 
 export interface PaymentInput {

@@ -2,7 +2,8 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { courses, sections, topics, videos, quizzes, quizQuestions, quizAnswers, tasks } from "@workspace/db";
 import { eq, asc, and, inArray } from "drizzle-orm";
-import { requireAuth, requireAccess, type AuthRequest } from "../middlewares/auth";
+import { requireAuth, type AuthRequest } from "../middlewares/auth";
+import { requireCourseAccess, getCourseIdByTopicId } from "../lib/access";
 
 const router = Router();
 
@@ -64,7 +65,11 @@ router.get("/sections/:sectionId/topics", async (req, res) => {
   }
 });
 
-router.get("/topics/:topicId", requireAuth as any, requireAccess as any, async (req: AuthRequest, res) => {
+router.get(
+  "/topics/:topicId",
+  requireAuth as any,
+  requireCourseAccess((req) => getCourseIdByTopicId(Number(req.params.topicId))) as any,
+  async (req: AuthRequest, res) => {
   try {
     const topicId = Number(req.params.topicId);
     const [topic] = await db.select().from(topics).where(eq(topics.id, topicId)).limit(1);
@@ -82,7 +87,17 @@ router.get("/topics/:topicId", requireAuth as any, requireAccess as any, async (
       const questionList = await db.select().from(quizQuestions).where(eq(quizQuestions.quizId, quizRow.id)).orderBy(asc(quizQuestions.sortOrder));
       const questionsWithAnswers = await Promise.all(
         questionList.map(async (q) => {
-          const answerList = await db.select().from(quizAnswers).where(eq(quizAnswers.questionId, q.id));
+          // Student-facing DTO must not leak which answer is correct.
+          const answerList = await db
+            .select({
+              id: quizAnswers.id,
+              questionId: quizAnswers.questionId,
+              answerLabel: quizAnswers.answerLabel,
+              answerText: quizAnswers.answerText,
+            })
+            .from(quizAnswers)
+            .where(eq(quizAnswers.questionId, q.id))
+            .orderBy(asc(quizAnswers.answerLabel));
           return { ...q, answers: answerList };
         })
       );
@@ -99,6 +114,7 @@ router.get("/topics/:topicId", requireAuth as any, requireAccess as any, async (
     req.log.error({ err }, "Get topic error");
     res.status(500).json({ error: "Błąd serwera" });
   }
-});
+  },
+);
 
 export default router;

@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const contactMessages = pgTable("contact_messages", {
@@ -8,6 +8,8 @@ export const contactMessages = pgTable("contact_messages", {
   subject: text("subject").notNull(),
   message: text("message").notNull(),
   status: text("status").notNull().default("new"),
+  consent: boolean("consent").notNull().default(false),
+  consentAt: timestamp("consent_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -18,6 +20,6 @@ export const adminLogs = pgTable("admin_logs", {
   action: text("action").notNull(),
   entityType: text("entity_type").notNull(),
   entityId: integer("entity_id"),
-  metadataJson: text("metadata_json"),
+  metadata: jsonb("metadata_json"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
