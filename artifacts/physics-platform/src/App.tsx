@@ -2,7 +2,7 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, ProtectedRoute, AdminRoute } from "@/hooks/use-auth";
+import { AuthProvider, ProtectedRoute, AccessRoute, AdminRoute } from "@/hooks/use-auth";
 import { Layout } from "@/components/layout";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -44,13 +44,13 @@ function Router() {
           {() => <ProtectedRoute><Dashboard /></ProtectedRoute>}
         </Route>
         <Route path="/courses/:slug">
-          {() => <ProtectedRoute><CourseOverview /></ProtectedRoute>}
+          {() => <AccessRoute><CourseOverview /></AccessRoute>}
         </Route>
         <Route path="/sections/:sectionId/topics">
-          {() => <ProtectedRoute><TopicsList /></ProtectedRoute>}
+          {() => <AccessRoute><TopicsList /></AccessRoute>}
         </Route>
         <Route path="/topics/:topicId">
-          {() => <ProtectedRoute><TopicDetail /></ProtectedRoute>}
+          {() => <AccessRoute><TopicDetail /></AccessRoute>}
         </Route>
 
         <Route path="/admin">
