@@ -1,5 +1,5 @@
 import { useLocation, Link } from "wouter";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRegister } from "@workspace/api-client-react";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { BookOpen, ArrowRight } from "lucide-react";
 
@@ -15,7 +16,14 @@ const registerSchema = z.object({
   firstName: z.string().min(1, { message: "Imię jest wymagane" }),
   lastName: z.string().min(1, { message: "Nazwisko jest wymagane" }),
   email: z.string().email({ message: "Nieprawidłowy adres email" }),
-  password: z.string().min(6, { message: "Hasło musi mieć minimum 6 znaków" }),
+  password: z
+    .string()
+    .min(8, { message: "Hasło musi mieć minimum 8 znaków" })
+    .regex(/[A-Za-z]/, { message: "Hasło musi zawierać literę" })
+    .regex(/[0-9]/, { message: "Hasło musi zawierać cyfrę" }),
+  consent: z.literal(true, {
+    errorMap: () => ({ message: "Akceptacja regulaminu jest wymagana" }),
+  }),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -32,6 +40,7 @@ export default function Register() {
       lastName: "",
       email: "",
       password: "",
+      consent: false as unknown as true,
     },
   });
 
@@ -52,7 +61,9 @@ export default function Register() {
   });
 
   const onSubmit = (values: RegisterFormValues) => {
-    registerMutation.mutate({ data: values });
+    const { consent, ...data } = values;
+    void consent;
+    registerMutation.mutate({ data });
   };
 
   return (
@@ -119,8 +130,36 @@ export default function Register() {
                   {...form.register("password")}
                   className={`h-12 rounded-xl bg-muted/50 ${form.formState.errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
-                {form.formState.errors.password && (
+                {form.formState.errors.password ? (
                   <p className="text-sm text-destructive font-medium">{form.formState.errors.password.message}</p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Minimum 8 znaków, w tym litera i cyfra.</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-start gap-3">
+                  <Controller
+                    control={form.control}
+                    name="consent"
+                    render={({ field }) => (
+                      <Checkbox
+                        id="consent"
+                        checked={field.value}
+                        onCheckedChange={(v) => field.onChange(v === true)}
+                        className="mt-0.5"
+                      />
+                    )}
+                  />
+                  <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground leading-snug cursor-pointer">
+                    Akceptuję{" "}
+                    <Link href="/regulamin" className="text-primary hover:underline font-medium">regulamin</Link>{" "}
+                    oraz{" "}
+                    <Link href="/polityka-prywatnosci" className="text-primary hover:underline font-medium">politykę prywatności</Link>.
+                  </Label>
+                </div>
+                {form.formState.errors.consent && (
+                  <p className="text-sm text-destructive font-medium">{form.formState.errors.consent.message}</p>
                 )}
               </div>
 

@@ -1,1 +1,1 @@
-- [Radix Dialog form reset](radix-dialog-form-reset.md) — separate dialog-body components stay mounted; reset form state on the `open` prop, not on mount/`[]`.
+- [Payments & access](payments-access.md) — payment success uses status "completed" (not "paid"); access is gated only by server `user.hasAccess`, never granted client-side.

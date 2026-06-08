@@ -1,12 +1,15 @@
 import { useRoute, useLocation } from "wouter";
 import { useListTopics, useGetMyProgress } from "@workspace/api-client-react";
+import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, PlayCircle, HelpCircle, PenTool, CheckCircle2, Circle, ArrowRight } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ChevronLeft, PlayCircle, HelpCircle, PenTool, CheckCircle2, ArrowRight, Lock } from "lucide-react";
 
 export default function TopicsList() {
-  const [match, params] = useRoute("/sections/:sectionId/topics");
+  const [, params] = useRoute("/sections/:sectionId/topics");
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
 
   const sectionId = params?.sectionId ? parseInt(params.sectionId, 10) : 0;
   
@@ -46,6 +49,19 @@ export default function TopicsList() {
       <Button variant="ghost" className="mb-2 -ml-4 text-muted-foreground hover:text-foreground rounded-full" onClick={() => window.history.back()}>
         <ChevronLeft className="w-5 h-5 mr-1" /> Wróć do działów
       </Button>
+
+      {user && !user.hasAccess && (
+        <Alert className="bg-primary/5 border-primary/20 rounded-2xl">
+          <Lock className="h-5 w-5 text-primary" />
+          <AlertTitle className="text-primary font-bold">Podgląd ograniczony</AlertTitle>
+          <AlertDescription className="text-primary/80 mt-1 flex flex-col sm:flex-row sm:items-center gap-3">
+            <span>Aby zobaczyć pełną treść tematów, quizów i zadań, potrzebny jest aktywny dostęp do kursu.</span>
+            <Button size="sm" className="rounded-full shrink-0 w-fit" onClick={() => setLocation("/")}>
+              Zobacz ofertę
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
       
       <div className="space-y-2 mb-10">
         <span className="text-primary font-bold tracking-wider uppercase text-sm">Wybierz temat</span>

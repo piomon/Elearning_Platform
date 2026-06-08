@@ -93,16 +93,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       {!isDashboard && !location.startsWith("/admin") && (
         <footer className="border-t border-border/40 py-12 bg-card mt-auto">
-          <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
-              <div
-                className="w-6 h-6 rounded flex items-center justify-center text-primary-foreground font-bold text-xs bg-primary"
-              >
-                <BookOpen className="w-3 h-3" />
+          <div className="container mx-auto px-4 space-y-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+                <div className="w-6 h-6 rounded flex items-center justify-center text-primary-foreground font-bold text-xs bg-primary">
+                  <BookOpen className="w-3 h-3" />
+                </div>
+                <span className="font-display font-bold tracking-tight text-foreground">FizykaAI</span>
               </div>
-              <span className="font-display font-bold tracking-tight text-foreground">FizykaAI</span>
+              <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm font-medium text-muted-foreground">
+                <Link href="/regulamin" className="hover:text-foreground transition-colors">Regulamin</Link>
+                <Link href="/polityka-prywatnosci" className="hover:text-foreground transition-colors">Polityka prywatności</Link>
+                <Link href="/#kontakt" className="hover:text-foreground transition-colors">Kontakt</Link>
+                {!user && (
+                  <Link href="/login" className="hover:text-foreground transition-colors">Logowanie</Link>
+                )}
+              </nav>
             </div>
-            <p className="text-center md:text-left">
+            <p className="text-center md:text-left text-sm text-muted-foreground border-t border-border/40 pt-6">
               &copy; {new Date().getFullYear()} FizykaAI. Edukacja z przyszłością.
             </p>
           </div>

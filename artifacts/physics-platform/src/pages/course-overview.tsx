@@ -1,11 +1,12 @@
-import { useRoute, useLocation, Link } from "wouter";
-import { useGetCourse } from "@workspace/api-client-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRoute, useLocation } from "wouter";
+import { useGetCourse, useGetMyProgress } from "@workspace/api-client-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ArrowRight, BookOpen } from "lucide-react";
+import { Progress as ProgressBar } from "@/components/ui/progress";
+import { ChevronLeft, ArrowRight, BookOpen, CheckCircle2 } from "lucide-react";
 
 export default function CourseOverview() {
-  const [match, params] = useRoute("/courses/:slug");
+  const [, params] = useRoute("/courses/:slug");
   const [, setLocation] = useLocation();
 
   const slug = params?.slug || "";
@@ -13,6 +14,8 @@ export default function CourseOverview() {
   const { data: course, isLoading, error } = useGetCourse(slug, {
     query: { enabled: !!slug } as any,
   });
+
+  const { data: progress } = useGetMyProgress();
 
   if (isLoading) {
     return (
@@ -60,23 +63,33 @@ export default function CourseOverview() {
         
         <div className="grid gap-4">
           {course.sections && course.sections.length > 0 ? (
-            course.sections.map((section, idx) => (
+            course.sections.map((section, idx) => {
+              const total = section.topicCount || 0;
+              const completed = (progress || []).filter(
+                (p) => p.sectionId === section.id && p.taskCheckedByAi,
+              ).length;
+              const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+              const isDone = total > 0 && completed >= total;
+              return (
               <Card 
                 key={section.id} 
-                className="group border-border hover:border-primary/50 cursor-pointer transition-all hover:shadow-md rounded-3xl overflow-hidden bg-card"
+                className={`group border-border hover:border-primary/50 cursor-pointer transition-all hover:shadow-md rounded-3xl overflow-hidden ${isDone ? "bg-success/5 border-success/20" : "bg-card"}`}
                 onClick={() => setLocation(`/sections/${section.id}/topics`)}
               >
                 <CardContent className="p-5 sm:p-6 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-5 sm:gap-6">
-                    <div className="w-14 h-14 shrink-0 rounded-2xl bg-secondary group-hover:bg-primary/10 text-muted-foreground group-hover:text-primary flex items-center justify-center font-black text-xl transition-colors">
-                      {idx + 1}
+                  <div className="flex items-center gap-5 sm:gap-6 min-w-0">
+                    <div className={`w-14 h-14 shrink-0 rounded-2xl flex items-center justify-center font-black text-xl transition-colors ${isDone ? "bg-success/20 text-success" : "bg-secondary group-hover:bg-primary/10 text-muted-foreground group-hover:text-primary"}`}>
+                      {isDone ? <CheckCircle2 className="w-7 h-7" /> : idx + 1}
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <h3 className="text-lg sm:text-xl font-bold group-hover:text-primary transition-colors">{section.title}</h3>
                       <p className="text-sm font-medium text-muted-foreground mt-1 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
-                        {section.topicCount || 0} tematów w dziale
+                        {total > 0 ? `${completed}/${total} ukończonych tematów` : "Brak tematów"}
                       </p>
+                      {total > 0 && (
+                        <ProgressBar value={percentage} className="h-2 mt-3 max-w-xs bg-muted" />
+                      )}
                     </div>
                   </div>
                   <div className="w-10 h-10 shrink-0 rounded-full bg-muted/50 group-hover:bg-primary text-muted-foreground group-hover:text-primary-foreground flex items-center justify-center transition-all group-hover:shadow-md hidden sm:flex">
@@ -84,7 +97,8 @@ export default function CourseOverview() {
                   </div>
                 </CardContent>
               </Card>
-            ))
+              );
+            })
           ) : (
             <div className="text-center py-16 bg-muted/30 rounded-3xl border border-dashed">
               <p className="text-muted-foreground font-medium text-lg">Ten kurs nie ma jeszcze żadnych działów.</p>

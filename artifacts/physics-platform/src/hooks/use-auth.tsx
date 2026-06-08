@@ -11,6 +11,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (token: string) => void;
   logout: () => void;
+  refresh: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   login: () => {},
   logout: () => {},
+  refresh: () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -60,6 +62,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading: isUserLoading && !!token,
         login,
         logout,
+        refresh: () => {
+          refetch();
+        },
       }}
     >
       {children}

@@ -21,7 +21,10 @@ import AdminContact from "@/pages/admin/contact";
 import AdminLogs from "@/pages/admin/logs";
 import PaymentSuccess from "@/pages/payment/success";
 import PaymentError from "@/pages/payment/error";
+import Regulamin from "@/pages/regulamin";
+import Privacy from "@/pages/privacy";
 import NotFound from "@/pages/not-found";
+import { PurchaseResume } from "@/hooks/use-purchase";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +37,8 @@ function Router() {
         <Route path="/register" component={Register} />
         <Route path="/payment/success" component={PaymentSuccess} />
         <Route path="/payment/error" component={PaymentError} />
+        <Route path="/regulamin" component={Regulamin} />
+        <Route path="/polityka-prywatnosci" component={Privacy} />
         
         <Route path="/dashboard">
           {() => <ProtectedRoute><Dashboard /></ProtectedRoute>}
@@ -80,6 +85,7 @@ function App() {
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <AuthProvider>
+              <PurchaseResume />
               <Router />
             </AuthProvider>
           </WouterRouter>

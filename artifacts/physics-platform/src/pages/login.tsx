@@ -95,10 +95,7 @@ export default function Login() {
               </div>
               
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="font-semibold text-foreground/80">Hasło</Label>
-                  <a href="#" className="text-sm font-medium text-primary hover:underline">Zapomniałeś hasła?</a>
-                </div>
+                <Label htmlFor="password" className="font-semibold text-foreground/80">Hasło</Label>
                 <Input
                   id="password"
                   type="password"
