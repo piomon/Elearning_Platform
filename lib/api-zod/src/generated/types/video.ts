@@ -13,6 +13,8 @@ export interface Video {
   bunnyVideoId?: string | null;
   /** @nullable */
   videoUrl?: string | null;
+  /** @nullable */
+  embedUrl?: string | null;
   title: string;
   /** @nullable */
   durationSeconds?: number | null;

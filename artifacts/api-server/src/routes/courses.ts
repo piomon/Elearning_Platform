@@ -4,8 +4,21 @@ import { courses, sections, topics, videos, quizzes, quizQuestions, quizAnswers,
 import { eq, asc, and, inArray } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import { requireCourseAccess, getCourseIdByTopicId } from "../lib/access";
+import { config } from "../config/env";
 
 const router = Router();
+
+// Build a single agreed embed URL for the lesson video. Prefer a Bunny Stream
+// iframe (library + video id), then fall back to a raw videoUrl.
+function buildVideoEmbedUrl(video: {
+  bunnyVideoId: string | null;
+  videoUrl: string | null;
+}): string | null {
+  if (video.bunnyVideoId && config.bunny.libraryId) {
+    return `https://iframe.mediadelivery.net/embed/${config.bunny.libraryId}/${video.bunnyVideoId}`;
+  }
+  return video.videoUrl ?? null;
+}
 
 router.get("/courses", async (req, res) => {
   try {
@@ -104,11 +117,16 @@ router.get(
       quizWithQuestions = { ...quizRow, questions: questionsWithAnswers };
     }
 
+    // Strip the teacher-only AI prompt config; students must never receive it.
+    const publicTasks = taskList.map(({ aiPromptConfig: _omit, ...rest }) => rest);
+
     res.json({
       ...topic,
-      video: video ?? null,
+      video: video
+        ? { ...video, embedUrl: buildVideoEmbedUrl(video) }
+        : null,
       quiz: quizWithQuestions,
-      tasks: taskList,
+      tasks: publicTasks,
     });
   } catch (err) {
     req.log.error({ err }, "Get topic error");

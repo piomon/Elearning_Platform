@@ -54,6 +54,11 @@ app.use(
     credentials: true,
   }),
 );
+// AI task-check uploads carry a base64 image data URL: a ~5 MB decoded image is
+// ~6.7 MB encoded, so this route needs a higher body limit than the global one.
+// express.json() is a no-op once a body is parsed, so the global parser below
+// will skip /api/ai requests this one already handled.
+app.use("/api/ai", express.json({ limit: "8mb" }));
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 

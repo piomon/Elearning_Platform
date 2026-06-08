@@ -323,7 +323,7 @@ paths:
                 $ref: "#/components/schemas/QuizAttemptResult"
 
   # ─── AI ──────────────────────────────────────────────────────────────────────
-  /ai/check-task:
+  /ai/check:
     post:
       operationId: checkTask
       tags: [ai]
@@ -1413,6 +1413,8 @@ components:
         bunnyVideoId:
           type: ["string", "null"]
         videoUrl:
+          type: ["string", "null"]
+        embedUrl:
           type: ["string", "null"]
         title:
           type: string

@@ -1,4 +1,4 @@
-import { pgTable, serial, text, boolean, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, boolean, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const courses = pgTable("courses", {
@@ -95,7 +95,7 @@ export const tasks = pgTable("tasks", {
   title: text("title").notNull(),
   description: text("description"),
   initialImageUrl: text("initial_image_url"),
-  aiPromptConfig: text("ai_prompt_config"),
+  aiPromptConfig: jsonb("ai_prompt_config"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -107,6 +107,10 @@ export const aiChecks = pgTable("ai_checks", {
   topicId: integer("topic_id").references(() => topics.id),
   imageStoragePath: text("image_storage_path"),
   aiResponse: text("ai_response"),
+  errorMessage: text("error_message"),
+  model: text("model"),
+  requestBytes: integer("request_bytes"),
+  latencyMs: integer("latency_ms"),
   status: text("status").notNull().default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

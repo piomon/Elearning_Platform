@@ -155,6 +155,7 @@ export const GetTopicResponse = zod.object({
   "topicId": zod.number(),
   "bunnyVideoId": zod.string().nullish(),
   "videoUrl": zod.string().nullish(),
+  "embedUrl": zod.string().nullish(),
   "title": zod.string(),
   "durationSeconds": zod.number().nullish(),
   "createdAt": zod.string()
@@ -655,6 +656,7 @@ export const ListAdminCoursesResponseItem = zod.object({
   "topicId": zod.number(),
   "bunnyVideoId": zod.string().nullish(),
   "videoUrl": zod.string().nullish(),
+  "embedUrl": zod.string().nullish(),
   "title": zod.string(),
   "durationSeconds": zod.number().nullish(),
   "createdAt": zod.string()
@@ -841,6 +843,7 @@ export const UpdateVideoResponse = zod.object({
   "topicId": zod.number(),
   "bunnyVideoId": zod.string().nullish(),
   "videoUrl": zod.string().nullish(),
+  "embedUrl": zod.string().nullish(),
   "title": zod.string(),
   "durationSeconds": zod.number().nullish(),
   "createdAt": zod.string()

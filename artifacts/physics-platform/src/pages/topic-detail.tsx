@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRoute, useLocation } from "wouter";
 import { 
   useGetTopic, 
@@ -11,23 +11,30 @@ import { Excalidraw, exportToBlob } from "@excalidraw/excalidraw";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ChevronLeft, CheckCircle2, ChevronRight, PenTool, RefreshCw, PlayCircle, HelpCircle, AlertCircle, Bot } from "lucide-react";
+import { ChevronLeft, CheckCircle2, ChevronRight, PenTool, RefreshCw, PlayCircle, HelpCircle, AlertCircle, Bot, Loader2, Trash2, Save, Download, Sparkles, Monitor } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function TopicDetail() {
   const [match, params] = useRoute("/topics/:topicId");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const topicId = params?.topicId ? parseInt(params.topicId, 10) : 0;
   
   const [step, setStep] = useState<"video" | "quiz" | "task">("video");
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [quizResult, setQuizResult] = useState<any>(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
   
   // Excalidraw
   const [excalidrawAPI, setExcalidrawAPI] = useState<any>(null);
   const [aiFeedback, setAiFeedback] = useState<string | null>(null);
+  const [restored, setRestored] = useState(false);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const wbKey = user ? `wb:${user.id}:${topicId}` : null;
   
   const { data: topic, isLoading } = useGetTopic(topicId, {
     query: { enabled: !!topicId } as any,
@@ -114,20 +121,96 @@ export default function TopicDetail() {
     });
   };
 
-  const blobToBase64 = (blob: Blob): Promise<string> => {
+  const blobToDataUrl = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         if (typeof reader.result === "string") {
-          const base64 = reader.result.split(',')[1];
-          resolve(base64);
+          resolve(reader.result);
         } else {
-          reject(new Error("Failed to convert blob to base64"));
+          reject(new Error("Nie udało się odczytać obrazu"));
         }
       };
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
+  };
+
+  // Restore the saved whiteboard for this student + topic once the editor is ready.
+  useEffect(() => {
+    if (!excalidrawAPI || !wbKey || restored) return;
+    try {
+      const raw = localStorage.getItem(wbKey);
+      if (raw) {
+        const data = JSON.parse(raw);
+        excalidrawAPI.updateScene({ elements: data.elements ?? [] });
+        if (data.files) excalidrawAPI.addFiles(Object.values(data.files));
+      }
+    } catch {
+      // Ignore corrupt saved state; start with an empty board.
+    }
+    setRestored(true);
+  }, [excalidrawAPI, wbKey, restored]);
+
+  // Persist clears any pending debounce timer on unmount.
+  useEffect(() => {
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+  }, []);
+
+  const saveWhiteboard = useCallback((silent: boolean) => {
+    if (!excalidrawAPI || !wbKey) return;
+    try {
+      const elements = excalidrawAPI.getSceneElements();
+      const files = excalidrawAPI.getFiles();
+      localStorage.setItem(wbKey, JSON.stringify({ elements, files }));
+      if (!silent) {
+        toast({ title: "Zapisano", description: "Twoja praca na tablicy została zapisana." });
+      }
+    } catch {
+      if (!silent) {
+        toast({ title: "Nie udało się zapisać", description: "Spróbuj ponownie.", variant: "destructive" });
+      }
+    }
+  }, [excalidrawAPI, wbKey, toast]);
+
+  const handleSceneChange = () => {
+    if (!restored || !wbKey) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => saveWhiteboard(true), 1500);
+  };
+
+  const handleClearBoard = () => {
+    if (!excalidrawAPI) return;
+    excalidrawAPI.updateScene({ elements: [] });
+    if (wbKey) localStorage.removeItem(wbKey);
+    toast({ title: "Tablica wyczyszczona", description: "Możesz zacząć od nowa." });
+  };
+
+  const handleDownloadBoard = async () => {
+    if (!excalidrawAPI) return;
+    try {
+      const elements = excalidrawAPI.getSceneElements();
+      if (!elements || elements.length === 0) {
+        toast({ title: "Pusta tablica", description: "Najpierw narysuj rozwiązanie.", variant: "destructive" });
+        return;
+      }
+      const blob = await exportToBlob({
+        elements,
+        mimeType: "image/png",
+        appState: { exportBackground: true },
+        files: excalidrawAPI.getFiles(),
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `tablica-temat-${topicId}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast({ title: "Wystąpił błąd", description: "Nie udało się pobrać obrazu z tablicy.", variant: "destructive" });
+    }
   };
 
   const handleCheckTask = async () => {
@@ -147,12 +230,12 @@ export default function TopicDetail() {
         files: excalidrawAPI.getFiles()
       });
 
-      const base64 = await blobToBase64(blob);
+      const imageDataUrl = await blobToDataUrl(blob);
 
       checkTaskMutation.mutate({
         data: {
           taskId: topic.tasks[0].id,
-          imageBase64: base64
+          imageBase64: imageDataUrl
         }
       }, {
         onSuccess: (result) => {
@@ -172,8 +255,7 @@ export default function TopicDetail() {
           toast({ title: "Wystąpił błąd", description: "Nie udało się sprawdzić zadania. Spróbuj ponownie za chwilę.", variant: "destructive" });
         }
       });
-    } catch (e) {
-      console.error(e);
+    } catch {
       toast({ title: "Wystąpił błąd", description: "Nie udało się pobrać obrazu z tablicy.", variant: "destructive" });
     }
   };
@@ -185,6 +267,9 @@ export default function TopicDetail() {
           <ChevronLeft className="w-5 h-5 mr-1" /> Wróć do tematów
         </Button>
         <h1 className="text-3xl sm:text-4xl font-black tracking-tight font-display mb-2">{topic.title}</h1>
+        {topic.description && (
+          <p className="text-base sm:text-lg text-muted-foreground max-w-3xl leading-relaxed">{topic.description}</p>
+        )}
       </div>
 
       {/* Stepper Navigation */}
@@ -238,27 +323,26 @@ export default function TopicDetail() {
               </div>
             </CardHeader>
             <CardContent className="p-6 space-y-8">
-              {topic.video ? (
+              {topic.video?.embedUrl ? (
                 <div className="aspect-video bg-black rounded-2xl overflow-hidden relative shadow-inner ring-1 ring-border/50">
-                  {topic.video.bunnyVideoId ? (
-                    <iframe 
-                      src={`https://iframe.mediadelivery.net/embed/${topic.video.bunnyVideoId}`} 
-                      allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" 
-                      allowFullScreen
-                      className="absolute inset-0 w-full h-full border-0"
-                    />
-                  ) : topic.video.videoUrl ? (
-                    <iframe 
-                      src={topic.video.videoUrl} 
-                      allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" 
-                      allowFullScreen
-                      className="absolute inset-0 w-full h-full border-0"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-white/50 font-medium">
-                      Wideo jest niedostępne.
+                  {!videoLoaded && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse">
+                      <Loader2 className="w-8 h-8 text-muted-foreground/60 animate-spin" />
                     </div>
                   )}
+                  <iframe
+                    src={topic.video.embedUrl}
+                    title={topic.video.title}
+                    onLoad={() => setVideoLoaded(true)}
+                    allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full border-0"
+                  />
+                </div>
+              ) : topic.video ? (
+                <div className="aspect-video bg-muted/50 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed">
+                  <AlertCircle className="w-10 h-10 text-muted-foreground/50 mb-3" />
+                  <span className="text-muted-foreground font-medium">Wideo jest chwilowo niedostępne.</span>
                 </div>
               ) : (
                 <div className="aspect-video bg-muted/50 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed">
@@ -420,16 +504,51 @@ export default function TopicDetail() {
               </div>
             </CardHeader>
             <CardContent className="p-0 flex flex-col">
-              <div className="h-[600px] w-full relative bg-[#F8F9FA] dark:bg-[#121212]">
-                <Excalidraw 
-                  excalidrawAPI={(api) => setExcalidrawAPI(api)} 
-                  langCode="pl-PL"
-                  viewModeEnabled={checkTaskMutation.isPending}
-                  theme={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
-                />
+              {topic.tasks?.[0]?.initialImageUrl && (
+                <div className="p-6 sm:p-8 border-b bg-muted/20">
+                  <p className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Materiał do zadania</p>
+                  <img
+                    src={topic.tasks[0].initialImageUrl}
+                    alt="Materiał pomocniczy do zadania"
+                    className="max-h-80 w-auto rounded-2xl border shadow-sm mx-auto"
+                  />
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center gap-2 px-6 sm:px-8 pt-6">
+                <Button variant="outline" size="sm" className="rounded-full" onClick={handleClearBoard} disabled={checkTaskMutation.isPending}>
+                  <Trash2 className="w-4 h-4 mr-2" /> Wyczyść
+                </Button>
+                <Button variant="outline" size="sm" className="rounded-full" onClick={() => saveWhiteboard(false)} disabled={checkTaskMutation.isPending}>
+                  <Save className="w-4 h-4 mr-2" /> Zapisz
+                </Button>
+                <Button variant="outline" size="sm" className="rounded-full" onClick={handleDownloadBoard} disabled={checkTaskMutation.isPending}>
+                  <Download className="w-4 h-4 mr-2" /> Pobierz
+                </Button>
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground ml-auto">
+                  <Monitor className="w-3.5 h-3.5" /> Tablica działa najlepiej na tablecie lub komputerze.
+                </span>
+              </div>
+
+              <div className="px-6 sm:px-8 pt-4">
+                <div className="h-[600px] w-full relative rounded-2xl overflow-hidden border bg-[#F8F9FA] dark:bg-[#121212]">
+                  <Excalidraw
+                    excalidrawAPI={(api) => setExcalidrawAPI(api)}
+                    langCode="pl-PL"
+                    onChange={handleSceneChange}
+                    viewModeEnabled={checkTaskMutation.isPending}
+                    theme={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
+                  />
+                  {checkTaskMutation.isPending && (
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-background/70 backdrop-blur-sm">
+                      <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                      <p className="font-semibold text-foreground">Sztuczna Inteligencja analizuje Twoje rozwiązanie...</p>
+                    </div>
+                  )}
+                </div>
               </div>
               
-              <div className="p-6 sm:p-8 bg-card border-t relative z-10 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+              <div className="p-6 sm:p-8 bg-card relative z-10">
                 {aiFeedback && (
                   <div className="mb-8 p-6 bg-primary/5 border border-primary/20 rounded-2xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />
@@ -460,7 +579,11 @@ export default function TopicDetail() {
                     disabled={checkTaskMutation.isPending}
                     className="w-full sm:w-auto rounded-full px-8 h-14 text-base font-bold shadow-lg shadow-primary/20"
                   >
-                    {checkTaskMutation.isPending ? "Sztuczna Inteligencja analizuje..." : "Sprawdź zadanie z AI ✨"}
+                    {checkTaskMutation.isPending ? (
+                      <><Loader2 className="mr-2 w-5 h-5 animate-spin" /> Analizuję...</>
+                    ) : (
+                      <><Sparkles className="mr-2 w-5 h-5" /> Sprawdź zadanie z AI</>
+                    )}
                   </Button>
                 </div>
               </div>

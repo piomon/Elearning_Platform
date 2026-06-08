@@ -1138,7 +1138,7 @@ export const getCheckTaskUrl = () => {
 
 
 
-  return `/api/ai/check-task`
+  return `/api/ai/check`
 }
 
 export const checkTask = async (taskCheckInput: TaskCheckInput, options?: RequestInit): Promise<TaskCheckResult> => {
