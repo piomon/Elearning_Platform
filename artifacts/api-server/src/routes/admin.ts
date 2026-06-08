@@ -128,9 +128,8 @@ router.get("/admin/users", async (req: AuthRequest, res) => {
       );
     }
 
-    // Apply status filter
+    // Apply banned status filter pre-enrichment
     if (filter === "banned") userList = userList.filter((u) => u.isBanned);
-    if (filter === "active") userList = userList.filter((u) => !u.isBanned);
 
     // Enrich with access status
     const enriched = await Promise.all(
@@ -144,9 +143,10 @@ router.get("/admin/users", async (req: AuthRequest, res) => {
       })
     );
 
-    const finalList = filter === "no_access"
-      ? enriched.filter((u) => !u.hasAccess && !u.isBanned)
-      : enriched;
+    // Apply access-based filters post-enrichment
+    let finalList = enriched;
+    if (filter === "active") finalList = enriched.filter((u) => u.hasAccess && !u.isBanned);
+    else if (filter === "no_access") finalList = enriched.filter((u) => !u.hasAccess && !u.isBanned);
 
     const total = finalList.length;
     const start = (page - 1) * limit;
@@ -813,7 +813,22 @@ router.put("/admin/answers/:answerId", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.answerId);
     const { answerLabel, answerText, isCorrect } = req.body;
-    const updated = await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
+      const [existing] = await tx
+        .select()
+        .from(quizAnswers)
+        .where(eq(quizAnswers.id, id))
+        .limit(1);
+      if (!existing) return { notFound: true } as const;
+      // Prevent leaving the question with zero correct answers.
+      if (existing.isCorrect && !isCorrect) {
+        const [other] = await tx
+          .select({ id: quizAnswers.id })
+          .from(quizAnswers)
+          .where(and(eq(quizAnswers.questionId, existing.questionId), eq(quizAnswers.isCorrect, true), ne(quizAnswers.id, id)))
+          .limit(1);
+        if (!other) return { invalid: true } as const;
+      }
       const [u] = await tx
         .update(quizAnswers)
         .set({ answerLabel, answerText, isCorrect, updatedAt: new Date() })
@@ -826,10 +841,11 @@ router.put("/admin/answers/:answerId", async (req: AuthRequest, res) => {
           .set({ isCorrect: false, updatedAt: new Date() })
           .where(and(eq(quizAnswers.questionId, u.questionId), ne(quizAnswers.id, u.id)));
       }
-      return u;
+      return { answer: u } as const;
     });
-    if (!updated) { res.status(404).json({ error: "Odpowiedź nie znaleziona" }); return; }
-    res.json(updated);
+    if ("notFound" in result) { res.status(404).json({ error: "Odpowiedź nie znaleziona" }); return; }
+    if ("invalid" in result) { res.status(400).json({ error: "Pytanie musi mieć co najmniej jedną poprawną odpowiedź" }); return; }
+    res.json(result.answer);
   } catch (err) {
     req.log.error({ err }, "Update answer error");
     res.status(500).json({ error: "Błąd serwera" });
@@ -839,7 +855,28 @@ router.put("/admin/answers/:answerId", async (req: AuthRequest, res) => {
 router.delete("/admin/answers/:answerId", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.answerId);
-    await db.delete(quizAnswers).where(eq(quizAnswers.id, id));
+    const result = await db.transaction(async (tx) => {
+      const [existing] = await tx
+        .select()
+        .from(quizAnswers)
+        .where(eq(quizAnswers.id, id))
+        .limit(1);
+      if (!existing) return { notFound: true } as const;
+      // Prevent deleting the only correct answer while other answers remain.
+      if (existing.isCorrect) {
+        const others = await tx
+          .select({ id: quizAnswers.id, isCorrect: quizAnswers.isCorrect })
+          .from(quizAnswers)
+          .where(and(eq(quizAnswers.questionId, existing.questionId), ne(quizAnswers.id, id)));
+        if (others.length > 0 && !others.some((o) => o.isCorrect)) {
+          return { invalid: true } as const;
+        }
+      }
+      await tx.delete(quizAnswers).where(eq(quizAnswers.id, id));
+      return { ok: true } as const;
+    });
+    if ("notFound" in result) { res.status(404).json({ error: "Odpowiedź nie znaleziona" }); return; }
+    if ("invalid" in result) { res.status(400).json({ error: "Nie można usunąć jedynej poprawnej odpowiedzi. Najpierw wskaż inną poprawną odpowiedź." }); return; }
     res.json({ message: "Odpowiedź usunięta" });
   } catch (err) {
     req.log.error({ err }, "Delete answer error");
