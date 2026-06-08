@@ -1,0 +1,993 @@
+Jesteś senior full-stack developerem, architektem aplikacji SaaS/LMS, specjalistą od bezpieczeństwa aplikacji webowych, UX/UI dla platform edukacyjnych oraz DevOps Docker/VPS. Twoim zadaniem jest dokończyć, naprawić, zabezpieczyć i wizualnie dopracować MVP platformy edukacyjnej z modułem AI dla kursu fizyki.
+
+Masz pracować na istniejącym repozytorium aplikacji:
+- frontend: React + TypeScript + Vite + Tailwind,
+- backend: Node.js + Express + TypeScript,
+- baza danych: PostgreSQL + Drizzle,
+- API: OpenAPI + wygenerowany klient React Query,
+- moduły: panel ucznia, panel admina, quizy, Excalidraw, Google Gemini AI, Bunny.net/wideo, Przelewy24/PayU, kontakt, postęp nauki, Docker/VPS.
+
+Twoim celem nie jest tylko kosmetyczna poprawka. Masz doprowadzić projekt do realnego, bezpiecznego, odbieralnego MVP produkcyjnego.
+
+WAŻNE:
+- Nie traktuj obecnego kodu jako gotowego.
+- Najpierw napraw blokery P0 z audytu, potem P1, potem UX/UI i kosmetykę.
+- Nie ukrywaj problemów frontendowymi obejściami.
+- Wszystkie płatne zasoby muszą być chronione backendowo.
+- Wszystkie kontrakty API muszą być zgodne między backendem, OpenAPI i wygenerowanym klientem.
+- Nie zostawiaj mocków, demo endpointów ani sandboxowych płatności aktywnych w produkcji.
+- Nie kopiuj 1:1 wyglądu LearnWorlds. Zainspiruj się stylem: nowoczesny SaaS/LMS, jasny layout, mocny hero, błękitne gradienty, karty funkcji, sekcje zaufania, sprzedażowy landing, czysty dashboard. Projekt ma być autorski.
+
+============================================================
+1. GŁÓWNY CEL PROJEKTU
+============================================================
+
+Dokończ platformę edukacyjną online dla uczniów, szczególnie dla ucznia klasy 7, z kursem fizyki.
+
+Platforma ma mieć:
+
+1. Publiczną stronę sprzedażową:
+   - nowoczesną, atrakcyjną, bardzo dopracowaną wizualnie,
+   - inspirowaną stylem LearnWorlds,
+   - błękitną, przyjazną, edukacyjną kolorystykę,
+   - jasny przekaz: kurs fizyki, nauka krok po kroku, wideo, quizy, zadania, AI sprawdzające rozwiązania,
+   - CTA „Kup dostęp”, „Zobacz program”, „Zadaj pytanie”,
+   - prawdziwy flow zakupu, nie samo przekierowanie do rejestracji,
+   - sekcję formularza kontaktowego,
+   - zgodność ceny z backendem,
+   - brak niezweryfikowanych claimów typu „500 uczniów”, jeżeli nie ma dowodu.
+
+2. Rejestrację i logowanie:
+   - bezpieczne,
+   - z rate limitingiem,
+   - z checkboxami zgód: regulamin, polityka prywatności, zgoda kontaktowa, jeśli potrzebna,
+   - z sensowną polityką hasła,
+   - z poprawnym UX błędów,
+   - bez pustych linków typu „Zapomniałeś hasła?”, jeśli reset nie jest zaimplementowany.
+
+3. Panel ucznia:
+   - prosty, czytelny, dla dziecka z klasy 7,
+   - pokazujący kurs, działy, tematy, postęp,
+   - umożliwiający kontynuację ostatniego miejsca,
+   - pokazujący kolejność: film → quiz → zadanie na tablicy → sprawdzenie AI,
+   - niepokazujący płatnych materiałów bez dostępu.
+
+4. Lekcję:
+   - opis tematu,
+   - wideo,
+   - quiz jednokrotnego wyboru A/B/C/D,
+   - zadanie do rozwiązania,
+   - tablicę Excalidraw,
+   - przycisk „Sprawdź zadanie z AI”,
+   - zapis i przywracanie pracy ucznia,
+   - informację, że na telefonie tablica może być ograniczona i najlepiej pracować na tablecie/komputerze.
+
+5. Quizy:
+   - nie mogą ujawniać poprawnych odpowiedzi przed oddaniem,
+   - muszą walidować, czy answerId należy do questionId i quizId,
+   - muszą liczyć wynik wyłącznie po stronie serwera,
+   - muszą wymagać aktywnego dostępu do kursu,
+   - po submit mogą zwrócić wynik, feedback i poprawne odpowiedzi.
+
+6. Moduł AI/Gemini:
+   - klucz API tylko po backendzie,
+   - prompt systemowy ukryty przed frontendem,
+   - dodatkowy prompt per zadanie z bazy danych,
+   - walidacja obrazu,
+   - limit rozmiaru payloadu,
+   - limit użycia AI per użytkownik,
+   - access check do zadania/kursu,
+   - tryb demo tylko w development,
+   - produkcja ma zwracać błąd konfiguracji, jeśli brakuje GEMINI_API_KEY.
+
+7. Płatności:
+   - pełny flow Przelewy24 albo PayU,
+   - create payment,
+   - redirect do operatora,
+   - webhook/status,
+   - verify transakcji u operatora,
+   - idempotencja webhooków,
+   - porównanie amount/currency/sessionId/status,
+   - nadanie access_grant dopiero po potwierdzeniu płatności,
+   - mock-complete tylko w NODE_ENV=development/test,
+   - cena tylko z jednego źródła: backend/config/DB,
+   - frontend ma pobierać cenę z API.
+
+8. Panel administratora:
+   - dashboard,
+   - użytkownicy,
+   - profil użytkownika,
+   - miesięczne logowania,
+   - ban/unban,
+   - grant/revoke dostępu,
+   - zwroty: realny refund u operatora albo wyraźny tryb „zwrot ręczny”,
+   - wiadomości kontaktowe,
+   - logi admina,
+   - pełny CMS kursu: kursy, działy, tematy, wideo, quizy, pytania, odpowiedzi, zadania, prompt AI.
+
+9. Docker/VPS:
+   - kompletne .env.example,
+   - kompletne docker-compose,
+   - env dla P24, Bunny, Gemini, SMTP, allowed origins,
+   - healthcheck,
+   - backup przed update,
+   - README z instrukcją lokalną i produkcyjną.
+
+10. Testy:
+   - testy API dla auth/access/quiz/payments/AI/admin,
+   - e2e flow: rejestracja → płatność sandbox → dostęp → lekcja,
+   - test panelu admina,
+   - test landing mobile.
+
+============================================================
+2. PRIORYTETY PRAC
+============================================================
+
+Pracuj w tej kolejności. Nie przechodź do estetyki, zanim P0 nie są naprawione.
+
+ETAP 1 — Stabilizacja konfiguracji i bezpieczeństwa startowego
+
+1. Usuń fallback JWT:
+   - znajdź miejsce typu:
+     JWT_SECRET ?? SESSION_SECRET ?? "dev_secret_change_me"
+   - usuń stały fallback,
+   - aplikacja ma przerywać start, jeśli JWT_SECRET nie istnieje albo ma mniej niż 32 znaki.
+
+2. Dodaj centralny plik konfiguracji env, np.:
+   artifacts/api-server/src/config/env.ts
+
+   Funkcja:
+   requiredEnv(name: string, minLength = 1): string
+
+   Ma rzucać błąd przy braku wymaganej zmiennej.
+
+3. Dodaj wymagane env:
+   - JWT_SECRET,
+   - DATABASE_URL,
+   - APP_URL,
+   - API_URL,
+   - ALLOWED_ORIGINS,
+   - GEMINI_API_KEY,
+   - P24_ENV,
+   - P24_MERCHANT_ID,
+   - P24_POS_ID,
+   - P24_API_KEY,
+   - P24_CRC,
+   - COURSE_PRICE_GROSZ,
+   - BUNNY_LIBRARY_ID,
+   - BUNNY_API_KEY,
+   - BUNNY_EMBED_BASE_URL,
+   - SMTP_HOST,
+   - SMTP_PORT,
+   - SMTP_USER,
+   - SMTP_PASS,
+   - CONTACT_FROM_EMAIL.
+
+4. CORS:
+   - nie używaj cors() otwartego dla każdego origin,
+   - użyj ALLOWED_ORIGINS z .env,
+   - produkcyjnie dopuszczaj tylko domenę aplikacji.
+
+5. Body limit:
+   - ustaw express.json({ limit: "5mb" }),
+   - dla AI image endpoint dodaj osobną walidację i limit.
+
+6. Rate limit:
+   - /auth/login,
+   - /auth/register,
+   - /contact,
+   - /ai/check,
+   - /payments/create,
+   - webhooki ostrożnie, aby nie zablokować operatora.
+
+ETAP 2 — Poprawa kontroli dostępu
+
+Obecny requireAccess sprawdza tylko dowolny aktywny grant użytkownika. To jest błędne.
+
+Zaimplementuj:
+
+1. assertUserHasCourseAccess(userId, courseId):
+   - sprawdza:
+     access_grants.user_id = userId,
+     access_grants.course_id = courseId,
+     status = "active",
+     validFrom <= now,
+     validTo IS NULL OR validTo > now.
+
+2. getCourseIdByTopicId(topicId):
+   - topic → section → course.
+
+3. getCourseIdByQuizId(quizId):
+   - quiz → topic → section → course.
+
+4. getCourseIdByTaskId(taskId):
+   - task → topic → section → course.
+
+5. Middleware/funkcje:
+   - requireCourseAccess(courseId),
+   - requireTopicAccess(topicId),
+   - requireQuizAccess(quizId),
+   - requireTaskAccess(taskId).
+
+6. Zastosuj access check w:
+   - GET /topics/:topicId,
+   - GET /quizzes/:quizId,
+   - POST /quizzes/:quizId/attempts,
+   - POST /ai/check,
+   - wszystkich płatnych endpointach materiałów.
+
+7. /auth/me:
+   - nie zwracaj prostego hasAccess na podstawie dowolnego grantu,
+   - zwracaj accessGrants z courseId, status, validFrom, validTo,
+   - albo licz hasAccess względem głównego kursu, ale z poprawnym warunkiem courseId + validTo.
+
+ETAP 3 — Naprawa quizów
+
+To jest krytyczne.
+
+1. Usuń isCorrect ze wszystkich endpointów ucznia:
+   - GET /topics/:topicId,
+   - GET /quizzes/:quizId.
+
+2. Stwórz osobne DTO:
+   - StudentQuizAnswer: id, questionId, answerLabel, answerText,
+   - AdminQuizAnswer: id, questionId, answerLabel, answerText, isCorrect.
+
+3. GET quiz dla ucznia:
+   - wymaga requireQuizAccess,
+   - zwraca pytania i odpowiedzi bez isCorrect.
+
+4. POST submit quiz:
+   - wymaga requireQuizAccess,
+   - pobiera pytania tylko dla danego quizId,
+   - pobiera odpowiedzi tylko dla tych pytań,
+   - buduje mapy:
+     questionId → correctAnswerId,
+     answerId → questionId,
+   - waliduje:
+     czy questionId należy do quizu,
+     czy selectedAnswerId istnieje,
+     czy selectedAnswerId należy do tego questionId,
+     czy użytkownik nie wysłał odpowiedzi z innego quizu,
+   - odrzuca request 400 przy obcych ID,
+   - liczy wynik po stronie serwera,
+   - zapisuje attempt i attempt_answers w transakcji,
+   - dopiero po submit zwraca:
+     score,
+     totalQuestions,
+     percentage,
+     answersReview: questionId, selectedAnswerId, correctAnswerId, isCorrect.
+
+5. Dodaj testy:
+   - GET quiz nie zwraca isCorrect,
+   - submit z answerId z innego quizu zwraca 400,
+   - uczeń bez access dostaje 403,
+   - grant wygasły validTo < now daje 403.
+
+ETAP 4 — Naprawa postępu ucznia
+
+Obecnie aktualizacja postępu filtruje tylko po userId, przez co może aktualizować wiele rekordów.
+
+1. W DB dodaj unique(user_id, topic_id) dla learning_progress.
+
+2. Zmień wszystkie update/upsert:
+   - filtruj po userId + topicId,
+   - nie aktualizuj wszystkich tematów użytkownika.
+
+3. Dodaj onConflictDoUpdate:
+   - target: userId + topicId,
+   - update:
+     currentElementType,
+     videoCompleted,
+     quizCompleted,
+     taskStarted,
+     taskCheckedByAi,
+     updatedAt.
+
+4. Dashboard:
+   - procent postępu ma wynikać z realnych danych,
+   - backend powinien zwracać progress summary:
+     totalTopics,
+     completedVideos,
+     completedQuizzes,
+     completedTasks,
+     overallPercent,
+     lastTopic,
+     currentElementType.
+
+5. Continue:
+   - /progress/continue ma wskazywać dokładne miejsce:
+     courseId,
+     sectionId,
+     topicId,
+     currentElementType: video | quiz | task.
+
+ETAP 5 — Płatności Przelewy24/PayU
+
+Nie wolno zostawić mocków jako produkcyjnego flow.
+
+1. Cena:
+   - usuń rozjazd 199 zł vs 299 zł,
+   - COURSE_PRICE_GROSZ ma być w backendzie/configu/DB,
+   - frontend pobiera cenę z API,
+   - formatowanie PLN przez Intl.NumberFormat.
+
+2. Frontend:
+   - przycisk „Kup dostęp teraz” nie może prowadzić tylko do /register,
+   - jeśli użytkownik niezalogowany:
+     zapisz intencję zakupu,
+     po rejestracji/logowaniu wróć do create payment,
+   - jeśli zalogowany:
+     POST /payments/create z courseId,
+     redirect do redirectUrl operatora.
+
+3. Backend:
+   - POST /payments/create:
+     wymaga auth,
+     tworzy pending payment,
+     generuje sessionId,
+     rejestruje transakcję w P24/PayU,
+     zwraca redirectUrl.
+
+4. P24_ENV:
+   - sandbox → URL sandbox,
+   - production → URL produkcyjny,
+   - produkcja nigdy nie może używać sandboxa.
+
+5. Webhook/status:
+   - po otrzymaniu webhooka nie nadawaj dostępu od razu,
+   - wykonaj verify transakcji u operatora,
+   - porównaj:
+     sessionId,
+     amount,
+     currency,
+     status,
+     providerPaymentId,
+   - dopiero wtedy:
+     payment.status = completed,
+     twórz access_grant.
+
+6. Idempotencja:
+   - duplikat webhooka nie może tworzyć drugiego grantu,
+   - dodaj unique/indexy dla payment/session/providerPaymentId,
+   - access_grants powinien mieć kontrolę jednego aktywnego grantu per user/course albo jawnie obsługiwane przedłużenia.
+
+7. mock-complete:
+   - rejestruj endpoint tylko w NODE_ENV=development/test,
+   - w production endpoint ma nie istnieć lub zwracać 404.
+
+8. Payment success page:
+   - nie aktywuje dostępu,
+   - pokazuje status,
+   - odpytuje backend,
+   - odświeża /auth/me.
+
+ETAP 6 — OpenAPI i wygenerowany klient
+
+OpenAPI musi być źródłem prawdy albo wiernie odzwierciedlać backend.
+
+Napraw rozjazdy:
+
+1. Dashboard admin:
+   - backend revenue vs frontend totalRevenue.
+   - Ustal docelowo:
+     totalRevenueGrosz albo totalRevenueAmountGrosz.
+   - Zmień backend, OpenAPI i frontend zgodnie.
+
+2. Login stats:
+   - backend loginCount/logins,
+   - frontend oczekuje count/events.
+   - Docelowo zwracaj:
+     {
+       userId,
+       month,
+       count,
+       events: [...]
+     }
+
+3. Kontakt admin:
+   - backend /admin/contact,
+   - frontend/client /admin/contact-messages.
+   - Ujednolić na /admin/contact-messages.
+
+4. Course update:
+   - jeśli backend używa PATCH, OpenAPI też ma mieć PATCH.
+   - Nie zostawiaj PUT w spec, jeśli backend nie obsługuje PUT.
+
+5. Po zmianach:
+   - zaktualizuj openapi.yaml,
+   - wygeneruj klienta,
+   - popraw typy w frontendzie,
+   - usuń ręczne obejścia.
+
+ETAP 7 — Panel administratora CMS
+
+Obecny backend ma dużo CRUD, ale UI jest nieukończone. Zbuduj pełny CMS.
+
+Minimalne widoki:
+
+1. /admin/dashboard:
+   - totalUsers,
+   - activeAccess,
+   - totalPayments,
+   - totalRevenueGrosz,
+   - recentLogins,
+   - recentMessages,
+   - wykresy/karty statystyk.
+
+2. /admin/users:
+   - lista użytkowników,
+   - search,
+   - filtr: all / banned / has active access / no access,
+   - paginacja,
+   - status dostępu.
+
+3. /admin/users/:id:
+   - dane użytkownika,
+   - access grants,
+   - płatności,
+   - refundy,
+   - miesięczne logowania,
+   - ban/unban przez modal, nie prompt(),
+   - grant/revoke z wyborem courseId i validTo,
+   - refund:
+     albo realny API refund operatora,
+     albo wyraźny „oznacz zwrot ręczny” z ostrzeżeniem.
+
+4. /admin/courses:
+   - lista kursów,
+   - create/edit/delete,
+   - publish/unpublish.
+
+5. /admin/courses/:id:
+   - edycja title, slug, description, price, isPublished,
+   - lista sekcji,
+   - sortOrder.
+
+6. Sekcje:
+   - create/edit/delete,
+   - title, slug, sortOrder.
+
+7. Tematy:
+   - create/edit/delete,
+   - title, slug, description, sortOrder,
+   - przypisanie do sekcji.
+
+8. Wideo tematu:
+   - title,
+   - embedUrl albo bunnyVideoId/libraryId,
+   - durationSeconds,
+   - preview w adminie.
+
+9. Quiz tematu:
+   - title,
+   - pytania,
+   - odpowiedzi A/B/C/D,
+   - wybór poprawnej odpowiedzi,
+   - walidacja: dokładnie jedna poprawna odpowiedź per pytanie,
+   - podgląd quizu ucznia bez isCorrect.
+
+10. Zadanie tematu:
+   - title,
+   - description,
+   - initialImageUrl,
+   - aiPromptConfig,
+   - podgląd tablicy/obrazu,
+   - walidacja promptu.
+
+11. /admin/contact-messages:
+   - lista wiadomości,
+   - status: new/read/replied/closed,
+   - podgląd treści,
+   - zmiana statusu,
+   - filtr/paginacja.
+
+12. /admin/logs:
+   - lista logów,
+   - filtr po adminId, action, entityType, date,
+   - paginacja.
+
+ETAP 8 — AI, Excalidraw, Bunny
+
+AI:
+
+1. POST /ai/check:
+   - auth + requireTaskAccess,
+   - sprawdza taskId i topicId,
+   - pobiera task.aiPromptConfig,
+   - łączy globalny prompt systemowy z promptem zadania,
+   - nie ujawnia promptu frontendowi,
+   - waliduje imageData:
+     data:image/png;base64 lub data:image/jpeg;base64,
+     maksymalny rozmiar 5 MB,
+     odrzuca pusty obraz,
+   - limituje liczbę zapytań per user/day,
+   - zapisuje ai_checks:
+     userId,
+     taskId,
+     topicId,
+     model,
+     status,
+     response,
+     error,
+     requestSize,
+     latency,
+     createdAt.
+
+2. Brak GEMINI_API_KEY:
+   - development: demo response z wyraźnym oznaczeniem,
+   - production: 503 config error.
+
+Excalidraw:
+
+1. Zapis sceny:
+   - dodaj autosave scene JSON albo zapis attempt scene,
+   - uczeń po powrocie widzi swoją pracę.
+
+2. Obraz zadania:
+   - initialImageUrl ma być widoczny:
+     albo jako obraz obok tablicy,
+     albo jako element image w Excalidraw initialData.
+
+3. UX:
+   - przyciski:
+     „Wyczyść tablicę”,
+     „Zapisz rozwiązanie”,
+     „Sprawdź z AI”,
+     „Pobierz obraz”,
+   - loader przy AI,
+   - błędy po ludzku,
+   - komunikat dla telefonu: „Tablica działa najlepiej na tablecie lub komputerze”.
+
+Bunny/wideo:
+
+1. Ustal jeden format:
+   - embedUrl jako najprostszy wariant MVP,
+   - albo libraryId + videoId + token, jeśli potrzebne.
+
+2. Admin ma pozwalać wprowadzić dane wideo.
+
+3. Frontend:
+   - iframe responsywny,
+   - skeleton/loading,
+   - fallback „Wideo niedostępne, skontaktuj się z administratorem”.
+
+ETAP 9 — Landing page i wygląd inspirowany LearnWorlds
+
+Stwórz wygląd premium, nowoczesny, edukacyjny, SaaS/LMS. Inspiracja LearnWorlds, ale bez kopiowania.
+
+Ogólny kierunek:
+- dużo bieli,
+- jasne błękitne tła,
+- gradienty blue/cyan/violet,
+- zaokrąglone karty,
+- delikatne cienie,
+- duże nagłówki,
+- czytelne CTA,
+- mockupy panelu/lekcji,
+- sekcje z ikonami,
+- estetyka „profesjonalna platforma edukacyjna”, nie „szkolny blog”.
+
+Kolory:
+- primary blue: #0969E8 lub podobny,
+- cyan: #00C2FF,
+- dark navy: #0B1220,
+- soft background: #F3FAFF,
+- white cards: #FFFFFF,
+- accent violet: #7C3AED,
+- success green: #16A34A,
+- warning amber: #F59E0B,
+- error red: #DC2626.
+
+Typography:
+- duży hero heading,
+- nagłówki krótkie,
+- tekst prosty, bez technicznego żargonu,
+- język dla rodzica i ucznia:
+  „Fizyka krok po kroku”,
+  „Najpierw obejrzyj lekcję, potem sprawdź się w quizie, a na końcu rozwiąż zadanie z pomocą AI”.
+
+Landing page musi mieć sekcje:
+
+1. Header:
+   - logo/nazwa platformy,
+   - linki: Program, Jak działa, Cena, Kontakt, Logowanie,
+   - CTA: Kup dostęp.
+
+2. Hero:
+   - headline:
+     „Fizyka dla 7 klasy w prosty i nowoczesny sposób”
+   - subheadline:
+     „Wideo, quizy i zadania na interaktywnej tablicy. Uczeń uczy się krok po kroku, a AI pomaga sprawdzić rozwiązanie.”
+   - CTA primary: „Kup dostęp”
+   - CTA secondary: „Zobacz program”
+   - po prawej mockup panelu ucznia/lekcji.
+
+3. Trust/benefits strip:
+   - „3 działy kursu”,
+   - „Lekcje wideo”,
+   - „Quizy A/B/C/D”,
+   - „Zadania z tablicą”,
+   - „Sprawdzanie AI”.
+
+   Nie używaj liczb typu „500 uczniów”, jeśli nie są potwierdzone.
+
+4. Sekcja „Jak działa kurs”:
+   - Krok 1: Obejrzyj lekcję,
+   - Krok 2: Rozwiąż quiz,
+   - Krok 3: Zrób zadanie na tablicy,
+   - Krok 4: Sprawdź z AI i popraw błędy.
+
+5. Sekcja programu:
+   - 3 działy,
+   - lista tematów z API albo z danych kursu,
+   - czytelne karty,
+   - status „w kursie”.
+
+6. Sekcja AI:
+   - wyjaśnij prosto:
+     „AI nie robi zadania za ucznia. Pomaga sprawdzić, co jest dobrze, a co warto poprawić.”
+   - pokaż mockup feedbacku AI.
+
+7. Sekcja dla rodzica:
+   - „Widzisz, że dziecko uczy się systematycznie”,
+   - „Kurs jest uporządkowany”,
+   - „Postęp zapisuje się automatycznie”.
+
+8. Sekcja ceny:
+   - cena pobierana z backendu,
+   - co zawiera dostęp,
+   - CTA „Kup dostęp”.
+
+9. FAQ:
+   - Czy kurs działa na telefonie?
+   - Czy potrzebny jest tablet?
+   - Czy AI rozwiązuje zadania za ucznia?
+   - Jak długo trwa dostęp?
+   - Co jeśli płatność się nie powiedzie?
+
+10. Formularz kontaktowy:
+   - imię,
+   - email,
+   - temat,
+   - wiadomość,
+   - checkbox zgody,
+   - POST /contact,
+   - sukces/błąd,
+   - rate limit backendowy.
+
+11. Footer:
+   - regulamin,
+   - polityka prywatności,
+   - kontakt,
+   - logowanie.
+
+Mobile:
+- landing ma wyglądać perfekcyjnie na iPhone/Android,
+- CTA i cena muszą być widoczne bez szukania,
+- karty nie mogą się rozjeżdżać,
+- hero ma być czytelny,
+- mockup nie może zasłaniać tekstu,
+- formularz ma być wygodny.
+
+ETAP 10 — UI panelu ucznia
+
+Panel ucznia ma być prosty, przyjazny i nieprzeładowany.
+
+1. Dashboard:
+   - karta „Kontynuuj naukę”,
+   - progress bar,
+   - ostatni temat,
+   - przycisk „Kontynuuj”,
+   - lista działów,
+   - informacja o dostępie.
+
+2. Course overview:
+   - sekcje kursu jako karty,
+   - liczba tematów,
+   - postęp w dziale.
+
+3. Topics list:
+   - tematy w kolejności,
+   - status:
+     wideo obejrzane,
+     quiz wykonany,
+     zadanie sprawdzone,
+   - CTA:
+     rozpocznij/kontynuuj.
+
+4. Topic detail:
+   - layout:
+     nagłówek lekcji,
+     opis,
+     wideo,
+     quiz,
+     zadanie,
+     tablica,
+     feedback AI.
+   - nie pokazuj technicznych błędów,
+   - pokazuj komunikaty:
+     „Świetnie, quiz ukończony”
+     „Spróbuj jeszcze raz”
+     „AI sprawdza Twoje rozwiązanie”.
+
+ETAP 11 — UI panelu admina
+
+Panel admina ma być funkcjonalny i czytelny.
+
+Styl:
+- może być bardziej techniczny niż panel ucznia,
+- ale nadal nowoczesny:
+  sidebar,
+  cards,
+  tables,
+  modals,
+  forms,
+  status badges.
+
+Wymagania:
+- nie używaj prompt(),
+- wszystkie destrukcyjne akcje przez modal confirmation,
+- kwoty formatowane jako PLN,
+- daty formatowane lokalnie,
+- paginacja i filtry,
+- loading/error/empty states.
+
+ETAP 12 — Baza danych
+
+Dodaj lub popraw:
+
+1. login_events.user_id:
+   - nie serial,
+   - integer FK.
+
+2. learning_progress:
+   - unique(user_id, topic_id).
+
+3. access_grants:
+   - indeks userId + courseId + status,
+   - obsługa validFrom/validTo,
+   - idempotencja aktywnego dostępu.
+
+4. payments:
+   - status enum/check,
+   - unique providerPaymentId/sessionId,
+   - amountGrosz,
+   - currency,
+   - provider,
+   - providerStatus,
+   - raw webhook metadata bez sekretów.
+
+5. contact_messages:
+   - consentAcceptedAt,
+   - privacyVersion,
+   - status.
+
+6. admin_logs:
+   - jsonb metadata, jeśli możliwe,
+   - action,
+   - entityType,
+   - entityId,
+   - adminId,
+   - createdAt.
+
+ETAP 13 — Dokumentacja i deployment
+
+Uzupełnij:
+
+1. .env.example:
+   - wszystkie wymagane env,
+   - komentarze, które są required,
+   - ostrzeżenie, że JWT_SECRET musi mieć minimum 32 znaki.
+
+2. docker-compose.yml:
+   - P24 env,
+   - Bunny env,
+   - allowed origins,
+   - healthcheck,
+   - restart policy.
+
+3. docker-compose.prod.yml:
+   - Traefik/HTTPS,
+   - security headers,
+   - resource limits,
+   - osobna sieć,
+   - brak seed demo w produkcji.
+
+4. deploy/update.sh:
+   - backup-db.sh przed update,
+   - healthcheck po update,
+   - plan rollback.
+
+5. README:
+   - lokalne uruchomienie,
+   - produkcyjne uruchomienie,
+   - P24 sandbox/prod,
+   - Bunny setup,
+   - Gemini setup,
+   - SMTP/contact,
+   - seed tylko dev,
+   - testy,
+   - checklista odbioru.
+
+ETAP 14 — Testy obowiązkowe
+
+Dodaj testy minimalne:
+
+API/auth:
+- register waliduje hasło,
+- login ma rate limit,
+- banned user nie może się zalogować,
+- /auth/me zwraca poprawne accessGrants.
+
+API/access:
+- brak grantu → 403 dla topic/quiz/AI,
+- grant wygasły → 403,
+- grant do innego courseId → 403,
+- aktywny grant do kursu → 200.
+
+API/quiz:
+- GET quiz nie zwraca isCorrect,
+- submit obcego answerId → 400,
+- submit niepełny → 400 albo zgodnie z ustaloną regułą,
+- wynik liczony po stronie serwera,
+- progress aktualizuje tylko userId + topicId.
+
+API/payments:
+- create payment tworzy pending,
+- webhook z błędną kwotą nie daje dostępu,
+- webhook poprawny daje completed i access_grant,
+- duplikat webhooka nie tworzy drugiego grantu,
+- mock-complete nie działa w production.
+
+API/AI:
+- brak dostępu → 403,
+- za duży obraz → 413/400,
+- zły MIME → 400,
+- brak GEMINI_API_KEY w prod → 503,
+- development demo tylko w dev.
+
+E2E:
+- rejestracja → płatność sandbox → dostęp → dashboard → lekcja,
+- admin dodaje temat z wideo, quizem i zadaniem → uczeń widzi temat,
+- formularz kontaktowy → wiadomość widoczna w adminie,
+- ban usera → user nie może korzystać.
+
+Visual QA:
+- landing mobile iPhone,
+- landing Android,
+- dashboard mobile/tablet/desktop,
+- lekcja desktop/tablet,
+- komunikat o ograniczeniach tablicy na telefonie.
+
+============================================================
+3. KRYTERIA ODBIORU
+============================================================
+
+Projekt uznaj za gotowy dopiero wtedy, gdy:
+
+1. Brak JWT fallback.
+2. CORS ograniczony.
+3. Body limit i rate limit działają.
+4. GET quiz nie zwraca isCorrect.
+5. Submit quiz waliduje relacje quiz/question/answer.
+6. Wszystkie płatne zasoby wymagają dostępu do konkretnego courseId.
+7. validTo jest respektowane.
+8. Progress aktualizuje tylko konkretny topicId.
+9. Płatność ma realny verify u operatora.
+10. Mock payment nie działa w produkcji.
+11. Cena jest spójna frontend/backend.
+12. OpenAPI, backend i frontend są zgodne.
+13. Admin widzi i obsługuje użytkowników, logowania, bany, granty, refund/manual refund.
+14. Admin może zarządzać kursem, działami, tematami, wideo, quizami, pytaniami, odpowiedziami, zadaniami i promptem AI.
+15. Landing page wygląda nowocześnie, premium, błękitnie, LMS/SaaS, inspirowany LearnWorlds, ale nie skopiowany.
+16. Formularz kontaktowy działa publicznie i w adminie.
+17. Panel ucznia jest prosty dla klasy 7.
+18. Excalidraw zapisuje/przywraca pracę albo przynajmniej ma poprawny zapis rozwiązania.
+19. AI ma prompt per zadanie, walidację obrazu i access check.
+20. Bunny/embed działa na realnych danych.
+21. Docker i .env są kompletne.
+22. README opisuje uruchomienie lokalne i produkcyjne.
+23. Testy i build przechodzą.
+
+============================================================
+4. KOMENDY QA DO URUCHOMIENIA
+============================================================
+
+Po poprawkach uruchom:
+
+corepack enable
+corepack prepare pnpm@latest --activate
+pnpm install --frozen-lockfile
+pnpm run typecheck
+pnpm -r --if-present run build
+
+Następnie:
+
+cp .env.example .env
+# uzupełnij wszystkie wymagane env
+
+docker compose up -d --build
+docker compose logs -f api web
+curl http://localhost:${WEB_PORT:-8080}/api/healthz
+
+Seed tylko w development:
+
+pnpm --filter @workspace/scripts run seed
+
+Uruchom testy:
+
+pnpm -r --if-present test
+pnpm -r --if-present test:e2e
+
+============================================================
+5. SPOSÓB PRACY
+============================================================
+
+1. Utwórz branch:
+   audit-fixes/mvp-production-hardening
+
+2. Pracuj małymi commitami:
+   - fix(auth): remove jwt fallback and validate env
+   - fix(access): add course-specific access checks
+   - fix(quiz): hide correct answers and validate attempts
+   - fix(progress): upsert by user and topic
+   - fix(payments): add P24 verify and idempotency
+   - fix(openapi): sync admin contracts
+   - feat(admin): add course CMS
+   - feat(landing): redesign sales page inspired by modern LMS
+   - feat(contact): add public contact form
+   - test(api): add access quiz payment tests
+   - docs: update production deployment guide
+
+3. Po każdym większym etapie:
+   - aktualizuj OpenAPI,
+   - regeneruj klienta,
+   - odpal typecheck/build,
+   - nie zostawiaj TypeScript errors.
+
+4. Na koniec przygotuj:
+   - listę zmian,
+   - listę naprawionych P0/P1,
+   - listę testów,
+   - screenshoty landing/dashboard/lesson/admin,
+   - informację, co wymaga jeszcze decyzji biznesowej, jeśli coś nie mogło być dokończone.
+
+============================================================
+6. ZAKAZANE
+============================================================
+
+Nie wolno:
+
+1. Zostawić isCorrect w endpointach ucznia.
+2. Sprawdzać dostępu tylko przez dowolny aktywny grant.
+3. Nadawać dostępu bez verify operatora płatności.
+4. Zostawić mock-complete w produkcji.
+5. Zostawić JWT fallback dev_secret_change_me.
+6. Udawać realnego refundu, jeśli backend tylko zapisuje lokalny rekord.
+7. Zostawić rozjazdu OpenAPI/backend/frontend.
+8. Używać prompt() w panelu admina.
+9. Pokazywać nieprawdziwych claimów marketingowych.
+10. Kopiować wyglądu LearnWorlds 1:1.
+11. Robić tylko zmian wizualnych bez napraw P0.
+12. Wysyłać klucza Gemini do frontendu.
+13. Zwracać technicznych stack trace użytkownikowi.
+14. Używać demo kont admin123/student123 w produkcji.
+15. Robić seed produkcyjny bez wymuszenia zmiany haseł.
+
+============================================================
+7. FINALNY REZULTAT
+============================================================
+
+Dostarcz projekt jako ukończone MVP:
+
+- bez krytycznych błędów P0,
+- z naprawionym flow płatności,
+- z bezpiecznym dostępem do kursu,
+- z poprawnymi quizami,
+- z działającym panelem ucznia,
+- z pełnym panelem admina CMS,
+- z publicznym formularzem kontaktowym,
+- z dopracowanym landing page w stylu nowoczesnej platformy LMS/SaaS,
+- z dokumentacją i testami,
+- gotowy do uruchomienia na VPS przez Docker po uzupełnieniu sekretów produkcyjnych.
