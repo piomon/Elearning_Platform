@@ -1,0 +1,39 @@
+Pytanie 1. Które z wymienionych oddziaływań, zgodnie z tekstem, potrafią działać na odległość i nie wymagają bezpośredniego dotyku?
+a) Grawitacyjne, elektrostatyczne i magnetyczne
+b) Mechaniczne, sprężyste i grawitacyjne
+c) Tylko oddziaływanie grawitacyjne
+d) Wszystkie oddziaływania fizyczne wymagają bezpośredniego kontaktu
+
+Pytanie 2. Jaka jest najważniejsza reguła dotycząca grawitacji opisana w tekście?
+a) Oddziaływanie grawitacyjne potrafi zarówno przyciągać, jak i odpychać inne przedmioty.
+b) Grawitacja działa tylko na planecie Ziemia, a w kosmosie zupełnie zanika.
+c) Grawitacja zawsze i wyłącznie przyciąga obiekty, nigdy ich nie odpycha.
+d) Grawitacja przyciąga tylko materiały ferromagnetyczne.
+
+Pytanie 3. Jak, według tekstu, zachowają się dwa takie same ładunki elektryczne (np. dwa minusy) albo dwa identyczne bieguny magnesu?
+a) Błyskawicznie się przyciągną i połączą ze sobą.
+b) Będą uciekać od siebie i się odpychać.
+c) Zaczną drastycznie zmieniać swój kształt.
+d) Zignorują się nawzajem, bo brakuje plusa.
+
+Pytanie 4. O skutku statycznym oddziaływania mówimy wtedy, gdy:
+a) uderzony przedmiot nagle wystrzeliwuje do przodu (zostaje wprawiony w ruch).
+b) pędzący bolid wciska hamulec i zwalnia.
+c) działająca siła zmusza pojazd do zmiany kierunku ruchu.
+d) przedmiot pod wpływem siły nie porusza się, ale zmienia swój kształt (np. zgniata się lub wygina).
+
+Pytanie 5. Który z poniższych przykładów z tekstu jest skutkiem dynamicznym oddziaływania?
+a) Ściśnięcie maszynami spirali, tak że staje się nagle dużo krótsza.
+b) Zmiana kierunku ruchu przez pojazd, aby ominąć przeszkodę na drodze.
+c) Wgniecenie, lepienie i rozciąganie kuli z miękkiej plasteliny.
+d) Ugięcie się długiej belki (mostu) pod ciężarem wjeżdżającej ciężarówki.
+
+1 a
+
+2 c
+
+3 b
+
+4 d
+
+5 b

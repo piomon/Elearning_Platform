@@ -1,0 +1,40 @@
+Pytanie 1. Na czym według tekstu polega proces pomiaru?
+a) Na odgadywaniu wymiarów przedmiotu "na oko".
+b) Na porównaniu wartości mierzonej z ustaloną wartością wzorcową.
+c) Na dodawaniu do siebie różnych jednostek miary z Układu SI.
+d) Na rozkładaniu przedmiotu na najmniejsze elementy i ich liczeniu.
+
+Pytanie 2. Jaka jest podstawowa jednostka temperatury w układzie SI, którą tekst określa mianem podchwytliwej pułapki na sprawdzianach?
+a) Stopień Celsjusza
+b) Stopień Fahrenheita
+c) Kelwin
+d) Paskal
+
+Pytanie 3. Zgodnie z tekstem wielkość fizyczna to cecha, którą można obiektywnie zmierzyć. Która z poniższych cech klocka NIE JEST wielkością fizyczną?
+a) Objętość
+b) Masa
+c) Temperatura
+d) Ostrość krawędzi
+
+Pytanie 4. Przed jaką pułapką ostrzega tekst w kontekście przedrostków zapisywanych literą "M" i "m"?
+a) Wielkie "M" to przedrostek mega (mnożnik przez milion), a małe "m" to mili (krojenie na tysiąc części).
+b) Wielkie "M" oznacza metry, a małe "m" to minuty.
+c) Wielkie "M" to makro, a małe "m" to mikro (dzielenie przez milion).
+d) Obie litery oznaczają dokładnie to samo i można ich używać zamiennie na sprawdzianach.
+
+Pytanie 5. Dlaczego w tekście przeliczanie jednostek czasu (np. zamiana minut na sekundy) zostało nazwane największą pułapką?
+a) Ponieważ sekunda nie jest jednostką należącą do Układu SI.
+b) Ponieważ podczas zamiany minut na sekundy należy zawsze używać dzielenia przez 1000.
+c) Ponieważ w fizyce czasu nie da się dokładnie zmierzyć stoperem.
+d) Ponieważ czas omija zasady dziesiątek i setek, a przy zamianie minut na sekundy zawsze mnożymy przez 60.
+
+
+1 b
+
+2 c
+
+3 d
+
+4 a
+
+5 d

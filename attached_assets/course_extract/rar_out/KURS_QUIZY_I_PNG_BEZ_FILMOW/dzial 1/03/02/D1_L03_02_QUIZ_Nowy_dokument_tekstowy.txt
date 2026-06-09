@@ -1,0 +1,39 @@
+Pytanie 1. Dlaczego według tekstu w fizyce KAŻDY pomiar jest niedokładny i daje różne wyniki?
+a) Ponieważ narzędzia pomiarowe oraz my sami nie jesteśmy idealni (np. przez drżenie ręki czy grubość kresek na miarce).
+b) Ponieważ przedmioty w laboratorium cały czas zmieniają swój rozmiar pod wpływem temperatury.
+c) Ponieważ w fizyce celowo używa się błędnych narzędzi, żeby trudniej było wyliczyć wynik.
+d) Ponieważ klocki podczas mierzenia zawsze minimalnie się przesuwają na stole.
+
+Pytanie 2. Co powinien zrobić fizyk, aby poznać faktyczną długość przedmiotu po uzyskaniu kilku różnych wyników z pomiarów?
+a) Wybrać tylko i wyłącznie największy ze wszystkich wyników, żeby nie zabrakło materiału.
+b) Dodać wszystkie wyniki do siebie i podzielić przez ich liczbę, obliczając w ten sposób średnią arytmetyczną.
+c) Zignorować otrzymane liczby i spróbować oszacować wymiary przedmiotu "na oko".
+d) Odrzucić najmniejszy wynik, a resztę pomnożyć przez 10.
+
+Pytanie 3. Zgodnie z klockowym prawem zaokrąglania z tekstu, co powinieneś zrobić, gdy Twój wynik wynosi 3,4?
+a) Zaokrąglić w górę, czyli dodać jeden, aby otrzymać pełną czwórkę.
+b) Zostawić wynik bez zmian, ponieważ w fizyce nigdy nie ucina się ogonków po przecinku.
+c) Zaokrąglić w dół, czyli po prostu uciąć ogonek po przecinku i zostać przy twardej, pełnej trójce.
+d) Przesunąć przecinek w prawo, żeby otrzymać nową liczbę 34.
+
+Pytanie 4. W jakiej sytuacji nasza główna liczba robi "Level Up" i zostaje zaokrąglona w górę (np. zamienia się z 3,7 na 4)?
+a) Zawsze, gdy wynik posiada na końcu po przecinku jakąkolwiek cyfrę parzystą.
+b) Kiedy pierwsza cyfra po przecinku jest równa 5 albo większa.
+c) Kiedy pierwsza cyfra po przecinku jest mniejsza niż 5.
+d) Kiedy obok badanej liczby postawimy znak drogowy.
+
+Pytanie 5. Na czym polega gigantyczna pułapka przy zaokrąglaniu dużych liczb do cyfr znaczących (tak jak w przypadku liczby 3456 zaokrąglanej do dwóch cyfr znaczących)?
+a) Na błędnym wstawianiu przecinka w połowie wielkiej liczby.
+b) Na szukaniu najważniejszych cyfr VIP, zaczynając błędnie od prawej strony.
+c) Na dodaniu do wyniku dodatkowego tysiąca z powodu użycia żółtych klocków.
+d) Na braku uzupełnienia odrzuconych miejsc zerami, przez co wielka liczba drastycznie maleje i traci skalę (np. zapisanie małego 35 zamiast 3500).
+
+1 a
+
+2 b
+
+3 c
+
+4 b
+
+5 d

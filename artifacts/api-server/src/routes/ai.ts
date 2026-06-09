@@ -1,10 +1,16 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { tasks, aiChecks, learningProgress } from "@workspace/db";
+import { tasks, topics, aiChecks, learningProgress } from "@workspace/db";
 import { eq, and, gte, sql } from "drizzle-orm";
+import { z } from "zod/v4";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import { aiLimiter } from "../middlewares/rate-limit";
-import { requireCourseAccess, getCourseIdByTaskId, getTopicLocation } from "../lib/access";
+import {
+  requireCourseAccess,
+  requireTopicAccessOrPreview,
+  getCourseIdByTaskId,
+  getTopicLocation,
+} from "../lib/access";
 import { config, isGeminiConfigured } from "../config/env";
 
 const router = Router();
@@ -219,6 +225,113 @@ router.post(
       res.json({ feedback, checkId: check.id });
     } catch (err) {
       req.log.error({ err }, "AI check error");
+      res.status(500).json({ error: "Błąd serwera" });
+    }
+  },
+);
+
+// ─── PER-LESSON AI CHAT ──────────────────────────────────────────────────────
+
+const CHAT_SYSTEM_PROMPT = `Jesteś przyjaznym korepetytorem fizyki dla ucznia 7. klasy szkoły podstawowej w Polsce.
+- Odpowiadaj zawsze po polsku, prostym i zrozumiałym językiem.
+- Wyjaśniaj krok po kroku, podawaj przykłady z życia codziennego.
+- Trzymaj się tematu bieżącej lekcji, ale możesz odwoływać się do podstaw fizyki.
+- Nie podawaj gotowych rozwiązań zadań domowych wprost — naprowadzaj ucznia.
+- Bądź cierpliwy, zachęcający i konkretny. Odpowiedź maksymalnie 6 zdań.
+- Jeśli pytanie nie dotyczy fizyki ani nauki, grzecznie wróć do tematu lekcji.`;
+
+const MAX_CHAT_MESSAGE = 2000;
+const MAX_HISTORY = 12;
+
+const lessonChatSchema = z.object({
+  topicId: z.coerce.number().int().positive(),
+  message: z.string().trim().min(1).max(MAX_CHAT_MESSAGE),
+  history: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().trim().min(1).max(MAX_CHAT_MESSAGE),
+      }),
+    )
+    .max(MAX_HISTORY)
+    .optional(),
+});
+
+async function chatWithGemini(
+  systemPrompt: string,
+  history: Array<{ role: "user" | "assistant"; content: string }>,
+  message: string,
+): Promise<string> {
+  const { GoogleGenerativeAI } = await import("@google/generative-ai");
+  const genAI = new GoogleGenerativeAI(config.gemini.apiKey as string);
+  const model = genAI.getGenerativeModel({
+    model: config.gemini.model,
+    systemInstruction: systemPrompt,
+  });
+
+  const chat = model.startChat({
+    history: history.map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    })),
+  });
+  const result = await chat.sendMessage(message);
+  return result.response.text();
+}
+
+router.post(
+  "/ai/lesson-chat",
+  requireAuth as any,
+  requireTopicAccessOrPreview("topicId") as any,
+  aiLimiter,
+  async (req: AuthRequest, res) => {
+    try {
+      const parsed = lessonChatSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: "Nieprawidłowe dane", details: parsed.error.issues });
+        return;
+      }
+      const { topicId, message, history } = parsed.data;
+
+      const [topic] = await db
+        .select({ title: topics.title, description: topics.description })
+        .from(topics)
+        .where(eq(topics.id, topicId))
+        .limit(1);
+      if (!topic) {
+        res.status(404).json({ error: "Temat nie znaleziony" });
+        return;
+      }
+
+      if (!isGeminiConfigured()) {
+        if (config.isProd) {
+          res.status(503).json({
+            error: "Asystent AI jest chwilowo niedostępny. Spróbuj ponownie później.",
+          });
+          return;
+        }
+        res.json({
+          reply:
+            "Asystent AI działa w trybie demonstracyjnym. Skonfiguruj GEMINI_API_KEY, aby włączyć prawdziwe rozmowy. To jest przykładowa odpowiedź.",
+        });
+        return;
+      }
+
+      const contextPrompt = `${CHAT_SYSTEM_PROMPT}\n\nBieżąca lekcja: "${topic.title}".${
+        topic.description ? `\nOpis lekcji: ${topic.description}` : ""
+      }`;
+
+      try {
+        const reply = await chatWithGemini(contextPrompt, history ?? [], message);
+        res.json({ reply });
+      } catch (aiErr) {
+        req.log.error({ err: aiErr }, "Gemini lesson chat failed");
+        res.status(502).json({
+          error: "Wystąpił błąd podczas rozmowy z AI. Spróbuj ponownie za chwilę.",
+        });
+      }
+    } catch (err) {
+      req.log.error({ err }, "Lesson chat error");
       res.status(500).json({ error: "Błąd serwera" });
     }
   },

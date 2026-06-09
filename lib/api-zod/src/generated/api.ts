@@ -131,6 +131,7 @@ export const ListTopicsResponseItem = zod.object({
   "slug": zod.string(),
   "description": zod.string().nullish(),
   "sortOrder": zod.number(),
+  "isPreview": zod.boolean().optional(),
   "hasVideo": zod.boolean().optional(),
   "hasQuiz": zod.boolean().optional(),
   "hasTasks": zod.boolean().optional(),
@@ -146,10 +147,14 @@ export const GetTopicParams = zod.object({
 export const GetTopicResponse = zod.object({
   "id": zod.number(),
   "sectionId": zod.number(),
+  "courseId": zod.number().nullish(),
   "title": zod.string(),
   "slug": zod.string(),
   "description": zod.string().nullish(),
   "sortOrder": zod.number(),
+  "isPreview": zod.boolean().optional(),
+  "previousTopicId": zod.number().nullish(),
+  "nextTopicId": zod.number().nullish(),
   "video": zod.union([zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
@@ -158,8 +163,27 @@ export const GetTopicResponse = zod.object({
   "embedUrl": zod.string().nullish(),
   "title": zod.string(),
   "durationSeconds": zod.number().nullish(),
+  "sortOrder": zod.number().optional(),
   "createdAt": zod.string()
 }),zod.null()]).optional(),
+  "videos": zod.array(zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "bunnyVideoId": zod.string().nullish(),
+  "videoUrl": zod.string().nullish(),
+  "embedUrl": zod.string().nullish(),
+  "title": zod.string(),
+  "durationSeconds": zod.number().nullish(),
+  "sortOrder": zod.number().optional(),
+  "createdAt": zod.string()
+})),
+  "images": zod.array(zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "imageUrl": zod.string(),
+  "alt": zod.string().nullish(),
+  "sortOrder": zod.number()
+})),
   "quiz": zod.union([zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
@@ -187,7 +211,7 @@ export const GetTopicResponse = zod.object({
 
 }).passthrough().nullish(),
   "createdAt": zod.string()
-})).optional()
+}))
 })
 
 
@@ -227,6 +251,24 @@ export const UpsertProgressResponse = zod.object({
   "taskStarted": zod.boolean().optional(),
   "taskCheckedByAi": zod.boolean().optional(),
   "updatedAt": zod.string()
+})
+
+
+export const UpsertVideoProgressBody = zod.object({
+  "videoId": zod.number(),
+  "watchedSeconds": zod.number()
+})
+
+export const UpsertVideoProgressResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "videoId": zod.number(),
+  "topicId": zod.number(),
+  "watchedSeconds": zod.number(),
+  "durationSeconds": zod.number().nullish(),
+  "progressPercent": zod.number(),
+  "completed": zod.boolean(),
+  "allVideosCompleted": zod.boolean().optional()
 })
 
 
@@ -292,6 +334,20 @@ export const CheckTaskBody = zod.object({
 export const CheckTaskResponse = zod.object({
   "feedback": zod.string(),
   "checkId": zod.number().nullish()
+})
+
+
+export const LessonChatBody = zod.object({
+  "topicId": zod.number(),
+  "message": zod.string(),
+  "history": zod.array(zod.object({
+  "role": zod.enum(['user', 'assistant']),
+  "content": zod.string()
+})).optional()
+})
+
+export const LessonChatResponse = zod.object({
+  "reply": zod.string()
 })
 
 
@@ -667,6 +723,7 @@ export const ListAdminCoursesResponseItem = zod.object({
   "embedUrl": zod.string().nullish(),
   "title": zod.string(),
   "durationSeconds": zod.number().nullish(),
+  "sortOrder": zod.number().optional(),
   "createdAt": zod.string()
 }),zod.null()]).optional(),
   "quiz": zod.union([zod.object({
@@ -809,6 +866,7 @@ export const UpdateTopicResponse = zod.object({
   "slug": zod.string(),
   "description": zod.string().nullish(),
   "sortOrder": zod.number(),
+  "isPreview": zod.boolean().optional(),
   "hasVideo": zod.boolean().optional(),
   "hasQuiz": zod.boolean().optional(),
   "hasTasks": zod.boolean().optional(),
@@ -854,6 +912,7 @@ export const UpdateVideoResponse = zod.object({
   "embedUrl": zod.string().nullish(),
   "title": zod.string(),
   "durationSeconds": zod.number().nullish(),
+  "sortOrder": zod.number().optional(),
   "createdAt": zod.string()
 })
 
@@ -1037,6 +1096,47 @@ export const DeleteTaskParams = zod.object({
 
 export const DeleteTaskResponse = zod.object({
   "message": zod.string()
+})
+
+
+export const GetVideoHealthResponse = zod.object({
+  "summary": zod.object({
+  "total": zod.number(),
+  "available": zod.number(),
+  "missingBunnyId": zod.number(),
+  "bunnyConfigured": zod.boolean()
+}),
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "topicId": zod.number(),
+  "topicTitle": zod.string().optional(),
+  "sectionTitle": zod.string().optional(),
+  "bunnyVideoId": zod.string().nullish(),
+  "hasEmbed": zod.boolean().optional(),
+  "available": zod.boolean(),
+  "status": zod.number().nullish(),
+  "statusLabel": zod.string().optional()
+}))
+})
+
+
+export const GetVideoHealthDetailParams = zod.object({
+  "videoId": zod.coerce.number()
+})
+
+export const GetVideoHealthDetailResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "topicId": zod.number(),
+  "topicTitle": zod.string().optional(),
+  "sectionTitle": zod.string().optional(),
+  "bunnyVideoId": zod.string().nullish(),
+  "embedUrl": zod.string().nullish(),
+  "durationSeconds": zod.number().nullish(),
+  "health": zod.object({
+
+}).passthrough().nullish()
 })
 
 

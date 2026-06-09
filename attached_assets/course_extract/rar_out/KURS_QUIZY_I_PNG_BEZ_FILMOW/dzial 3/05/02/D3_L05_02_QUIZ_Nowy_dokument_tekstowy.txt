@@ -1,0 +1,41 @@
+Dlaczego w klockowym akwarium czerwony alkohol znalazł się na samej górze, nad żółtą oliwą i niebieską gliceryną?
+A) Ponieważ ma największą gęstość i jest "najcięższym zawodnikiem".
+B) Ponieważ ma najmniejszą gęstość i jest "najlżejszymi klockami" w zestawie.
+C) Ponieważ jego cząsteczki są upakowane najciaśniej.
+D) Ponieważ działa na niego największa siła grawitacji.
+
+Gdy drewniana kłoda unosi się spokojnie na powierzchni wody, oznacza to, że na naszym "fizycznym ringu":
+A) Działa na nią tylko i wyłącznie siła wyporu.
+B) Siła grawitacji jest znacznie większa od siły wyporu.
+C) Siła grawitacji (ciągnąca w dół) i siła wyporu (pchająca w górę) są sobie idealnie równe (remis).
+D) Woda nie stawia kłodzie żadnego oporu.
+
+Stalowy hantelek tonie i uderza o dno basenu, ponieważ:
+A) Jego gęstość jest mniejsza niż gęstość wody.
+B) Siła wyporu pchająca w górę jest większa od siły grawitacji.
+C) Siła grawitacji ciągnąca w dół jest większa niż siła wyporu (Fg > Fb).
+D) Stalowe klocki są ułożone znacznie luźniej niż cząsteczki wody.
+
+Co musi się stać, aby ciało (np. rybka lub okręt podwodny) idealnie lewitowało w samym środku wody, nie tonąc i nie wypływając na powierzchnię?
+A) Siła grawitacji musi być równa sile wyporu (Fg = Fw).
+B) Ciało musi mieć gęstość znacznie większą od gęstości wody.
+C) Siła grawitacji musi całkowicie zniknąć.
+D) Ciało musi być zbudowane z najcięższych możliwych klocków.
+
+W ramach śledztwa wrzuciliśmy szary głaz do dwóch cieczy. W cieczy o gęstości 1,5 głaz pływał, a w cieczy o gęstości 0,8 zatonął. Jaki z tego wniosek o gęstości głazu?
+A) Gęstość głazu jest na pewno mniejsza niż 0,8.
+B) Gęstość głazu jest na pewno większa niż 1,5.
+C) Gęstość głazu wynosi dokładnie 0.
+D) Gęstość głazu jest większa niż 0,8, ale mniejsza niż 1,5.
+
+Odpowiedzi:
+
+1 B
+
+2 C
+
+3 C
+
+4 A
+
+5 D

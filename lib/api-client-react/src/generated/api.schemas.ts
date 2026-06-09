@@ -107,6 +107,7 @@ export interface Topic {
   /** @nullable */
   description?: string | null;
   sortOrder: number;
+  isPreview?: boolean;
   hasVideo?: boolean;
   hasQuiz?: boolean;
   hasTasks?: boolean;
@@ -125,7 +126,17 @@ export interface Video {
   title: string;
   /** @nullable */
   durationSeconds?: number | null;
+  sortOrder?: number;
   createdAt: string;
+}
+
+export interface LessonImage {
+  id: number;
+  topicId: number;
+  imageUrl: string;
+  /** @nullable */
+  alt?: string | null;
+  sortOrder: number;
 }
 
 /**
@@ -171,14 +182,23 @@ export interface QuizPublic {
 export interface TopicDetail {
   id: number;
   sectionId: number;
+  /** @nullable */
+  courseId?: number | null;
   title: string;
   slug: string;
   /** @nullable */
   description?: string | null;
   sortOrder: number;
+  isPreview?: boolean;
+  /** @nullable */
+  previousTopicId?: number | null;
+  /** @nullable */
+  nextTopicId?: number | null;
   video?: Video | null;
+  videos: Video[];
+  images: LessonImage[];
   quiz?: QuizPublic | null;
-  tasks?: Task[];
+  tasks: Task[];
 }
 
 export interface QuizAnswer {
@@ -256,7 +276,98 @@ export interface QuizAttemptResult {
   score: number;
   totalQuestions: number;
   percentage: number;
+  passed: boolean;
+  passThreshold: number;
   answers: QuizAttemptAnswerResult[];
+}
+
+export interface VideoProgressInput {
+  videoId: number;
+  watchedSeconds: number;
+}
+
+export interface VideoProgress {
+  id: number;
+  userId: number;
+  videoId: number;
+  topicId: number;
+  watchedSeconds: number;
+  /** @nullable */
+  durationSeconds?: number | null;
+  progressPercent: number;
+  completed: boolean;
+  allVideosCompleted?: boolean;
+}
+
+export type ChatMessageRole = typeof ChatMessageRole[keyof typeof ChatMessageRole];
+
+
+export const ChatMessageRole = {
+  user: 'user',
+  assistant: 'assistant',
+} as const;
+
+export interface ChatMessage {
+  role: ChatMessageRole;
+  content: string;
+}
+
+export interface LessonChatInput {
+  topicId: number;
+  message: string;
+  history?: ChatMessage[];
+}
+
+export interface LessonChatResult {
+  reply: string;
+}
+
+export interface VideoHealthItem {
+  id: number;
+  title: string;
+  topicId: number;
+  topicTitle?: string;
+  sectionTitle?: string;
+  /** @nullable */
+  bunnyVideoId?: string | null;
+  hasEmbed?: boolean;
+  available: boolean;
+  /** @nullable */
+  status?: number | null;
+  statusLabel?: string;
+}
+
+export type VideoHealthListSummary = {
+  total: number;
+  available: number;
+  missingBunnyId: number;
+  bunnyConfigured: boolean;
+};
+
+export interface VideoHealthList {
+  summary: VideoHealthListSummary;
+  items: VideoHealthItem[];
+}
+
+/**
+ * @nullable
+ */
+export type VideoHealthDetailHealth = { [key: string]: unknown } | null;
+
+export interface VideoHealthDetail {
+  id: number;
+  title: string;
+  topicId: number;
+  topicTitle?: string;
+  sectionTitle?: string;
+  /** @nullable */
+  bunnyVideoId?: string | null;
+  /** @nullable */
+  embedUrl?: string | null;
+  /** @nullable */
+  durationSeconds?: number | null;
+  /** @nullable */
+  health?: VideoHealthDetailHealth;
 }
 
 export interface Progress {

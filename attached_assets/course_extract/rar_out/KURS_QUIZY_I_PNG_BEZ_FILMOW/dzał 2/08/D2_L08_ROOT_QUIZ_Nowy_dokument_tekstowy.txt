@@ -1,0 +1,59 @@
+1. Co oznacza sytuacja, gdy na wadze szalkowej mały odważnik i duża sterta klocków są na tym samym poziomie?
+A) Mają różną masę, ale taką samą objętość
+B) Mają taką samą masę, ale różną objętość
+C) Szary odważnik ma mniejszą gęstość niż klocki
+D) Kolorowe klocki mają większą masę niż odważnik
+
+2. Jakiego wzoru używamy do obliczenia gęstości?
+A) d = m * V
+B) d = V / m
+C) d = m / V
+D) m = d / V
+
+3. Złota zasada gęstości mówi, że jeśli mamy przedmioty o dokładnie takich samych rozmiarach (objętości), to:
+A) Ten o najmniejszej gęstości będzie miał największą masę
+B) Ten o największej objętości będzie najcięższy
+C) Ten zbudowany z największej liczby elementów będzie najlżejszy
+D) Ten o największej gęstości zawsze będzie miał największą masę
+
+4. Dlaczego blok z miedzi waży więcej (1,78 kg) niż blok z aluminium (0,54 kg), mimo że zajmują tyle samo miejsca?
+A) Ponieważ miedź ma mniejszą gęstość niż aluminium
+B) Ponieważ miedź ma większą gęstość niż aluminium
+C) Ponieważ miedź zajmuje więcej miejsca
+D) Ponieważ aluminium jest "ciaśniej upakowane"
+
+5. W jaki sposób zamieniamy centymetry sześcienne na metry sześcienne?
+A) Mnożymy wartość przez tysiąc
+B) Dzielimy wartość przez tysiąc
+C) Mnożymy wartość przez milion
+D) Dzielimy wartość przez milion
+
+6. Jeden decymetr sześcienny to dokładnie ta sama objętość co:
+A) 1 metr sześcienny
+B) 1 centymetr sześcienny
+C) 1 litr
+D) 1000 litrów
+
+7. Jak zamienić gęstość podaną w małych jednostkach (g/cm3) na duże jednostki (kg/m3)?
+A) Należy podzielić wynik przez 100
+B) Należy pomnożyć wynik przez 100
+C) Należy podzielić wynik przez 1000
+D) Należy pomnożyć wynik przez 1000
+
+8. Jak najłatwiej zmierzyć objętość przedmiotu o nieregularnym, dziwnym kształcie?
+A) Mierząc linijką jego najdłuższe boki
+B) Używając metody wypierania cieczy (np. w menzurce)
+C) Ważąc go na wadze i mnożąc wynik przez 1000
+D) Obliczając objętość naczynia, w którym się znajduje
+
+9. Jak obliczyć objętość klockowej budowli w kształcie prostopadłościanu?
+A) Dodając do siebie długość, szerokość i wysokość
+B) Mnożąc przez siebie długość, szerokość i wysokość
+C) Dzieląc długość przez szerokość
+D) Mnożąc długość przez szerokość i dodając wysokość
+
+10. Dlaczego gęstość cukru obliczona w szklance była niższa niż oficjalna gęstość samej sacharozy?
+A) Ponieważ waga użyta w eksperymencie była zepsuta
+B) Ponieważ źle odczytano objętość szklanki
+C) Ponieważ woda wyparła część cukru z naczynia
+D) Ponieważ obliczono gęstość nasypową, uwzględniającą puste, wypełnione powietrzem przestrzenie między kryształkami

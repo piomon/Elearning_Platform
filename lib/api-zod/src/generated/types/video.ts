@@ -18,5 +18,6 @@ export interface Video {
   title: string;
   /** @nullable */
   durationSeconds?: number | null;
+  sortOrder?: number;
   createdAt: string;
 }

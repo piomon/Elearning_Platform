@@ -8,7 +8,7 @@ import {
   quizAttemptAnswers,
   learningProgress,
 } from "@workspace/db";
-import { eq, and, asc, inArray } from "drizzle-orm";
+import { eq, and, asc, inArray, sql } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import { requireCourseAccess, getCourseIdByQuizId, getTopicLocation } from "../lib/access";
 
@@ -163,6 +163,8 @@ router.post(
 
       const percentage =
         totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+      const PASS_THRESHOLD = 80;
+      const passed = percentage >= PASS_THRESHOLD;
 
       const location = await getTopicLocation(quiz.topicId);
       if (!location) {
@@ -194,9 +196,10 @@ router.post(
           );
         }
 
-        // Upsert: a learning-progress row may not exist yet (e.g. the student
-        // jumped straight to the quiz), so create it rather than silently
-        // no-opping on a missing row.
+        // Only a genuine pass (>= 80%) flips quizCompleted. Completion is
+        // monotonic: a later failed attempt must never reset an earlier pass.
+        // Upsert because a progress row may not exist yet (e.g. the student
+        // jumped straight to the quiz).
         await tx
           .insert(learningProgress)
           .values({
@@ -204,11 +207,14 @@ router.post(
             courseId: location.courseId,
             sectionId: location.sectionId,
             topicId: quiz.topicId,
-            quizCompleted: true,
+            quizCompleted: passed,
           })
           .onConflictDoUpdate({
             target: [learningProgress.userId, learningProgress.topicId],
-            set: { quizCompleted: true, updatedAt: new Date() },
+            set: {
+              quizCompleted: sql`${learningProgress.quizCompleted} OR ${passed}`,
+              updatedAt: new Date(),
+            },
           });
       });
 
@@ -216,6 +222,8 @@ router.post(
         score,
         totalQuestions,
         percentage,
+        passed,
+        passThreshold: PASS_THRESHOLD,
         answers: answerResults,
       });
     } catch (err) {

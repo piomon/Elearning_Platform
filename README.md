@@ -221,20 +221,42 @@ docker compose exec api pnpm --filter @workspace/db run migrate
 
 ## Seedowanie danych
 
-Seeder dodaje konta startowe i przykładowe dane kursów:
+Seeder odtwarza pełny kurs **„Łatwa Fizyka — klasa 7"** wraz z kontami startowymi:
 
 ```bash
 docker compose exec api pnpm --filter @workspace/scripts run seed
 ```
 
+Co ładuje seeder (źródło: `scripts/src/course-data.ts`):
+
+- **3 działy, 21 lekcji** w ustalonej kolejności (`sortOrder`),
+- **uporządkowane materiały lekcji** — filmy (osadzane z Bunny Stream po `bunnyVideoId`) oraz grafiki PNG z `public/course-assets/`,
+- **14 quizów** z progiem zaliczenia **80%** i poprawnymi odpowiedziami,
+- pierwsza lekcja oznaczona jako **demonstracyjna** (`isPreview`) — dostępna bez wykupionego dostępu,
+- lekcje bez filmu (np. część działu 2) obsługiwane są poprawnie: pokazują grafiki i quiz.
+
 Konta demonstracyjne tworzone przez seeder:
 
-| Rola | E-mail | Hasło |
-|------|--------|-------|
-| Administrator | `admin@fizyka.edu.pl` | `admin123` |
-| Uczeń | `uczen@fizyka.edu.pl` | `student123` |
+| Rola | E-mail | Hasło | Uwagi |
+|------|--------|-------|-------|
+| Administrator | `admin@fizyka.edu.pl` | `admin123` | pełny dostęp + panel administratora |
+| Uczeń | `uczen@fizyka.edu.pl` | `student123` | otrzymuje pełny dostęp do kursu (do testów płatnej ścieżki) |
 
 > Zmień te hasła po pierwszym logowaniu w środowisku produkcyjnym.
+
+### Diagnostyka materiałów wideo
+
+Po zalogowaniu jako administrator dostępna jest strona **`/admin/course-debug`**, która
+sprawdza na żywo stan wszystkich filmów w bibliotece Bunny Stream (gotowe / brak ID / błąd).
+Endpointy: `GET /api/admin/video-health` oraz `GET /api/admin/video-health/:videoId`.
+
+### Śledzenie postępu i asystent AI
+
+- **Postęp jest egzekwowany po stronie serwera** — ukończenie wideo wynika z realnie obejrzanego
+  czasu (`POST /api/progress/video`, próg 90%), a quiz zalicza się dopiero od 80% poprawnych odpowiedzi.
+  Klient nie może samodzielnie oznaczyć lekcji jako ukończonej.
+- **Asystent AI lekcji** (`POST /api/ai/lesson-chat`) korzysta z modelu **Gemini** skonfigurowanego
+  przez `GEMINI_API_KEY` i odpowiada w języku polskim w kontekście danej lekcji.
 
 ---
 
@@ -380,6 +402,10 @@ kontenery wstają same po crashu lub po restarcie serwera.
 - **Logowanie** strukturalne (pino) na `api`; poziom sterowany `LOG_LEVEL`.
 - **Aktualizuj** obraz bazowy i zależności; rób regularne kopie (`deploy/backup-db.sh`).
 - Po seedowaniu **zmień domyślne hasła** kont demonstracyjnych.
+- **Integralność postępu (nie do podrobienia z klienta).** Ukończenie lekcji jest wyznaczane wyłącznie po stronie serwera:
+  - mianownikiem procentu obejrzenia jest zawsze **czas trwania filmu zapisany w bazie** (`videos.durationSeconds`, pobierany z pola `length` Bunny podczas seedowania) — klient nie może przysłać własnego czasu trwania;
+  - zapisany czas obejrzenia jest **ograniczony rzeczywistym czasem zegarowym** od pierwszego otwarcia filmu (`video_progress.created_at`), więc pojedyncze (ani seria szybkich) sfałszowane żądanie nie zaliczy filmu — dojście do końca wymaga realnego upływu czasu;
+  - flagi ukończenia (`videoCompleted`, `quizCompleted`, `taskCheckedByAi`) ustawiają wyłącznie dedykowane trasy serwera po realnym zdarzeniu; `POST /api/progress` zapisuje tylko nawigację.
 
 ---
 

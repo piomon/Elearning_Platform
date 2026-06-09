@@ -1,0 +1,41 @@
+Pytanie 1. Jakie trzy główne zadania fizyki zostały wymienione w tekście?
+a) Budowanie maszyn, programowanie i przewidywanie pogody.
+b) Odkrywanie podstawowych praw przyrody, wyjaśnianie zjawisk i opisywanie właściwości materii.
+c) Wymyślanie wzorów matematycznych, tworzenie instrukcji obsługi i badanie biologii.
+d) Obserwowanie kosmosu, ochrona przyrody i nauka o zwierzętach.
+
+Pytanie 2. Zgodnie ze "ściągą" z filmu, w jaki sposób najprościej odróżnić ciało fizyczne od substancji?
+a) Ciało fizyczne to materiał (np. szkło), a substancja to gotowy przedmiot (np. szklanka).
+b) Ciało fizyczne to odpowiedź na pytanie "Co to jest?", a substancja to odpowiedź na "Z czego to jest zrobione?".
+c) Ciało fizyczne to wyłącznie istota żywa, a substancja to przedmiot martwy.
+d) W fizyce nie ma różnicy między tymi pojęciami, oznaczają to samo.
+
+Pytanie 3. Dlaczego organizmy żywe (np. ryba, pies, ty) w fizyce są traktowane jako ciała fizyczne?
+a) Ponieważ zajmują miejsce w przestrzeni, mają swoją masę i działają na nie różne siły.
+b) Ponieważ w fizyce słowo "ciało" oznacza wyłącznie organizmy biologiczne.
+c) Ponieważ potrafią się same poruszać, w przeciwieństwie do gwoździa czy szklanki.
+d) Organizmy żywe nie są ciałami fizycznymi, zajmuje się nimi tylko biologia.
+
+Pytanie 4. Na czym polega najważniejsza różnica między obserwacją a eksperymentem?
+a) Obserwację prowadzi się w laboratorium, a eksperyment wyłącznie na zewnątrz.
+b) W obserwacji celowo modyfikuje się otoczenie, a w eksperymencie tylko patrzy z ukrycia.
+c) Podczas obserwacji nie ingerujesz w badany świat, a w eksperymencie celowo zmieniasz zasady i warunki.
+d) Obserwacja wymaga skomplikowanych maszyn, a eksperyment wykonuje się bez użycia narzędzi.
+
+Pytanie 5. Która z poniższych sytuacji przedstawionych w tekście jest przykładem eksperymentu, a nie obserwacji?
+a) Podglądanie zachowania tygrysa i papugi w dżungli z ukrycia.
+b) Mierzenie siły wiatru i ilości opadów deszczu na stacji meteorologicznej.
+c) Zapisywanie w notatniku, w jakim kierunku płynie woda w rzece.
+d) Celowe zmienianie nachylenia rampy i mierzenie czasu stoczenia się autka.
+
+Klucz odpowiedzi (dla Ciebie):
+
+1 b
+
+2 b
+
+3 a
+
+4 c
+
+5 d

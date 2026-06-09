@@ -237,6 +237,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/Progress"
 
+  /progress/video:
+    post:
+      operationId: upsertVideoProgress
+      tags: [progress]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoProgressInput"
+      responses:
+        "200":
+          description: Updated video progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoProgress"
+
   /progress/summary:
     get:
       operationId: getProgressSummary
@@ -340,6 +358,30 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskCheckResult"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /ai/lesson-chat:
+    post:
+      operationId: lessonChat
+      tags: [ai]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LessonChatInput"
+      responses:
+        "200":
+          description: AI assistant reply
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LessonChatResult"
         "429":
           description: Rate limit exceeded
           content:
@@ -1245,6 +1287,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/MessageResponse"
 
+  # ─── ADMIN: VIDEO HEALTH ─────────────────────────────────────────────────────
+  /admin/video-health:
+    get:
+      operationId: getVideoHealth
+      tags: [admin]
+      responses:
+        "200":
+          description: Catalogue-wide Bunny video health
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoHealthList"
+
+  /admin/video-health/{videoId}:
+    get:
+      operationId: getVideoHealthDetail
+      tags: [admin]
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Single video health detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoHealthDetail"
+
 components:
   schemas:
     HealthStatus:
@@ -1423,6 +1496,8 @@ components:
           type: ["string", "null"]
         sortOrder:
           type: integer
+        isPreview:
+          type: boolean
         hasVideo:
           type: boolean
         hasQuiz:
@@ -1450,8 +1525,25 @@ components:
           type: string
         durationSeconds:
           type: ["integer", "null"]
+        sortOrder:
+          type: integer
         createdAt:
           type: string
+
+    LessonImage:
+      type: object
+      required: [id, topicId, imageUrl, sortOrder]
+      properties:
+        id:
+          type: integer
+        topicId:
+          type: integer
+        imageUrl:
+          type: string
+        alt:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
 
     Task:
       type: object
@@ -1474,12 +1566,14 @@ components:
 
     TopicDetail:
       type: object
-      required: [id, sectionId, title, slug, sortOrder]
+      required: [id, sectionId, title, slug, sortOrder, videos, images, tasks]
       properties:
         id:
           type: integer
         sectionId:
           type: integer
+        courseId:
+          type: ["integer", "null"]
         title:
           type: string
         slug:
@@ -1488,10 +1582,24 @@ components:
           type: ["string", "null"]
         sortOrder:
           type: integer
+        isPreview:
+          type: boolean
+        previousTopicId:
+          type: ["integer", "null"]
+        nextTopicId:
+          type: ["integer", "null"]
         video:
           oneOf:
             - $ref: "#/components/schemas/Video"
             - type: "null"
+        videos:
+          type: array
+          items:
+            $ref: "#/components/schemas/Video"
+        images:
+          type: array
+          items:
+            $ref: "#/components/schemas/LessonImage"
         quiz:
           oneOf:
             - $ref: "#/components/schemas/QuizPublic"
@@ -1696,7 +1804,7 @@ components:
 
     QuizAttemptResult:
       type: object
-      required: [score, totalQuestions, percentage, answers]
+      required: [score, totalQuestions, percentage, passed, passThreshold, answers]
       properties:
         score:
           type: integer
@@ -1704,10 +1812,145 @@ components:
           type: integer
         percentage:
           type: integer
+        passed:
+          type: boolean
+        passThreshold:
+          type: integer
         answers:
           type: array
           items:
             $ref: "#/components/schemas/QuizAttemptAnswerResult"
+
+    VideoProgressInput:
+      type: object
+      required: [videoId, watchedSeconds]
+      properties:
+        videoId:
+          type: integer
+        watchedSeconds:
+          type: number
+
+    VideoProgress:
+      type: object
+      required: [id, userId, videoId, topicId, watchedSeconds, progressPercent, completed]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        videoId:
+          type: integer
+        topicId:
+          type: integer
+        watchedSeconds:
+          type: integer
+        durationSeconds:
+          type: ["integer", "null"]
+        progressPercent:
+          type: integer
+        completed:
+          type: boolean
+        allVideosCompleted:
+          type: boolean
+
+    ChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+
+    LessonChatInput:
+      type: object
+      required: [topicId, message]
+      properties:
+        topicId:
+          type: integer
+        message:
+          type: string
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+
+    LessonChatResult:
+      type: object
+      required: [reply]
+      properties:
+        reply:
+          type: string
+
+    VideoHealthItem:
+      type: object
+      required: [id, title, topicId, available]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        topicId:
+          type: integer
+        topicTitle:
+          type: string
+        sectionTitle:
+          type: string
+        bunnyVideoId:
+          type: ["string", "null"]
+        hasEmbed:
+          type: boolean
+        available:
+          type: boolean
+        status:
+          type: ["integer", "null"]
+        statusLabel:
+          type: string
+
+    VideoHealthList:
+      type: object
+      required: [summary, items]
+      properties:
+        summary:
+          type: object
+          required: [total, available, missingBunnyId, bunnyConfigured]
+          properties:
+            total:
+              type: integer
+            available:
+              type: integer
+            missingBunnyId:
+              type: integer
+            bunnyConfigured:
+              type: boolean
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/VideoHealthItem"
+
+    VideoHealthDetail:
+      type: object
+      required: [id, title, topicId]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        topicId:
+          type: integer
+        topicTitle:
+          type: string
+        sectionTitle:
+          type: string
+        bunnyVideoId:
+          type: ["string", "null"]
+        embedUrl:
+          type: ["string", "null"]
+        durationSeconds:
+          type: ["integer", "null"]
+        health:
+          type: ["object", "null"]
 
     # ─── PROGRESS SCHEMAS ─────────────────────────────────────────────────────
     Progress:

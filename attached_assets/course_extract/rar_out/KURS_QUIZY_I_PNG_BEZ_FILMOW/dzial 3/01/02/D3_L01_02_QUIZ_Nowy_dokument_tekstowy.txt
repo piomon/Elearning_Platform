@@ -1,0 +1,31 @@
+Pytanie 1. Pod jakim kątem siła nacisku ZAWSZE działa na powierzchnię?
+A) Pod kątem ostrym
+B) Równolegle do powierzchni
+C) Pod kątem prostym (prostopadle, 90 stopni)
+
+Pytanie 2. Zgodnie ze wzorem na ciśnienie (p = F/S), dlaczego nadepnięcie boso na mały klocek tak bardzo boli w porównaniu do stanięcia na dużej płytce?
+A) Ponieważ klocek w niewytłumaczalny sposób zwiększa naszą siłę grawitacji.
+B) Ponieważ nasza siła dzieli się przez bardzo małą powierzchnię, co generuje ogromne ciśnienie.
+C) Ponieważ duża płytka zmniejsza naszą masę, gdy na niej stoimy.
+
+Pytanie 3. Co według poznanej na lekcji zasady oznacza stwierdzenie, że dane narzędzie (np. igła, nóż lub kły lisa) jest "ostre"?
+A) Oznacza to, że narzędzie ma zminimalizowaną, bardzo małą powierzchnię styku.
+B) Oznacza to, że narzędzie potrafi wygenerować z siebie dodatkową siłę nacisku.
+C) Oznacza to, że działa ono z siłą równoległą do podłoża.
+
+Pytanie 4. Fizycy pakują Paskale w większe zestawy, aby łatwiej było je liczyć. Ile pojedynczych Paskali (klocków) znajdziemy w jednym Megapaskalu (MPa)?
+A) Sto (100)
+B) Tysiąc (1 000)
+C) Milion (1 000 000)
+
+Pytanie 5. Jak brzmi najważniejsza reguła ("cheat code") zamiany małych centymetrów kwadratowych na duże metry kwadratowe?
+A) Należy podzielić liczbę przez 100 (przesunąć przecinek o 2 miejsca w lewo).
+B) Należy pomnożyć liczbę przez 1 000 (dodać 3 zera z prawej strony).
+C) Należy podzielić liczbę przez 10 000 (przesunąć przecinek o 4 miejsca w lewo).
+
+KLUCZ ODPOWIEDZI:
+Pytanie 1 - C
+Pytanie 2 - B
+Pytanie 3 - A
+Pytanie 4 - C
+Pytanie 5 - C

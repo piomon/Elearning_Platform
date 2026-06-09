@@ -1,0 +1,31 @@
+Pytanie 1. Jaki grecki uczony opisał zjawisko wyrywania się do góry przedmiotów wciśniętych pod wodę, nazywane dzisiaj siłą wyporu?
+A) Arystoteles
+B) Sokrates
+C) Archimedes
+
+Pytanie 2. Zgodnie z klockowym eksperymentem, jeśli woda wyparta z akwarium przez zanurzony klocek waży dokładnie 4 niutony, to z jaką siłą woda wypycha ten klocek w górę?
+A) Z mniejszą siłą.
+B) Z dokładnie taką samą siłą (4 niutony).
+C) Z dużo większą siłą.
+
+Pytanie 3. Co we wzorze na siłę wyporu (Fw = d * g * V) oznacza duża litera V?
+A) Objętość tylko tej części klocka, która faktycznie jest zanurzona w wodzie.
+B) Całkowitą objętość akwarium, w którym przeprowadzamy eksperyment.
+C) Prędkość, z jaką klocek uderza w powierzchnię wody.
+
+Pytanie 4. Dlaczego jajko w klockowym eksperymencie opadło na dno w zwykłej wodzie, a w słodzonej/słonej unosiło się na powierzchni?
+A) Słona woda wyłącza działanie grawitacji.
+B) Słona woda ma mniejszą gęstość, więc przedmioty stają się w niej lżejsze.
+C) Słona woda ma większą gęstość, a zasada mówi jasno: im większa gęstość, tym większa siła wyporu.
+
+Pytanie 5. Jakie słynne morze podano w tekście jako przykład miejsca, w którym woda jest tak gęsta i słona, że można położyć się na jej powierzchni jak na materacu?
+A) Morze Martwe
+B) Morze Bałtyckie
+C) Morze Śródziemne
+
+Klucz odpowiedzi:
+1 - C
+2 - B
+3 - A
+4 - C
+5 - A

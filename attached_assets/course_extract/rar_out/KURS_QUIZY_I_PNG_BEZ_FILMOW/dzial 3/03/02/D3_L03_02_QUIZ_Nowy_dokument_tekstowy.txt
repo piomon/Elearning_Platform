@@ -1,0 +1,36 @@
+Pytanie 1. Jaka maszyna opisana na początku tekstu działa jak "super moc" i pozwala podnieść wielki ciężar używając do tego niewielkiej siły?
+A) Winda osobowa
+B) Prasa hydrauliczna
+C) Turbina wodna
+
+Pytanie 2. Co się dzieje z uwięzioną wewnątrz cieczą, gdy z zewnątrz naciśniemy mały tłok?
+A) Ciśnienie rośnie dokładnie tak samo w całej objętości cieczy.
+B) Ciśnienie maleje na samym dnie urządzenia.
+C) Ciśnienie rośnie tylko w miejscu, gdzie znajduje się mały tłok.
+
+Pytanie 3. Zgodnie ze wzorem z tekstu, jaka jest relacja między ciśnieniem pod małym tłokiem (p1) a ciśnieniem pod dużym tłokiem (p2)?
+A) Ciśnienie pod małym tłokiem jest dużo większe (p1 jest większe).
+B) Ciśnienie pod dużym tłokiem jest dużo większe (p2 jest większe).
+C) Ciśnienie po obu stronach jest po prostu identyczne (p1 równa się p2).
+
+Pytanie 4. Jak brzmi najważniejsza zasada z "czerwonego napisu na samym dole", decydująca o użyciu siły w prasie hydraulicznej?
+A) Mniejsza powierzchnia potrzebuje mniejszej siły.
+B) Większa powierzchnia potrzebuje mniejszej siły.
+C) Wielkość powierzchni nie ma absolutnie żadnego znaczenia.
+
+Pytanie 5. Jakie trzy maszyny ułatwiające codzienne funkcjonowanie (wykorzystujące układ hydrauliczny) zostały wymienione na drugim slajdzie?
+A) Strzykawka, ciśnieniomierz i waga samochodowa.
+B) Hamulec hydrauliczny, podnośnik hydrauliczny i prasa hydrauliczna.
+C) Amortyzator rowerowy, silnik spalinowy i wycieraczki samochodowe.
+
+Klucz odpowiedzi:
+
+1 B
+
+2 A
+
+3 C
+
+4 A
+
+5 B

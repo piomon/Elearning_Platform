@@ -20,6 +20,13 @@ import {
 } from "@workspace/db";
 import { eq, ne, and, desc, asc, count, sum, ilike, or, sql } from "drizzle-orm";
 import { requireAuth, requireAdmin, type AuthRequest } from "../middlewares/auth";
+import {
+  probeBunnyVideo,
+  mapWithConcurrency,
+  type BunnyVideoHealth,
+} from "../lib/bunny";
+import { isBunnyConfigured } from "../config/env";
+import { buildVideoEmbedUrl } from "../lib/video";
 
 const router = Router();
 
@@ -973,6 +980,123 @@ router.delete("/admin/tasks/:id", async (req: AuthRequest, res) => {
     res.json({ message: "Zadanie usunięte" });
   } catch (err) {
     req.log.error({ err }, "Delete task error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ─── VIDEO HEALTH (Bunny diagnostics) ────────────────────────────────────────
+
+// Lists every video in the catalogue alongside its live Bunny encode status so
+// an admin can spot missing/failed/processing videos at /admin/course-debug.
+router.get("/admin/video-health", async (req: AuthRequest, res) => {
+  try {
+    const rows = await db
+      .select({
+        id: videos.id,
+        title: videos.title,
+        bunnyVideoId: videos.bunnyVideoId,
+        videoUrl: videos.videoUrl,
+        topicId: videos.topicId,
+        topicTitle: topics.title,
+        sectionTitle: sections.title,
+        sortOrder: videos.sortOrder,
+      })
+      .from(videos)
+      .innerJoin(topics, eq(videos.topicId, topics.id))
+      .innerJoin(sections, eq(topics.sectionId, sections.id))
+      .orderBy(asc(sections.sortOrder), asc(topics.sortOrder), asc(videos.sortOrder));
+
+    const bunnyConfigured = isBunnyConfigured();
+
+    const items = await mapWithConcurrency(rows, 5, async (row) => {
+      let health: BunnyVideoHealth | null = null;
+      if (bunnyConfigured && row.bunnyVideoId) {
+        health = await probeBunnyVideo(row.bunnyVideoId);
+      }
+      const available = health?.ok ? health.available : false;
+      return {
+        id: row.id,
+        title: row.title,
+        topicId: row.topicId,
+        topicTitle: row.topicTitle,
+        sectionTitle: row.sectionTitle,
+        bunnyVideoId: row.bunnyVideoId,
+        hasEmbed: Boolean(buildVideoEmbedUrl(row)),
+        available,
+        status: health?.ok ? health.status : null,
+        statusLabel: health?.ok
+          ? health.statusLabel
+          : health
+            ? health.error
+            : row.bunnyVideoId
+              ? "Bunny nie jest skonfigurowane"
+              : "Brak ID wideo Bunny",
+      };
+    });
+
+    const summary = {
+      total: items.length,
+      available: items.filter((i) => i.available).length,
+      missingBunnyId: items.filter((i) => !i.bunnyVideoId).length,
+      bunnyConfigured,
+    };
+
+    res.json({ summary, items });
+  } catch (err) {
+    req.log.error({ err }, "Video health error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Detailed live probe for a single video, including the resolved embed URL.
+router.get("/admin/video-health/:videoId", async (req: AuthRequest, res) => {
+  try {
+    const videoId = Number(req.params.videoId);
+    if (!Number.isInteger(videoId) || videoId <= 0) {
+      res.status(400).json({ error: "Nieprawidłowe videoId" });
+      return;
+    }
+
+    const [row] = await db
+      .select({
+        id: videos.id,
+        title: videos.title,
+        bunnyVideoId: videos.bunnyVideoId,
+        videoUrl: videos.videoUrl,
+        durationSeconds: videos.durationSeconds,
+        topicId: videos.topicId,
+        topicTitle: topics.title,
+        sectionTitle: sections.title,
+      })
+      .from(videos)
+      .innerJoin(topics, eq(videos.topicId, topics.id))
+      .innerJoin(sections, eq(topics.sectionId, sections.id))
+      .where(eq(videos.id, videoId))
+      .limit(1);
+
+    if (!row) {
+      res.status(404).json({ error: "Wideo nie znalezione" });
+      return;
+    }
+
+    const health =
+      isBunnyConfigured() && row.bunnyVideoId
+        ? await probeBunnyVideo(row.bunnyVideoId)
+        : null;
+
+    res.json({
+      id: row.id,
+      title: row.title,
+      topicId: row.topicId,
+      topicTitle: row.topicTitle,
+      sectionTitle: row.sectionTitle,
+      bunnyVideoId: row.bunnyVideoId,
+      embedUrl: buildVideoEmbedUrl(row),
+      durationSeconds: row.durationSeconds,
+      health,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Video health detail error");
     res.status(500).json({ error: "Błąd serwera" });
   }
 });

@@ -14,6 +14,7 @@ export interface Topic {
   /** @nullable */
   description?: string | null;
   sortOrder: number;
+  isPreview?: boolean;
   hasVideo?: boolean;
   hasQuiz?: boolean;
   hasTasks?: boolean;

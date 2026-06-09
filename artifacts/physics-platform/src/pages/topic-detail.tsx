@@ -1,153 +1,358 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import confetti from "canvas-confetti";
 import { useRoute, useLocation } from "wouter";
-import { 
-  useGetTopic, 
-  useGetMyProgress, 
-  useUpsertProgress, 
+import {
+  useGetTopic,
+  useGetMyProgress,
+  useUpsertVideoProgress,
   useSubmitQuizAttempt,
-  useCheckTask,
-  useListTopics
+  useLessonChat,
+  useListTopics,
 } from "@workspace/api-client-react";
-import { Excalidraw, exportToBlob } from "@excalidraw/excalidraw";
+import type { Video, LessonImage, ChatMessage } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { ChevronLeft, CheckCircle2, ChevronRight, PenTool, RefreshCw, PlayCircle, HelpCircle, AlertCircle, Bot, Loader2, Trash2, Save, Download, Sparkles, Monitor, ListChecks } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  PlayCircle,
+  HelpCircle,
+  AlertCircle,
+  Bot,
+  Loader2,
+  Send,
+  NotebookPen,
+  ListChecks,
+  ImageIcon,
+  Lock,
+  RotateCcw,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+type ProgressReport = {
+  videoId: number;
+  watchedSeconds: number;
+};
+
+// Big 16:9 lesson video. Tracks real watch position via the player.js protocol
+// (Bunny Stream iframes are player.js-compatible) and reports it to the server,
+// which alone decides completion. We never tell the server "watched" directly.
+function LessonVideoPlayer({
+  video,
+  onReport,
+}: {
+  video: Video & { embedUrl?: string | null };
+  onReport: (report: ProgressReport) => void;
+}) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [loaded, setLoaded] = useState(false);
+  const lastSentRef = useRef(0);
+  const latestRef = useRef({ seconds: 0, duration: 0 });
+
+  useEffect(() => {
+    setLoaded(false);
+    latestRef.current = { seconds: 0, duration: 0 };
+    lastSentRef.current = 0;
+  }, [video.id]);
+
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const post = (method: string, value: string) => {
+      iframe.contentWindow?.postMessage(
+        JSON.stringify({ context: "player.js", version: "0.0.4", method, value }),
+        "*",
+      );
+    };
+
+    const subscribe = () => {
+      post("addEventListener", "timeupdate");
+      post("addEventListener", "ended");
+    };
+
+    const onMessage = (e: MessageEvent) => {
+      if (typeof e.data !== "string") return;
+      let msg: any;
+      try {
+        msg = JSON.parse(e.data);
+      } catch {
+        return;
+      }
+      if (!msg || msg.context !== "player.js") return;
+
+      if (msg.event === "ready") {
+        subscribe();
+      } else if (msg.event === "timeupdate" && msg.value) {
+        const seconds = Number(msg.value.seconds) || 0;
+        const duration = Number(msg.value.duration) || 0;
+        latestRef.current = { seconds, duration };
+        const now = Date.now();
+        if (now - lastSentRef.current > 15000 && seconds > 0) {
+          lastSentRef.current = now;
+          onReport({
+            videoId: video.id,
+            watchedSeconds: seconds,
+          });
+        }
+      } else if (msg.event === "ended") {
+        const { seconds, duration } = latestRef.current;
+        onReport({
+          videoId: video.id,
+          watchedSeconds: duration || seconds,
+        });
+      }
+    };
+
+    window.addEventListener("message", onMessage);
+    return () => {
+      window.removeEventListener("message", onMessage);
+      const { seconds } = latestRef.current;
+      if (seconds > 0) {
+        onReport({
+          videoId: video.id,
+          watchedSeconds: seconds,
+        });
+      }
+    };
+  }, [video.id, onReport]);
+
+  if (!video.embedUrl) {
+    return (
+      <div className="aspect-video bg-muted/50 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed text-center px-6">
+        <AlertCircle className="w-10 h-10 text-muted-foreground/50 mb-3" />
+        <span className="text-muted-foreground font-medium">
+          To wideo jest chwilowo niedostępne. Spróbuj odświeżyć stronę za chwilę.
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="aspect-video bg-black rounded-2xl overflow-hidden relative shadow-inner ring-1 ring-border/50">
+      {!loaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse">
+          <Loader2 className="w-8 h-8 text-muted-foreground/60 animate-spin" />
+        </div>
+      )}
+      <iframe
+        ref={iframeRef}
+        src={video.embedUrl}
+        title={video.title}
+        onLoad={() => setLoaded(true)}
+        allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+        allowFullScreen
+        className="absolute inset-0 w-full h-full border-0"
+      />
+    </div>
+  );
+}
+
 export default function TopicDetail() {
-  const [match, params] = useRoute("/topics/:topicId");
+  const [, params] = useRoute("/topics/:topicId");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
-  
-  const topicId = params?.topicId ? parseInt(params.topicId, 10) : 0;
-  
-  const [step, setStep] = useState<"video" | "quiz" | "task">("video");
-  const [programOpen, setProgramOpen] = useState(false);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
-  const [quizResult, setQuizResult] = useState<any>(null);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  
-  // Excalidraw
-  const [excalidrawAPI, setExcalidrawAPI] = useState<any>(null);
-  const [aiFeedback, setAiFeedback] = useState<string | null>(null);
-  const [restored, setRestored] = useState(false);
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const wbKey = user ? `wb:${user.id}:${topicId}` : null;
-  
-  const { data: topic, isLoading, isError } = useGetTopic(topicId, {
+  const topicId = params?.topicId ? parseInt(params.topicId, 10) : 0;
+
+  const { data: topic, isLoading, isError, error } = useGetTopic(topicId, {
     query: { enabled: !!topicId } as any,
   });
 
-  const prevCheckedRef = useRef<boolean | undefined>(undefined);
+  const isAccessDenied = (error as any)?.status === 403;
 
   const { data: allProgress, refetch: refetchProgress } = useGetMyProgress();
-  const progressMutation = useUpsertProgress();
+  const videoProgressMutation = useUpsertVideoProgress();
   const submitQuizMutation = useSubmitQuizAttempt();
-  const checkTaskMutation = useCheckTask();
+  const lessonChatMutation = useLessonChat();
 
   const { data: siblingTopics } = useListTopics(topic?.sectionId ?? 0, {
     query: { enabled: !!topic?.sectionId } as any,
   });
 
-  const currentProgress = allProgress?.find(p => p.topicId === topicId);
+  const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
+  const [quizResult, setQuizResult] = useState<any>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [notes, setNotes] = useState("");
+  const [notesSaved, setNotesSaved] = useState(true);
+  const [programOpen, setProgramOpen] = useState(false);
 
-  const orderedSiblings = [...(siblingTopics ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
-  const currentIndex = orderedSiblings.findIndex(t => t.id === topicId);
-  const prevTopic = currentIndex > 0 ? orderedSiblings[currentIndex - 1] : null;
-  const nextTopic =
-    currentIndex >= 0 && currentIndex < orderedSiblings.length - 1
-      ? orderedSiblings[currentIndex + 1]
-      : null;
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+  const notesTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Initialize step based on progress
+  const currentProgress = allProgress?.find((p) => p.topicId === topicId);
+  const notesKey = user ? `notes:${user.id}:${topicId}` : null;
+
+  // Reset per-lesson UI state when switching topics.
   useEffect(() => {
-    if (currentProgress) {
-      if (currentProgress.currentElementType === "task" || (currentProgress.videoCompleted && currentProgress.quizCompleted)) {
-        setStep("task");
-      } else if (currentProgress.currentElementType === "quiz" || currentProgress.videoCompleted) {
-        setStep("quiz");
-      } else {
-        setStep("video");
-      }
-    }
-  }, [currentProgress]);
-
-  // Reset transition tracking when switching topics so each lesson can celebrate once.
-  useEffect(() => {
-    prevCheckedRef.current = undefined;
+    setActiveVideoId(null);
+    setSelectedAnswers({});
+    setQuizResult(null);
+    setChatMessages([]);
+    setChatInput("");
   }, [topicId]);
 
-  // Fire confetti only when the server confirms completion (false -> true transition).
+  // Pick the first video as the active one once the topic loads.
   useEffect(() => {
-    if (!currentProgress) return;
-    const checked = !!currentProgress.taskCheckedByAi;
-    const prev = prevCheckedRef.current;
-    prevCheckedRef.current = checked;
-    if (prev === undefined) return; // first loaded server state for this topic establishes the baseline
-    if (!checked || prev) return; // only celebrate on the false -> true flip
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    confetti({
-      particleCount: 140,
-      spread: 70,
-      origin: { y: 0.7 },
-      colors: ["#0ea5e9", "#06b6d4", "#f59e0b", "#22c55e"],
-    });
-  }, [currentProgress, topicId]);
-
-  // Restore the saved whiteboard for this student + topic once the editor is ready.
-  useEffect(() => {
-    if (!excalidrawAPI || !wbKey || restored) return;
-    try {
-      const raw = localStorage.getItem(wbKey);
-      if (raw) {
-        const data = JSON.parse(raw);
-        excalidrawAPI.updateScene({ elements: data.elements ?? [] });
-        if (data.files) excalidrawAPI.addFiles(Object.values(data.files));
-      }
-    } catch {
-      // Ignore corrupt saved state; start with an empty board.
+    if (topic?.videos?.length && activeVideoId === null) {
+      setActiveVideoId(topic.videos[0].id);
     }
-    setRestored(true);
-  }, [excalidrawAPI, wbKey, restored]);
+  }, [topic, activeVideoId]);
 
-  // Persist clears any pending debounce timer on unmount.
+  // Load saved notes for this student + topic.
+  useEffect(() => {
+    if (!notesKey) return;
+    setNotes(localStorage.getItem(notesKey) ?? "");
+    setNotesSaved(true);
+  }, [notesKey]);
+
+  // Auto-scroll the chat to the newest message.
+  useEffect(() => {
+    const el = chatScrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [chatMessages, lessonChatMutation.isPending]);
+
   useEffect(() => {
     return () => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
+      if (notesTimer.current) clearTimeout(notesTimer.current);
     };
   }, []);
 
-  const saveWhiteboard = useCallback((silent: boolean) => {
-    if (!excalidrawAPI || !wbKey) return;
-    try {
-      const elements = excalidrawAPI.getSceneElements();
-      const files = excalidrawAPI.getFiles();
-      localStorage.setItem(wbKey, JSON.stringify({ elements, files }));
-      if (!silent) {
-        toast({ title: "Zapisano", description: "Twoja praca na tablicy została zapisana." });
+  const handleVideoReport = useCallback(
+    (report: ProgressReport) => {
+      videoProgressMutation.mutate(
+        { data: report },
+        { onSuccess: () => refetchProgress() },
+      );
+    },
+    [videoProgressMutation, refetchProgress],
+  );
+
+  const handleNotesChange = (value: string) => {
+    setNotes(value);
+    setNotesSaved(false);
+    if (notesTimer.current) clearTimeout(notesTimer.current);
+    notesTimer.current = setTimeout(() => {
+      if (notesKey) {
+        localStorage.setItem(notesKey, value);
+        setNotesSaved(true);
       }
-    } catch {
-      if (!silent) {
-        toast({ title: "Nie udało się zapisać", description: "Spróbuj ponownie.", variant: "destructive" });
-      }
-    }
-  }, [excalidrawAPI, wbKey, toast]);
+    }, 800);
+  };
+
+  const handleQuizSubmit = () => {
+    if (!topic?.quiz) return;
+    const answers = Object.entries(selectedAnswers).map(([questionId, answerId]) => ({
+      questionId: parseInt(questionId, 10),
+      selectedAnswerId: answerId,
+    }));
+    submitQuizMutation.mutate(
+      { quizId: topic.quiz.id, data: { answers } },
+      {
+        onSuccess: (result) => {
+          setQuizResult(result);
+          refetchProgress();
+          if (result.passed && !prefersReducedMotion()) {
+            confetti({
+              particleCount: 140,
+              spread: 70,
+              origin: { y: 0.7 },
+              colors: ["#0ea5e9", "#06b6d4", "#f59e0b", "#22c55e"],
+            });
+          }
+          if (chatScrollRef.current) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        },
+        onError: () => {
+          toast({
+            title: "Wystąpił błąd",
+            description: "Nie udało się wysłać quizu. Spróbuj ponownie.",
+            variant: "destructive",
+          });
+        },
+      },
+    );
+  };
+
+  const handleSendChat = () => {
+    const message = chatInput.trim();
+    if (!message || lessonChatMutation.isPending) return;
+    const history = chatMessages.slice(-10);
+    setChatMessages((prev) => [...prev, { role: "user", content: message }]);
+    setChatInput("");
+    lessonChatMutation.mutate(
+      { data: { topicId, message, history } },
+      {
+        onSuccess: (res) => {
+          setChatMessages((prev) => [...prev, { role: "assistant", content: res.reply }]);
+        },
+        onError: () => {
+          setChatMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content:
+                "Przepraszam, nie udało mi się teraz odpowiedzieć. Spróbuj ponownie za chwilę.",
+            },
+          ]);
+        },
+      },
+    );
+  };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-12 max-w-4xl space-y-8">
-        <div className="h-8 w-32 bg-muted animate-pulse rounded-full mb-8" />
-        <div className="h-12 w-3/4 bg-muted animate-pulse rounded-xl mb-12" />
-        <div className="flex gap-4 mb-8">
-          {[1,2,3].map(i => <div key={i} className="h-12 flex-1 bg-muted animate-pulse rounded-full" />)}
+      <div className="container mx-auto px-4 py-12 max-w-7xl space-y-8">
+        <div className="h-8 w-40 bg-muted animate-pulse rounded-full" />
+        <div className="h-10 w-2/3 bg-muted animate-pulse rounded-xl" />
+        <div className="lg:grid lg:grid-cols-[1fr_360px] lg:gap-8">
+          <div className="aspect-video bg-muted animate-pulse rounded-3xl" />
+          <div className="hidden lg:block h-96 bg-muted animate-pulse rounded-3xl" />
         </div>
-        <div className="h-96 bg-muted animate-pulse rounded-3xl" />
+      </div>
+    );
+  }
+
+  if (isAccessDenied) {
+    return (
+      <div className="container mx-auto px-4 py-20 max-w-2xl">
+        <div className="rounded-3xl border bg-card p-10 sm:p-14 text-center shadow-sm">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Lock className="h-10 w-10" />
+          </div>
+          <h1 className="text-2xl font-bold font-display">Ta lekcja wymaga dostępu</h1>
+          <p className="mt-3 text-muted-foreground">
+            To pełna lekcja kursu. Wykup dostęp, aby oglądać wszystkie materiały, rozwiązywać quizy i korzystać z asystenta AI.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+            <Button className="rounded-full px-8 h-12" onClick={() => setLocation("/")}>
+              Zobacz ofertę
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full px-8 h-12"
+              onClick={() => setLocation("/dashboard")}
+            >
+              Wróć do pulpitu
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -159,9 +364,9 @@ export default function TopicDetail() {
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10 text-destructive">
             <AlertCircle className="h-10 w-10" />
           </div>
-          <h1 className="text-2xl font-bold font-display">Nie udało się wczytać tematu</h1>
+          <h1 className="text-2xl font-bold font-display">Nie udało się wczytać lekcji</h1>
           <p className="mt-3 text-muted-foreground">
-            Ten temat jest niedostępny lub wystąpił błąd połączenia. Wróć do listy tematów i spróbuj ponownie.
+            Ta lekcja jest niedostępna lub wystąpił błąd połączenia. Wróć do pulpitu i spróbuj ponownie.
           </p>
           <Button className="mt-8 rounded-full px-8 h-12" onClick={() => setLocation("/dashboard")}>
             Wróć do pulpitu
@@ -171,592 +376,457 @@ export default function TopicDetail() {
     );
   }
 
-  const handleVideoComplete = () => {
-    progressMutation.mutate({
-      data: {
-        topicId: topic.id,
-        currentElementType: "quiz",
-        videoCompleted: true
-      }
-    }, {
-      onSuccess: () => {
-        refetchProgress();
-        setStep("quiz");
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    });
+  const videos = topic.videos ?? [];
+  const images: LessonImage[] = topic.images ?? [];
+  const activeVideo = videos.find((v) => v.id === activeVideoId) ?? videos[0] ?? null;
+
+  const orderedSiblings = [...(siblingTopics ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
+
+  const isSiblingDone = (t: (typeof orderedSiblings)[number]) => {
+    const p = allProgress?.find((pp) => pp.topicId === t.id);
+    if (!p) return false;
+    const videoOk = !t.hasVideo || p.videoCompleted;
+    const quizOk = !t.hasQuiz || p.quizCompleted;
+    return videoOk && quizOk;
   };
 
-  const handleQuizSubmit = () => {
-    if (!topic.quiz) return;
-    
-    // Convert answers
-    const answers = Object.entries(selectedAnswers).map(([questionId, answerId]) => ({
-      questionId: parseInt(questionId, 10),
-      selectedAnswerId: answerId
-    }));
-
-    submitQuizMutation.mutate({
-      quizId: topic.quiz.id,
-      data: { answers }
-    }, {
-      onSuccess: (result) => {
-        setQuizResult(result);
-        if (result.percentage >= 50) { 
-          progressMutation.mutate({
-            data: {
-              topicId: topic.id,
-              currentElementType: "task"
-            }
-          }, {
-            onSuccess: () => refetchProgress()
-          });
-        }
-      }
-    });
-  };
-
-  const blobToDataUrl = (blob: Blob): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          resolve(reader.result);
-        } else {
-          reject(new Error("Nie udało się odczytać obrazu"));
-        }
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  };
-
-  const handleSceneChange = () => {
-    if (!restored || !wbKey) return;
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => saveWhiteboard(true), 1500);
-  };
-
-  const handleClearBoard = () => {
-    if (!excalidrawAPI) return;
-    excalidrawAPI.updateScene({ elements: [] });
-    if (wbKey) localStorage.removeItem(wbKey);
-    toast({ title: "Tablica wyczyszczona", description: "Możesz zacząć od nowa." });
-  };
-
-  const handleDownloadBoard = async () => {
-    if (!excalidrawAPI) return;
-    try {
-      const elements = excalidrawAPI.getSceneElements();
-      if (!elements || elements.length === 0) {
-        toast({ title: "Pusta tablica", description: "Najpierw narysuj rozwiązanie.", variant: "destructive" });
-        return;
-      }
-      const blob = await exportToBlob({
-        elements,
-        mimeType: "image/png",
-        appState: { exportBackground: true },
-        files: excalidrawAPI.getFiles(),
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `tablica-temat-${topicId}.png`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      toast({ title: "Wystąpił błąd", description: "Nie udało się pobrać obrazu z tablicy.", variant: "destructive" });
-    }
-  };
-
-  const handleCheckTask = async () => {
-    if (!excalidrawAPI || !topic.tasks || topic.tasks.length === 0) return;
-    
-    try {
-      const elements = excalidrawAPI.getSceneElements();
-      if (!elements || elements.length === 0) {
-        toast({ title: "Pusta tablica", description: "Zanim sprawdzisz zadanie, narysuj rozwiązanie na tablicy.", variant: "destructive" });
-        return;
-      }
-
-      const blob = await exportToBlob({
-        elements,
-        mimeType: "image/png",
-        appState: { exportBackground: true },
-        files: excalidrawAPI.getFiles()
-      });
-
-      const imageDataUrl = await blobToDataUrl(blob);
-
-      checkTaskMutation.mutate({
-        data: {
-          taskId: topic.tasks[0].id,
-          imageBase64: imageDataUrl
-        }
-      }, {
-        onSuccess: (result) => {
-          setAiFeedback(result.feedback);
-          progressMutation.mutate({
-            data: {
-              topicId: topic.id,
-              currentElementType: "task"
-            }
-          }, {
-            onSuccess: () => refetchProgress()
-          });
-        },
-        onError: () => {
-          toast({ title: "Wystąpił błąd", description: "Nie udało się sprawdzić zadania. Spróbuj ponownie za chwilę.", variant: "destructive" });
-        }
-      });
-    } catch {
-      toast({ title: "Wystąpił błąd", description: "Nie udało się pobrać obrazu z tablicy.", variant: "destructive" });
-    }
-  };
-
-  const completedSiblings = orderedSiblings.filter(
-    (t) => allProgress?.find((p) => p.topicId === t.id)?.taskCheckedByAi,
-  ).length;
-  const sectionPercent =
-    orderedSiblings.length > 0
-      ? Math.round((completedSiblings / orderedSiblings.length) * 100)
-      : 0;
-
-  const programProgress = (
-    <div className="p-5 border-b bg-muted/30">
-      <span className="text-xs font-bold uppercase tracking-wider text-primary">Program działu</span>
-      <div className="mt-3 flex items-center justify-between text-sm">
-        <span className="font-semibold text-foreground">{completedSiblings}/{orderedSiblings.length} ukończonych</span>
-        <span className="text-muted-foreground">{sectionPercent}%</span>
-      </div>
-      <div className="mt-2 h-2 w-full rounded-full bg-muted overflow-hidden">
-        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${sectionPercent}%` }} />
-      </div>
-    </div>
-  );
-
-  const renderProgramNav = (onNavigate?: () => void) => (
-    <nav className="p-2 overflow-y-auto" aria-label="Tematy w dziale">
+  const programNav = (onNavigate?: () => void) => (
+    <nav className="p-2 space-y-1" aria-label="Lekcje w dziale">
       {orderedSiblings.map((t, idx) => {
-        const tp = allProgress?.find((p) => p.topicId === t.id);
-        const tDone = tp?.taskCheckedByAi;
-        const tStarted = tp && !tDone;
+        const done = isSiblingDone(t);
         const isCurrent = t.id === topicId;
         return (
           <button
             key={t.id}
-            onClick={() => { setLocation(`/topics/${t.id}`); window.scrollTo({ top: 0 }); onNavigate?.(); }}
+            onClick={() => {
+              setLocation(`/topics/${t.id}`);
+              window.scrollTo({ top: 0 });
+              onNavigate?.();
+            }}
             aria-current={isCurrent ? "page" : undefined}
-            className={`w-full flex items-center gap-3 p-3 rounded-2xl text-left transition-all
-              ${isCurrent ? "bg-primary/10 ring-1 ring-primary/20" : "hover:bg-muted/60"}`}
+            className={`w-full flex items-center gap-3 p-3 rounded-2xl text-left transition-all ${
+              isCurrent ? "bg-primary/10 ring-1 ring-primary/20" : "hover:bg-muted/60"
+            }`}
           >
-            <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-sm font-bold
-              ${tDone ? "bg-success/20 text-success" : isCurrent ? "bg-primary text-primary-foreground" : tStarted ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
+            <div
+              className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-sm font-bold ${
+                done
+                  ? "bg-success/20 text-success"
+                  : isCurrent
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+              }`}
             >
-              {tDone ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
+              {done ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
             </div>
-            <span className={`text-sm leading-tight line-clamp-2 ${isCurrent ? "font-bold text-foreground" : tDone ? "text-foreground/80" : "text-muted-foreground"}`}>
+            <span
+              className={`text-sm leading-tight line-clamp-2 ${
+                isCurrent ? "font-bold text-foreground" : done ? "text-foreground/80" : "text-muted-foreground"
+              }`}
+            >
               {t.title}
             </span>
+            {t.isPreview && !done && (
+              <span className="ml-auto text-[10px] font-bold uppercase tracking-wide text-primary">
+                Demo
+              </span>
+            )}
           </button>
         );
       })}
     </nav>
   );
 
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="lg:grid lg:grid-cols-[300px_1fr] lg:gap-8 lg:items-start">
-        {/* Desktop course-program sidebar */}
-        <aside className="hidden lg:block">
-          <div className="sticky top-24 rounded-3xl border bg-card shadow-sm overflow-hidden">
-            {programProgress}
-            <div className="max-h-[calc(100vh-16rem)] overflow-y-auto">
-              {renderProgramNav()}
+  const chatPanel = (
+    <div className="flex flex-col h-full">
+      <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+        {chatMessages.length === 0 && !lessonChatMutation.isPending && (
+          <div className="text-center text-sm text-muted-foreground py-8 px-4">
+            <Bot className="w-10 h-10 mx-auto mb-3 text-primary/50" />
+            <p className="font-medium text-foreground">Zapytaj asystenta o tę lekcję</p>
+            <p className="mt-1">
+              Pomogę Ci zrozumieć materiał, wyjaśnię pojęcia i naprowadzę na rozwiązanie zadań.
+            </p>
+          </div>
+        )}
+        {chatMessages.map((m, i) => (
+          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+                m.role === "user"
+                  ? "bg-primary text-primary-foreground rounded-br-md"
+                  : "bg-muted text-foreground rounded-bl-md"
+              }`}
+            >
+              {m.content}
             </div>
           </div>
-        </aside>
+        ))}
+        {lessonChatMutation.isPending && (
+          <div className="flex justify-start">
+            <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            </div>
+          </div>
+        )}
+      </div>
+      <form
+        className="border-t p-3 flex items-end gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSendChat();
+        }}
+      >
+        <Textarea
+          value={chatInput}
+          onChange={(e) => setChatInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSendChat();
+            }
+          }}
+          placeholder="Napisz pytanie..."
+          rows={1}
+          className="resize-none min-h-[44px] max-h-32 rounded-2xl"
+        />
+        <Button
+          type="submit"
+          size="icon"
+          className="h-11 w-11 shrink-0 rounded-full"
+          disabled={!chatInput.trim() || lessonChatMutation.isPending}
+          aria-label="Wyślij wiadomość"
+        >
+          <Send className="w-4 h-4" />
+        </Button>
+      </form>
+    </div>
+  );
 
-        <div className="space-y-8 min-w-0">
-      <div>
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <Button variant="ghost" className="-ml-4 text-muted-foreground rounded-full hover:text-foreground" onClick={() => window.history.back()}>
-            <ChevronLeft className="w-5 h-5 mr-1" /> Wróć do tematów
-          </Button>
-          {/* Mobile course-program bottom sheet trigger */}
-          <Sheet open={programOpen} onOpenChange={setProgramOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" className="lg:hidden rounded-full font-semibold">
-                <ListChecks className="w-4 h-4 mr-2" /> Program
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="rounded-t-3xl p-0 max-h-[85vh] flex flex-col">
-              <SheetHeader className="px-5 pt-5 pb-0 text-left">
-                <SheetTitle>Program działu</SheetTitle>
-              </SheetHeader>
-              {programProgress}
-              <div className="overflow-y-auto pb-[env(safe-area-inset-bottom)]">
-                {renderProgramNav(() => setProgramOpen(false))}
-              </div>
-              <SheetClose className="sr-only">Zamknij</SheetClose>
-            </SheetContent>
-          </Sheet>
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-black tracking-tight font-display mb-2">{topic.title}</h1>
+  const notesPanel = (
+    <div className="flex flex-col h-full p-4">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-sm font-semibold text-muted-foreground">Twoje notatki</span>
+        <span className="text-xs text-muted-foreground">
+          {notesSaved ? "Zapisano" : "Zapisywanie..."}
+        </span>
+      </div>
+      <Textarea
+        value={notes}
+        onChange={(e) => handleNotesChange(e.target.value)}
+        placeholder="Zapisuj tu najważniejsze wzory, definicje i własne wnioski z lekcji..."
+        className="flex-1 resize-none rounded-2xl min-h-[300px]"
+      />
+    </div>
+  );
+
+  const sidePanel = (
+    <Tabs defaultValue="program" className="flex flex-col h-full">
+      <TabsList className="grid grid-cols-3 m-3 mb-0">
+        <TabsTrigger value="program" className="gap-1.5">
+          <ListChecks className="w-4 h-4" /> Lekcje
+        </TabsTrigger>
+        <TabsTrigger value="chat" className="gap-1.5">
+          <Bot className="w-4 h-4" /> Asystent
+        </TabsTrigger>
+        <TabsTrigger value="notes" className="gap-1.5">
+          <NotebookPen className="w-4 h-4" /> Notatki
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="program" className="flex-1 overflow-y-auto m-0 min-h-0">
+        {programNav()}
+      </TabsContent>
+      <TabsContent value="chat" className="flex-1 m-0 min-h-0">
+        {chatPanel}
+      </TabsContent>
+      <TabsContent value="notes" className="flex-1 m-0 min-h-0">
+        {notesPanel}
+      </TabsContent>
+    </Tabs>
+  );
+
+  const passThreshold = quizResult?.passThreshold ?? 80;
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <Button
+          variant="ghost"
+          className="-ml-4 text-muted-foreground rounded-full hover:text-foreground"
+          onClick={() => setLocation("/dashboard")}
+        >
+          <ChevronLeft className="w-5 h-5 mr-1" /> Pulpit
+        </Button>
+        <Sheet open={programOpen} onOpenChange={setProgramOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="lg:hidden rounded-full font-semibold">
+              <ListChecks className="w-4 h-4 mr-2" /> Lekcje i asystent
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="p-0 w-full sm:max-w-md flex flex-col">
+            <SheetHeader className="px-5 pt-5 pb-0 text-left">
+              <SheetTitle>Panel lekcji</SheetTitle>
+            </SheetHeader>
+            <div className="flex-1 min-h-0">{sidePanel}</div>
+            <SheetClose className="sr-only">Zamknij</SheetClose>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      <div className="mb-6">
+        {topic.isPreview && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary mb-3">
+            <PlayCircle className="w-3.5 h-3.5" /> Lekcja demonstracyjna
+          </span>
+        )}
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tight font-display">{topic.title}</h1>
         {topic.description && (
-          <p className="text-base sm:text-lg text-muted-foreground max-w-3xl leading-relaxed">{topic.description}</p>
+          <p className="mt-2 text-base sm:text-lg text-muted-foreground max-w-3xl leading-relaxed">
+            {topic.description}
+          </p>
         )}
       </div>
 
-      {/* Stepper Navigation */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 bg-card p-2 rounded-2xl border shadow-sm">
-        {[
-          { id: "video", label: "Wideo", desc: "Zrozum zjawisko", icon: <PlayCircle className="w-5 h-5" />, isCompleted: currentProgress?.videoCompleted },
-          { id: "quiz", label: "Quiz", desc: "Utrwal pojęcia", icon: <HelpCircle className="w-5 h-5" />, isCompleted: currentProgress?.quizCompleted },
-          { id: "task", label: "Zadanie", desc: "Zastosuj wiedzę", icon: <PenTool className="w-5 h-5" />, isCompleted: currentProgress?.taskCheckedByAi }
-        ].map((s, i, arr) => {
-          const isActive = step === s.id;
-          const isAvailable = i === 0 || arr[i-1].isCompleted;
-          
-          return (
-            <button
-              key={s.id}
-              disabled={!isAvailable && !isActive}
-              onClick={() => setStep(s.id as any)}
-              className={`flex-1 flex items-center gap-3 p-3 rounded-xl transition-all text-left
-                ${isActive 
-                  ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20 ring-offset-2 ring-offset-background" 
-                  : isAvailable 
-                    ? "hover:bg-muted text-foreground" 
-                    : "opacity-50 cursor-not-allowed text-muted-foreground"
-                }
-              `}
-            >
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isActive ? 'bg-primary-foreground/20' : s.isCompleted ? 'bg-success/20 text-success' : 'bg-muted'}`}>
-                {s.isCompleted && !isActive ? <CheckCircle2 className="w-5 h-5" /> : s.icon}
-              </div>
-              <div>
-                <div className="font-bold text-sm">{s.label}</div>
-                <div className={`text-xs ${isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>{s.desc}</div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mt-8">
-        {step === "video" && (
-          <Card className="border-border shadow-lg rounded-3xl overflow-hidden bg-card animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <CardHeader className="bg-muted/30 border-b pb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
-                  <PlayCircle className="w-5 h-5" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl">Obejrzyj materiał</CardTitle>
-                  <CardDescription className="text-base mt-1">Skup się i postaraj zrozumieć koncepcję. Zawsze możesz tu wrócić.</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-8">
-              {topic.video?.embedUrl ? (
-                <div className="aspect-video bg-black rounded-2xl overflow-hidden relative shadow-inner ring-1 ring-border/50">
-                  {!videoLoaded && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse">
-                      <Loader2 className="w-8 h-8 text-muted-foreground/60 animate-spin" />
-                    </div>
-                  )}
-                  <iframe
-                    src={topic.video.embedUrl}
-                    title={topic.video.title}
-                    onLoad={() => setVideoLoaded(true)}
-                    allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
-                    allowFullScreen
-                    className="absolute inset-0 w-full h-full border-0"
-                  />
-                </div>
-              ) : topic.video ? (
-                <div className="aspect-video bg-muted/50 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed">
-                  <AlertCircle className="w-10 h-10 text-muted-foreground/50 mb-3" />
-                  <span className="text-muted-foreground font-medium">Wideo jest chwilowo niedostępne.</span>
-                </div>
-              ) : (
-                <div className="aspect-video bg-muted/50 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed">
-                  <AlertCircle className="w-10 h-10 text-muted-foreground/50 mb-3" />
-                  <span className="text-muted-foreground font-medium">Ten temat nie ma przypisanego wideo.</span>
+      <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8 lg:items-start">
+        {/* Main column */}
+        <div className="space-y-10 min-w-0">
+          {/* Video */}
+          {activeVideo ? (
+            <section className="space-y-4">
+              <LessonVideoPlayer video={activeVideo} onReport={handleVideoReport} />
+              {currentProgress?.videoCompleted && (
+                <p className="flex items-center gap-2 text-sm font-medium text-success">
+                  <CheckCircle2 className="w-4 h-4" /> Materiał wideo zaliczony
+                </p>
+              )}
+              {videos.length > 1 && (
+                <div className="flex flex-wrap gap-2">
+                  {videos.map((v, idx) => (
+                    <button
+                      key={v.id}
+                      onClick={() => setActiveVideoId(v.id)}
+                      className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
+                        v.id === activeVideo.id
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-card hover:bg-muted text-foreground"
+                      }`}
+                    >
+                      <PlayCircle className="w-4 h-4" /> Część {idx + 1}
+                    </button>
+                  ))}
                 </div>
               )}
-              
-              <div className="flex justify-end">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-8 rounded-full font-bold text-base" onClick={handleVideoComplete}>
-                  {currentProgress?.videoCompleted ? "Obejrzane, przejdź do quizu" : "Zrozumiałem, przejdź do quizu"} <ChevronRight className="ml-2 w-5 h-5" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            </section>
+          ) : (
+            <section className="rounded-2xl border-2 border-dashed bg-muted/30 p-10 text-center">
+              <ImageIcon className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
+              <p className="font-medium text-muted-foreground">
+                Ta lekcja opiera się na materiałach graficznych i quizie poniżej.
+              </p>
+            </section>
+          )}
 
-        {step === "quiz" && (
-          <Card className="border-border shadow-lg rounded-3xl overflow-hidden bg-card animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <CardHeader className="bg-muted/30 border-b pb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center">
-                  <HelpCircle className="w-5 h-5" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl">{topic.quiz ? topic.quiz.title : "Quiz sprawdzający"}</CardTitle>
-                  <CardDescription className="text-base mt-1">Sprawdźmy, co zapamiętałeś z materiału wideo.</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              {!topic.quiz ? (
-                <div className="p-12 text-center bg-muted/30 rounded-2xl border-2 border-dashed">
-                  <p className="text-lg text-muted-foreground font-medium">Brak quizu dla tego tematu.</p>
-                </div>
-              ) : (
-                <div className="space-y-10">
-                  {topic.quiz.questions.map((q, idx) => {
-                    const resultForQ = quizResult?.answers.find((a: any) => a.questionId === q.id);
-                    const isCorrect = resultForQ?.isCorrect;
-                    const showFeedback = quizResult !== null;
-
-                    return (
-                      <div key={q.id} className="space-y-4">
-                        <h3 className="font-bold text-xl flex gap-3">
-                          <span className="text-primary">{idx + 1}.</span> 
-                          <span>{q.questionText}</span>
-                        </h3>
-                        <div className="grid sm:grid-cols-2 gap-3 pl-0 sm:pl-7">
-                          {q.answers.map(a => {
-                            const isSelected = selectedAnswers[q.id] === a.id;
-                            const isActuallyCorrect = showFeedback && resultForQ?.correctAnswerId === a.id;
-                            
-                            let btnClass = "justify-start h-auto py-4 px-5 rounded-2xl border-2 transition-all font-medium text-left items-start";
-                            if (showFeedback) {
-                              if (isActuallyCorrect) {
-                                btnClass += " border-success bg-success/10 text-foreground";
-                              } else if (isSelected && !isCorrect) {
-                                btnClass += " border-destructive bg-destructive/10 text-foreground";
-                              } else {
-                                btnClass += " opacity-40 border-muted bg-transparent";
-                              }
-                            } else {
-                              if (isSelected) {
-                                btnClass += " border-primary bg-primary/5 text-primary shadow-sm";
-                              } else {
-                                btnClass += " border-border bg-card hover:border-primary/40 hover:bg-muted/50 text-muted-foreground hover:text-foreground";
-                              }
-                            }
-
-                            return (
-                              <button
-                                key={a.id}
-                                className={btnClass}
-                                onClick={() => !showFeedback && setSelectedAnswers(prev => ({ ...prev, [q.id]: a.id }))}
-                                disabled={showFeedback}
-                              >
-                                <span className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mr-3 text-sm font-bold
-                                  ${showFeedback && isActuallyCorrect ? 'bg-success text-success-foreground' : 
-                                    showFeedback && isSelected && !isCorrect ? 'bg-destructive text-destructive-foreground' :
-                                    isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
-                                >
-                                  {a.answerLabel}
-                                </span>
-                                <span className="pt-1">{a.answerText}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                  {quizResult && (
-                    <Alert className={`rounded-2xl border-2 ${quizResult.percentage >= 50 ? "bg-success/10 border-success/30" : "bg-destructive/10 border-destructive/30"}`}>
-                      <div className="flex items-start gap-4">
-                        <div className={`mt-1 w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${quizResult.percentage >= 50 ? 'bg-success text-success-foreground' : 'bg-destructive text-destructive-foreground'}`}>
-                          {quizResult.percentage >= 50 ? <CheckCircle2 className="w-6 h-6" /> : <AlertCircle className="w-6 h-6" />}
-                        </div>
-                        <div>
-                          <AlertTitle className="text-xl font-bold mb-1">
-                            Twój wynik: {quizResult.score} / {quizResult.totalQuestions} ({Math.round(quizResult.percentage)}%)
-                          </AlertTitle>
-                          <AlertDescription className="text-base text-foreground/80">
-                            {quizResult.percentage >= 50 
-                              ? "Świetnie Ci poszło! Znasz już podstawy teoretyczne. Możesz przejść do rozwiązywania zadania." 
-                              : "Ups, to nie był najlepszy wynik. Zanim przejdziesz dalej, warto obejrzeć wideo jeszcze raz."}
-                          </AlertDescription>
-                        </div>
-                      </div>
-                    </Alert>
-                  )}
-
-                  <div className="flex flex-col sm:flex-row justify-between items-center pt-8 border-t gap-4">
-                    <Button variant="ghost" onClick={() => setStep("video")} className="rounded-full w-full sm:w-auto text-muted-foreground hover:text-foreground">
-                      <ChevronLeft className="mr-2 w-4 h-4" /> Powrót do wideo
-                    </Button>
-                    {!quizResult ? (
-                      <Button 
-                        size="lg" 
-                        className="w-full sm:w-auto rounded-full px-8 h-14 text-base font-bold shadow-md"
-                        onClick={handleQuizSubmit}
-                        disabled={submitQuizMutation.isPending || !topic.quiz || Object.keys(selectedAnswers).length < topic.quiz.questions.length}
-                      >
-                        {submitQuizMutation.isPending ? "Sprawdzanie..." : "Sprawdź moje odpowiedzi"}
-                      </Button>
-                    ) : (
-                      <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                        <Button variant="outline" className="rounded-full h-14 px-6" onClick={() => { setQuizResult(null); setSelectedAnswers({}); }}>
-                          <RefreshCw className="mr-2 w-4 h-4" /> Rozwiąż ponownie
-                        </Button>
-                        {quizResult.percentage >= 50 && (
-                          <Button size="lg" className="rounded-full h-14 px-8 font-bold shadow-md" onClick={() => setStep("task")}>
-                            Przejdź do zadania <ChevronRight className="ml-2 w-5 h-5" />
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {step === "task" && (
-          <Card className="border-border shadow-lg rounded-3xl overflow-hidden flex flex-col bg-card animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <CardHeader className="bg-muted/30 border-b pb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-600 flex items-center justify-center">
-                  <PenTool className="w-5 h-5" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl">{topic.tasks?.[0]?.title || "Zadanie do rozwiązania"}</CardTitle>
-                  <CardDescription className="text-base mt-1 text-foreground">
-                    {topic.tasks?.[0]?.description || "Rozwiąż zadanie korzystając z wirtualnej tablicy."}
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0 flex flex-col">
-              {topic.tasks?.[0]?.initialImageUrl && (
-                <div className="p-6 sm:p-8 border-b bg-muted/20">
-                  <p className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Materiał do zadania</p>
-                  <img
-                    src={topic.tasks[0].initialImageUrl}
-                    alt="Materiał pomocniczy do zadania"
-                    className="max-h-80 w-auto rounded-2xl border shadow-sm mx-auto"
-                  />
-                </div>
-              )}
-
-              <div className="flex flex-wrap items-center gap-2 px-6 sm:px-8 pt-6">
-                <Button variant="outline" size="sm" className="rounded-full" onClick={handleClearBoard} disabled={checkTaskMutation.isPending}>
-                  <Trash2 className="w-4 h-4 mr-2" /> Wyczyść
-                </Button>
-                <Button variant="outline" size="sm" className="rounded-full" onClick={() => saveWhiteboard(false)} disabled={checkTaskMutation.isPending}>
-                  <Save className="w-4 h-4 mr-2" /> Zapisz
-                </Button>
-                <Button variant="outline" size="sm" className="rounded-full" onClick={handleDownloadBoard} disabled={checkTaskMutation.isPending}>
-                  <Download className="w-4 h-4 mr-2" /> Pobierz
-                </Button>
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground ml-auto">
-                  <Monitor className="w-3.5 h-3.5" /> Tablica działa najlepiej na tablecie lub komputerze.
+          {/* Materials (images) */}
+          {images.length > 0 && (
+            <section className="space-y-5">
+              <h2 className="flex items-center gap-3 text-2xl font-bold font-display">
+                <span className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                  <ImageIcon className="w-5 h-5" />
                 </span>
+                Materiały do lekcji
+              </h2>
+              <div className="space-y-6">
+                {images.map((img) => (
+                  <figure key={img.id} className="rounded-3xl border bg-card overflow-hidden shadow-sm">
+                    <img
+                      src={img.imageUrl}
+                      alt={img.alt ?? topic.title}
+                      loading="lazy"
+                      className="w-full h-auto"
+                    />
+                    {img.alt && (
+                      <figcaption className="px-5 py-3 text-sm text-muted-foreground border-t">
+                        {img.alt}
+                      </figcaption>
+                    )}
+                  </figure>
+                ))}
               </div>
+            </section>
+          )}
 
-              <div className="px-6 sm:px-8 pt-4">
-                <div className="h-[600px] w-full relative rounded-2xl overflow-hidden border bg-[#F8F9FA] dark:bg-[#121212]">
-                  <Excalidraw
-                    excalidrawAPI={(api) => setExcalidrawAPI(api)}
-                    langCode="pl-PL"
-                    onChange={handleSceneChange}
-                    viewModeEnabled={checkTaskMutation.isPending}
-                    theme={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
-                  />
-                  {checkTaskMutation.isPending && (
-                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-background/70 backdrop-blur-sm">
-                      <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                      <p className="font-semibold text-foreground">Sztuczna Inteligencja analizuje Twoje rozwiązanie...</p>
-                    </div>
-                  )}
+          {/* Quiz */}
+          {topic.quiz && (
+            <section className="space-y-5">
+              <h2 className="flex items-center gap-3 text-2xl font-bold font-display">
+                <span className="w-9 h-9 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center">
+                  <HelpCircle className="w-5 h-5" />
+                </span>
+                {topic.quiz.title}
+              </h2>
+
+              {currentProgress?.quizCompleted && !quizResult && (
+                <div className="flex items-center gap-2 rounded-2xl bg-success/10 px-5 py-4 text-success font-semibold">
+                  <CheckCircle2 className="w-5 h-5" /> Quiz już zaliczony. Możesz rozwiązać go ponownie dla powtórki.
                 </div>
-              </div>
-              
-              <div className="p-6 sm:p-8 bg-card relative z-10">
-                {aiFeedback && (
-                  <div className="mb-8 p-6 bg-primary/5 border border-primary/20 rounded-2xl relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                        <Bot className="w-6 h-6 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-lg font-bold text-primary mb-2">Informacja zwrotna od AI</h4>
-                        <div className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 leading-relaxed">
-                          {aiFeedback.split('\n').map((para, i) => (
-                            <p key={i}>{para}</p>
-                          ))}
-                        </div>
-                        <p className="text-[11px] font-medium text-muted-foreground mt-4 uppercase tracking-wider">Uwaga: AI może sporadycznie popełniać błędy.</p>
-                      </div>
+              )}
+
+              {quizResult && (
+                <div
+                  className={`rounded-3xl border-2 p-6 ${
+                    quizResult.passed
+                      ? "border-success/30 bg-success/5"
+                      : "border-amber-500/30 bg-amber-500/5"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                        quizResult.passed ? "bg-success/20 text-success" : "bg-amber-500/20 text-amber-600"
+                      }`}
+                    >
+                      {quizResult.passed ? (
+                        <CheckCircle2 className="w-6 h-6" />
+                      ) : (
+                        <RotateCcw className="w-6 h-6" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xl font-bold">
+                        {quizResult.percentage}% ({quizResult.score}/{quizResult.totalQuestions})
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {quizResult.passed
+                          ? "Świetnie! Quiz zaliczony."
+                          : `Aby zaliczyć, potrzebujesz co najmniej ${passThreshold}%. Spróbuj ponownie.`}
+                      </p>
                     </div>
                   </div>
-                )}
-
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <Button variant="ghost" onClick={() => setStep("quiz")} className="rounded-full w-full sm:w-auto text-muted-foreground hover:text-foreground">
-                    <ChevronLeft className="mr-2 w-4 h-4" /> Powrót do quizu
-                  </Button>
-                  <Button 
-                    size="lg" 
-                    onClick={handleCheckTask}
-                    disabled={checkTaskMutation.isPending}
-                    className="w-full sm:w-auto rounded-full px-8 h-14 text-base font-bold shadow-lg shadow-primary/20"
-                  >
-                    {checkTaskMutation.isPending ? (
-                      <><Loader2 className="mr-2 w-5 h-5 animate-spin" /> Analizuję...</>
-                    ) : (
-                      <><Sparkles className="mr-2 w-5 h-5" /> Sprawdź zadanie z AI</>
-                    )}
-                  </Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+              )}
 
-      {(prevTopic || nextTopic) && (
-        <nav className="flex flex-col sm:flex-row items-stretch gap-3 pt-8 border-t" aria-label="Nawigacja między tematami">
-          {prevTopic ? (
-            <button
-              onClick={() => { setLocation(`/topics/${prevTopic.id}`); window.scrollTo({ top: 0 }); }}
-              className="flex-1 group flex items-center gap-3 p-4 rounded-2xl border bg-card hover:border-primary/40 hover:bg-muted/50 transition-all text-left"
-            >
-              <ChevronLeft className="w-5 h-5 text-muted-foreground shrink-0 group-hover:-translate-x-0.5 transition-transform" />
-              <div className="min-w-0">
-                <div className="text-xs text-muted-foreground font-medium">Poprzedni temat</div>
-                <div className="font-bold truncate">{prevTopic.title}</div>
+              <div className="space-y-8">
+                {topic.quiz.questions.map((q, idx) => {
+                  const resultForQ = quizResult?.answers.find((a: any) => a.questionId === q.id);
+                  const showFeedback = quizResult !== null;
+                  return (
+                    <div key={q.id} className="space-y-4">
+                      <h3 className="font-bold text-lg flex gap-3">
+                        <span className="text-primary">{idx + 1}.</span>
+                        <span>{q.questionText}</span>
+                      </h3>
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        {q.answers.map((a) => {
+                          const isSelected = selectedAnswers[q.id] === a.id;
+                          const isActuallyCorrect =
+                            showFeedback && resultForQ?.correctAnswerId === a.id;
+                          const isWrongSelected =
+                            showFeedback && isSelected && !resultForQ?.isCorrect;
+                          let cls =
+                            "justify-start h-auto py-4 px-5 rounded-2xl border-2 transition-all font-medium text-left flex items-start gap-3 text-sm";
+                          if (showFeedback) {
+                            if (isActuallyCorrect) cls += " border-success bg-success/10 text-foreground";
+                            else if (isWrongSelected)
+                              cls += " border-destructive bg-destructive/10 text-foreground";
+                            else cls += " border-border bg-card text-muted-foreground";
+                          } else if (isSelected) {
+                            cls += " border-primary bg-primary/5 text-foreground";
+                          } else {
+                            cls += " border-border bg-card hover:border-primary/40 text-foreground";
+                          }
+                          return (
+                            <button
+                              key={a.id}
+                              type="button"
+                              disabled={showFeedback}
+                              onClick={() =>
+                                setSelectedAnswers((prev) => ({ ...prev, [q.id]: a.id }))
+                              }
+                              className={cls}
+                            >
+                              <span className="flex-1">{a.answerText}</span>
+                              {isActuallyCorrect && (
+                                <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </button>
-          ) : <div className="flex-1 hidden sm:block" />}
-          {nextTopic ? (
-            <button
-              onClick={() => { setLocation(`/topics/${nextTopic.id}`); window.scrollTo({ top: 0 }); }}
-              className="flex-1 group flex items-center justify-end gap-3 p-4 rounded-2xl border bg-card hover:border-primary/40 hover:bg-muted/50 transition-all text-right"
-            >
-              <div className="min-w-0">
-                <div className="text-xs text-muted-foreground font-medium">Następny temat</div>
-                <div className="font-bold truncate">{nextTopic.title}</div>
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                {!quizResult ? (
+                  <Button
+                    size="lg"
+                    className="h-14 px-8 rounded-full font-bold w-full sm:w-auto"
+                    disabled={
+                      Object.keys(selectedAnswers).length < topic.quiz.questions.length ||
+                      submitQuizMutation.isPending
+                    }
+                    onClick={handleQuizSubmit}
+                  >
+                    {submitQuizMutation.isPending ? (
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    ) : null}
+                    Sprawdź odpowiedzi
+                  </Button>
+                ) : (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-14 px-8 rounded-full font-bold w-full sm:w-auto"
+                    onClick={() => {
+                      setQuizResult(null);
+                      setSelectedAnswers({});
+                    }}
+                  >
+                    <RotateCcw className="w-5 h-5 mr-2" /> Rozwiąż ponownie
+                  </Button>
+                )}
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0 group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          ) : <div className="flex-1 hidden sm:block" />}
-        </nav>
-      )}
+            </section>
+          )}
+
+          {/* Prev / Next */}
+          <div className="flex items-center justify-between gap-4 border-t pt-8">
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={!topic.previousTopicId}
+              onClick={() => {
+                if (topic.previousTopicId) {
+                  setLocation(`/topics/${topic.previousTopicId}`);
+                  window.scrollTo({ top: 0 });
+                }
+              }}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" /> Poprzednia
+            </Button>
+            <Button
+              className="rounded-full font-bold"
+              disabled={!topic.nextTopicId}
+              onClick={() => {
+                if (topic.nextTopicId) {
+                  setLocation(`/topics/${topic.nextTopicId}`);
+                  window.scrollTo({ top: 0 });
+                }
+              }}
+            >
+              Następna lekcja <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
         </div>
+
+        {/* Desktop side panel */}
+        <aside className="hidden lg:block">
+          <Card className="sticky top-24 rounded-3xl border shadow-sm overflow-hidden h-[calc(100vh-8rem)]">
+            <CardContent className="p-0 h-full">{sidePanel}</CardContent>
+          </Card>
+        </aside>
       </div>
     </div>
   );

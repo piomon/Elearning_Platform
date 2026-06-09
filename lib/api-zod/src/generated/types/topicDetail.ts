@@ -5,6 +5,7 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { LessonImage } from './lessonImage';
 import type { QuizPublic } from './quizPublic';
 import type { Task } from './task';
 import type { Video } from './video';
@@ -12,12 +13,21 @@ import type { Video } from './video';
 export interface TopicDetail {
   id: number;
   sectionId: number;
+  /** @nullable */
+  courseId?: number | null;
   title: string;
   slug: string;
   /** @nullable */
   description?: string | null;
   sortOrder: number;
+  isPreview?: boolean;
+  /** @nullable */
+  previousTopicId?: number | null;
+  /** @nullable */
+  nextTopicId?: number | null;
   video?: Video | null;
+  videos: Video[];
+  images: LessonImage[];
   quiz?: QuizPublic | null;
-  tasks?: Task[];
+  tasks: Task[];
 }

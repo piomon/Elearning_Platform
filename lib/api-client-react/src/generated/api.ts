@@ -39,6 +39,8 @@ import type {
   CourseWithSections,
   ErrorResponse,
   HealthStatus,
+  LessonChatInput,
+  LessonChatResult,
   ListAdminLogsParams,
   ListAdminPaymentsParams,
   ListAdminUsersParams,
@@ -77,7 +79,11 @@ import type {
   TopicInput,
   User,
   Video,
+  VideoHealthDetail,
+  VideoHealthList,
   VideoInput,
+  VideoProgress,
+  VideoProgressInput,
   WebhookInput
 } from './api.schemas';
 
@@ -855,6 +861,71 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       return useMutation(getUpsertProgressMutationOptions(options));
     }
 
+export const getUpsertVideoProgressUrl = () => {
+
+
+
+
+  return `/api/progress/video`
+}
+
+export const upsertVideoProgress = async (videoProgressInput: VideoProgressInput, options?: RequestInit): Promise<VideoProgress> => {
+
+  return customFetch<VideoProgress>(getUpsertVideoProgressUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      videoProgressInput,)
+  }
+);}
+
+
+
+
+export const getUpsertVideoProgressMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertVideoProgress>>, TError,{data: BodyType<VideoProgressInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof upsertVideoProgress>>, TError,{data: BodyType<VideoProgressInput>}, TContext> => {
+
+const mutationKey = ['upsertVideoProgress'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upsertVideoProgress>>, {data: BodyType<VideoProgressInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  upsertVideoProgress(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpsertVideoProgressMutationResult = NonNullable<Awaited<ReturnType<typeof upsertVideoProgress>>>
+    export type UpsertVideoProgressMutationBody = BodyType<VideoProgressInput>
+    export type UpsertVideoProgressMutationError = ErrorType<unknown>
+
+    export const useUpsertVideoProgress = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertVideoProgress>>, TError,{data: BodyType<VideoProgressInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof upsertVideoProgress>>,
+        TError,
+        {data: BodyType<VideoProgressInput>},
+        TContext
+      > => {
+      return useMutation(getUpsertVideoProgressMutationOptions(options));
+    }
+
 export const getGetProgressSummaryUrl = () => {
 
 
@@ -1197,6 +1268,71 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getCheckTaskMutationOptions(options));
+    }
+
+export const getLessonChatUrl = () => {
+
+
+
+
+  return `/api/ai/lesson-chat`
+}
+
+export const lessonChat = async (lessonChatInput: LessonChatInput, options?: RequestInit): Promise<LessonChatResult> => {
+
+  return customFetch<LessonChatResult>(getLessonChatUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      lessonChatInput,)
+  }
+);}
+
+
+
+
+export const getLessonChatMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof lessonChat>>, TError,{data: BodyType<LessonChatInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof lessonChat>>, TError,{data: BodyType<LessonChatInput>}, TContext> => {
+
+const mutationKey = ['lessonChat'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof lessonChat>>, {data: BodyType<LessonChatInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  lessonChat(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LessonChatMutationResult = NonNullable<Awaited<ReturnType<typeof lessonChat>>>
+    export type LessonChatMutationBody = BodyType<LessonChatInput>
+    export type LessonChatMutationError = ErrorType<ErrorResponse>
+
+    export const useLessonChat = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof lessonChat>>, TError,{data: BodyType<LessonChatInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof lessonChat>>,
+        TError,
+        {data: BodyType<LessonChatInput>},
+        TContext
+      > => {
+      return useMutation(getLessonChatMutationOptions(options));
     }
 
 export const getGetCoursePriceUrl = () => {
@@ -4161,4 +4297,146 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getDeleteTaskMutationOptions(options));
     }
+
+export const getGetVideoHealthUrl = () => {
+
+
+
+
+  return `/api/admin/video-health`
+}
+
+export const getVideoHealth = async ( options?: RequestInit): Promise<VideoHealthList> => {
+
+  return customFetch<VideoHealthList>(getGetVideoHealthUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetVideoHealthQueryKey = () => {
+    return [
+    `/api/admin/video-health`
+    ] as const;
+    }
+
+
+export const getGetVideoHealthQueryOptions = <TData = Awaited<ReturnType<typeof getVideoHealth>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getVideoHealth>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetVideoHealthQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getVideoHealth>>> = ({ signal }) => getVideoHealth({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getVideoHealth>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetVideoHealthQueryResult = NonNullable<Awaited<ReturnType<typeof getVideoHealth>>>
+export type GetVideoHealthQueryError = ErrorType<unknown>
+
+
+
+export function useGetVideoHealth<TData = Awaited<ReturnType<typeof getVideoHealth>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getVideoHealth>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetVideoHealthQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetVideoHealthDetailUrl = (videoId: number,) => {
+
+
+
+
+  return `/api/admin/video-health/${videoId}`
+}
+
+export const getVideoHealthDetail = async (videoId: number, options?: RequestInit): Promise<VideoHealthDetail> => {
+
+  return customFetch<VideoHealthDetail>(getGetVideoHealthDetailUrl(videoId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetVideoHealthDetailQueryKey = (videoId: number,) => {
+    return [
+    `/api/admin/video-health/${videoId}`
+    ] as const;
+    }
+
+
+export const getGetVideoHealthDetailQueryOptions = <TData = Awaited<ReturnType<typeof getVideoHealthDetail>>, TError = ErrorType<unknown>>(videoId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getVideoHealthDetail>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetVideoHealthDetailQueryKey(videoId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getVideoHealthDetail>>> = ({ signal }) => getVideoHealthDetail(videoId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(videoId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getVideoHealthDetail>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetVideoHealthDetailQueryResult = NonNullable<Awaited<ReturnType<typeof getVideoHealthDetail>>>
+export type GetVideoHealthDetailQueryError = ErrorType<unknown>
+
+
+
+export function useGetVideoHealthDetail<TData = Awaited<ReturnType<typeof getVideoHealthDetail>>, TError = ErrorType<unknown>>(
+ videoId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getVideoHealthDetail>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetVideoHealthDetailQueryOptions(videoId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 

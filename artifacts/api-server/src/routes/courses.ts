@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { courses, sections, topics, videos, quizzes, quizQuestions, quizAnswers, tasks } from "@workspace/db";
+import { courses, sections, topics, videos, lessonImages, quizzes, quizQuestions, quizAnswers, tasks } from "@workspace/db";
 import { eq, asc, and, inArray } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import {
   requireCourseAccess,
-  getCourseIdByTopicId,
+  requireTopicAccessOrPreview,
   getCourseIdBySectionId,
 } from "../lib/access";
-import { config } from "../config/env";
+import { buildVideoEmbedUrl } from "../lib/video";
 import type { Request, Response, NextFunction } from "express";
 
 const router = Router();
@@ -26,18 +26,6 @@ function requirePositiveIntParam(param: string) {
     }
     next();
   };
-}
-
-// Build a single agreed embed URL for the lesson video. Prefer a Bunny Stream
-// iframe (library + video id), then fall back to a raw videoUrl.
-function buildVideoEmbedUrl(video: {
-  bunnyVideoId: string | null;
-  videoUrl: string | null;
-}): string | null {
-  if (video.bunnyVideoId && config.bunny.libraryId) {
-    return `https://iframe.mediadelivery.net/embed/${config.bunny.libraryId}/${video.bunnyVideoId}`;
-  }
-  return video.videoUrl ?? null;
 }
 
 router.get("/courses", async (req, res) => {
@@ -73,17 +61,17 @@ router.get("/courses/:slug", async (req, res) => {
   }
 });
 
+// Lesson list for a section. Returns metadata only (titles, preview flag, which
+// element types exist) — never the actual gated content — so the course portal
+// can render the full curriculum with lock badges to users without access.
 router.get(
   "/sections/:sectionId/topics",
   requirePositiveIntParam("sectionId"),
   requireAuth as any,
-  requireCourseAccess((req) =>
-    getCourseIdBySectionId(Number(req.params.sectionId)),
-  ) as any,
   async (req: AuthRequest, res) => {
   try {
     const sectionId = Number(req.params.sectionId);
-    const topicList = await db.select().from(topics).where(eq(topics.sectionId, sectionId)).orderBy(asc(topics.sortOrder));
+    const topicList = await db.select().from(topics).where(eq(topics.sectionId, sectionId)).orderBy(asc(topics.sortOrder), asc(topics.id));
 
     const enriched = await Promise.all(
       topicList.map(async (t) => {
@@ -108,8 +96,9 @@ router.get(
 
 router.get(
   "/topics/:topicId",
+  requirePositiveIntParam("topicId"),
   requireAuth as any,
-  requireCourseAccess((req) => getCourseIdByTopicId(Number(req.params.topicId))) as any,
+  requireTopicAccessOrPreview("topicId") as any,
   async (req: AuthRequest, res) => {
   try {
     const topicId = Number(req.params.topicId);
@@ -119,7 +108,9 @@ router.get(
       return;
     }
 
-    const [video] = await db.select().from(videos).where(eq(videos.topicId, topicId)).limit(1);
+    const videoList = await db.select().from(videos).where(eq(videos.topicId, topicId)).orderBy(asc(videos.sortOrder), asc(videos.id));
+    const imageList = await db.select().from(lessonImages).where(eq(lessonImages.topicId, topicId)).orderBy(asc(lessonImages.sortOrder), asc(lessonImages.id));
+    const video = videoList[0];
     const [quizRow] = await db.select().from(quizzes).where(eq(quizzes.topicId, topicId)).limit(1);
     const taskList = await db.select().from(tasks).where(eq(tasks.topicId, topicId));
 
@@ -174,9 +165,13 @@ router.get(
       courseId: section?.courseId ?? null,
       previousTopicId,
       nextTopicId,
+      // `video` kept for backwards compatibility (first video); `videos` is the
+      // ordered full list the redesigned lesson page renders.
       video: video
         ? { ...video, embedUrl: buildVideoEmbedUrl(video) }
         : null,
+      videos: videoList.map((v) => ({ ...v, embedUrl: buildVideoEmbedUrl(v) })),
+      images: imageList,
       quiz: quizWithQuestions,
       tasks: publicTasks,
     });

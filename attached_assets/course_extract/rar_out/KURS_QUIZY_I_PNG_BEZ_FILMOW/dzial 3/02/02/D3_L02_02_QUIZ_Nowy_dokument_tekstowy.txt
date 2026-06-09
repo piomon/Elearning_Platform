@@ -1,0 +1,36 @@
+Pytanie 1. Jak fizycy nazywają "siłę nacisku" w przypadku cieczy i gazów (np. gdy woda naciska na dno akwarium)?
+A. Parcie
+B. Grawitacja
+C. Wypór
+
+Pytanie 2. Od czego zależy ciśnienie hydrostatyczne (wewnątrz cieczy) zgodnie ze wzorem p = d * g * h omówionym w tekście?
+A. Od kształtu naczynia i szerokości dna
+B. Od objętości i całkowitej masy płynu w zbiorniku
+C. Od gęstości cieczy, grawitacji i głębokości (wysokości słupa wody)
+
+Pytanie 3. Na czym polega "paradoks hydrostatyczny" pokazany na przykładzie trzech akwariów o różnym kształcie?
+A. Ciśnienie na dnie jest największe w najszerszym akwarium, bo znajduje się tam najwięcej wody.
+B. Szerokość i kształt naczynia nie mają znaczenia - przy tej samej głębokości ciśnienie na dnie każdego z nich jest identyczne.
+C. Woda wywiera największe ciśnienie wyłącznie w naczyniach zwężających się ku górze.
+
+Pytanie 4. Mamy dwie tuby wypełnione do tej samej wysokości: jedną wodą, a drugą ciężką rtęcią. Dlaczego rtęć wywiera większe ciśnienie na dno?
+A. Ponieważ rtęć ma znacznie większą gęstość w porównaniu do lekkiej wody.
+B. Ponieważ na rtęć działa silniejsza grawitacja ziemska.
+C. Ponieważ cząsteczki rtęci są mniejsze i ciaśniej ułożone na dnie.
+
+Pytanie 5. Jak zachowuje się ciśnienie atmosferyczne ("ocean powietrza"), gdy wspinamy się wysoko w góry, np. na Mount Everest?
+A. Ciśnienie rośnie, bo powietrze wysoko w górach jest bardziej upakowane.
+B. Ciśnienie pozostaje bez zmian, wszędzie na Ziemi jest dokładnie takie samo.
+C. Ciśnienie maleje (im wyżej, tym niższe ciśnienie), ponieważ słup powietrza nad naszymi głowami jest po prostu krótszy.
+
+KLUCZ ODPOWIEDZI:
+
+1 A
+
+2 C
+
+3 B
+
+4 A
+
+5 C

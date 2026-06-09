@@ -1,0 +1,39 @@
+Pytanie 1. Od jakiego angielskiego słowa pochodzi litera F, którą fizycy oznaczają siłę, oraz w jakich jednostkach się ją mierzy?
+a) Od słowa Fast, a mierzy się ją w kilometrach.
+b) Od słowa Force, a mierzy się ją w niutonach.
+c) Od słowa Form, a mierzy się ją w kilogramach.
+d) Od słowa Friction, a mierzy się ją w metrach.
+
+Pytanie 2. Jaki przykład podano w tekście, aby zobrazować siłę o wartości jednego niutona?
+a) Zderzenie klockowego autka ze ścianą.
+b) Opór, jaki stawiają dwa odpychające się magnesy.
+c) Delikatny nacisk stugramowej tabliczki czekolady na otwartą dłoń.
+d) Pchanie dużej ciężarówki siłą dziesięciu niutonów.
+
+Pytanie 3. Na czym polega inżynieryjny sekret, czyli "wybór odpowiedniej skali" podczas rysowania wektorów siły w zeszycie w kratkę?
+a) Na tym, że wszystkie strzałki zawsze muszą mieć tę samą długość, niezależnie od siły.
+b) Na samodzielnym ustaleniu, jakiej sile (np. ilu niutonom) odpowiada jedna kratka, aby rysunek dużej siły zmieścił się w zeszycie.
+c) Na rysowaniu większych sił grubszym pisakiem, a mniejszych cienkim ołówkiem.
+d) Na zamianie jednostek z niutonów na centymetry, by łatwiej było użyć linijki na gładkim papierze.
+
+Pytanie 4. Czym, według tekstu, jest "punkt przyłożenia" siły?
+a) Niewidzialną linią, wzdłuż której działa siła.
+b) Wartością liczbową mówiącą nam, jak mocno pchamy dany przedmiot.
+c) Stroną, w którą skierowany jest grot narysowanej strzałki.
+d) Konkretnym, malutkim miejscem kontaktu, w którym stykasz się z przedmiotem i zaczynasz na niego działać.
+
+Pytanie 5. Jaka jest kluczowa różnica między "kierunkiem" a "zwrotem" siły, określona w tekście jako największa pułapka?
+a) Kierunek i zwrot to w fizyce dokładnie to samo i można używać tych słów zamiennie.
+b) Kierunek to niewidzialna linia działania siły (jak sztywne tory), a zwrot to konkretna strona oznaczona grotem strzałki (znak dokąd jedziemy).
+c) Kierunek określa wartość siły w niutonach, a zwrot to miejsce dotyku przedmiotu.
+d) Kierunek dotyczy wyłącznie grawitacji, a zwrot oddziaływań mechanicznych.
+
+1 b
+
+2 c
+
+3 b
+
+4 d
+
+5 b

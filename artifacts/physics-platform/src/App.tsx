@@ -19,6 +19,7 @@ import AdminUserDetail from "@/pages/admin/user-detail";
 import AdminCourses from "@/pages/admin/courses";
 import AdminContact from "@/pages/admin/contact";
 import AdminLogs from "@/pages/admin/logs";
+import AdminCourseDebug from "@/pages/admin/course-debug";
 import PaymentSuccess from "@/pages/payment/success";
 import PaymentError from "@/pages/payment/error";
 import Regulamin from "@/pages/regulamin";
@@ -50,7 +51,7 @@ function Router() {
           {() => <AccessRoute><TopicsList /></AccessRoute>}
         </Route>
         <Route path="/topics/:topicId">
-          {() => <AccessRoute><TopicDetail /></AccessRoute>}
+          {() => <ProtectedRoute><TopicDetail /></ProtectedRoute>}
         </Route>
 
         <Route path="/admin">
@@ -70,6 +71,9 @@ function Router() {
         </Route>
         <Route path="/admin/logs">
           {() => <AdminRoute><AdminLogs /></AdminRoute>}
+        </Route>
+        <Route path="/admin/course-debug">
+          {() => <AdminRoute><AdminCourseDebug /></AdminRoute>}
         </Route>
 
         <Route component={NotFound} />

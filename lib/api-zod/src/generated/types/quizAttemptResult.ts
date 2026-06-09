@@ -11,5 +11,7 @@ export interface QuizAttemptResult {
   score: number;
   totalQuestions: number;
   percentage: number;
+  passed: boolean;
+  passThreshold: number;
   answers: QuizAttemptAnswerResult[];
 }

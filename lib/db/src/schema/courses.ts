@@ -17,6 +17,7 @@ export const sections = pgTable("sections", {
   title: text("title").notNull(),
   slug: text("slug").notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
+  bunnyCollectionId: text("bunny_collection_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -28,6 +29,9 @@ export const topics = pgTable("topics", {
   slug: text("slug").notNull(),
   description: text("description"),
   sortOrder: integer("sort_order").notNull().default(0),
+  // When true the lesson is a free preview accessible without a paid grant.
+  // Access is still enforced server-side; this only widens what is allowed.
+  isPreview: boolean("is_preview").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -36,9 +40,24 @@ export const videos = pgTable("videos", {
   id: serial("id").primaryKey(),
   topicId: integer("topic_id").notNull().references(() => topics.id, { onDelete: "cascade" }),
   bunnyVideoId: text("bunny_video_id"),
+  // Original Bunny title token (e.g. D1_L01_01_VIDEO_...) used to re-sync GUIDs.
+  bunnyTitle: text("bunny_title"),
   videoUrl: text("video_url"),
   title: text("title").notNull(),
   durationSeconds: integer("duration_seconds"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Static images interleaved into a lesson (answer keys, diagrams). Ordered with
+// videos by sortOrder so the lesson renders materials in the intended sequence.
+export const lessonImages = pgTable("lesson_images", {
+  id: serial("id").primaryKey(),
+  topicId: integer("topic_id").notNull().references(() => topics.id, { onDelete: "cascade" }),
+  imageUrl: text("image_url").notNull(),
+  alt: text("alt"),
+  sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

@@ -4,6 +4,22 @@ import { topics, sections, quizzes, tasks, accessGrants } from "@workspace/db";
 import { and, eq, or, gt, lte, isNull } from "drizzle-orm";
 import type { AuthRequest } from "../middlewares/auth";
 
+// Returns the owning course id and whether the topic is a free preview. Preview
+// lessons are readable without a paid grant; access is still enforced here
+// (server-side), the preview flag only widens what an authenticated user may see.
+export async function getTopicAccessInfo(
+  topicId: number,
+): Promise<{ courseId: number; isPreview: boolean } | null> {
+  if (!Number.isFinite(topicId)) return null;
+  const [row] = await db
+    .select({ courseId: sections.courseId, isPreview: topics.isPreview })
+    .from(topics)
+    .innerJoin(sections, eq(topics.sectionId, sections.id))
+    .where(eq(topics.id, topicId))
+    .limit(1);
+  return row ? { courseId: row.courseId, isPreview: row.isPreview } : null;
+}
+
 export async function getCourseIdBySectionId(
   sectionId: number,
 ): Promise<number | null> {
@@ -134,6 +150,41 @@ export function requireCourseAccess(resolve: CourseIdResolver) {
       return;
     }
     const ok = await userHasCourseAccess(req.user.id, courseId);
+    if (!ok) {
+      res
+        .status(403)
+        .json({ error: "Brak dostępu do kursu. Kup dostęp, aby kontynuować." });
+      return;
+    }
+    next();
+  };
+}
+
+// Like requireCourseAccess but resolves the topic from req.params[param] and
+// lets a free-preview lesson through even without a paid grant. Admins always
+// pass. Every other lesson still requires an active access grant.
+export function requireTopicAccessOrPreview(param = "topicId") {
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      res.status(401).json({ error: "Brak autoryzacji" });
+      return;
+    }
+    const topicId = Number(req.params[param] ?? req.body?.[param]);
+    let info: { courseId: number; isPreview: boolean } | null = null;
+    try {
+      info = await getTopicAccessInfo(topicId);
+    } catch (err) {
+      req.log.error({ err }, "Topic access resolver error");
+    }
+    if (!info) {
+      res.status(404).json({ error: "Zasób nie znaleziony" });
+      return;
+    }
+    if (req.user.role === "admin" || info.isPreview) {
+      next();
+      return;
+    }
+    const ok = await userHasCourseAccess(req.user.id, info.courseId);
     if (!ok) {
       res
         .status(403)
