@@ -100,6 +100,45 @@ export default function TopicDetail() {
     });
   }, [currentProgress, topicId]);
 
+  // Restore the saved whiteboard for this student + topic once the editor is ready.
+  useEffect(() => {
+    if (!excalidrawAPI || !wbKey || restored) return;
+    try {
+      const raw = localStorage.getItem(wbKey);
+      if (raw) {
+        const data = JSON.parse(raw);
+        excalidrawAPI.updateScene({ elements: data.elements ?? [] });
+        if (data.files) excalidrawAPI.addFiles(Object.values(data.files));
+      }
+    } catch {
+      // Ignore corrupt saved state; start with an empty board.
+    }
+    setRestored(true);
+  }, [excalidrawAPI, wbKey, restored]);
+
+  // Persist clears any pending debounce timer on unmount.
+  useEffect(() => {
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+  }, []);
+
+  const saveWhiteboard = useCallback((silent: boolean) => {
+    if (!excalidrawAPI || !wbKey) return;
+    try {
+      const elements = excalidrawAPI.getSceneElements();
+      const files = excalidrawAPI.getFiles();
+      localStorage.setItem(wbKey, JSON.stringify({ elements, files }));
+      if (!silent) {
+        toast({ title: "Zapisano", description: "Twoja praca na tablicy została zapisana." });
+      }
+    } catch {
+      if (!silent) {
+        toast({ title: "Nie udało się zapisać", description: "Spróbuj ponownie.", variant: "destructive" });
+      }
+    }
+  }, [excalidrawAPI, wbKey, toast]);
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-12 max-w-4xl space-y-8">
@@ -191,45 +230,6 @@ export default function TopicDetail() {
       reader.readAsDataURL(blob);
     });
   };
-
-  // Restore the saved whiteboard for this student + topic once the editor is ready.
-  useEffect(() => {
-    if (!excalidrawAPI || !wbKey || restored) return;
-    try {
-      const raw = localStorage.getItem(wbKey);
-      if (raw) {
-        const data = JSON.parse(raw);
-        excalidrawAPI.updateScene({ elements: data.elements ?? [] });
-        if (data.files) excalidrawAPI.addFiles(Object.values(data.files));
-      }
-    } catch {
-      // Ignore corrupt saved state; start with an empty board.
-    }
-    setRestored(true);
-  }, [excalidrawAPI, wbKey, restored]);
-
-  // Persist clears any pending debounce timer on unmount.
-  useEffect(() => {
-    return () => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-    };
-  }, []);
-
-  const saveWhiteboard = useCallback((silent: boolean) => {
-    if (!excalidrawAPI || !wbKey) return;
-    try {
-      const elements = excalidrawAPI.getSceneElements();
-      const files = excalidrawAPI.getFiles();
-      localStorage.setItem(wbKey, JSON.stringify({ elements, files }));
-      if (!silent) {
-        toast({ title: "Zapisano", description: "Twoja praca na tablicy została zapisana." });
-      }
-    } catch {
-      if (!silent) {
-        toast({ title: "Nie udało się zapisać", description: "Spróbuj ponownie.", variant: "destructive" });
-      }
-    }
-  }, [excalidrawAPI, wbKey, toast]);
 
   const handleSceneChange = () => {
     if (!restored || !wbKey) return;
