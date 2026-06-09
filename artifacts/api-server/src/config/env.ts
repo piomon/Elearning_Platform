@@ -118,6 +118,13 @@ export const config = {
   bunny: {
     libraryId: readOptional("BUNNY_LIBRARY_ID"),
     cdnHostname: readOptional("BUNNY_CDN_HOSTNAME"),
+    apiKey: readOptional("BUNNY_STREAM_API_KEY"),
+    readonlyApiKey: readOptional("BUNNY_STREAM_READONLY_API_KEY"),
+    collections: {
+      dzial1: readOptional("BUNNY_COLLECTION_DZIAL_1"),
+      dzial2: readOptional("BUNNY_COLLECTION_DZIAL_2"),
+      dzial3: readOptional("BUNNY_COLLECTION_DZIAL_3"),
+    },
   },
 } as const;
 
@@ -136,4 +143,16 @@ export function isP24Configured(): boolean {
 
 export function isSmtpConfigured(): boolean {
   return Boolean(config.smtp.host && config.smtp.toEmail);
+}
+
+export function isBunnyConfigured(): boolean {
+  return Boolean(config.bunny.libraryId);
+}
+
+export function bunnyReadKey(): string | undefined {
+  return config.bunny.readonlyApiKey ?? config.bunny.apiKey;
+}
+
+export function isBunnyApiConfigured(): boolean {
+  return Boolean(bunnyReadKey());
 }
