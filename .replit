@@ -40,3 +40,10 @@ channel = "stable-25_05"
 JWT_SECRET = "0328c2e5c7da154194c366c8ff5ebfa4d7c229239f24da4746698cfb686b97d96049ac0471edcf0ae0137ac74a132a47"
 
 [userenv.shared]
+
+[userenv.production]
+JWT_SECRET = "4e00bd866332f91a9741753e950dc95aec23fe788ceef282db808da6565a4d7ba8339ad934845cac1b0a019652a9e936"
+APP_URL = "https://elearning-platform.replit.app"
+API_URL = "https://elearning-platform.replit.app"
+ALLOWED_ORIGINS = "https://elearning-platform.replit.app"
+COURSE_PRICE_GROSZ = "19900"
