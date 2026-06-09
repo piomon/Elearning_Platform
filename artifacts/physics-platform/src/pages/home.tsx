@@ -12,16 +12,32 @@ import { useAuth } from "@/hooks/use-auth";
 import { usePurchase } from "@/hooks/use-purchase";
 import { formatPln } from "@/lib/format";
 import { useToast } from "@/hooks/use-toast";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+import {
   PlayCircle, CheckCircle2, Zap, Brain, Target, ArrowRight, BookOpen,
-  Lightbulb, Activity, ChevronRight, ShieldCheck, HeartHandshake, Sparkles,
-  PencilRuler, Send,
+  ShieldCheck, HeartHandshake, Sparkles,
+  PencilRuler, Send, Star, Clock, Trophy, LineChart
 } from "lucide-react";
+
+import { BlobBackground } from "@/components/blob-background";
+import { LoadingSkeleton } from "@/components/loading-skeleton";
+import { AnimatedWrapper } from "@/components/animated-wrapper";
+import { ProgressRing } from "@/components/progress-ring";
+import { StatCard } from "@/components/stat-card";
+import { FeatureCard } from "@/components/feature-card";
+import { CourseModuleCard } from "@/components/course-module-card";
 
 const contactSchema = z.object({
   name: z.string().min(1, { message: "Imię i nazwisko są wymagane" }),
@@ -199,396 +215,562 @@ export default function Home() {
 
   return (
     <div className="flex flex-col w-full overflow-hidden">
-
       {/* ── HERO ── */}
-      <section className="relative min-h-[90vh] flex items-center pt-8 pb-16 md:pt-0 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/20 rounded-full blur-[100px] pointer-events-none opacity-50 dark:opacity-20" />
+      <section className="relative min-h-[95vh] flex items-center pt-24 pb-16 md:pt-32 overflow-hidden">
+        <BlobBackground variant="blue" className="opacity-80" />
 
-        <div className="container mx-auto max-w-6xl px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <div className="container mx-auto max-w-7xl px-4 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-12 items-center">
+            
+            <AnimatedWrapper direction="right" delay={0.1}>
+              <div className="space-y-8 text-center lg:text-left">
+                <div className="inline-flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-background/80 backdrop-blur-md text-primary border border-primary/20 shadow-sm">
+                    <Sparkles className="w-4 h-4" />
+                    AI sprawdza zadania
+                  </div>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-background/80 backdrop-blur-md text-violet-600 border border-violet-500/20 shadow-sm">
+                    <Brain className="w-4 h-4" />
+                    Quizy po każdej lekcji
+                  </div>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-background/80 backdrop-blur-md text-amber-600 border border-amber-500/20 shadow-sm">
+                    <Clock className="w-4 h-4" />
+                    365 dni dostępu
+                  </div>
+                </div>
 
-            <div className="space-y-8 text-center lg:text-left pt-12 lg:pt-0">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mx-auto lg:mx-0">
-                <Zap className="w-3.5 h-3.5" />
-                Inteligentna platforma edukacyjna
-              </div>
+                <h1 className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.1] text-foreground">
+                  Fizyka w 7 klasie <br className="hidden sm:block"/>
+                  <span className="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary to-cyan-400">zrozumiała jak nigdy.</span>
+                </h1>
 
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.1] text-foreground">
-                Fizyka w 7 klasie <br className="hidden sm:block"/>
-                <span className="text-primary">nie musi być trudna.</span>
-              </h1>
+                <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                  Koniec z zakuwaniem wzorów. Nowoczesna platforma edukacyjna, która uczy fizyki przez interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.
+                </p>
 
-              <p className="text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
-                Materiały wideo, interaktywne quizy i zadania sprawdzane przez AI.
-                Pomóż swojemu dziecku zrozumieć fizykę w przyjaznym, spokojnym środowisku.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
-                {user ? (
-                  <Link href="/dashboard" className="w-full sm:w-auto">
-                    <Button size="lg" className="w-full text-base h-14 px-8 font-bold shadow-lg shadow-primary/25 rounded-full transition-transform hover:-translate-y-0.5">
-                      Przejdź do nauki <ArrowRight className="w-4 h-4 ml-2" />
+                <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
+                  {user ? (
+                    <Link href="/dashboard" className="w-full sm:w-auto">
+                      <Button size="lg" className="w-full text-lg h-16 px-10 font-bold shadow-xl shadow-primary/30 rounded-full hover-lift">
+                        Przejdź do nauki <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button
+                      size="lg"
+                      onClick={handleBuy}
+                      disabled={isPending || primaryCourseId == null}
+                      className="w-full sm:w-auto text-lg h-16 px-10 font-bold shadow-xl shadow-primary/30 rounded-full hover-lift"
+                    >
+                      {isPending ? "Przetwarzanie..." : "Kup dostęp"} <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
-                  </Link>
-                ) : (
-                  <Button
-                    size="lg"
-                    onClick={handleBuy}
-                    disabled={isPending || primaryCourseId == null}
-                    className="w-full sm:w-auto text-base h-14 px-8 font-bold shadow-lg shadow-primary/25 rounded-full transition-transform hover:-translate-y-0.5"
-                  >
-                    {isPending ? "Przetwarzanie..." : "Kup dostęp"} <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                )}
-                <a href="#metoda" className="w-full sm:w-auto">
-                  <Button size="lg" variant="outline" className="w-full text-base h-14 px-8 rounded-full border-border/60 bg-background/50 backdrop-blur-sm">
-                    <PlayCircle className="w-5 h-5 mr-2 text-primary" /> Jak to działa?
-                  </Button>
-                </a>
+                  )}
+                  <a href="#metoda" className="w-full sm:w-auto">
+                    <Button size="lg" variant="outline" className="w-full text-lg h-16 px-10 font-bold rounded-full border-2 border-border/80 bg-background/50 backdrop-blur-md hover:bg-background/80 transition-all">
+                      Zobacz jak działa
+                    </Button>
+                  </a>
+                </div>
+                
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-6 text-sm font-medium text-muted-foreground/80">
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                  </div>
+                  <span>Zaufali nam rodzice i uczniowie</span>
+                </div>
               </div>
+            </AnimatedWrapper>
 
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 pt-4 text-sm font-medium text-muted-foreground">
-                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-success" /> Zgodność z podstawą programową</span>
-                <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-success" /> Dostęp na 365 dni</span>
-              </div>
-            </div>
-
-            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border/50 bg-card aspect-[4/3] md:aspect-[3/2] flex items-center justify-center">
-                <div className="absolute inset-0 bg-secondary/30" />
-                <div className="w-full h-full flex flex-col p-4 sm:p-6 relative z-10">
-                  <div className="flex items-center gap-2 mb-6">
-                    <div className="w-3 h-3 rounded-full bg-red-400" />
-                    <div className="w-3 h-3 rounded-full bg-amber-400" />
-                    <div className="w-3 h-3 rounded-full bg-emerald-400" />
+            <AnimatedWrapper direction="left" delay={0.3}>
+              <div className="relative mx-auto w-full max-w-2xl lg:max-w-none perspective-1000">
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20 bg-background/90 backdrop-blur-xl aspect-square sm:aspect-[4/3] flex flex-col p-4 sm:p-6 transform rotate-y-[-5deg] rotate-x-[5deg] hover:rotate-0 transition-transform duration-700 ease-out">
+                  {/* Browser-like header */}
+                  <div className="flex items-center gap-2 mb-6 border-b border-border/50 pb-4">
+                    <div className="w-3.5 h-3.5 rounded-full bg-red-400 shadow-inner" />
+                    <div className="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-inner" />
+                    <div className="w-3.5 h-3.5 rounded-full bg-emerald-400 shadow-inner" />
+                    <div className="mx-auto bg-muted/50 rounded-md h-6 w-1/3" />
                   </div>
 
-                  <div className="flex-1 rounded-xl bg-background border border-border/50 shadow-sm p-4 sm:p-6 flex flex-col space-y-4">
-                    <div className="h-4 w-1/3 bg-muted rounded-full" />
-                    <div className="h-8 w-2/3 bg-foreground/10 rounded-lg" />
-                    <div className="flex-1 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center">
-                      <PlayCircle className="w-12 h-12 text-primary/40" />
+                  {/* App Content */}
+                  <div className="flex-1 grid grid-cols-12 gap-4">
+                    {/* Sidebar mock */}
+                    <div className="col-span-3 space-y-3 border-r border-border/50 pr-4 hidden sm:block">
+                      <div className="h-8 w-full bg-primary/10 rounded-lg flex items-center px-3">
+                        <div className="w-4 h-4 bg-primary/40 rounded-sm mr-2" />
+                        <div className="h-2 w-16 bg-primary/40 rounded-full" />
+                      </div>
+                      <div className="h-8 w-full bg-muted/50 rounded-lg flex items-center px-3">
+                        <div className="w-4 h-4 bg-muted-foreground/30 rounded-sm mr-2" />
+                        <div className="h-2 w-20 bg-muted-foreground/30 rounded-full" />
+                      </div>
+                      <div className="h-8 w-full bg-muted/50 rounded-lg flex items-center px-3">
+                        <div className="w-4 h-4 bg-muted-foreground/30 rounded-sm mr-2" />
+                        <div className="h-2 w-12 bg-muted-foreground/30 rounded-full" />
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center pt-2">
-                      <div className="h-10 w-24 bg-muted rounded-lg" />
-                      <div className="h-10 w-32 bg-primary rounded-lg" />
+                    
+                    {/* Main area mock */}
+                    <div className="col-span-12 sm:col-span-9 flex flex-col space-y-4">
+                      {/* Video Player Mock */}
+                      <div className="relative w-full rounded-2xl bg-secondary overflow-hidden aspect-video flex items-center justify-center border border-border/50 shadow-inner">
+                        <img src="https://images.unsplash.com/photo-1636466497217-26c8c54151a6?auto=format&fit=crop&q=80&w=800" alt="Physics" className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <PlayCircle className="w-16 h-16 text-white drop-shadow-lg relative z-10" />
+                        <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3">
+                          <div className="h-1.5 flex-1 bg-white/30 rounded-full overflow-hidden">
+                            <div className="h-full w-2/3 bg-primary rounded-full" />
+                          </div>
+                          <span className="text-white text-xs font-medium drop-shadow-md">04:20 / 06:15</span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* Progress card mock */}
+                        <div className="bg-card rounded-2xl border border-border/60 p-4 shadow-sm flex items-center gap-4">
+                          <ProgressRing progress={67} size={48} strokeWidth={4}>
+                            <span className="text-xs font-bold">67%</span>
+                          </ProgressRing>
+                          <div>
+                            <div className="h-3 w-20 bg-foreground/80 rounded-full mb-2" />
+                            <div className="h-2 w-16 bg-muted-foreground/50 rounded-full" />
+                          </div>
+                        </div>
+                        {/* Quiz mock */}
+                        <div className="bg-violet-500/10 rounded-2xl border border-violet-500/20 p-4 shadow-sm flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                            <Brain className="w-5 h-5 text-violet-600" />
+                          </div>
+                          <div>
+                            <div className="h-3 w-16 bg-violet-600/80 rounded-full mb-2" />
+                            <div className="h-2 w-12 bg-violet-600/50 rounded-full" />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="absolute -right-4 -bottom-4 bg-background p-4 rounded-2xl shadow-xl border border-border/50 flex items-center gap-3 animate-in slide-in-from-bottom-8 duration-700 delay-300">
-                  <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
-                    <CheckCircle2 className="w-5 h-5 text-success" />
+                {/* Floating Elements */}
+                <div className="absolute -right-8 -top-8 bg-card p-4 rounded-2xl shadow-xl border border-border flex items-center gap-3 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 hidden md:flex hover-lift z-20">
+                  <div className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center">
+                    <CheckCircle2 className="w-6 h-6 text-success" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground font-medium">Status zadania</p>
+                    <p className="text-xs text-muted-foreground font-medium">Zadanie domowe</p>
                     <p className="text-sm font-bold text-foreground">Świetnie rozwiązane!</p>
                   </div>
                 </div>
+                
+                <div className="absolute -left-6 -bottom-6 bg-card p-4 rounded-2xl shadow-xl border border-border flex items-center gap-3 animate-in fade-in slide-in-from-top-8 duration-700 delay-700 hidden md:flex hover-lift z-20">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Trophy className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground font-medium">Nowe osiągnięcie</p>
+                    <p className="text-sm font-bold text-foreground">Mistrz Kinematyki</p>
+                  </div>
+                </div>
               </div>
-            </div>
+            </AnimatedWrapper>
 
           </div>
         </div>
       </section>
 
       {/* ── BENEFITS / TRUST STRIP ── */}
-      <section className="py-12 px-4 border-y border-border bg-card">
-        <div className="container mx-auto max-w-5xl grid sm:grid-cols-3 gap-8">
+      <section className="py-12 border-y border-border bg-card/50 backdrop-blur-sm relative z-20">
+        <div className="container mx-auto max-w-6xl px-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { icon: <ShieldCheck className="w-6 h-6 text-primary" />, title: "Zgodność z programem", desc: "Materiał oparty na polskiej podstawie programowej dla klasy 7." },
-            { icon: <Brain className="w-6 h-6 text-primary" />, title: "Wsparcie AI", desc: "Zadania sprawdzane na bieżąco z czytelną informacją zwrotną." },
-            { icon: <HeartHandshake className="w-6 h-6 text-primary" />, title: "Spokojna nauka", desc: "Przyjazne tempo i jasna ścieżka bez presji i stresu." },
+            { icon: <ShieldCheck className="w-8 h-8 text-emerald-500" />, title: "Zgodność z programem", desc: "Zawsze na bieżąco z wymogami MEN." },
+            { icon: <Target className="w-8 h-8 text-primary" />, title: "Prosty cel", desc: "Krok po kroku do lepszych ocen." },
+            { icon: <Brain className="w-8 h-8 text-violet-500" />, title: "Mądre powtórki", desc: "Utrwalanie zamiast wkuwania." },
+            { icon: <HeartHandshake className="w-8 h-8 text-amber-500" />, title: "Spokojna nauka", desc: "Bez stresu i presji czasu." },
           ].map((item, i) => (
-            <div key={i} className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">{item.icon}</div>
+            <AnimatedWrapper key={i} direction="up" delay={i * 0.1} className="flex items-start gap-4">
+              <div className="shrink-0">{item.icon}</div>
               <div>
-                <h3 className="font-bold text-lg">{item.title}</h3>
-                <p className="text-muted-foreground text-sm mt-1 leading-relaxed">{item.desc}</p>
+                <h3 className="font-bold text-lg leading-tight mb-1">{item.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
               </div>
-            </div>
+            </AnimatedWrapper>
           ))}
         </div>
       </section>
 
-      {/* ── PAIN POINTS / PROBLEM ── */}
-      <section className="py-24 px-4 bg-muted/30">
+      {/* ── METHODOLOGY / HOW IT WORKS ── */}
+      <section id="metoda" className="py-24 px-4 relative scroll-mt-20 overflow-hidden bg-muted/20">
+        <BlobBackground variant="mixed" className="opacity-40" />
+        
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <div className="text-center mb-16 space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-bold bg-primary/10 text-primary mb-2">
+              Sprawdzona metoda
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">Jak działa nauka?</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
+              Zaprojektowaliśmy cykl lekcji tak, aby budował pewność siebie i gwarantował zrozumienie każdego tematu.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <AnimatedWrapper direction="up" delay={0.1}>
+              <FeatureCard 
+                icon={<PlayCircle className="w-6 h-6" />}
+                title="1. Obejrzyj lekcję"
+                description="Krótkie, angażujące materiały wideo wyjaśniające zjawiska fizyczne na prostych, życiowych przykładach."
+                colorClass="bg-blue-500 text-white shadow-blue-500/20"
+              />
+            </AnimatedWrapper>
+            
+            <AnimatedWrapper direction="up" delay={0.2}>
+              <FeatureCard 
+                icon={<Brain className="w-6 h-6" />}
+                title="2. Rozwiąż quiz"
+                description="Błyskawiczny test utrwalający najważniejsze pojęcia i wzory natychmiast po obejrzeniu wideo."
+                colorClass="bg-violet-500 text-white shadow-violet-500/20"
+              />
+            </AnimatedWrapper>
+            
+            <AnimatedWrapper direction="up" delay={0.3}>
+              <FeatureCard 
+                icon={<PencilRuler className="w-6 h-6" />}
+                title="3. Zadanie na tablicy"
+                description="Samodzielne rozwiązywanie zadań obliczeniowych na interaktywnej tablicy, zupełnie jak w zeszycie."
+                colorClass="bg-amber-500 text-white shadow-amber-500/20"
+              />
+            </AnimatedWrapper>
+
+            <AnimatedWrapper direction="up" delay={0.4} className="lg:col-start-2">
+              <FeatureCard 
+                icon={<Sparkles className="w-6 h-6" />}
+                title="4. AI sprawdzi i podpowie"
+                description="Sztuczna inteligencja analizuje rozwiązanie i udziela wskazówek, nie wyręczając ucznia z myślenia."
+                colorClass="bg-primary text-white shadow-primary/20"
+              />
+            </AnimatedWrapper>
+
+            <AnimatedWrapper direction="up" delay={0.5}>
+              <FeatureCard 
+                icon={<ArrowRight className="w-6 h-6" />}
+                title="5. Następna lekcja"
+                description="Gdy materiał jest opanowany, uczeń płynnie przechodzi do kolejnego zagadnienia."
+                colorClass="bg-emerald-500 text-white shadow-emerald-500/20"
+              />
+            </AnimatedWrapper>
+          </div>
+        </div>
+      </section>
+
+      {/* ── COURSE MODULES ── */}
+      <section className="py-24 px-4 border-y border-border bg-background">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl md:text-4xl font-bold">Dlaczego fizyka bywa trudna?</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">Tradycyjny model nauczania nie zawsze sprawdza się w przypadku nauk ścisłych.</p>
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-6 md:gap-8">
-            {[
-              { icon: <BookOpen className="w-6 h-6 text-amber-500" />, title: "Suche wzory", desc: "Zakuwanie definicji bez zrozumienia zjawisk prowadzi do szybkiego zapominania materiału.", bg: "bg-amber-500/10" },
-              { icon: <Activity className="w-6 h-6 text-red-500" />, title: "Brak sprzężenia zwrotnego", desc: "Uczeń robi błędy w zadaniach domowych i dowiaduje się o nich dopiero za tydzień.", bg: "bg-red-500/10" },
-              { icon: <Lightbulb className="w-6 h-6 text-blue-500" />, title: "Niezrozumienie podstaw", desc: "Zaległości nawarstwiają się z każdą lekcją, tworząc blokadę przed dalszą nauką.", bg: "bg-blue-500/10" },
-            ].map((item, i) => (
-              <div key={i} className="bg-card p-8 rounded-3xl border border-border shadow-sm hover:shadow-md transition-shadow">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 ${item.bg}`}>{item.icon}</div>
-                <h3 className="font-bold text-xl mb-3">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── METHODOLOGY / 3 STEPS ── */}
-      <section id="metoda" className="py-24 px-4 relative scroll-mt-20">
-        <div className="container mx-auto max-w-5xl">
-          <div className="text-center mb-20 space-y-4">
-            <span className="text-primary font-bold tracking-wider uppercase text-sm">Nasza Metoda</span>
-            <h2 className="text-3xl md:text-4xl font-bold">Prosty, przewidywalny proces nauki</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Podzieliliśmy każdy temat na trzy jasne kroki. Uczeń zawsze wie, co ma robić.
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">Program nauczania</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Kompleksowy kurs podzielony na przystępne moduły. Każdy dział to krok do pełnego zrozumienia fizyki.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 relative">
-            <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 bg-border -z-10" />
+          <div className="grid gap-6">
+            <AnimatedWrapper direction="left" delay={0.1}>
+              <CourseModuleCard 
+                title="Kinematyka"
+                description="Ruch prostoliniowy, prędkość, przyspieszenie. Naucz się opisywać ruch otaczających Cię ciał bez gubienia się w gąszczu wzorów."
+                lessonCount={12}
+                progress={0}
+                gradientClass="from-blue-500/30 to-cyan-500/30"
+              />
+            </AnimatedWrapper>
 
-            {[
-              { step: "1", icon: <PlayCircle className="w-6 h-6 text-white" />, title: "Zrozum (Wideo)", desc: "Krótkie, angażujące materiały wideo wyjaśniające zjawiska na życiowych przykładach.", color: "bg-blue-500" },
-              { step: "2", icon: <Brain className="w-6 h-6 text-white" />, title: "Utrwal (Quiz)", desc: "Błyskawiczny quiz utrwalający definicje i pojęcia zaraz po obejrzeniu wideo.", color: "bg-violet-500" },
-              { step: "3", icon: <Target className="w-6 h-6 text-white" />, title: "Zastosuj (Zadanie)", desc: "Rozwiązywanie zadań na wirtualnej tablicy, natychmiast sprawdzane przez AI.", color: "bg-primary" },
-            ].map((item, i) => (
-              <div key={i} className="flex flex-col items-center text-center relative bg-card p-6 rounded-3xl border border-border shadow-sm">
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transform -translate-y-12 mb-[-1.5rem] ring-4 ring-background ${item.color}`}>
-                  {item.icon}
-                </div>
-                <div className="w-full pt-4">
-                  <span className="text-sm font-bold text-muted-foreground mb-1 block">Krok {item.step}</span>
-                  <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.desc}</p>
-                </div>
-              </div>
-            ))}
+            <AnimatedWrapper direction="left" delay={0.2}>
+              <CourseModuleCard 
+                title="Dynamika"
+                description="Zasady dynamiki Newtona, siły w przyrodzie, pęd. Dowiedz się, dlaczego ciała się poruszają i co sprawia, że się zatrzymują."
+                lessonCount={15}
+                progress={0}
+                gradientClass="from-violet-500/30 to-fuchsia-500/30"
+              />
+            </AnimatedWrapper>
+
+            <AnimatedWrapper direction="left" delay={0.3}>
+              <CourseModuleCard 
+                title="Praca, Moc, Energia"
+                description="Zasada zachowania energii, energia kinetyczna i potencjalna. Zrozum zasady, które rządzą wszechświatem i codziennym życiem."
+                lessonCount={10}
+                progress={0}
+                gradientClass="from-amber-500/30 to-orange-500/30"
+              />
+            </AnimatedWrapper>
+          </div>
+          
+          <div className="mt-12 text-center">
+            <Button size="lg" variant="outline" className="rounded-full font-bold h-14 px-8 border-2" onClick={handleBuy} disabled={isPending || primaryCourseId == null}>
+              Zobacz pełny program po zalogowaniu
+            </Button>
           </div>
         </div>
       </section>
-
-      {/* ── COURSE CONTENT ── */}
-      {courses && courses.length > 0 && (
-        <section className="py-24 px-4 bg-muted/30 border-y border-border">
-          <div className="container mx-auto max-w-4xl">
-            <div className="text-center mb-16 space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold">Program zgodny z podstawą programową</h2>
-              <p className="text-muted-foreground text-lg">Przygotowuje do sprawdzianów i buduje trwałą wiedzę.</p>
-            </div>
-
-            <div className="grid gap-4">
-              {courses.map((course) => (
-                <div key={course.id} className="bg-card p-6 rounded-2xl border border-border shadow-sm flex items-center justify-between group hover:border-primary/50 transition-colors">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                      <BookOpen className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold mb-1 group-hover:text-primary transition-colors">{course.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{course.description}</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ── AI EXPLAINER ── */}
-      <section className="py-24 px-4">
-        <div className="container mx-auto max-w-6xl grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div className="space-y-6 order-2 lg:order-1">
-            <span className="text-primary font-bold tracking-wider uppercase text-sm">Sztuczna inteligencja</span>
-            <h2 className="text-3xl md:text-4xl font-bold">Jak AI pomaga w nauce?</h2>
-            <p className="text-muted-foreground text-lg leading-relaxed">
-              Uczeń rozwiązuje zadanie na wirtualnej tablicy — tak jak w zeszycie. Sztuczna inteligencja analizuje rozwiązanie i podpowiada, co jest dobrze, a co warto poprawić.
+      <section className="py-24 px-4 bg-primary/5 relative overflow-hidden">
+        <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
+        
+        <div className="container mx-auto max-w-6xl grid lg:grid-cols-2 gap-16 items-center relative z-10">
+          <div className="space-y-8 order-2 lg:order-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-bold bg-primary/20 text-primary">
+              <Sparkles className="w-4 h-4" /> Nowość na platformie
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">Prywatny korepetytor dostępny 24/7</h2>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Koniec z frustracją przy zadaniach domowych. Nasza sztuczna inteligencja na bieżąco analizuje tok myślenia ucznia i naprowadza go na właściwe tory.
             </p>
-            <ul className="space-y-4">
-              {[
-                { icon: <PencilRuler className="w-5 h-5 text-primary" />, title: "Rozwiązuj jak w zeszycie", desc: "Wirtualna tablica pozwala pisać równania i rysować odręcznie." },
-                { icon: <Sparkles className="w-5 h-5 text-primary" />, title: "Natychmiastowa informacja zwrotna", desc: "Bez czekania na sprawdzenie — uczeń od razu wie, gdzie popełnił błąd." },
-                { icon: <Brain className="w-5 h-5 text-primary" />, title: "Wsparcie, nie wyręczanie", desc: "AI prowadzi przez tok rozumowania, zamiast podawać gotową odpowiedź." },
-              ].map((item, i) => (
-                <li key={i} className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">{item.icon}</div>
-                  <div>
-                    <h3 className="font-bold">{item.title}</h3>
-                    <p className="text-muted-foreground text-sm mt-0.5">{item.desc}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            
+            <div className="grid sm:grid-cols-2 gap-6 pt-4">
+              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm">
+                <CheckCircle2 className="w-8 h-8 text-success mb-4" />
+                <h4 className="font-bold mb-2">Uczy, nie wyręcza</h4>
+                <p className="text-sm text-muted-foreground">Podaje wskazówki i tłumaczy błędy, zamiast dawać gotowy wynik.</p>
+              </div>
+              <div className="bg-card rounded-2xl p-6 border border-border shadow-sm">
+                <LineChart className="w-8 h-8 text-primary mb-4" />
+                <h4 className="font-bold mb-2">Śledzi postępy</h4>
+                <p className="text-sm text-muted-foreground">Analizuje, z czym uczeń ma problem i dostosowuje porady.</p>
+              </div>
+            </div>
           </div>
 
           <div className="order-1 lg:order-2">
-            <div className="bg-card rounded-3xl border border-border shadow-xl p-6 sm:p-8 space-y-5">
-              <div className="rounded-2xl bg-muted/50 border border-border/50 aspect-video flex items-center justify-center">
-                <PencilRuler className="w-16 h-16 text-primary/30" />
-              </div>
-              <div className="flex items-start gap-3 bg-success/10 border border-success/20 rounded-2xl p-4">
-                <CheckCircle2 className="w-5 h-5 text-success shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-bold text-foreground">Dobre podejście!</p>
-                  <p className="text-sm text-muted-foreground mt-0.5">Poprawnie obliczyłeś prędkość. Pamiętaj o jednostce — wynik podaj w m/s.</p>
+            <AnimatedWrapper direction="right">
+              <div className="relative">
+                {/* Main AI Board Mockup */}
+                <div className="bg-background rounded-[2rem] border border-border shadow-2xl p-6 md:p-8 relative z-10">
+                  <div className="flex items-center justify-between mb-6 border-b border-border pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <PencilRuler className="w-5 h-5 text-primary" />
+                      </div>
+                      <span className="font-bold">Zadanie 3.</span>
+                    </div>
+                    <span className="inline-flex items-center rounded-full bg-secondary px-4 py-1.5 text-sm font-medium text-secondary-foreground" aria-hidden="true">Zakończ</span>
+                  </div>
+                  
+                  {/* Fake Whiteboard */}
+                  <div className="aspect-[4/3] sm:aspect-video rounded-xl border-2 border-dashed border-border bg-muted/20 relative flex items-center justify-center font-display text-2xl font-medium p-6">
+                    <div className="opacity-60 space-y-4 w-full">
+                      <div className="flex justify-between items-center w-full">
+                        <span>v = ?</span>
+                        <span>s = 120 km</span>
+                      </div>
+                      <div className="flex justify-between items-center w-full">
+                        <span></span>
+                        <span>t = 2 h</span>
+                      </div>
+                      <div className="h-px w-full bg-foreground/20 my-4" />
+                      <div className="text-center text-primary">
+                        v = s / t = 120 / 2 = 60 km/h
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* AI Feedback Overlay */}
+                <div className="absolute -bottom-8 md:-bottom-12 -left-4 md:-left-8 right-8 md:right-auto bg-card rounded-2xl border border-border shadow-xl p-6 z-20 md:max-w-md animate-in slide-in-from-bottom-10 duration-700">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0 mt-1">
+                      <Sparkles className="w-6 h-6 text-violet-600" />
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <h4 className="font-bold flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-success" /> Co dobrze:
+                        </h4>
+                        <p className="text-sm text-muted-foreground mt-1">Świetnie użyty wzór na prędkość i prawidłowe podstawienie danych.</p>
+                      </div>
+                      <div className="h-px w-full bg-border" />
+                      <div>
+                        <h4 className="font-bold flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-amber-500" /> Wskazówka:
+                        </h4>
+                        <p className="text-sm text-muted-foreground mt-1">Wynik jest poprawny! Pamiętaj, aby zawsze wyraźnie oddzielać dane od szukanych na początku zadania.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </AnimatedWrapper>
           </div>
         </div>
       </section>
 
-      {/* ── PARENT SECTION ── */}
-      <section className="py-24 px-4 bg-muted/30 border-y border-border">
-        <div className="container mx-auto max-w-4xl text-center space-y-10">
-          <div className="space-y-4">
-            <span className="text-primary font-bold tracking-wider uppercase text-sm">Dla rodziców</span>
-            <h2 className="text-3xl md:text-4xl font-bold">Spokój ducha dla rodzica</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Nie musisz być ekspertem z fizyki, aby wspierać dziecko w nauce. Platforma prowadzi je krok po kroku.
+      {/* ── FOR PARENTS ── */}
+      <section className="py-24 px-4 bg-background">
+        <div className="container mx-auto max-w-5xl text-center space-y-16">
+          <div className="space-y-6">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">Spokój ducha dla rodzica</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Nie musisz być ekspertem z fizyki, aby wspierać swoje dziecko. Nasza platforma zadba o jakość i systematyczność edukacji.
             </p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-6 text-left">
-            {[
-              { title: "Jasna struktura", desc: "Dziecko zawsze wie, co ma zrobić — wideo, quiz, zadanie." },
-              { title: "Samodzielna nauka", desc: "Wsparcie AI sprawia, że dziecko może uczyć się we własnym tempie." },
-              { title: "Bezpieczne środowisko", desc: "Platforma skupiona wyłącznie na nauce, bez rozpraszaczy." },
-            ].map((item, i) => (
-              <div key={i} className="bg-card p-6 rounded-3xl border border-border shadow-sm">
-                <CheckCircle2 className="w-6 h-6 text-success mb-4" />
-                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard 
+              title="Bezpieczne płatności"
+              value="100%"
+              description="Szyfrowane transakcje przez operatora"
+              icon={<ShieldCheck className="w-6 h-6" />}
+              colorClass="bg-emerald-500/10 text-emerald-600"
+            />
+            <StatCard 
+              title="Zgodność z MEN"
+              value="Klasa 7"
+              description="Aktualna podstawa programowa"
+              icon={<BookOpen className="w-6 h-6" />}
+              colorClass="bg-blue-500/10 text-blue-600"
+            />
+            <StatCard 
+              title="Jasne postępy"
+              value="Panel"
+              description="Dostęp do statystyk i wyników"
+              icon={<LineChart className="w-6 h-6" />}
+              colorClass="bg-violet-500/10 text-violet-600"
+            />
+            <StatCard 
+              title="Gwarancja dostępu"
+              value="365"
+              description="Dni nielimitowanego dostępu"
+              icon={<Clock className="w-6 h-6" />}
+              colorClass="bg-amber-500/10 text-amber-600"
+            />
           </div>
         </div>
       </section>
 
       {/* ── PRICING ── */}
-      <section id="cennik" className="py-24 px-4 scroll-mt-20">
-        <div className="container mx-auto max-w-lg">
-          <div className="text-center mb-12 space-y-4">
-            <h2 className="text-3xl md:text-4xl font-bold">Zainwestuj w wiedzę dziecka</h2>
-            <p className="text-muted-foreground text-lg">Prosty cennik. Brak ukrytych kosztów.</p>
-          </div>
-
-          <div className="bg-card rounded-3xl border-2 border-primary/20 shadow-xl overflow-hidden relative">
-            <div className="bg-primary/5 px-8 py-6 text-center border-b border-border">
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-primary/20 text-primary mb-4 uppercase tracking-wider">
-                Pełny dostęp roczny
-              </span>
-              <div className="flex items-baseline justify-center gap-1">
-                {priceLabel ? (
-                  <span className="text-5xl sm:text-6xl font-black text-foreground">{priceLabel}</span>
-                ) : (
-                  <span className="h-14 w-40 bg-muted animate-pulse rounded-lg" />
-                )}
+      <section className="py-24 px-4 bg-muted/30 border-y border-border">
+        <div className="container mx-auto max-w-xl text-center">
+          <AnimatedWrapper direction="up">
+            <div className="bg-card rounded-[3rem] border border-border shadow-2xl p-8 md:p-12 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-violet-500 to-cyan-500" />
+              
+              <div className="mb-8">
+                <h2 className="text-3xl font-black mb-2">Pełny Dostęp</h2>
+                <p className="text-muted-foreground">Wszystko, czego potrzebuje uczeń klasy 7.</p>
               </div>
-              <p className="text-sm text-muted-foreground mt-2">Dostęp przez 365 dni od zakupu</p>
-            </div>
 
-            <div className="p-8">
-              <ul className="space-y-4 mb-8">
+              <div className="flex justify-center items-baseline gap-2 mb-8">
+                {priceLabel ? (
+                  <span className="text-5xl md:text-6xl font-black tracking-tight">
+                    {priceLabel}
+                  </span>
+                ) : (
+                  <LoadingSkeleton className="h-14 w-40" />
+                )}
+                <span className="text-xl text-muted-foreground font-medium">/ rok</span>
+              </div>
+
+              <ul className="space-y-4 mb-10 text-left max-w-sm mx-auto">
                 {[
-                  "Dostęp do wszystkich tematów klasy 7",
-                  "Wideo tłumaczące zagadnienia",
-                  "Nielimitowane quizy sprawdzające",
-                  "Sztuczna Inteligencja sprawdzająca zadania",
-                  "Wirtualna tablica edukacyjna",
-                  "Zgodność z polską podstawą programową",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm font-medium">
-                    <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
-                    <span>{item}</span>
+                  "Nielimitowany dostęp przez 365 dni",
+                  "Wszystkie moduły i lekcje wideo",
+                  "Interaktywne quizy sprawdzające",
+                  "Zadania z asystentem AI",
+                  "Dostęp na komputerze i tablecie",
+                  "Brak ukrytych opłat",
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
+                    <span className="font-medium text-foreground/90">{feature}</span>
                   </li>
                 ))}
               </ul>
 
-              {user?.hasAccess ? (
-                <Link href="/dashboard" className="block w-full">
-                  <Button size="lg" className="w-full rounded-xl h-14 text-base font-bold shadow-md">
-                    Masz już dostęp — ucz się dalej
-                  </Button>
-                </Link>
-              ) : (
-                <Button
-                  size="lg"
-                  onClick={handleBuy}
-                  disabled={isPending || primaryCourseId == null}
-                  className="w-full rounded-xl h-14 text-base font-bold shadow-md"
-                >
-                  {isPending ? "Przetwarzanie..." : "Kup dostęp teraz"}
-                </Button>
-              )}
-              <p className="text-center text-xs text-muted-foreground mt-4">
-                Szybka i bezpieczna płatność online.
+              <Button 
+                size="lg" 
+                onClick={handleBuy}
+                disabled={isPending || primaryCourseId == null}
+                className="w-full text-lg h-16 rounded-full font-bold shadow-xl shadow-primary/20 hover-lift"
+              >
+                {isPending ? "Przetwarzanie..." : "Kup dostęp i zacznij naukę"} <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+              <p className="text-sm text-muted-foreground mt-4">Płacisz tylko raz, dostęp jest na cały rok.</p>
+            </div>
+          </AnimatedWrapper>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="py-24 px-4 bg-background">
+        <div className="container mx-auto max-w-3xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">Często zadawane pytania</h2>
+            <p className="text-muted-foreground text-lg">Masz wątpliwości? Oto odpowiedzi na najpopularniejsze pytania.</p>
+          </div>
+
+          <Accordion type="single" collapsible className="w-full space-y-4">
+            {faqs.map((faq, i) => (
+              <AccordionItem key={i} value={`item-${i}`} className="bg-card border border-border rounded-2xl px-6">
+                <AccordionTrigger className="text-left font-bold text-lg hover:text-primary hover:no-underline py-6">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-base leading-relaxed pb-6">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* ── CONTACT ── */}
+      <section id="kontakt" className="scroll-mt-20 py-24 px-4 bg-muted/30 border-t border-border">
+        <div className="container mx-auto max-w-5xl">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-6">
+              <h2 className="text-4xl font-black tracking-tight">Zostały pytania?</h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Jesteśmy tu, aby pomóc. Napisz do nas, jeśli potrzebujesz wsparcia technicznego lub masz pytania dotyczące zawartości kursu.
               </p>
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center gap-4 bg-card p-4 rounded-2xl border border-border shadow-sm">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Send className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground font-medium">Szybki kontakt</p>
+                    <p className="font-bold">Odpowiadamy w ciągu 24h</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <ContactForm />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── FAQ ── */}
-      <section className="py-24 px-4 bg-muted/30 border-y border-border">
-        <div className="container mx-auto max-w-3xl">
-          <div className="text-center mb-12 space-y-4">
-            <h2 className="text-3xl md:text-4xl font-bold">Najczęściej zadawane pytania</h2>
-            <p className="text-muted-foreground text-lg">Masz inne pytanie? Napisz do nas poniżej.</p>
+      {/* ── FOOTER ── */}
+      <footer className="py-12 bg-background border-t border-border text-center">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Zap className="w-6 h-6 text-primary fill-primary" />
+            <span className="font-black text-xl tracking-tight">FizykaAI</span>
           </div>
-          <div className="space-y-4">
-            {faqs.map((item, i) => (
-              <details key={i} className="group bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-                <summary className="flex items-center justify-between gap-4 p-6 cursor-pointer font-bold text-foreground list-none">
-                  {item.q}
-                  <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0 transition-transform group-open:rotate-90" />
-                </summary>
-                <div className="px-6 pb-6 -mt-1 text-muted-foreground leading-relaxed">{item.a}</div>
-              </details>
-            ))}
+          <p className="text-muted-foreground mb-6">Innowacyjna edukacja dla klasy 7.</p>
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground font-medium mb-8">
+            <Link href="/polityka-prywatnosci" className="hover:text-primary transition-colors">Polityka prywatności</Link>
+            <Link href="/regulamin" className="hover:text-primary transition-colors">Regulamin</Link>
+            <Link href="/login" className="hover:text-primary transition-colors">Logowanie</Link>
+            <Link href="/register" className="hover:text-primary transition-colors">Rejestracja</Link>
           </div>
+          <p className="text-sm text-muted-foreground opacity-60">© {new Date().getFullYear()} FizykaAI. Wszystkie prawa zastrzeżone.</p>
         </div>
-      </section>
-
-      {/* ── CONTACT ── */}
-      <section id="kontakt" className="py-24 px-4 scroll-mt-20">
-        <div className="container mx-auto max-w-2xl">
-          <div className="text-center mb-12 space-y-4">
-            <span className="text-primary font-bold tracking-wider uppercase text-sm">Kontakt</span>
-            <h2 className="text-3xl md:text-4xl font-bold">Masz pytania? Napisz do nas</h2>
-            <p className="text-muted-foreground text-lg">Odpowiadamy najszybciej, jak to możliwe.</p>
-          </div>
-          <ContactForm />
-        </div>
-      </section>
-
-      {/* ── CTA ── */}
-      <section className="py-20 px-4 bg-primary text-primary-foreground text-center">
-        <div className="container mx-auto max-w-2xl space-y-6">
-          <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white">Gotowy na spokojniejszą naukę?</h2>
-          <p className="text-primary-foreground/80 text-lg">
-            Dołącz do platformy, która zamienia stres przed sprawdzianem w przyjemność z rozumienia fizyki.
-          </p>
-          <div className="pt-4">
-            {user ? (
-              <Link href="/dashboard">
-                <Button size="lg" variant="secondary" className="rounded-full px-8 h-14 text-base font-bold text-primary hover:bg-white transition-colors">
-                  Przejdź do nauki
-                </Button>
-              </Link>
-            ) : (
-              <Link href="/register">
-                <Button size="lg" variant="secondary" className="rounded-full px-8 h-14 text-base font-bold text-primary hover:bg-white transition-colors">
-                  Załóż konto ucznia
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </section>
-
+      </footer>
     </div>
   );
 }

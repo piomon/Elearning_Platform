@@ -2,3 +2,4 @@
 - [Env contract & testing](env-contract-and-testing.md) — env.ts is the source of truth; keep .env.example/docker-compose/README in lockstep. Prod-gated routes can't be unit-tested (env.ts throws on prod import).
 - [Local dev run setup](dev-run-setup.md) — to run locally: set JWT_SECRET (dev env), push schema, seed; fresh DB is empty so /api/courses 500s until seeded.
 - [Monorepo build & test quirks](monorepo-build-quirks.md) — typecheck only at root (builds project refs); never set root `packageManager`; detached installs; tests need real Postgres + drizzle generate for schema changes.
+- [Completion celebration pattern](completion-celebration.md) — confetti/celebration on server-confirmed state must fire on the false→true transition (prev-value ref + reset per entity id), never on initial truthy render.

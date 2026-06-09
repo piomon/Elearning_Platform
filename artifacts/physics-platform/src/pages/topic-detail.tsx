@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import confetti from "canvas-confetti";
 import { useRoute, useLocation } from "wouter";
 import { 
   useGetTopic, 
@@ -12,7 +13,8 @@ import { Excalidraw, exportToBlob } from "@excalidraw/excalidraw";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ChevronLeft, CheckCircle2, ChevronRight, PenTool, RefreshCw, PlayCircle, HelpCircle, AlertCircle, Bot, Loader2, Trash2, Save, Download, Sparkles, Monitor } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { ChevronLeft, CheckCircle2, ChevronRight, PenTool, RefreshCw, PlayCircle, HelpCircle, AlertCircle, Bot, Loader2, Trash2, Save, Download, Sparkles, Monitor, ListChecks } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -25,6 +27,7 @@ export default function TopicDetail() {
   const topicId = params?.topicId ? parseInt(params.topicId, 10) : 0;
   
   const [step, setStep] = useState<"video" | "quiz" | "task">("video");
+  const [programOpen, setProgramOpen] = useState(false);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [quizResult, setQuizResult] = useState<any>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -37,9 +40,11 @@ export default function TopicDetail() {
 
   const wbKey = user ? `wb:${user.id}:${topicId}` : null;
   
-  const { data: topic, isLoading } = useGetTopic(topicId, {
+  const { data: topic, isLoading, isError } = useGetTopic(topicId, {
     query: { enabled: !!topicId } as any,
   });
+
+  const prevCheckedRef = useRef<boolean | undefined>(undefined);
 
   const { data: allProgress, refetch: refetchProgress } = useGetMyProgress();
   const progressMutation = useUpsertProgress();
@@ -73,7 +78,29 @@ export default function TopicDetail() {
     }
   }, [currentProgress]);
 
-  if (isLoading || !topic) {
+  // Reset transition tracking when switching topics so each lesson can celebrate once.
+  useEffect(() => {
+    prevCheckedRef.current = undefined;
+  }, [topicId]);
+
+  // Fire confetti only when the server confirms completion (false -> true transition).
+  useEffect(() => {
+    if (!currentProgress) return;
+    const checked = !!currentProgress.taskCheckedByAi;
+    const prev = prevCheckedRef.current;
+    prevCheckedRef.current = checked;
+    if (prev === undefined) return; // first loaded server state for this topic establishes the baseline
+    if (!checked || prev) return; // only celebrate on the false -> true flip
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    confetti({
+      particleCount: 140,
+      spread: 70,
+      origin: { y: 0.7 },
+      colors: ["#0ea5e9", "#06b6d4", "#f59e0b", "#22c55e"],
+    });
+  }, [currentProgress, topicId]);
+
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-12 max-w-4xl space-y-8">
         <div className="h-8 w-32 bg-muted animate-pulse rounded-full mb-8" />
@@ -82,6 +109,25 @@ export default function TopicDetail() {
           {[1,2,3].map(i => <div key={i} className="h-12 flex-1 bg-muted animate-pulse rounded-full" />)}
         </div>
         <div className="h-96 bg-muted animate-pulse rounded-3xl" />
+      </div>
+    );
+  }
+
+  if (isError || !topic) {
+    return (
+      <div className="container mx-auto px-4 py-20 max-w-2xl">
+        <div className="rounded-3xl border bg-card p-10 sm:p-14 text-center shadow-sm">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+            <AlertCircle className="h-10 w-10" />
+          </div>
+          <h1 className="text-2xl font-bold font-display">Nie udało się wczytać tematu</h1>
+          <p className="mt-3 text-muted-foreground">
+            Ten temat jest niedostępny lub wystąpił błąd połączenia. Wróć do listy tematów i spróbuj ponownie.
+          </p>
+          <Button className="mt-8 rounded-full px-8 h-12" onClick={() => setLocation("/dashboard")}>
+            Wróć do pulpitu
+          </Button>
+        </div>
       </div>
     );
   }
@@ -276,56 +322,86 @@ export default function TopicDetail() {
       ? Math.round((completedSiblings / orderedSiblings.length) * 100)
       : 0;
 
+  const programProgress = (
+    <div className="p-5 border-b bg-muted/30">
+      <span className="text-xs font-bold uppercase tracking-wider text-primary">Program działu</span>
+      <div className="mt-3 flex items-center justify-between text-sm">
+        <span className="font-semibold text-foreground">{completedSiblings}/{orderedSiblings.length} ukończonych</span>
+        <span className="text-muted-foreground">{sectionPercent}%</span>
+      </div>
+      <div className="mt-2 h-2 w-full rounded-full bg-muted overflow-hidden">
+        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${sectionPercent}%` }} />
+      </div>
+    </div>
+  );
+
+  const renderProgramNav = (onNavigate?: () => void) => (
+    <nav className="p-2 overflow-y-auto" aria-label="Tematy w dziale">
+      {orderedSiblings.map((t, idx) => {
+        const tp = allProgress?.find((p) => p.topicId === t.id);
+        const tDone = tp?.taskCheckedByAi;
+        const tStarted = tp && !tDone;
+        const isCurrent = t.id === topicId;
+        return (
+          <button
+            key={t.id}
+            onClick={() => { setLocation(`/topics/${t.id}`); window.scrollTo({ top: 0 }); onNavigate?.(); }}
+            aria-current={isCurrent ? "page" : undefined}
+            className={`w-full flex items-center gap-3 p-3 rounded-2xl text-left transition-all
+              ${isCurrent ? "bg-primary/10 ring-1 ring-primary/20" : "hover:bg-muted/60"}`}
+          >
+            <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-sm font-bold
+              ${tDone ? "bg-success/20 text-success" : isCurrent ? "bg-primary text-primary-foreground" : tStarted ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
+            >
+              {tDone ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
+            </div>
+            <span className={`text-sm leading-tight line-clamp-2 ${isCurrent ? "font-bold text-foreground" : tDone ? "text-foreground/80" : "text-muted-foreground"}`}>
+              {t.title}
+            </span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="lg:grid lg:grid-cols-[300px_1fr] lg:gap-8 lg:items-start">
         {/* Desktop course-program sidebar */}
         <aside className="hidden lg:block">
           <div className="sticky top-24 rounded-3xl border bg-card shadow-sm overflow-hidden">
-            <div className="p-5 border-b bg-muted/30">
-              <span className="text-xs font-bold uppercase tracking-wider text-primary">Program działu</span>
-              <div className="mt-3 flex items-center justify-between text-sm">
-                <span className="font-semibold text-foreground">{completedSiblings}/{orderedSiblings.length} ukończonych</span>
-                <span className="text-muted-foreground">{sectionPercent}%</span>
-              </div>
-              <div className="mt-2 h-2 w-full rounded-full bg-muted overflow-hidden">
-                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${sectionPercent}%` }} />
-              </div>
+            {programProgress}
+            <div className="max-h-[calc(100vh-16rem)] overflow-y-auto">
+              {renderProgramNav()}
             </div>
-            <nav className="p-2 max-h-[calc(100vh-16rem)] overflow-y-auto" aria-label="Tematy w dziale">
-              {orderedSiblings.map((t, idx) => {
-                const tp = allProgress?.find((p) => p.topicId === t.id);
-                const tDone = tp?.taskCheckedByAi;
-                const tStarted = tp && !tDone;
-                const isCurrent = t.id === topicId;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => { setLocation(`/topics/${t.id}`); window.scrollTo({ top: 0 }); }}
-                    aria-current={isCurrent ? "page" : undefined}
-                    className={`w-full flex items-center gap-3 p-3 rounded-2xl text-left transition-all
-                      ${isCurrent ? "bg-primary/10 ring-1 ring-primary/20" : "hover:bg-muted/60"}`}
-                  >
-                    <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-sm font-bold
-                      ${tDone ? "bg-success/20 text-success" : isCurrent ? "bg-primary text-primary-foreground" : tStarted ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
-                    >
-                      {tDone ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
-                    </div>
-                    <span className={`text-sm leading-tight line-clamp-2 ${isCurrent ? "font-bold text-foreground" : tDone ? "text-foreground/80" : "text-muted-foreground"}`}>
-                      {t.title}
-                    </span>
-                  </button>
-                );
-              })}
-            </nav>
           </div>
         </aside>
 
         <div className="space-y-8 min-w-0">
       <div>
-        <Button variant="ghost" className="mb-4 -ml-4 text-muted-foreground rounded-full hover:text-foreground" onClick={() => window.history.back()}>
-          <ChevronLeft className="w-5 h-5 mr-1" /> Wróć do tematów
-        </Button>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <Button variant="ghost" className="-ml-4 text-muted-foreground rounded-full hover:text-foreground" onClick={() => window.history.back()}>
+            <ChevronLeft className="w-5 h-5 mr-1" /> Wróć do tematów
+          </Button>
+          {/* Mobile course-program bottom sheet trigger */}
+          <Sheet open={programOpen} onOpenChange={setProgramOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" className="lg:hidden rounded-full font-semibold">
+                <ListChecks className="w-4 h-4 mr-2" /> Program
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="rounded-t-3xl p-0 max-h-[85vh] flex flex-col">
+              <SheetHeader className="px-5 pt-5 pb-0 text-left">
+                <SheetTitle>Program działu</SheetTitle>
+              </SheetHeader>
+              {programProgress}
+              <div className="overflow-y-auto pb-[env(safe-area-inset-bottom)]">
+                {renderProgramNav(() => setProgramOpen(false))}
+              </div>
+              <SheetClose className="sr-only">Zamknij</SheetClose>
+            </SheetContent>
+          </Sheet>
+        </div>
         <h1 className="text-3xl sm:text-4xl font-black tracking-tight font-display mb-2">{topic.title}</h1>
         {topic.description && (
           <p className="text-base sm:text-lg text-muted-foreground max-w-3xl leading-relaxed">{topic.description}</p>
