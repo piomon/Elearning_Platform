@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, ArrowRight } from "lucide-react";
+import { BookOpen, ArrowRight, GraduationCap, ShieldCheck } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Nieprawidłowy adres email" }),
@@ -64,6 +64,10 @@ export default function Login() {
     loginMutation.mutate({ data: values });
   };
 
+  const handleDemoLogin = (email: string, password: string) => {
+    loginMutation.mutate({ data: { email, password } });
+  };
+
   return (
     <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4 bg-muted/30">
       <div className="w-full max-w-md">
@@ -75,6 +79,32 @@ export default function Login() {
           </Link>
           <h1 className="text-3xl font-black font-display tracking-tight text-foreground">Witaj ponownie</h1>
           <p className="text-muted-foreground mt-2">Zaloguj się, aby kontynuować naukę fizyki</p>
+        </div>
+
+        <div className="mb-6 rounded-3xl border border-border bg-card p-5 shadow-sm">
+          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Szybkie logowanie testowe
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-14 rounded-2xl text-base font-bold"
+              disabled={loginMutation.isPending}
+              onClick={() => handleDemoLogin("admin@fizyka.edu.pl", "admin123")}
+            >
+              <ShieldCheck className="mr-2 h-5 w-5" /> ADMIN
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-14 rounded-2xl text-base font-bold"
+              disabled={loginMutation.isPending}
+              onClick={() => handleDemoLogin("uczen@fizyka.edu.pl", "student123")}
+            >
+              <GraduationCap className="mr-2 h-5 w-5" /> UCZEŃ
+            </Button>
+          </div>
         </div>
 
         <Card className="shadow-xl border-border rounded-3xl overflow-hidden">

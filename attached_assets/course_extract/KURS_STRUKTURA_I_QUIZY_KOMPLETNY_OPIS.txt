@@ -1,0 +1,1757 @@
+KOMPLETNA STRUKTURA KURSU FIZYKA — CO JEST DO CZEGO I GDZIE TO WRZUCAĆ
+========================================================================================
+
+Ten plik opisuje całą strukturę po uporządkowaniu nazw plików.
+Struktura folderów została zachowana, ale nazwy plików są unikalne.
+
+Schemat nazwy: D{dział}_L{lekcja}_{folder_zasobu}_{TYP}_{oryginalna_nazwa}.ext
+Przykład: D1_L03_05_VIDEO_ScreenRecorderProject90.mkv
+
+TYPY:
+- VIDEO = film do Bunny.net Stream
+- QUIZ = test/quiz do dodania w stronie/CMS
+- IMAGE = obrazek PNG/screenshot/odpowiedź pomocnicza do strony/CMS
+
+GDZIE WRZUCAĆ:
+- Filmy VIDEO wrzucaj do Bunny.net Stream do odpowiedniej kolekcji działu.
+- Quizy QUIZ i obrazki IMAGE wrzucaj do strony/CMS/media/public assets, NIE do Bunny Stream.
+- Paczka KURS_QUIZY_I_PNG_BEZ_FILMOW.rar zawiera tylko quizy i obrazki, bez filmów.
+
+KOLEKCJE BUNNY:
+- Dział 1: 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+- Dział 2: f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+- Dział 3: b98b4a50-1458-4136-bd02-f3368696160d
+
+WAŻNA UWAGA O DUPLIKATACH:
+W oryginalnych archiwach są filmy zdublowane w folderze lekcji oraz w podfolderze 01.
+W opisie zachowuję wszystko 1:1, ale na stronie zwykle wystarczy podpiąć jedną kopię filmu.
+Duplikaty mają teraz różne nazwy, więc nie będą się mieszać w Bunny ani w CMS.
+
+PODSUMOWANIE PLIKÓW:
+- Wszystkie pliki w uporządkowanym manifeście: 104
+- Filmy VIDEO: 56
+- Quizy TXT: 14
+- Obrazki IMAGE: 34
+- Pliki w paczce bez filmów: 48
+
+
+########################################################################################
+DZIAŁ 1 — kolekcja Bunny: 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+########################################################################################
+
+----------------------------------------------------------------------------------------
+Dział 1 / L01: Lekcja 01 — podstawy fizyki, ciało fizyczne, substancja, obserwacja i eksperyment
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/01/ScreenRecorderProject84.mkv
+   Nowa ścieżka: dzial 1/01/D1_L01_ROOT_VIDEO_ScreenRecorderProject84.mkv
+   Nowa nazwa: D1_L01_ROOT_VIDEO_ScreenRecorderProject84.mkv
+   Folder zasobu: ROOT
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L01_ROOT_VIDEO_ScreenRecorderProject84
+   Uwaga: film leży bezpośrednio w folderze lekcji. Sprawdź, czy nie jest kopią filmu z podfolderu 01; zwykle nie trzeba go dublować na stronie.
+2. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/01/01/ScreenRecorderProject84.mkv
+   Nowa ścieżka: dzial 1/01/01/D1_L01_01_VIDEO_ScreenRecorderProject84.mkv
+   Nowa nazwa: D1_L01_01_VIDEO_ScreenRecorderProject84.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L01_01_VIDEO_ScreenRecorderProject84
+3. [QUIZ / TEST]
+   Stara ścieżka: dzial 1/01/02/Nowy dokument tekstowy.TXT
+   Nowa ścieżka: dzial 1/01/02/D1_L01_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Nowa nazwa: D1_L01_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D1_L01_ROOT_VIDEO_ScreenRecorderProject84.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+   - D1_L01_01_VIDEO_ScreenRecorderProject84.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+2. Brak obrazków PNG w tej lekcji.
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D1_L01_02_QUIZ_Nowy_dokument_tekstowy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D1_L01_02_QUIZ_Nowy_dokument_tekstowy.txt
+Oryginał: dzial 1/01/02/Nowy dokument tekstowy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pytanie 1. Jakie trzy główne zadania fizyki zostały wymienione w tekście?
+a) Budowanie maszyn, programowanie i przewidywanie pogody.
+b) Odkrywanie podstawowych praw przyrody, wyjaśnianie zjawisk i opisywanie właściwości materii.
+c) Wymyślanie wzorów matematycznych, tworzenie instrukcji obsługi i badanie biologii.
+d) Obserwowanie kosmosu, ochrona przyrody i nauka o zwierzętach.
+
+Pytanie 2. Zgodnie ze "ściągą" z filmu, w jaki sposób najprościej odróżnić ciało fizyczne od substancji?
+a) Ciało fizyczne to materiał (np. szkło), a substancja to gotowy przedmiot (np. szklanka).
+b) Ciało fizyczne to odpowiedź na pytanie "Co to jest?", a substancja to odpowiedź na "Z czego to jest zrobione?".
+c) Ciało fizyczne to wyłącznie istota żywa, a substancja to przedmiot martwy.
+d) W fizyce nie ma różnicy między tymi pojęciami, oznaczają to samo.
+
+Pytanie 3. Dlaczego organizmy żywe (np. ryba, pies, ty) w fizyce są traktowane jako ciała fizyczne?
+a) Ponieważ zajmują miejsce w przestrzeni, mają swoją masę i działają na nie różne siły.
+b) Ponieważ w fizyce słowo "ciało" oznacza wyłącznie organizmy biologiczne.
+c) Ponieważ potrafią się same poruszać, w przeciwieństwie do gwoździa czy szklanki.
+d) Organizmy żywe nie są ciałami fizycznymi, zajmuje się nimi tylko biologia.
+
+Pytanie 4. Na czym polega najważniejsza różnica między obserwacją a eksperymentem?
+a) Obserwację prowadzi się w laboratorium, a eksperyment wyłącznie na zewnątrz.
+b) W obserwacji celowo modyfikuje się otoczenie, a w eksperymencie tylko patrzy z ukrycia.
+c) Podczas obserwacji nie ingerujesz w badany świat, a w eksperymencie celowo zmieniasz zasady i warunki.
+d) Obserwacja wymaga skomplikowanych maszyn, a eksperyment wykonuje się bez użycia narzędzi.
+
+Pytanie 5. Która z poniższych sytuacji przedstawionych w tekście jest przykładem eksperymentu, a nie obserwacji?
+a) Podglądanie zachowania tygrysa i papugi w dżungli z ukrycia.
+b) Mierzenie siły wiatru i ilości opadów deszczu na stacji meteorologicznej.
+c) Zapisywanie w notatniku, w jakim kierunku płynie woda w rzece.
+d) Celowe zmienianie nachylenia rampy i mierzenie czasu stoczenia się autka.
+
+Klucz odpowiedzi (dla Ciebie):
+
+1 b
+
+2 b
+
+3 a
+
+4 c
+
+5 d
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 1 / L02: Lekcja 02 — pomiary, wielkości fizyczne, jednostki SI i przeliczanie
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/02/ScreenRecorderProject85.mkv
+   Nowa ścieżka: dzial 1/02/D1_L02_ROOT_VIDEO_ScreenRecorderProject85.mkv
+   Nowa nazwa: D1_L02_ROOT_VIDEO_ScreenRecorderProject85.mkv
+   Folder zasobu: ROOT
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L02_ROOT_VIDEO_ScreenRecorderProject85
+   Uwaga: film leży bezpośrednio w folderze lekcji. Sprawdź, czy nie jest kopią filmu z podfolderu 01; zwykle nie trzeba go dublować na stronie.
+2. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/02/01/ScreenRecorderProject85.mkv
+   Nowa ścieżka: dzial 1/02/01/D1_L02_01_VIDEO_ScreenRecorderProject85.mkv
+   Nowa nazwa: D1_L02_01_VIDEO_ScreenRecorderProject85.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L02_01_VIDEO_ScreenRecorderProject85
+3. [QUIZ / TEST]
+   Stara ścieżka: dzial 1/02/02/Nowy dokument tekstowy.TXT
+   Nowa ścieżka: dzial 1/02/02/D1_L02_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Nowa nazwa: D1_L02_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D1_L02_ROOT_VIDEO_ScreenRecorderProject85.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+   - D1_L02_01_VIDEO_ScreenRecorderProject85.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+2. Brak obrazków PNG w tej lekcji.
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D1_L02_02_QUIZ_Nowy_dokument_tekstowy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D1_L02_02_QUIZ_Nowy_dokument_tekstowy.txt
+Oryginał: dzial 1/02/02/Nowy dokument tekstowy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pytanie 1. Na czym według tekstu polega proces pomiaru?
+a) Na odgadywaniu wymiarów przedmiotu "na oko".
+b) Na porównaniu wartości mierzonej z ustaloną wartością wzorcową.
+c) Na dodawaniu do siebie różnych jednostek miary z Układu SI.
+d) Na rozkładaniu przedmiotu na najmniejsze elementy i ich liczeniu.
+
+Pytanie 2. Jaka jest podstawowa jednostka temperatury w układzie SI, którą tekst określa mianem podchwytliwej pułapki na sprawdzianach?
+a) Stopień Celsjusza
+b) Stopień Fahrenheita
+c) Kelwin
+d) Paskal
+
+Pytanie 3. Zgodnie z tekstem wielkość fizyczna to cecha, którą można obiektywnie zmierzyć. Która z poniższych cech klocka NIE JEST wielkością fizyczną?
+a) Objętość
+b) Masa
+c) Temperatura
+d) Ostrość krawędzi
+
+Pytanie 4. Przed jaką pułapką ostrzega tekst w kontekście przedrostków zapisywanych literą "M" i "m"?
+a) Wielkie "M" to przedrostek mega (mnożnik przez milion), a małe "m" to mili (krojenie na tysiąc części).
+b) Wielkie "M" oznacza metry, a małe "m" to minuty.
+c) Wielkie "M" to makro, a małe "m" to mikro (dzielenie przez milion).
+d) Obie litery oznaczają dokładnie to samo i można ich używać zamiennie na sprawdzianach.
+
+Pytanie 5. Dlaczego w tekście przeliczanie jednostek czasu (np. zamiana minut na sekundy) zostało nazwane największą pułapką?
+a) Ponieważ sekunda nie jest jednostką należącą do Układu SI.
+b) Ponieważ podczas zamiany minut na sekundy należy zawsze używać dzielenia przez 1000.
+c) Ponieważ w fizyce czasu nie da się dokładnie zmierzyć stoperem.
+d) Ponieważ czas omija zasady dziesiątek i setek, a przy zamianie minut na sekundy zawsze mnożymy przez 60.
+
+
+1 b
+
+2 c
+
+3 d
+
+4 a
+
+5 d
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 1 / L03: Lekcja 03 — niepewność pomiaru, średnia i zaokrąglanie
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/03/ScreenRecorderProject86.mkv
+   Nowa ścieżka: dzial 1/03/D1_L03_ROOT_VIDEO_ScreenRecorderProject86.mkv
+   Nowa nazwa: D1_L03_ROOT_VIDEO_ScreenRecorderProject86.mkv
+   Folder zasobu: ROOT
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L03_ROOT_VIDEO_ScreenRecorderProject86
+   Uwaga: film leży bezpośrednio w folderze lekcji. Sprawdź, czy nie jest kopią filmu z podfolderu 01; zwykle nie trzeba go dublować na stronie.
+2. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/03/01/ScreenRecorderProject86.mkv
+   Nowa ścieżka: dzial 1/03/01/D1_L03_01_VIDEO_ScreenRecorderProject86.mkv
+   Nowa nazwa: D1_L03_01_VIDEO_ScreenRecorderProject86.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L03_01_VIDEO_ScreenRecorderProject86
+3. [QUIZ / TEST]
+   Stara ścieżka: dzial 1/03/02/Nowy dokument tekstowy.TXT
+   Nowa ścieżka: dzial 1/03/02/D1_L03_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Nowa nazwa: D1_L03_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+4. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/03/03/ScreenRecorderProject89.mkv
+   Nowa ścieżka: dzial 1/03/03/D1_L03_03_VIDEO_ScreenRecorderProject89.mkv
+   Nowa nazwa: D1_L03_03_VIDEO_ScreenRecorderProject89.mkv
+   Folder zasobu: 03
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L03_03_VIDEO_ScreenRecorderProject89
+5. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 1/03/04/1.png
+   Nowa ścieżka: dzial 1/03/04/D1_L03_04_IMAGE_1.png
+   Nowa nazwa: D1_L03_04_IMAGE_1.png
+   Folder zasobu: 04
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+6. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/03/05/ScreenRecorderProject90.mkv
+   Nowa ścieżka: dzial 1/03/05/D1_L03_05_VIDEO_ScreenRecorderProject90.mkv
+   Nowa nazwa: D1_L03_05_VIDEO_ScreenRecorderProject90.mkv
+   Folder zasobu: 05
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L03_05_VIDEO_ScreenRecorderProject90
+7. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 1/03/06/1.png
+   Nowa ścieżka: dzial 1/03/06/D1_L03_06_IMAGE_1.png
+   Nowa nazwa: D1_L03_06_IMAGE_1.png
+   Folder zasobu: 06
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+8. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/03/07/ScreenRecorderProject91.mkv
+   Nowa ścieżka: dzial 1/03/07/D1_L03_07_VIDEO_ScreenRecorderProject91.mkv
+   Nowa nazwa: D1_L03_07_VIDEO_ScreenRecorderProject91.mkv
+   Folder zasobu: 07
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L03_07_VIDEO_ScreenRecorderProject91
+9. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 1/03/08/1.png
+   Nowa ścieżka: dzial 1/03/08/D1_L03_08_IMAGE_1.png
+   Nowa nazwa: D1_L03_08_IMAGE_1.png
+   Folder zasobu: 08
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+10. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/03/09/ScreenRecorderProject92.mkv
+   Nowa ścieżka: dzial 1/03/09/D1_L03_09_VIDEO_ScreenRecorderProject92.mkv
+   Nowa nazwa: D1_L03_09_VIDEO_ScreenRecorderProject92.mkv
+   Folder zasobu: 09
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L03_09_VIDEO_ScreenRecorderProject92
+11. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 1/03/10/1.png
+   Nowa ścieżka: dzial 1/03/10/D1_L03_10_IMAGE_1.png
+   Nowa nazwa: D1_L03_10_IMAGE_1.png
+   Folder zasobu: 10
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D1_L03_ROOT_VIDEO_ScreenRecorderProject86.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+   - D1_L03_01_VIDEO_ScreenRecorderProject86.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+   - D1_L03_03_VIDEO_ScreenRecorderProject89.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+   - D1_L03_05_VIDEO_ScreenRecorderProject90.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+   - D1_L03_07_VIDEO_ScreenRecorderProject91.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+   - D1_L03_09_VIDEO_ScreenRecorderProject92.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D1_L03_04_IMAGE_1.png
+   - D1_L03_06_IMAGE_1.png
+   - D1_L03_08_IMAGE_1.png
+   - D1_L03_10_IMAGE_1.png
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D1_L03_02_QUIZ_Nowy_dokument_tekstowy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D1_L03_02_QUIZ_Nowy_dokument_tekstowy.txt
+Oryginał: dzial 1/03/02/Nowy dokument tekstowy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pytanie 1. Dlaczego według tekstu w fizyce KAŻDY pomiar jest niedokładny i daje różne wyniki?
+a) Ponieważ narzędzia pomiarowe oraz my sami nie jesteśmy idealni (np. przez drżenie ręki czy grubość kresek na miarce).
+b) Ponieważ przedmioty w laboratorium cały czas zmieniają swój rozmiar pod wpływem temperatury.
+c) Ponieważ w fizyce celowo używa się błędnych narzędzi, żeby trudniej było wyliczyć wynik.
+d) Ponieważ klocki podczas mierzenia zawsze minimalnie się przesuwają na stole.
+
+Pytanie 2. Co powinien zrobić fizyk, aby poznać faktyczną długość przedmiotu po uzyskaniu kilku różnych wyników z pomiarów?
+a) Wybrać tylko i wyłącznie największy ze wszystkich wyników, żeby nie zabrakło materiału.
+b) Dodać wszystkie wyniki do siebie i podzielić przez ich liczbę, obliczając w ten sposób średnią arytmetyczną.
+c) Zignorować otrzymane liczby i spróbować oszacować wymiary przedmiotu "na oko".
+d) Odrzucić najmniejszy wynik, a resztę pomnożyć przez 10.
+
+Pytanie 3. Zgodnie z klockowym prawem zaokrąglania z tekstu, co powinieneś zrobić, gdy Twój wynik wynosi 3,4?
+a) Zaokrąglić w górę, czyli dodać jeden, aby otrzymać pełną czwórkę.
+b) Zostawić wynik bez zmian, ponieważ w fizyce nigdy nie ucina się ogonków po przecinku.
+c) Zaokrąglić w dół, czyli po prostu uciąć ogonek po przecinku i zostać przy twardej, pełnej trójce.
+d) Przesunąć przecinek w prawo, żeby otrzymać nową liczbę 34.
+
+Pytanie 4. W jakiej sytuacji nasza główna liczba robi "Level Up" i zostaje zaokrąglona w górę (np. zamienia się z 3,7 na 4)?
+a) Zawsze, gdy wynik posiada na końcu po przecinku jakąkolwiek cyfrę parzystą.
+b) Kiedy pierwsza cyfra po przecinku jest równa 5 albo większa.
+c) Kiedy pierwsza cyfra po przecinku jest mniejsza niż 5.
+d) Kiedy obok badanej liczby postawimy znak drogowy.
+
+Pytanie 5. Na czym polega gigantyczna pułapka przy zaokrąglaniu dużych liczb do cyfr znaczących (tak jak w przypadku liczby 3456 zaokrąglanej do dwóch cyfr znaczących)?
+a) Na błędnym wstawianiu przecinka w połowie wielkiej liczby.
+b) Na szukaniu najważniejszych cyfr VIP, zaczynając błędnie od prawej strony.
+c) Na dodaniu do wyniku dodatkowego tysiąca z powodu użycia żółtych klocków.
+d) Na braku uzupełnienia odrzuconych miejsc zerami, przez co wielka liczba drastycznie maleje i traci skalę (np. zapisanie małego 35 zamiast 3500).
+
+1 a
+
+2 b
+
+3 c
+
+4 b
+
+5 d
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 1 / L04: Lekcja 04 — oddziaływania, grawitacja, elektrostatyka i magnetyzm
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/04/ScreenRecorderProject85.mkv
+   Nowa ścieżka: dzial 1/04/D1_L04_ROOT_VIDEO_ScreenRecorderProject85.mkv
+   Nowa nazwa: D1_L04_ROOT_VIDEO_ScreenRecorderProject85.mkv
+   Folder zasobu: ROOT
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L04_ROOT_VIDEO_ScreenRecorderProject85
+   Uwaga: film leży bezpośrednio w folderze lekcji. Sprawdź, czy nie jest kopią filmu z podfolderu 01; zwykle nie trzeba go dublować na stronie.
+2. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/04/01/ScreenRecorderProject85.mkv
+   Nowa ścieżka: dzial 1/04/01/D1_L04_01_VIDEO_ScreenRecorderProject85.mkv
+   Nowa nazwa: D1_L04_01_VIDEO_ScreenRecorderProject85.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L04_01_VIDEO_ScreenRecorderProject85
+3. [QUIZ / TEST]
+   Stara ścieżka: dzial 1/04/02/Nowy dokument tekstowy.TXT
+   Nowa ścieżka: dzial 1/04/02/D1_L04_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Nowa nazwa: D1_L04_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D1_L04_ROOT_VIDEO_ScreenRecorderProject85.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+   - D1_L04_01_VIDEO_ScreenRecorderProject85.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+2. Brak obrazków PNG w tej lekcji.
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D1_L04_02_QUIZ_Nowy_dokument_tekstowy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D1_L04_02_QUIZ_Nowy_dokument_tekstowy.txt
+Oryginał: dzial 1/04/02/Nowy dokument tekstowy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pytanie 1. Które z wymienionych oddziaływań, zgodnie z tekstem, potrafią działać na odległość i nie wymagają bezpośredniego dotyku?
+a) Grawitacyjne, elektrostatyczne i magnetyczne
+b) Mechaniczne, sprężyste i grawitacyjne
+c) Tylko oddziaływanie grawitacyjne
+d) Wszystkie oddziaływania fizyczne wymagają bezpośredniego kontaktu
+
+Pytanie 2. Jaka jest najważniejsza reguła dotycząca grawitacji opisana w tekście?
+a) Oddziaływanie grawitacyjne potrafi zarówno przyciągać, jak i odpychać inne przedmioty.
+b) Grawitacja działa tylko na planecie Ziemia, a w kosmosie zupełnie zanika.
+c) Grawitacja zawsze i wyłącznie przyciąga obiekty, nigdy ich nie odpycha.
+d) Grawitacja przyciąga tylko materiały ferromagnetyczne.
+
+Pytanie 3. Jak, według tekstu, zachowają się dwa takie same ładunki elektryczne (np. dwa minusy) albo dwa identyczne bieguny magnesu?
+a) Błyskawicznie się przyciągną i połączą ze sobą.
+b) Będą uciekać od siebie i się odpychać.
+c) Zaczną drastycznie zmieniać swój kształt.
+d) Zignorują się nawzajem, bo brakuje plusa.
+
+Pytanie 4. O skutku statycznym oddziaływania mówimy wtedy, gdy:
+a) uderzony przedmiot nagle wystrzeliwuje do przodu (zostaje wprawiony w ruch).
+b) pędzący bolid wciska hamulec i zwalnia.
+c) działająca siła zmusza pojazd do zmiany kierunku ruchu.
+d) przedmiot pod wpływem siły nie porusza się, ale zmienia swój kształt (np. zgniata się lub wygina).
+
+Pytanie 5. Który z poniższych przykładów z tekstu jest skutkiem dynamicznym oddziaływania?
+a) Ściśnięcie maszynami spirali, tak że staje się nagle dużo krótsza.
+b) Zmiana kierunku ruchu przez pojazd, aby ominąć przeszkodę na drodze.
+c) Wgniecenie, lepienie i rozciąganie kuli z miękkiej plasteliny.
+d) Ugięcie się długiej belki (mostu) pod ciężarem wjeżdżającej ciężarówki.
+
+1 a
+
+2 c
+
+3 b
+
+4 d
+
+5 b
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 1 / L05: Lekcja 05 — siła, niuton, wektor siły, kierunek i zwrot
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/05/ScreenRecorderProject86.mkv
+   Nowa ścieżka: dzial 1/05/D1_L05_ROOT_VIDEO_ScreenRecorderProject86.mkv
+   Nowa nazwa: D1_L05_ROOT_VIDEO_ScreenRecorderProject86.mkv
+   Folder zasobu: ROOT
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L05_ROOT_VIDEO_ScreenRecorderProject86
+   Uwaga: film leży bezpośrednio w folderze lekcji. Sprawdź, czy nie jest kopią filmu z podfolderu 01; zwykle nie trzeba go dublować na stronie.
+2. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/05/01/ScreenRecorderProject86.mkv
+   Nowa ścieżka: dzial 1/05/01/D1_L05_01_VIDEO_ScreenRecorderProject86.mkv
+   Nowa nazwa: D1_L05_01_VIDEO_ScreenRecorderProject86.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L05_01_VIDEO_ScreenRecorderProject86
+3. [QUIZ / TEST]
+   Stara ścieżka: dzial 1/05/02/Nowy dokument tekstowy.TXT
+   Nowa ścieżka: dzial 1/05/02/D1_L05_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Nowa nazwa: D1_L05_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D1_L05_ROOT_VIDEO_ScreenRecorderProject86.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+   - D1_L05_01_VIDEO_ScreenRecorderProject86.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+2. Brak obrazków PNG w tej lekcji.
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D1_L05_02_QUIZ_Nowy_dokument_tekstowy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D1_L05_02_QUIZ_Nowy_dokument_tekstowy.txt
+Oryginał: dzial 1/05/02/Nowy dokument tekstowy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pytanie 1. Od jakiego angielskiego słowa pochodzi litera F, którą fizycy oznaczają siłę, oraz w jakich jednostkach się ją mierzy?
+a) Od słowa Fast, a mierzy się ją w kilometrach.
+b) Od słowa Force, a mierzy się ją w niutonach.
+c) Od słowa Form, a mierzy się ją w kilogramach.
+d) Od słowa Friction, a mierzy się ją w metrach.
+
+Pytanie 2. Jaki przykład podano w tekście, aby zobrazować siłę o wartości jednego niutona?
+a) Zderzenie klockowego autka ze ścianą.
+b) Opór, jaki stawiają dwa odpychające się magnesy.
+c) Delikatny nacisk stugramowej tabliczki czekolady na otwartą dłoń.
+d) Pchanie dużej ciężarówki siłą dziesięciu niutonów.
+
+Pytanie 3. Na czym polega inżynieryjny sekret, czyli "wybór odpowiedniej skali" podczas rysowania wektorów siły w zeszycie w kratkę?
+a) Na tym, że wszystkie strzałki zawsze muszą mieć tę samą długość, niezależnie od siły.
+b) Na samodzielnym ustaleniu, jakiej sile (np. ilu niutonom) odpowiada jedna kratka, aby rysunek dużej siły zmieścił się w zeszycie.
+c) Na rysowaniu większych sił grubszym pisakiem, a mniejszych cienkim ołówkiem.
+d) Na zamianie jednostek z niutonów na centymetry, by łatwiej było użyć linijki na gładkim papierze.
+
+Pytanie 4. Czym, według tekstu, jest "punkt przyłożenia" siły?
+a) Niewidzialną linią, wzdłuż której działa siła.
+b) Wartością liczbową mówiącą nam, jak mocno pchamy dany przedmiot.
+c) Stroną, w którą skierowany jest grot narysowanej strzałki.
+d) Konkretnym, malutkim miejscem kontaktu, w którym stykasz się z przedmiotem i zaczynasz na niego działać.
+
+Pytanie 5. Jaka jest kluczowa różnica między "kierunkiem" a "zwrotem" siły, określona w tekście jako największa pułapka?
+a) Kierunek i zwrot to w fizyce dokładnie to samo i można używać tych słów zamiennie.
+b) Kierunek to niewidzialna linia działania siły (jak sztywne tory), a zwrot to konkretna strona oznaczona grotem strzałki (znak dokąd jedziemy).
+c) Kierunek określa wartość siły w niutonach, a zwrot to miejsce dotyku przedmiotu.
+d) Kierunek dotyczy wyłącznie grawitacji, a zwrot oddziaływań mechanicznych.
+
+1 b
+
+2 c
+
+3 b
+
+4 d
+
+5 b
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 1 / L06: Lekcja 06 — materiały filmowe bez quizu
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/06/01/ScreenRecorderProject86.mkv
+   Nowa ścieżka: dzial 1/06/01/D1_L06_01_VIDEO_ScreenRecorderProject86.mkv
+   Nowa nazwa: D1_L06_01_VIDEO_ScreenRecorderProject86.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L06_01_VIDEO_ScreenRecorderProject86
+2. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/06/02/ScreenRecorderProject86.mkv
+   Nowa ścieżka: dzial 1/06/02/D1_L06_02_VIDEO_ScreenRecorderProject86.mkv
+   Nowa nazwa: D1_L06_02_VIDEO_ScreenRecorderProject86.mkv
+   Folder zasobu: 02
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L06_02_VIDEO_ScreenRecorderProject86
+3. [FILM DO BUNNY]
+   Stara ścieżka: dzial 1/06/03/ScreenRecorderProject87.mkv
+   Nowa ścieżka: dzial 1/06/03/D1_L06_03_VIDEO_ScreenRecorderProject87.mkv
+   Nowa nazwa: D1_L06_03_VIDEO_ScreenRecorderProject87.mkv
+   Folder zasobu: 03
+   Do wrzucenia: Bunny Stream, kolekcja D1 (47e97b09-7fd9-4ad8-8ed5-7384bc2349ab); sugerowany tytuł: D1_L06_03_VIDEO_ScreenRecorderProject87
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D1_L06_01_VIDEO_ScreenRecorderProject86.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+   - D1_L06_02_VIDEO_ScreenRecorderProject86.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+   - D1_L06_03_VIDEO_ScreenRecorderProject87.mkv  -> Bunny collection 47e97b09-7fd9-4ad8-8ed5-7384bc2349ab
+2. Brak obrazków PNG w tej lekcji.
+3. Brak quizu TXT w tej lekcji.
+
+########################################################################################
+DZIAŁ 2 — kolekcja Bunny: f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+########################################################################################
+
+----------------------------------------------------------------------------------------
+Dział 2 / L00: Lekcja 00 — materiały wprowadzające / sekwencja filmów i obrazków
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/0/01/ScreenRecorderProject89.mkv
+   Nowa ścieżka: dzał 2/0/01/D2_L00_01_VIDEO_ScreenRecorderProject89.mkv
+   Nowa nazwa: D2_L00_01_VIDEO_ScreenRecorderProject89.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L00_01_VIDEO_ScreenRecorderProject89
+2. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/0/02/1.png
+   Nowa ścieżka: dzał 2/0/02/D2_L00_02_IMAGE_1.png
+   Nowa nazwa: D2_L00_02_IMAGE_1.png
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+3. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/0/03/ScreenRecorderProject90.mkv
+   Nowa ścieżka: dzał 2/0/03/D2_L00_03_VIDEO_ScreenRecorderProject90.mkv
+   Nowa nazwa: D2_L00_03_VIDEO_ScreenRecorderProject90.mkv
+   Folder zasobu: 03
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L00_03_VIDEO_ScreenRecorderProject90
+4. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/0/04/1.png
+   Nowa ścieżka: dzał 2/0/04/D2_L00_04_IMAGE_1.png
+   Nowa nazwa: D2_L00_04_IMAGE_1.png
+   Folder zasobu: 04
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+5. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/0/05/ScreenRecorderProject91.mkv
+   Nowa ścieżka: dzał 2/0/05/D2_L00_05_VIDEO_ScreenRecorderProject91.mkv
+   Nowa nazwa: D2_L00_05_VIDEO_ScreenRecorderProject91.mkv
+   Folder zasobu: 05
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L00_05_VIDEO_ScreenRecorderProject91
+6. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/0/06/1.png
+   Nowa ścieżka: dzał 2/0/06/D2_L00_06_IMAGE_1.png
+   Nowa nazwa: D2_L00_06_IMAGE_1.png
+   Folder zasobu: 06
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+7. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/0/07/ScreenRecorderProject92.mkv
+   Nowa ścieżka: dzał 2/0/07/D2_L00_07_VIDEO_ScreenRecorderProject92.mkv
+   Nowa nazwa: D2_L00_07_VIDEO_ScreenRecorderProject92.mkv
+   Folder zasobu: 07
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L00_07_VIDEO_ScreenRecorderProject92
+8. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/0/08/1.png
+   Nowa ścieżka: dzał 2/0/08/D2_L00_08_IMAGE_1.png
+   Nowa nazwa: D2_L00_08_IMAGE_1.png
+   Folder zasobu: 08
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D2_L00_01_VIDEO_ScreenRecorderProject89.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+   - D2_L00_03_VIDEO_ScreenRecorderProject90.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+   - D2_L00_05_VIDEO_ScreenRecorderProject91.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+   - D2_L00_07_VIDEO_ScreenRecorderProject92.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D2_L00_02_IMAGE_1.png
+   - D2_L00_04_IMAGE_1.png
+   - D2_L00_06_IMAGE_1.png
+   - D2_L00_08_IMAGE_1.png
+3. Brak quizu TXT w tej lekcji.
+
+----------------------------------------------------------------------------------------
+Dział 2 / L01: Lekcja 01 — materia i budowa substancji — filmy
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/01/ScreenRecorderProject61.mkv
+   Nowa ścieżka: dzał 2/01/D2_L01_ROOT_VIDEO_ScreenRecorderProject61.mkv
+   Nowa nazwa: D2_L01_ROOT_VIDEO_ScreenRecorderProject61.mkv
+   Folder zasobu: ROOT
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L01_ROOT_VIDEO_ScreenRecorderProject61
+   Uwaga: film leży bezpośrednio w folderze lekcji. Sprawdź, czy nie jest kopią filmu z podfolderu 01; zwykle nie trzeba go dublować na stronie.
+2. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/01/ScreenRecorderProject84.mkv
+   Nowa ścieżka: dzał 2/01/D2_L01_ROOT_VIDEO_ScreenRecorderProject84.mkv
+   Nowa nazwa: D2_L01_ROOT_VIDEO_ScreenRecorderProject84.mkv
+   Folder zasobu: ROOT
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L01_ROOT_VIDEO_ScreenRecorderProject84
+   Uwaga: film leży bezpośrednio w folderze lekcji. Sprawdź, czy nie jest kopią filmu z podfolderu 01; zwykle nie trzeba go dublować na stronie.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D2_L01_ROOT_VIDEO_ScreenRecorderProject61.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+   - D2_L01_ROOT_VIDEO_ScreenRecorderProject84.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+2. Brak obrazków PNG w tej lekcji.
+3. Brak quizu TXT w tej lekcji.
+
+----------------------------------------------------------------------------------------
+Dział 2 / L02: Lekcja 02 — atomy, cząsteczki, dyfuzja, napięcie powierzchniowe — quiz
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/02/Screenshot_1.png
+   Nowa ścieżka: dzał 2/02/D2_L02_ROOT_IMAGE_Screenshot_1.png
+   Nowa nazwa: D2_L02_ROOT_IMAGE_Screenshot_1.png
+   Folder zasobu: ROOT
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+2. [QUIZ / TEST]
+   Stara ścieżka: dzał 2/02/QIZ.TXT
+   Nowa ścieżka: dzał 2/02/D2_L02_ROOT_QUIZ_QIZ.txt
+   Nowa nazwa: D2_L02_ROOT_QUIZ_QIZ.txt
+   Folder zasobu: ROOT
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Brak filmu w tej lekcji według spisu — lekcja może być quizem/obrazem albo materiałem uzupełniającym.
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D2_L02_ROOT_IMAGE_Screenshot_1.png
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D2_L02_ROOT_QUIZ_QIZ.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D2_L02_ROOT_QUIZ_QIZ.txt
+Oryginał: dzał 2/02/QIZ.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Czym według tekstu jest atom?
+A) Dowolnym połączeniem dwóch różnych pierwiastków.
+B) Częścią klocka LEGO, z którego buduje się wodę.
+C) Najmniejszą, niepodzielną chemicznie „cegiełką” budującą pierwiastek.
+D) Zjawiskiem mieszania się różnych substancji.
+
+2. Co powstaje w wyniku połączenia ze sobą kilku atomów (np. tlenu i wodoru)?
+A) Nowy pierwiastek
+B) Cząsteczka
+C) Detergent
+D) Stan stały
+
+3. Zgodnie z tekstem materia nie jest ciągła. Jaką zatem ma budowę?
+A) Ziarnistą
+B) Płynną
+C) Losową
+D) Niewidzialną
+
+4. W którym stanie skupienia cząsteczki poruszają się najszybciej i panuje wśród nich „totalny chaos”?
+A) W ciele stałym
+B) W cieczy
+C) W gazie
+D) We wszystkich stanach poruszają się tak samo
+
+5. Jaka jest złota zasada fizyki dotycząca temperatury i ruchu cząsteczek?
+A) Im jest cieplej, tym cząsteczki poruszają się wolniej.
+B) Temperatura nie ma żadnego wpływu na ruch cząsteczek.
+C) Cząsteczki całkowicie się zatrzymują przy wysokiej temperaturze.
+D) Im jest cieplej, tym cząsteczki poruszają się szybciej.
+
+6. Dzięki jakiej sile krople deszczu trzymają się szyby okna lub pajęczyny?
+A) Sile spójności
+B) Sile przylegania
+C) Sile grawitacji
+D) Sile wyporu
+
+7. Siły spójności można opisać jako:
+A) Wzajemne przyciąganie się cząsteczek tej samej substancji (np. woda z wodą).
+B) Wzajemne przyciąganie się cząsteczek różnych substancji (np. woda i szkło).
+C) Łączenie się atomów węgla i wodoru w metan.
+D) Działanie detergentów na brud.
+
+8. Jak nazywa się zjawisko samorzutnego mieszania się cząsteczek różnych substancji (np. zapachu perfum w powietrzu lub herbaty w wodzie)?
+A) Napięcie powierzchniowe
+B) Dyfuzja
+C) Kondensacja
+D) Parowanie
+
+9. Dlaczego owady wodne potrafią spacerować po powierzchni stawu i nie toną, a spinacz unosi się na wodzie?
+A) Ponieważ działają na nie siły przylegania.
+B) Ponieważ woda w stawie punktowo zamienia się w ciało stałe.
+C) Dzięki napięciu powierzchniowemu, które tworzy na wodzie niewidzialną „błonkę”.
+D) Dzięki szybkiej dyfuzji cząsteczek powietrza.
+
+10. Jak działają detergenty (np. płyn do naczyń) na wodę?
+A) Zwiększają napięcie powierzchniowe wody.
+B) Zmniejszają napięcie powierzchniowe wody, rozrywając silne połączenia między jej cząsteczkami.
+C) Zamieniają cząsteczki wody w gaz, by ułatwić mycie.
+D) Sprawiają, że woda zaczyna szybciej zamarzać.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 2 / L03: Lekcja 03 — film główny
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/03/ScreenRecorderProject63.mkv
+   Nowa ścieżka: dzał 2/03/D2_L03_ROOT_VIDEO_ScreenRecorderProject63.mkv
+   Nowa nazwa: D2_L03_ROOT_VIDEO_ScreenRecorderProject63.mkv
+   Folder zasobu: ROOT
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L03_ROOT_VIDEO_ScreenRecorderProject63
+   Uwaga: film leży bezpośrednio w folderze lekcji. Sprawdź, czy nie jest kopią filmu z podfolderu 01; zwykle nie trzeba go dublować na stronie.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D2_L03_ROOT_VIDEO_ScreenRecorderProject63.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+2. Brak obrazków PNG w tej lekcji.
+3. Brak quizu TXT w tej lekcji.
+
+----------------------------------------------------------------------------------------
+Dział 2 / L04: Lekcja 04 — stany skupienia i właściwości ciał — quiz
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/04/Screenshot_2.png
+   Nowa ścieżka: dzał 2/04/D2_L04_ROOT_IMAGE_Screenshot_2.png
+   Nowa nazwa: D2_L04_ROOT_IMAGE_Screenshot_2.png
+   Folder zasobu: ROOT
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+2. [QUIZ / TEST]
+   Stara ścieżka: dzał 2/04/quzy.TXT
+   Nowa ścieżka: dzał 2/04/D2_L04_ROOT_QUIZ_quzy.txt
+   Nowa nazwa: D2_L04_ROOT_QUIZ_quzy.txt
+   Folder zasobu: ROOT
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Brak filmu w tej lekcji według spisu — lekcja może być quizem/obrazem albo materiałem uzupełniającym.
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D2_L04_ROOT_IMAGE_Screenshot_2.png
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D2_L04_ROOT_QUIZ_quzy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D2_L04_ROOT_QUIZ_quzy.txt
+Oryginał: dzał 2/04/quzy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Jak zachowują się cząsteczki w ciele stałym (np. w lodzie)?
+A) Ślizgają się swobodnie jedna po drugiej.
+B) Pędzą we wszystkich kierunkach i latają swobodnie.
+C) Są ułożone bardzo blisko siebie i mogą co najwyżej delikatnie drgać w miejscu.
+D) Stale zmieniają swój kształt.
+
+2. Dlaczego woda w szklance może się przelewać i dopasowywać do jej kształtu?
+A) Ponieważ cząsteczki cieczy mają na tyle luzu, że mogą się przemieszczać i ślizgać po sobie.
+B) Ponieważ cząsteczki w cieczy są zablokowane w sztywnej klatce.
+C) Ponieważ między cząsteczkami cieczy jest mnóstwo pustej przestrzeni.
+D) Ponieważ cząsteczki wody są sprężyste.
+
+3. W którym stanie skupienia cząsteczki mają najwięcej energii i nic ich nie ogranicza?
+A) W ciele stałym
+B) W cieczy
+C) W gazie
+D) W ciele plastycznym
+
+4. Co charakteryzuje ciała stałe pod względem ich formy?
+A) Mają stałą objętość, ale przyjmują kształt naczynia.
+B) Zajmują całą dostępną przestrzeń.
+C) Nie mają ani własnego kształtu, ani objętości.
+D) Mają swój określony kształt i objętość.
+
+5. Jak nazywamy ciała stałe (np. czerwoną sprężynę z tekstu), które po rozciągnięciu lub wygięciu wracają do swojego pierwotnego kształtu?
+A) Kruche
+B) Sprężyste
+C) Plastyczne
+D) Ściśliwe
+
+6. Czym charakteryzują się ciała plastyczne, takie jak klockowa plastelina?
+A) Po zmianie kształtu wracają do pierwotnej formy.
+B) Rozpadają się na kawałki pod wpływem siły.
+C) Kiedy zmienimy ich kształt, to już w takiej nowej formie zostają.
+D) Zachowują się jak gaz i uciekają z pojemnika.
+
+7. Co się dzieje z cieczą (np. wodą), gdy przelejemy ją z wysokiej wieży do okrągłej misy?
+A) Zmienia się jej objętość oraz kształt.
+B) Zachowuje swój własny kształt, ale zmienia objętość.
+C) Zamienia się w gaz, wypełniając całe naczynie.
+D) Ma nadal tę samą objętość, ale przyjmuje kształt nowego naczynia.
+
+8. Dlaczego ciała stałe i ciecze są trudno ściśliwe?
+A) Ponieważ ich cząsteczki są upakowane bardzo ciasno i ciężko jest je do siebie zbliżyć.
+B) Ponieważ rozpadają się na kawałki podczas próby ściśnięcia.
+C) Ponieważ między ich cząsteczkami jest mnóstwo wolnej przestrzeni.
+D) Ponieważ nie posiadają powierzchni swobodnej.
+
+9. Dlaczego nasz bohater bez problemu może zgnieść pustą butelkę wypełnioną gazem (powietrzem)?
+A) Ponieważ gazy są kruche.
+B) Ponieważ gazy mają swój określony kształt.
+C) Ponieważ gazy są ściśliwe – między ich cząsteczkami jest dużo pustej przestrzeni, więc łatwo je do siebie dosunąć.
+D) Ponieważ wewnątrz butelki nie ma w ogóle żadnych cząsteczek.
+
+10. Czym jest powierzchnia swobodna cieczy?
+A) To dno każdego naczynia, w którym znajduje się woda.
+B) To górna granica cieczy, która styka się z powietrzem (gazem) nad nią.
+C) To siła, która zgniata cząsteczki wewnątrz cieczy.
+D) To zjawisko zamarzania wody na powierzchni.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 2 / L05: Lekcja 05 — filmy i obraz pomocniczy
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/05/01/ScreenRecorderProject65.mkv
+   Nowa ścieżka: dzał 2/05/01/D2_L05_01_VIDEO_ScreenRecorderProject65.mkv
+   Nowa nazwa: D2_L05_01_VIDEO_ScreenRecorderProject65.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L05_01_VIDEO_ScreenRecorderProject65
+2. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/05/02/ScreenRecorderProject66.mkv
+   Nowa ścieżka: dzał 2/05/02/D2_L05_02_VIDEO_ScreenRecorderProject66.mkv
+   Nowa nazwa: D2_L05_02_VIDEO_ScreenRecorderProject66.mkv
+   Folder zasobu: 02
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L05_02_VIDEO_ScreenRecorderProject66
+3. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/05/03/1.png
+   Nowa ścieżka: dzał 2/05/03/D2_L05_03_IMAGE_1.png
+   Nowa nazwa: D2_L05_03_IMAGE_1.png
+   Folder zasobu: 03
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D2_L05_01_VIDEO_ScreenRecorderProject65.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+   - D2_L05_02_VIDEO_ScreenRecorderProject66.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D2_L05_03_IMAGE_1.png
+3. Brak quizu TXT w tej lekcji.
+
+----------------------------------------------------------------------------------------
+Dział 2 / L06: Lekcja 06 — masa, ciężar i jednostki — quiz
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/06/Screenshot_1.png
+   Nowa ścieżka: dzał 2/06/D2_L06_ROOT_IMAGE_Screenshot_1.png
+   Nowa nazwa: D2_L06_ROOT_IMAGE_Screenshot_1.png
+   Folder zasobu: ROOT
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+2. [QUIZ / TEST]
+   Stara ścieżka: dzał 2/06/QUZY.TXT
+   Nowa ścieżka: dzał 2/06/D2_L06_ROOT_QUIZ_QUZY.txt
+   Nowa nazwa: D2_L06_ROOT_QUIZ_QUZY.txt
+   Folder zasobu: ROOT
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Brak filmu w tej lekcji według spisu — lekcja może być quizem/obrazem albo materiałem uzupełniającym.
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D2_L06_ROOT_IMAGE_Screenshot_1.png
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D2_L06_ROOT_QUIZ_QUZY.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D2_L06_ROOT_QUIZ_QUZY.txt
+Oryginał: dzał 2/06/QUZY.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Czym według tekstu jest masa (oznaczana literą m)?
+A) Niewidzialną liną, z jaką Ziemia ciągnie przedmioty.
+B) Ilością materii, czyli tym, z ilu „klocków” zbudowane jest ciało.
+C) Przyspieszeniem ziemskim wyrażanym w niutonach.
+D) Kształtem i objętością danego przedmiotu.
+•
+
+•
+
+Łatwa Fizyka — Materiały Pomocnicze dla Klasy 7 Strona 8
+
+2. W jakich jednostkach mierzymy siłę ciężkości (oznaczaną literą F)?
+A) W kilogramach (kg)
+B) W gramach (g)
+C) W niutonach (N)
+D) W tonach (t)
+
+3. Ile wynosi w przybliżeniu współczynnik proporcjonalności (g) na Ziemi?
+A) 1,62 N/kg
+B) 10 N/kg
+C) 100 N/kg
+D) 1000 N/kg
+
+4. Klockowa sztanga ma masę 2 kg. Z jaką siłą (ciężarem) przyciąga ją Ziemia?
+A) 2 N
+B) 10 N
+C) 20 N
+D) 200 N
+
+5. Duży materac i mały odważnik mają taką samą masę (2 kg). Który z nich Ziemia przyciąga
+mocniej?
+A) Materac, ponieważ jest większy i bardziej rozłożysty.
+B) Odważnik, ponieważ jest bardziej zbity i gęsty.
+C) Ziemia przyciąga je z dokładnie taką samą siłą, bo liczy się tylko masa.
+D) Ziemia nie przyciąga ich wcale, dopóki się nie poruszą.
+
+Łatwa Fizyka — Materiały Pomocnicze dla Klasy 7 Strona 9
+
+6. Co się stanie z masą i ciężarem Jasia, gdy poleci na Księżyc, gdzie grawitacja jest
+słabsza?
+A) Jego masa i ciężar się nie zmienią.
+B) Jego masa zmaleje, a ciężar wzrośnie.
+C) Jego masa wzrośnie, ale ciężar spadnie do zera.
+D) Jego masa się nie zmieni, ale jego ciężar będzie znacznie mniejszy.
+
+7. Woreczek klocków waży 1300 gramów (g). Jak zamienić tę wartość na kilogramy (kg)?
+A) Podzielić przez 1000 (wynik: 1,3 kg)
+B) Pomnożyć przez 1000 (wynik: 1300000 kg)
+C) Podzielić przez 100 (wynik: 13 kg)
+D) Pomnożyć przez 10 (wynik: 13000 kg)
+
+8. Klockowa ciężarówka ma masę 4 ton (t). Ile to kilogramów?
+A) 40 kg
+B) 400 kg
+C) 4000 kg
+D) 40000 kg
+
+9. Jakiego wzoru używamy, aby obliczyć masę przedmiotu (m), znając jego ciężar (F) na
+Ziemi?
+A) m = F × g
+B) m = F : g
+C) m = g : F
+D) m = F + g
+
+Łatwa Fizyka — Materiały Pomocnicze dla Klasy 7 Strona 10
+
+10. Klockowy motocykl jest przyciągany przez Ziemię z siłą 2500 N. Jaka jest jego masa w
+kilogramach?
+A) 25 kg
+B) 250 kg
+C) 2500 kg
+D) 25000 kg
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 2 / L07: Lekcja 07 — sekwencja filmów i obrazków pomocniczych
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/07/01/ScreenRecorderProject65.mkv
+   Nowa ścieżka: dzał 2/07/01/D2_L07_01_VIDEO_ScreenRecorderProject65.mkv
+   Nowa nazwa: D2_L07_01_VIDEO_ScreenRecorderProject65.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L07_01_VIDEO_ScreenRecorderProject65
+2. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/07/02/ScreenRecorderProject68.mkv
+   Nowa ścieżka: dzał 2/07/02/D2_L07_02_VIDEO_ScreenRecorderProject68.mkv
+   Nowa nazwa: D2_L07_02_VIDEO_ScreenRecorderProject68.mkv
+   Folder zasobu: 02
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L07_02_VIDEO_ScreenRecorderProject68
+3. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/07/03/1.png
+   Nowa ścieżka: dzał 2/07/03/D2_L07_03_IMAGE_1.png
+   Nowa nazwa: D2_L07_03_IMAGE_1.png
+   Folder zasobu: 03
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+4. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/07/04/ScreenRecorderProject69.mkv
+   Nowa ścieżka: dzał 2/07/04/D2_L07_04_VIDEO_ScreenRecorderProject69.mkv
+   Nowa nazwa: D2_L07_04_VIDEO_ScreenRecorderProject69.mkv
+   Folder zasobu: 04
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L07_04_VIDEO_ScreenRecorderProject69
+5. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/07/05/1.png
+   Nowa ścieżka: dzał 2/07/05/D2_L07_05_IMAGE_1.png
+   Nowa nazwa: D2_L07_05_IMAGE_1.png
+   Folder zasobu: 05
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+6. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/07/06/ScreenRecorderProject70.mkv
+   Nowa ścieżka: dzał 2/07/06/D2_L07_06_VIDEO_ScreenRecorderProject70.mkv
+   Nowa nazwa: D2_L07_06_VIDEO_ScreenRecorderProject70.mkv
+   Folder zasobu: 06
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L07_06_VIDEO_ScreenRecorderProject70
+7. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/07/07/1.png
+   Nowa ścieżka: dzał 2/07/07/D2_L07_07_IMAGE_1.png
+   Nowa nazwa: D2_L07_07_IMAGE_1.png
+   Folder zasobu: 07
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+8. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/07/09/ScreenRecorderProject72.mkv
+   Nowa ścieżka: dzał 2/07/09/D2_L07_09_VIDEO_ScreenRecorderProject72.mkv
+   Nowa nazwa: D2_L07_09_VIDEO_ScreenRecorderProject72.mkv
+   Folder zasobu: 09
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L07_09_VIDEO_ScreenRecorderProject72
+9. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/07/10/1.png
+   Nowa ścieżka: dzał 2/07/10/D2_L07_10_IMAGE_1.png
+   Nowa nazwa: D2_L07_10_IMAGE_1.png
+   Folder zasobu: 10
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+10. [FILM DO BUNNY]
+   Stara ścieżka: dzał 2/07/11/ScreenRecorderProject73.mkv
+   Nowa ścieżka: dzał 2/07/11/D2_L07_11_VIDEO_ScreenRecorderProject73.mkv
+   Nowa nazwa: D2_L07_11_VIDEO_ScreenRecorderProject73.mkv
+   Folder zasobu: 11
+   Do wrzucenia: Bunny Stream, kolekcja D2 (f71eefa7-ff0f-4f64-8bb5-54ce7977437f); sugerowany tytuł: D2_L07_11_VIDEO_ScreenRecorderProject73
+11. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/07/12/1.png
+   Nowa ścieżka: dzał 2/07/12/D2_L07_12_IMAGE_1.png
+   Nowa nazwa: D2_L07_12_IMAGE_1.png
+   Folder zasobu: 12
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D2_L07_01_VIDEO_ScreenRecorderProject65.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+   - D2_L07_02_VIDEO_ScreenRecorderProject68.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+   - D2_L07_04_VIDEO_ScreenRecorderProject69.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+   - D2_L07_06_VIDEO_ScreenRecorderProject70.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+   - D2_L07_09_VIDEO_ScreenRecorderProject72.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+   - D2_L07_11_VIDEO_ScreenRecorderProject73.mkv  -> Bunny collection f71eefa7-ff0f-4f64-8bb5-54ce7977437f
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D2_L07_03_IMAGE_1.png
+   - D2_L07_05_IMAGE_1.png
+   - D2_L07_07_IMAGE_1.png
+   - D2_L07_10_IMAGE_1.png
+   - D2_L07_12_IMAGE_1.png
+3. Brak quizu TXT w tej lekcji.
+
+----------------------------------------------------------------------------------------
+Dział 2 / L08: Lekcja 08 — gęstość i objętość — quiz
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [OBRAZEK / PNG]
+   Stara ścieżka: dzał 2/08/odp.png
+   Nowa ścieżka: dzał 2/08/D2_L08_ROOT_IMAGE_odp.png
+   Nowa nazwa: D2_L08_ROOT_IMAGE_odp.png
+   Folder zasobu: ROOT
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+2. [QUIZ / TEST]
+   Stara ścieżka: dzał 2/08/Nowy dokument tekstowy.TXT
+   Nowa ścieżka: dzał 2/08/D2_L08_ROOT_QUIZ_Nowy_dokument_tekstowy.txt
+   Nowa nazwa: D2_L08_ROOT_QUIZ_Nowy_dokument_tekstowy.txt
+   Folder zasobu: ROOT
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Brak filmu w tej lekcji według spisu — lekcja może być quizem/obrazem albo materiałem uzupełniającym.
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D2_L08_ROOT_IMAGE_odp.png
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D2_L08_ROOT_QUIZ_Nowy_dokument_tekstowy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D2_L08_ROOT_QUIZ_Nowy_dokument_tekstowy.txt
+Oryginał: dzał 2/08/Nowy dokument tekstowy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Co oznacza sytuacja, gdy na wadze szalkowej mały odważnik i duża sterta klocków są na tym samym poziomie?
+A) Mają różną masę, ale taką samą objętość
+B) Mają taką samą masę, ale różną objętość
+C) Szary odważnik ma mniejszą gęstość niż klocki
+D) Kolorowe klocki mają większą masę niż odważnik
+
+2. Jakiego wzoru używamy do obliczenia gęstości?
+A) d = m * V
+B) d = V / m
+C) d = m / V
+D) m = d / V
+
+3. Złota zasada gęstości mówi, że jeśli mamy przedmioty o dokładnie takich samych rozmiarach (objętości), to:
+A) Ten o najmniejszej gęstości będzie miał największą masę
+B) Ten o największej objętości będzie najcięższy
+C) Ten zbudowany z największej liczby elementów będzie najlżejszy
+D) Ten o największej gęstości zawsze będzie miał największą masę
+
+4. Dlaczego blok z miedzi waży więcej (1,78 kg) niż blok z aluminium (0,54 kg), mimo że zajmują tyle samo miejsca?
+A) Ponieważ miedź ma mniejszą gęstość niż aluminium
+B) Ponieważ miedź ma większą gęstość niż aluminium
+C) Ponieważ miedź zajmuje więcej miejsca
+D) Ponieważ aluminium jest "ciaśniej upakowane"
+
+5. W jaki sposób zamieniamy centymetry sześcienne na metry sześcienne?
+A) Mnożymy wartość przez tysiąc
+B) Dzielimy wartość przez tysiąc
+C) Mnożymy wartość przez milion
+D) Dzielimy wartość przez milion
+
+6. Jeden decymetr sześcienny to dokładnie ta sama objętość co:
+A) 1 metr sześcienny
+B) 1 centymetr sześcienny
+C) 1 litr
+D) 1000 litrów
+
+7. Jak zamienić gęstość podaną w małych jednostkach (g/cm3) na duże jednostki (kg/m3)?
+A) Należy podzielić wynik przez 100
+B) Należy pomnożyć wynik przez 100
+C) Należy podzielić wynik przez 1000
+D) Należy pomnożyć wynik przez 1000
+
+8. Jak najłatwiej zmierzyć objętość przedmiotu o nieregularnym, dziwnym kształcie?
+A) Mierząc linijką jego najdłuższe boki
+B) Używając metody wypierania cieczy (np. w menzurce)
+C) Ważąc go na wadze i mnożąc wynik przez 1000
+D) Obliczając objętość naczynia, w którym się znajduje
+
+9. Jak obliczyć objętość klockowej budowli w kształcie prostopadłościanu?
+A) Dodając do siebie długość, szerokość i wysokość
+B) Mnożąc przez siebie długość, szerokość i wysokość
+C) Dzieląc długość przez szerokość
+D) Mnożąc długość przez szerokość i dodając wysokość
+
+10. Dlaczego gęstość cukru obliczona w szklance była niższa niż oficjalna gęstość samej sacharozy?
+A) Ponieważ waga użyta w eksperymencie była zepsuta
+B) Ponieważ źle odczytano objętość szklanki
+C) Ponieważ woda wyparła część cukru z naczynia
+D) Ponieważ obliczono gęstość nasypową, uwzględniającą puste, wypełnione powietrzem przestrzenie między kryształkami
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+########################################################################################
+DZIAŁ 3 — kolekcja Bunny: b98b4a50-1458-4136-bd02-f3368696160d
+########################################################################################
+
+----------------------------------------------------------------------------------------
+Dział 3 / L00: Lekcja 00 — materiały wprowadzające / sekwencja filmów i obrazków
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/0/01/ScreenRecorderProject89.mkv
+   Nowa ścieżka: dzial 3/0/01/D3_L00_01_VIDEO_ScreenRecorderProject89.mkv
+   Nowa nazwa: D3_L00_01_VIDEO_ScreenRecorderProject89.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L00_01_VIDEO_ScreenRecorderProject89
+2. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/0/02/1.png
+   Nowa ścieżka: dzial 3/0/02/D3_L00_02_IMAGE_1.png
+   Nowa nazwa: D3_L00_02_IMAGE_1.png
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+3. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/0/03/ScreenRecorderProject90.mkv
+   Nowa ścieżka: dzial 3/0/03/D3_L00_03_VIDEO_ScreenRecorderProject90.mkv
+   Nowa nazwa: D3_L00_03_VIDEO_ScreenRecorderProject90.mkv
+   Folder zasobu: 03
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L00_03_VIDEO_ScreenRecorderProject90
+4. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/0/04/1.png
+   Nowa ścieżka: dzial 3/0/04/D3_L00_04_IMAGE_1.png
+   Nowa nazwa: D3_L00_04_IMAGE_1.png
+   Folder zasobu: 04
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+5. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/0/05/ScreenRecorderProject91.mkv
+   Nowa ścieżka: dzial 3/0/05/D3_L00_05_VIDEO_ScreenRecorderProject91.mkv
+   Nowa nazwa: D3_L00_05_VIDEO_ScreenRecorderProject91.mkv
+   Folder zasobu: 05
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L00_05_VIDEO_ScreenRecorderProject91
+6. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/0/06/1.png
+   Nowa ścieżka: dzial 3/0/06/D3_L00_06_IMAGE_1.png
+   Nowa nazwa: D3_L00_06_IMAGE_1.png
+   Folder zasobu: 06
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+7. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/0/07/ScreenRecorderProject92.mkv
+   Nowa ścieżka: dzial 3/0/07/D3_L00_07_VIDEO_ScreenRecorderProject92.mkv
+   Nowa nazwa: D3_L00_07_VIDEO_ScreenRecorderProject92.mkv
+   Folder zasobu: 07
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L00_07_VIDEO_ScreenRecorderProject92
+8. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/0/08/1.png
+   Nowa ścieżka: dzial 3/0/08/D3_L00_08_IMAGE_1.png
+   Nowa nazwa: D3_L00_08_IMAGE_1.png
+   Folder zasobu: 08
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D3_L00_01_VIDEO_ScreenRecorderProject89.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L00_03_VIDEO_ScreenRecorderProject90.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L00_05_VIDEO_ScreenRecorderProject91.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L00_07_VIDEO_ScreenRecorderProject92.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D3_L00_02_IMAGE_1.png
+   - D3_L00_04_IMAGE_1.png
+   - D3_L00_06_IMAGE_1.png
+   - D3_L00_08_IMAGE_1.png
+3. Brak quizu TXT w tej lekcji.
+
+----------------------------------------------------------------------------------------
+Dział 3 / L01: Lekcja 01 — ciśnienie i siła nacisku — quiz
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/01/01/ScreenRecorderProject77.mkv
+   Nowa ścieżka: dzial 3/01/01/D3_L01_01_VIDEO_ScreenRecorderProject77.mkv
+   Nowa nazwa: D3_L01_01_VIDEO_ScreenRecorderProject77.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L01_01_VIDEO_ScreenRecorderProject77
+2. [QUIZ / TEST]
+   Stara ścieżka: dzial 3/01/02/Nowy dokument tekstowy.TXT
+   Nowa ścieżka: dzial 3/01/02/D3_L01_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Nowa nazwa: D3_L01_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+3. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/01/03/ScreenRecorderProject84.mkv
+   Nowa ścieżka: dzial 3/01/03/D3_L01_03_VIDEO_ScreenRecorderProject84.mkv
+   Nowa nazwa: D3_L01_03_VIDEO_ScreenRecorderProject84.mkv
+   Folder zasobu: 03
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L01_03_VIDEO_ScreenRecorderProject84
+4. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/01/04/1.png
+   Nowa ścieżka: dzial 3/01/04/D3_L01_04_IMAGE_1.png
+   Nowa nazwa: D3_L01_04_IMAGE_1.png
+   Folder zasobu: 04
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+5. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/01/05/ScreenRecorderProject85.mkv
+   Nowa ścieżka: dzial 3/01/05/D3_L01_05_VIDEO_ScreenRecorderProject85.mkv
+   Nowa nazwa: D3_L01_05_VIDEO_ScreenRecorderProject85.mkv
+   Folder zasobu: 05
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L01_05_VIDEO_ScreenRecorderProject85
+6. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/01/06/1.png
+   Nowa ścieżka: dzial 3/01/06/D3_L01_06_IMAGE_1.png
+   Nowa nazwa: D3_L01_06_IMAGE_1.png
+   Folder zasobu: 06
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+7. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/01/07/ScreenRecorderProject86.mkv
+   Nowa ścieżka: dzial 3/01/07/D3_L01_07_VIDEO_ScreenRecorderProject86.mkv
+   Nowa nazwa: D3_L01_07_VIDEO_ScreenRecorderProject86.mkv
+   Folder zasobu: 07
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L01_07_VIDEO_ScreenRecorderProject86
+8. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/01/08/1.png
+   Nowa ścieżka: dzial 3/01/08/D3_L01_08_IMAGE_1.png
+   Nowa nazwa: D3_L01_08_IMAGE_1.png
+   Folder zasobu: 08
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D3_L01_01_VIDEO_ScreenRecorderProject77.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L01_03_VIDEO_ScreenRecorderProject84.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L01_05_VIDEO_ScreenRecorderProject85.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L01_07_VIDEO_ScreenRecorderProject86.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D3_L01_04_IMAGE_1.png
+   - D3_L01_06_IMAGE_1.png
+   - D3_L01_08_IMAGE_1.png
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D3_L01_02_QUIZ_Nowy_dokument_tekstowy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D3_L01_02_QUIZ_Nowy_dokument_tekstowy.txt
+Oryginał: dzial 3/01/02/Nowy dokument tekstowy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pytanie 1. Pod jakim kątem siła nacisku ZAWSZE działa na powierzchnię?
+A) Pod kątem ostrym
+B) Równolegle do powierzchni
+C) Pod kątem prostym (prostopadle, 90 stopni)
+
+Pytanie 2. Zgodnie ze wzorem na ciśnienie (p = F/S), dlaczego nadepnięcie boso na mały klocek tak bardzo boli w porównaniu do stanięcia na dużej płytce?
+A) Ponieważ klocek w niewytłumaczalny sposób zwiększa naszą siłę grawitacji.
+B) Ponieważ nasza siła dzieli się przez bardzo małą powierzchnię, co generuje ogromne ciśnienie.
+C) Ponieważ duża płytka zmniejsza naszą masę, gdy na niej stoimy.
+
+Pytanie 3. Co według poznanej na lekcji zasady oznacza stwierdzenie, że dane narzędzie (np. igła, nóż lub kły lisa) jest "ostre"?
+A) Oznacza to, że narzędzie ma zminimalizowaną, bardzo małą powierzchnię styku.
+B) Oznacza to, że narzędzie potrafi wygenerować z siebie dodatkową siłę nacisku.
+C) Oznacza to, że działa ono z siłą równoległą do podłoża.
+
+Pytanie 4. Fizycy pakują Paskale w większe zestawy, aby łatwiej było je liczyć. Ile pojedynczych Paskali (klocków) znajdziemy w jednym Megapaskalu (MPa)?
+A) Sto (100)
+B) Tysiąc (1 000)
+C) Milion (1 000 000)
+
+Pytanie 5. Jak brzmi najważniejsza reguła ("cheat code") zamiany małych centymetrów kwadratowych na duże metry kwadratowe?
+A) Należy podzielić liczbę przez 100 (przesunąć przecinek o 2 miejsca w lewo).
+B) Należy pomnożyć liczbę przez 1 000 (dodać 3 zera z prawej strony).
+C) Należy podzielić liczbę przez 10 000 (przesunąć przecinek o 4 miejsca w lewo).
+
+KLUCZ ODPOWIEDZI:
+Pytanie 1 - C
+Pytanie 2 - B
+Pytanie 3 - A
+Pytanie 4 - C
+Pytanie 5 - C
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 3 / L02: Lekcja 02 — parcie, ciśnienie hydrostatyczne i atmosferyczne — quiz
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/02/01/ScreenRecorderProject80.mkv
+   Nowa ścieżka: dzial 3/02/01/D3_L02_01_VIDEO_ScreenRecorderProject80.mkv
+   Nowa nazwa: D3_L02_01_VIDEO_ScreenRecorderProject80.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L02_01_VIDEO_ScreenRecorderProject80
+2. [QUIZ / TEST]
+   Stara ścieżka: dzial 3/02/02/Nowy dokument tekstowy.TXT
+   Nowa ścieżka: dzial 3/02/02/D3_L02_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Nowa nazwa: D3_L02_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+3. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/02/03/ScreenRecorderProject84.mkv
+   Nowa ścieżka: dzial 3/02/03/D3_L02_03_VIDEO_ScreenRecorderProject84.mkv
+   Nowa nazwa: D3_L02_03_VIDEO_ScreenRecorderProject84.mkv
+   Folder zasobu: 03
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L02_03_VIDEO_ScreenRecorderProject84
+4. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/02/04/1.png
+   Nowa ścieżka: dzial 3/02/04/D3_L02_04_IMAGE_1.png
+   Nowa nazwa: D3_L02_04_IMAGE_1.png
+   Folder zasobu: 04
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+5. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/02/05/ScreenRecorderProject85.mkv
+   Nowa ścieżka: dzial 3/02/05/D3_L02_05_VIDEO_ScreenRecorderProject85.mkv
+   Nowa nazwa: D3_L02_05_VIDEO_ScreenRecorderProject85.mkv
+   Folder zasobu: 05
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L02_05_VIDEO_ScreenRecorderProject85
+6. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/02/06/1.png
+   Nowa ścieżka: dzial 3/02/06/D3_L02_06_IMAGE_1.png
+   Nowa nazwa: D3_L02_06_IMAGE_1.png
+   Folder zasobu: 06
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+7. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/02/07/ScreenRecorderProject86.mkv
+   Nowa ścieżka: dzial 3/02/07/D3_L02_07_VIDEO_ScreenRecorderProject86.mkv
+   Nowa nazwa: D3_L02_07_VIDEO_ScreenRecorderProject86.mkv
+   Folder zasobu: 07
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L02_07_VIDEO_ScreenRecorderProject86
+8. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/02/08/1.png
+   Nowa ścieżka: dzial 3/02/08/D3_L02_08_IMAGE_1.png
+   Nowa nazwa: D3_L02_08_IMAGE_1.png
+   Folder zasobu: 08
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D3_L02_01_VIDEO_ScreenRecorderProject80.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L02_03_VIDEO_ScreenRecorderProject84.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L02_05_VIDEO_ScreenRecorderProject85.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L02_07_VIDEO_ScreenRecorderProject86.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D3_L02_04_IMAGE_1.png
+   - D3_L02_06_IMAGE_1.png
+   - D3_L02_08_IMAGE_1.png
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D3_L02_02_QUIZ_Nowy_dokument_tekstowy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D3_L02_02_QUIZ_Nowy_dokument_tekstowy.txt
+Oryginał: dzial 3/02/02/Nowy dokument tekstowy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pytanie 1. Jak fizycy nazywają "siłę nacisku" w przypadku cieczy i gazów (np. gdy woda naciska na dno akwarium)?
+A. Parcie
+B. Grawitacja
+C. Wypór
+
+Pytanie 2. Od czego zależy ciśnienie hydrostatyczne (wewnątrz cieczy) zgodnie ze wzorem p = d * g * h omówionym w tekście?
+A. Od kształtu naczynia i szerokości dna
+B. Od objętości i całkowitej masy płynu w zbiorniku
+C. Od gęstości cieczy, grawitacji i głębokości (wysokości słupa wody)
+
+Pytanie 3. Na czym polega "paradoks hydrostatyczny" pokazany na przykładzie trzech akwariów o różnym kształcie?
+A. Ciśnienie na dnie jest największe w najszerszym akwarium, bo znajduje się tam najwięcej wody.
+B. Szerokość i kształt naczynia nie mają znaczenia - przy tej samej głębokości ciśnienie na dnie każdego z nich jest identyczne.
+C. Woda wywiera największe ciśnienie wyłącznie w naczyniach zwężających się ku górze.
+
+Pytanie 4. Mamy dwie tuby wypełnione do tej samej wysokości: jedną wodą, a drugą ciężką rtęcią. Dlaczego rtęć wywiera większe ciśnienie na dno?
+A. Ponieważ rtęć ma znacznie większą gęstość w porównaniu do lekkiej wody.
+B. Ponieważ na rtęć działa silniejsza grawitacja ziemska.
+C. Ponieważ cząsteczki rtęci są mniejsze i ciaśniej ułożone na dnie.
+
+Pytanie 5. Jak zachowuje się ciśnienie atmosferyczne ("ocean powietrza"), gdy wspinamy się wysoko w góry, np. na Mount Everest?
+A. Ciśnienie rośnie, bo powietrze wysoko w górach jest bardziej upakowane.
+B. Ciśnienie pozostaje bez zmian, wszędzie na Ziemi jest dokładnie takie samo.
+C. Ciśnienie maleje (im wyżej, tym niższe ciśnienie), ponieważ słup powietrza nad naszymi głowami jest po prostu krótszy.
+
+KLUCZ ODPOWIEDZI:
+
+1 A
+
+2 C
+
+3 B
+
+4 A
+
+5 C
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 3 / L03: Lekcja 03 — prasa hydrauliczna i prawo Pascala — quiz
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/03/01/ScreenRecorderProject80.mkv
+   Nowa ścieżka: dzial 3/03/01/D3_L03_01_VIDEO_ScreenRecorderProject80.mkv
+   Nowa nazwa: D3_L03_01_VIDEO_ScreenRecorderProject80.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L03_01_VIDEO_ScreenRecorderProject80
+2. [QUIZ / TEST]
+   Stara ścieżka: dzial 3/03/02/Nowy dokument tekstowy.TXT
+   Nowa ścieżka: dzial 3/03/02/D3_L03_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Nowa nazwa: D3_L03_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+3. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/03/03/ScreenRecorderProject84.mkv
+   Nowa ścieżka: dzial 3/03/03/D3_L03_03_VIDEO_ScreenRecorderProject84.mkv
+   Nowa nazwa: D3_L03_03_VIDEO_ScreenRecorderProject84.mkv
+   Folder zasobu: 03
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L03_03_VIDEO_ScreenRecorderProject84
+4. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/03/05/1.png
+   Nowa ścieżka: dzial 3/03/05/D3_L03_05_IMAGE_1.png
+   Nowa nazwa: D3_L03_05_IMAGE_1.png
+   Folder zasobu: 05
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+5. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/03/06/ScreenRecorderProject85.mkv
+   Nowa ścieżka: dzial 3/03/06/D3_L03_06_VIDEO_ScreenRecorderProject85.mkv
+   Nowa nazwa: D3_L03_06_VIDEO_ScreenRecorderProject85.mkv
+   Folder zasobu: 06
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L03_06_VIDEO_ScreenRecorderProject85
+6. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/03/07/1.png
+   Nowa ścieżka: dzial 3/03/07/D3_L03_07_IMAGE_1.png
+   Nowa nazwa: D3_L03_07_IMAGE_1.png
+   Folder zasobu: 07
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+7. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/03/08w/ScreenRecorderProject86.mkv
+   Nowa ścieżka: dzial 3/03/08w/D3_L03_08W_VIDEO_ScreenRecorderProject86.mkv
+   Nowa nazwa: D3_L03_08W_VIDEO_ScreenRecorderProject86.mkv
+   Folder zasobu: 08W
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L03_08W_VIDEO_ScreenRecorderProject86
+8. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/03/08w/ScreenRecorderProject87.mkv
+   Nowa ścieżka: dzial 3/03/08w/D3_L03_08W_VIDEO_ScreenRecorderProject87.mkv
+   Nowa nazwa: D3_L03_08W_VIDEO_ScreenRecorderProject87.mkv
+   Folder zasobu: 08W
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L03_08W_VIDEO_ScreenRecorderProject87
+9. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/03/09w/1.png
+   Nowa ścieżka: dzial 3/03/09w/D3_L03_09W_IMAGE_1.png
+   Nowa nazwa: D3_L03_09W_IMAGE_1.png
+   Folder zasobu: 09W
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+10. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/03/10/ScreenRecorderProject87.mkv
+   Nowa ścieżka: dzial 3/03/10/D3_L03_10_VIDEO_ScreenRecorderProject87.mkv
+   Nowa nazwa: D3_L03_10_VIDEO_ScreenRecorderProject87.mkv
+   Folder zasobu: 10
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L03_10_VIDEO_ScreenRecorderProject87
+11. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/03/11/1.png
+   Nowa ścieżka: dzial 3/03/11/D3_L03_11_IMAGE_1.png
+   Nowa nazwa: D3_L03_11_IMAGE_1.png
+   Folder zasobu: 11
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D3_L03_01_VIDEO_ScreenRecorderProject80.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L03_03_VIDEO_ScreenRecorderProject84.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L03_06_VIDEO_ScreenRecorderProject85.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L03_08W_VIDEO_ScreenRecorderProject86.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L03_08W_VIDEO_ScreenRecorderProject87.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L03_10_VIDEO_ScreenRecorderProject87.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D3_L03_05_IMAGE_1.png
+   - D3_L03_07_IMAGE_1.png
+   - D3_L03_09W_IMAGE_1.png
+   - D3_L03_11_IMAGE_1.png
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D3_L03_02_QUIZ_Nowy_dokument_tekstowy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D3_L03_02_QUIZ_Nowy_dokument_tekstowy.txt
+Oryginał: dzial 3/03/02/Nowy dokument tekstowy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pytanie 1. Jaka maszyna opisana na początku tekstu działa jak "super moc" i pozwala podnieść wielki ciężar używając do tego niewielkiej siły?
+A) Winda osobowa
+B) Prasa hydrauliczna
+C) Turbina wodna
+
+Pytanie 2. Co się dzieje z uwięzioną wewnątrz cieczą, gdy z zewnątrz naciśniemy mały tłok?
+A) Ciśnienie rośnie dokładnie tak samo w całej objętości cieczy.
+B) Ciśnienie maleje na samym dnie urządzenia.
+C) Ciśnienie rośnie tylko w miejscu, gdzie znajduje się mały tłok.
+
+Pytanie 3. Zgodnie ze wzorem z tekstu, jaka jest relacja między ciśnieniem pod małym tłokiem (p1) a ciśnieniem pod dużym tłokiem (p2)?
+A) Ciśnienie pod małym tłokiem jest dużo większe (p1 jest większe).
+B) Ciśnienie pod dużym tłokiem jest dużo większe (p2 jest większe).
+C) Ciśnienie po obu stronach jest po prostu identyczne (p1 równa się p2).
+
+Pytanie 4. Jak brzmi najważniejsza zasada z "czerwonego napisu na samym dole", decydująca o użyciu siły w prasie hydraulicznej?
+A) Mniejsza powierzchnia potrzebuje mniejszej siły.
+B) Większa powierzchnia potrzebuje mniejszej siły.
+C) Wielkość powierzchni nie ma absolutnie żadnego znaczenia.
+
+Pytanie 5. Jakie trzy maszyny ułatwiające codzienne funkcjonowanie (wykorzystujące układ hydrauliczny) zostały wymienione na drugim slajdzie?
+A) Strzykawka, ciśnieniomierz i waga samochodowa.
+B) Hamulec hydrauliczny, podnośnik hydrauliczny i prasa hydrauliczna.
+C) Amortyzator rowerowy, silnik spalinowy i wycieraczki samochodowe.
+
+Klucz odpowiedzi:
+
+1 B
+
+2 A
+
+3 C
+
+4 A
+
+5 B
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 3 / L04: Lekcja 04 — siła wyporu i prawo Archimedesa — quiz
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/04/ScreenRecorderProject83.mkv
+   Nowa ścieżka: dzial 3/04/D3_L04_ROOT_VIDEO_ScreenRecorderProject83.mkv
+   Nowa nazwa: D3_L04_ROOT_VIDEO_ScreenRecorderProject83.mkv
+   Folder zasobu: ROOT
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L04_ROOT_VIDEO_ScreenRecorderProject83
+   Uwaga: film leży bezpośrednio w folderze lekcji. Sprawdź, czy nie jest kopią filmu z podfolderu 01; zwykle nie trzeba go dublować na stronie.
+2. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/04/01/ScreenRecorderProject83.mkv
+   Nowa ścieżka: dzial 3/04/01/D3_L04_01_VIDEO_ScreenRecorderProject83.mkv
+   Nowa nazwa: D3_L04_01_VIDEO_ScreenRecorderProject83.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L04_01_VIDEO_ScreenRecorderProject83
+3. [QUIZ / TEST]
+   Stara ścieżka: dzial 3/04/02/Nowy dokument tekstowy.TXT
+   Nowa ścieżka: dzial 3/04/02/D3_L04_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Nowa nazwa: D3_L04_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+4. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/04/03/ScreenRecorderProject88.mkv
+   Nowa ścieżka: dzial 3/04/03/D3_L04_03_VIDEO_ScreenRecorderProject88.mkv
+   Nowa nazwa: D3_L04_03_VIDEO_ScreenRecorderProject88.mkv
+   Folder zasobu: 03
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L04_03_VIDEO_ScreenRecorderProject88
+5. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/04/04/1.png
+   Nowa ścieżka: dzial 3/04/04/D3_L04_04_IMAGE_1.png
+   Nowa nazwa: D3_L04_04_IMAGE_1.png
+   Folder zasobu: 04
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+6. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/04/05/ScreenRecorderProject88.mkv
+   Nowa ścieżka: dzial 3/04/05/D3_L04_05_VIDEO_ScreenRecorderProject88.mkv
+   Nowa nazwa: D3_L04_05_VIDEO_ScreenRecorderProject88.mkv
+   Folder zasobu: 05
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L04_05_VIDEO_ScreenRecorderProject88
+7. [OBRAZEK / PNG]
+   Stara ścieżka: dzial 3/04/06/1.png
+   Nowa ścieżka: dzial 3/04/06/D3_L04_06_IMAGE_1.png
+   Nowa nazwa: D3_L04_06_IMAGE_1.png
+   Folder zasobu: 06
+   Do wrzucenia: Strona/CMS/media/public assets jako obrazek pomocniczy do tej lekcji; plik jest w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D3_L04_ROOT_VIDEO_ScreenRecorderProject83.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L04_01_VIDEO_ScreenRecorderProject83.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L04_03_VIDEO_ScreenRecorderProject88.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L04_05_VIDEO_ScreenRecorderProject88.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+2. Obrazki pomocnicze podpinaj przy odpowiednim miejscu lekcji:
+   - D3_L04_04_IMAGE_1.png
+   - D3_L04_06_IMAGE_1.png
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D3_L04_02_QUIZ_Nowy_dokument_tekstowy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D3_L04_02_QUIZ_Nowy_dokument_tekstowy.txt
+Oryginał: dzial 3/04/02/Nowy dokument tekstowy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pytanie 1. Jaki grecki uczony opisał zjawisko wyrywania się do góry przedmiotów wciśniętych pod wodę, nazywane dzisiaj siłą wyporu?
+A) Arystoteles
+B) Sokrates
+C) Archimedes
+
+Pytanie 2. Zgodnie z klockowym eksperymentem, jeśli woda wyparta z akwarium przez zanurzony klocek waży dokładnie 4 niutony, to z jaką siłą woda wypycha ten klocek w górę?
+A) Z mniejszą siłą.
+B) Z dokładnie taką samą siłą (4 niutony).
+C) Z dużo większą siłą.
+
+Pytanie 3. Co we wzorze na siłę wyporu (Fw = d * g * V) oznacza duża litera V?
+A) Objętość tylko tej części klocka, która faktycznie jest zanurzona w wodzie.
+B) Całkowitą objętość akwarium, w którym przeprowadzamy eksperyment.
+C) Prędkość, z jaką klocek uderza w powierzchnię wody.
+
+Pytanie 4. Dlaczego jajko w klockowym eksperymencie opadło na dno w zwykłej wodzie, a w słodzonej/słonej unosiło się na powierzchni?
+A) Słona woda wyłącza działanie grawitacji.
+B) Słona woda ma mniejszą gęstość, więc przedmioty stają się w niej lżejsze.
+C) Słona woda ma większą gęstość, a zasada mówi jasno: im większa gęstość, tym większa siła wyporu.
+
+Pytanie 5. Jakie słynne morze podano w tekście jako przykład miejsca, w którym woda jest tak gęsta i słona, że można położyć się na jej powierzchni jak na materacu?
+A) Morze Martwe
+B) Morze Bałtyckie
+C) Morze Śródziemne
+
+Klucz odpowiedzi:
+1 - C
+2 - B
+3 - A
+4 - C
+5 - A
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+----------------------------------------------------------------------------------------
+Dział 3 / L05: Lekcja 05 — pływanie, tonięcie i gęstość — quiz
+----------------------------------------------------------------------------------------
+Pliki w tej lekcji:
+1. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/05/ScreenRecorderProject84.mkv
+   Nowa ścieżka: dzial 3/05/D3_L05_ROOT_VIDEO_ScreenRecorderProject84.mkv
+   Nowa nazwa: D3_L05_ROOT_VIDEO_ScreenRecorderProject84.mkv
+   Folder zasobu: ROOT
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L05_ROOT_VIDEO_ScreenRecorderProject84
+   Uwaga: film leży bezpośrednio w folderze lekcji. Sprawdź, czy nie jest kopią filmu z podfolderu 01; zwykle nie trzeba go dublować na stronie.
+2. [FILM DO BUNNY]
+   Stara ścieżka: dzial 3/05/01/ScreenRecorderProject84.mkv
+   Nowa ścieżka: dzial 3/05/01/D3_L05_01_VIDEO_ScreenRecorderProject84.mkv
+   Nowa nazwa: D3_L05_01_VIDEO_ScreenRecorderProject84.mkv
+   Folder zasobu: 01
+   Do wrzucenia: Bunny Stream, kolekcja D3 (b98b4a50-1458-4136-bd02-f3368696160d); sugerowany tytuł: D3_L05_01_VIDEO_ScreenRecorderProject84
+3. [QUIZ / TEST]
+   Stara ścieżka: dzial 3/05/02/Nowy dokument tekstowy.TXT
+   Nowa ścieżka: dzial 3/05/02/D3_L05_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Nowa nazwa: D3_L05_02_QUIZ_Nowy_dokument_tekstowy.txt
+   Folder zasobu: 02
+   Do wrzucenia: Strona/CMS jako quiz przypisany do tej lekcji; plik jest też w paczce bez filmów.
+
+Jak to ułożyć na stronie:
+1. Najpierw dodaj filmy w kolejności folderów zasobu:
+   - D3_L05_ROOT_VIDEO_ScreenRecorderProject84.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+   - D3_L05_01_VIDEO_ScreenRecorderProject84.mkv  -> Bunny collection b98b4a50-1458-4136-bd02-f3368696160d
+2. Brak obrazków PNG w tej lekcji.
+3. Quiz przypisz do tej lekcji, najlepiej na końcu po filmie/filmach:
+   - D3_L05_02_QUIZ_Nowy_dokument_tekstowy.txt
+
+PEŁNA TREŚĆ QUIZU:
+Plik quizu: D3_L05_02_QUIZ_Nowy_dokument_tekstowy.txt
+Oryginał: dzial 3/05/02/Nowy dokument tekstowy.TXT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Dlaczego w klockowym akwarium czerwony alkohol znalazł się na samej górze, nad żółtą oliwą i niebieską gliceryną?
+A) Ponieważ ma największą gęstość i jest "najcięższym zawodnikiem".
+B) Ponieważ ma najmniejszą gęstość i jest "najlżejszymi klockami" w zestawie.
+C) Ponieważ jego cząsteczki są upakowane najciaśniej.
+D) Ponieważ działa na niego największa siła grawitacji.
+
+Gdy drewniana kłoda unosi się spokojnie na powierzchni wody, oznacza to, że na naszym "fizycznym ringu":
+A) Działa na nią tylko i wyłącznie siła wyporu.
+B) Siła grawitacji jest znacznie większa od siły wyporu.
+C) Siła grawitacji (ciągnąca w dół) i siła wyporu (pchająca w górę) są sobie idealnie równe (remis).
+D) Woda nie stawia kłodzie żadnego oporu.
+
+Stalowy hantelek tonie i uderza o dno basenu, ponieważ:
+A) Jego gęstość jest mniejsza niż gęstość wody.
+B) Siła wyporu pchająca w górę jest większa od siły grawitacji.
+C) Siła grawitacji ciągnąca w dół jest większa niż siła wyporu (Fg > Fb).
+D) Stalowe klocki są ułożone znacznie luźniej niż cząsteczki wody.
+
+Co musi się stać, aby ciało (np. rybka lub okręt podwodny) idealnie lewitowało w samym środku wody, nie tonąc i nie wypływając na powierzchnię?
+A) Siła grawitacji musi być równa sile wyporu (Fg = Fw).
+B) Ciało musi mieć gęstość znacznie większą od gęstości wody.
+C) Siła grawitacji musi całkowicie zniknąć.
+D) Ciało musi być zbudowane z najcięższych możliwych klocków.
+
+W ramach śledztwa wrzuciliśmy szary głaz do dwóch cieczy. W cieczy o gęstości 1,5 głaz pływał, a w cieczy o gęstości 0,8 zatonął. Jaki z tego wniosek o gęstości głazu?
+A) Gęstość głazu jest na pewno mniejsza niż 0,8.
+B) Gęstość głazu jest na pewno większa niż 1,5.
+C) Gęstość głazu wynosi dokładnie 0.
+D) Gęstość głazu jest większa niż 0,8, ale mniejsza niż 1,5.
+
+Odpowiedzi:
+
+1 B
+
+2 C
+
+3 C
+
+4 A
+
+5 D
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+========================================================================================
+ZAWARTOŚĆ PACZKI BEZ FILMÓW
+========================================================================================
+Archiwum: KURS_QUIZY_I_PNG_BEZ_FILMOW.rar
+Zawiera wyłącznie pliki TXT/PNG/JPG/WEBP/GIF oraz wpisy folderów. Nie zawiera .mkv ani innych filmów.
+
+- dzał 2/0/02/D2_L00_02_IMAGE_1.png
+- dzał 2/0/04/D2_L00_04_IMAGE_1.png
+- dzał 2/0/06/D2_L00_06_IMAGE_1.png
+- dzał 2/0/08/D2_L00_08_IMAGE_1.png
+- dzał 2/02/D2_L02_ROOT_IMAGE_Screenshot_1.png
+- dzał 2/02/D2_L02_ROOT_QUIZ_QIZ.txt
+- dzał 2/04/D2_L04_ROOT_IMAGE_Screenshot_2.png
+- dzał 2/04/D2_L04_ROOT_QUIZ_quzy.txt
+- dzał 2/05/03/D2_L05_03_IMAGE_1.png
+- dzał 2/06/D2_L06_ROOT_IMAGE_Screenshot_1.png
+- dzał 2/06/D2_L06_ROOT_QUIZ_QUZY.txt
+- dzał 2/07/03/D2_L07_03_IMAGE_1.png
+- dzał 2/07/05/D2_L07_05_IMAGE_1.png
+- dzał 2/07/07/D2_L07_07_IMAGE_1.png
+- dzał 2/07/10/D2_L07_10_IMAGE_1.png
+- dzał 2/07/12/D2_L07_12_IMAGE_1.png
+- dzał 2/08/D2_L08_ROOT_IMAGE_odp.png
+- dzał 2/08/D2_L08_ROOT_QUIZ_Nowy_dokument_tekstowy.txt
+- dzial 1/01/02/D1_L01_02_QUIZ_Nowy_dokument_tekstowy.txt
+- dzial 1/02/02/D1_L02_02_QUIZ_Nowy_dokument_tekstowy.txt
+- dzial 1/03/02/D1_L03_02_QUIZ_Nowy_dokument_tekstowy.txt
+- dzial 1/03/04/D1_L03_04_IMAGE_1.png
+- dzial 1/03/06/D1_L03_06_IMAGE_1.png
+- dzial 1/03/08/D1_L03_08_IMAGE_1.png
+- dzial 1/03/10/D1_L03_10_IMAGE_1.png
+- dzial 1/04/02/D1_L04_02_QUIZ_Nowy_dokument_tekstowy.txt
+- dzial 1/05/02/D1_L05_02_QUIZ_Nowy_dokument_tekstowy.txt
+- dzial 3/0/02/D3_L00_02_IMAGE_1.png
+- dzial 3/0/04/D3_L00_04_IMAGE_1.png
+- dzial 3/0/06/D3_L00_06_IMAGE_1.png
+- dzial 3/0/08/D3_L00_08_IMAGE_1.png
+- dzial 3/01/02/D3_L01_02_QUIZ_Nowy_dokument_tekstowy.txt
+- dzial 3/01/04/D3_L01_04_IMAGE_1.png
+- dzial 3/01/06/D3_L01_06_IMAGE_1.png
+- dzial 3/01/08/D3_L01_08_IMAGE_1.png
+- dzial 3/02/02/D3_L02_02_QUIZ_Nowy_dokument_tekstowy.txt
+- dzial 3/02/04/D3_L02_04_IMAGE_1.png
+- dzial 3/02/06/D3_L02_06_IMAGE_1.png
+- dzial 3/02/08/D3_L02_08_IMAGE_1.png
+- dzial 3/03/02/D3_L03_02_QUIZ_Nowy_dokument_tekstowy.txt
+- dzial 3/03/05/D3_L03_05_IMAGE_1.png
+- dzial 3/03/07/D3_L03_07_IMAGE_1.png
+- dzial 3/03/09w/D3_L03_09W_IMAGE_1.png
+- dzial 3/03/11/D3_L03_11_IMAGE_1.png
+- dzial 3/04/02/D3_L04_02_QUIZ_Nowy_dokument_tekstowy.txt
+- dzial 3/04/04/D3_L04_04_IMAGE_1.png
+- dzial 3/04/06/D3_L04_06_IMAGE_1.png
+- dzial 3/05/02/D3_L05_02_QUIZ_Nowy_dokument_tekstowy.txt

@@ -1,0 +1,49 @@
+department_code,department_title,lesson,resource_folder,type,original_path,new_path,new_basename,file_size_bytes
+D1,Dział 1,01,02,QUIZ,dzial 1/01/02/Nowy dokument tekstowy.TXT,dzial 1/01/02/D1_L01_02_QUIZ_Nowy_dokument_tekstowy.txt,D1_L01_02_QUIZ_Nowy_dokument_tekstowy.txt,2306
+D1,Dział 1,02,02,QUIZ,dzial 1/02/02/Nowy dokument tekstowy.TXT,dzial 1/02/02/D1_L02_02_QUIZ_Nowy_dokument_tekstowy.txt,D1_L02_02_QUIZ_Nowy_dokument_tekstowy.txt,1728
+D1,Dział 1,03,02,QUIZ,dzial 1/03/02/Nowy dokument tekstowy.TXT,dzial 1/03/02/D1_L03_02_QUIZ_Nowy_dokument_tekstowy.txt,D1_L03_02_QUIZ_Nowy_dokument_tekstowy.txt,2493
+D1,Dział 1,04,02,QUIZ,dzial 1/04/02/Nowy dokument tekstowy.TXT,dzial 1/04/02/D1_L04_02_QUIZ_Nowy_dokument_tekstowy.txt,D1_L04_02_QUIZ_Nowy_dokument_tekstowy.txt,1910
+D1,Dział 1,05,02,QUIZ,dzial 1/05/02/Nowy dokument tekstowy.TXT,dzial 1/05/02/D1_L05_02_QUIZ_Nowy_dokument_tekstowy.txt,D1_L05_02_QUIZ_Nowy_dokument_tekstowy.txt,2224
+D1,Dział 1,03,04,IMAGE,dzial 1/03/04/1.png,dzial 1/03/04/D1_L03_04_IMAGE_1.png,D1_L03_04_IMAGE_1.png,4574
+D1,Dział 1,03,06,IMAGE,dzial 1/03/06/1.png,dzial 1/03/06/D1_L03_06_IMAGE_1.png,D1_L03_06_IMAGE_1.png,9402
+D1,Dział 1,03,08,IMAGE,dzial 1/03/08/1.png,dzial 1/03/08/D1_L03_08_IMAGE_1.png,D1_L03_08_IMAGE_1.png,9552
+D1,Dział 1,03,10,IMAGE,dzial 1/03/10/1.png,dzial 1/03/10/D1_L03_10_IMAGE_1.png,D1_L03_10_IMAGE_1.png,8546
+D2,Dział 2,02,ROOT,QUIZ,dzał 2/02/QIZ.TXT,dzał 2/02/D2_L02_ROOT_QUIZ_QIZ.txt,D2_L02_ROOT_QUIZ_QIZ.txt,2521
+D2,Dział 2,02,ROOT,IMAGE,dzał 2/02/Screenshot_1.png,dzał 2/02/D2_L02_ROOT_IMAGE_Screenshot_1.png,D2_L02_ROOT_IMAGE_Screenshot_1.png,9179
+D2,Dział 2,04,ROOT,QUIZ,dzał 2/04/quzy.TXT,dzał 2/04/D2_L04_ROOT_QUIZ_quzy.txt,D2_L04_ROOT_QUIZ_quzy.txt,3037
+D2,Dział 2,04,ROOT,IMAGE,dzał 2/04/Screenshot_2.png,dzał 2/04/D2_L04_ROOT_IMAGE_Screenshot_2.png,D2_L04_ROOT_IMAGE_Screenshot_2.png,7969
+D2,Dział 2,05,03,IMAGE,dzał 2/05/03/1.png,dzał 2/05/03/D2_L05_03_IMAGE_1.png,D2_L05_03_IMAGE_1.png,16031
+D2,Dział 2,06,ROOT,QUIZ,dzał 2/06/QUZY.TXT,dzał 2/06/D2_L06_ROOT_QUIZ_QUZY.txt,D2_L06_ROOT_QUIZ_QUZY.txt,2319
+D2,Dział 2,06,ROOT,IMAGE,dzał 2/06/Screenshot_1.png,dzał 2/06/D2_L06_ROOT_IMAGE_Screenshot_1.png,D2_L06_ROOT_IMAGE_Screenshot_1.png,10852
+D2,Dział 2,07,03,IMAGE,dzał 2/07/03/1.png,dzał 2/07/03/D2_L07_03_IMAGE_1.png,D2_L07_03_IMAGE_1.png,7273
+D2,Dział 2,07,05,IMAGE,dzał 2/07/05/1.png,dzał 2/07/05/D2_L07_05_IMAGE_1.png,D2_L07_05_IMAGE_1.png,12364
+D2,Dział 2,07,07,IMAGE,dzał 2/07/07/1.png,dzał 2/07/07/D2_L07_07_IMAGE_1.png,D2_L07_07_IMAGE_1.png,12426
+D2,Dział 2,07,10,IMAGE,dzał 2/07/10/1.png,dzał 2/07/10/D2_L07_10_IMAGE_1.png,D2_L07_10_IMAGE_1.png,12868
+D2,Dział 2,07,12,IMAGE,dzał 2/07/12/1.png,dzał 2/07/12/D2_L07_12_IMAGE_1.png,D2_L07_12_IMAGE_1.png,13143
+D2,Dział 2,08,ROOT,QUIZ,dzał 2/08/Nowy dokument tekstowy.TXT,dzał 2/08/D2_L08_ROOT_QUIZ_Nowy_dokument_tekstowy.txt,D2_L08_ROOT_QUIZ_Nowy_dokument_tekstowy.txt,2823
+D2,Dział 2,08,ROOT,IMAGE,dzał 2/08/odp.png,dzał 2/08/D2_L08_ROOT_IMAGE_odp.png,D2_L08_ROOT_IMAGE_odp.png,10298
+D2,Dział 2,00,02,IMAGE,dzał 2/0/02/1.png,dzał 2/0/02/D2_L00_02_IMAGE_1.png,D2_L00_02_IMAGE_1.png,18706
+D2,Dział 2,00,04,IMAGE,dzał 2/0/04/1.png,dzał 2/0/04/D2_L00_04_IMAGE_1.png,D2_L00_04_IMAGE_1.png,19977
+D2,Dział 2,00,06,IMAGE,dzał 2/0/06/1.png,dzał 2/0/06/D2_L00_06_IMAGE_1.png,D2_L00_06_IMAGE_1.png,14083
+D2,Dział 2,00,08,IMAGE,dzał 2/0/08/1.png,dzał 2/0/08/D2_L00_08_IMAGE_1.png,D2_L00_08_IMAGE_1.png,14640
+D3,Dział 3,01,02,QUIZ,dzial 3/01/02/Nowy dokument tekstowy.TXT,dzial 3/01/02/D3_L01_02_QUIZ_Nowy_dokument_tekstowy.txt,D3_L01_02_QUIZ_Nowy_dokument_tekstowy.txt,1680
+D3,Dział 3,02,02,QUIZ,dzial 3/02/02/Nowy dokument tekstowy.TXT,dzial 3/02/02/D3_L02_02_QUIZ_Nowy_dokument_tekstowy.txt,D3_L02_02_QUIZ_Nowy_dokument_tekstowy.txt,1790
+D3,Dział 3,03,02,QUIZ,dzial 3/03/02/Nowy dokument tekstowy.TXT,dzial 3/03/02/D3_L03_02_QUIZ_Nowy_dokument_tekstowy.txt,D3_L03_02_QUIZ_Nowy_dokument_tekstowy.txt,1587
+D3,Dział 3,04,02,QUIZ,dzial 3/04/02/Nowy dokument tekstowy.TXT,dzial 3/04/02/D3_L04_02_QUIZ_Nowy_dokument_tekstowy.txt,D3_L04_02_QUIZ_Nowy_dokument_tekstowy.txt,1467
+D3,Dział 3,05,02,QUIZ,dzial 3/05/02/Nowy dokument tekstowy.TXT,dzial 3/05/02/D3_L05_02_QUIZ_Nowy_dokument_tekstowy.txt,D3_L05_02_QUIZ_Nowy_dokument_tekstowy.txt,2000
+D3,Dział 3,01,04,IMAGE,dzial 3/01/04/1.png,dzial 3/01/04/D3_L01_04_IMAGE_1.png,D3_L01_04_IMAGE_1.png,55900
+D3,Dział 3,01,06,IMAGE,dzial 3/01/06/1.png,dzial 3/01/06/D3_L01_06_IMAGE_1.png,D3_L01_06_IMAGE_1.png,35574
+D3,Dział 3,01,08,IMAGE,dzial 3/01/08/1.png,dzial 3/01/08/D3_L01_08_IMAGE_1.png,D3_L01_08_IMAGE_1.png,31172
+D3,Dział 3,02,04,IMAGE,dzial 3/02/04/1.png,dzial 3/02/04/D3_L02_04_IMAGE_1.png,D3_L02_04_IMAGE_1.png,28525
+D3,Dział 3,02,06,IMAGE,dzial 3/02/06/1.png,dzial 3/02/06/D3_L02_06_IMAGE_1.png,D3_L02_06_IMAGE_1.png,34626
+D3,Dział 3,02,08,IMAGE,dzial 3/02/08/1.png,dzial 3/02/08/D3_L02_08_IMAGE_1.png,D3_L02_08_IMAGE_1.png,20991
+D3,Dział 3,03,05,IMAGE,dzial 3/03/05/1.png,dzial 3/03/05/D3_L03_05_IMAGE_1.png,D3_L03_05_IMAGE_1.png,34475
+D3,Dział 3,03,07,IMAGE,dzial 3/03/07/1.png,dzial 3/03/07/D3_L03_07_IMAGE_1.png,D3_L03_07_IMAGE_1.png,34475
+D3,Dział 3,03,11,IMAGE,dzial 3/03/11/1.png,dzial 3/03/11/D3_L03_11_IMAGE_1.png,D3_L03_11_IMAGE_1.png,35631
+D3,Dział 3,04,04,IMAGE,dzial 3/04/04/1.png,dzial 3/04/04/D3_L04_04_IMAGE_1.png,D3_L04_04_IMAGE_1.png,21749
+D3,Dział 3,03,09W,IMAGE,dzial 3/03/09w/1.png,dzial 3/03/09w/D3_L03_09W_IMAGE_1.png,D3_L03_09W_IMAGE_1.png,45491
+D3,Dział 3,04,06,IMAGE,dzial 3/04/06/1.png,dzial 3/04/06/D3_L04_06_IMAGE_1.png,D3_L04_06_IMAGE_1.png,38495
+D3,Dział 3,00,02,IMAGE,dzial 3/0/02/1.png,dzial 3/0/02/D3_L00_02_IMAGE_1.png,D3_L00_02_IMAGE_1.png,18706
+D3,Dział 3,00,04,IMAGE,dzial 3/0/04/1.png,dzial 3/0/04/D3_L00_04_IMAGE_1.png,D3_L00_04_IMAGE_1.png,19977
+D3,Dział 3,00,06,IMAGE,dzial 3/0/06/1.png,dzial 3/0/06/D3_L00_06_IMAGE_1.png,D3_L00_06_IMAGE_1.png,14083
+D3,Dział 3,00,08,IMAGE,dzial 3/0/08/1.png,dzial 3/0/08/D3_L00_08_IMAGE_1.png,D3_L00_08_IMAGE_1.png,14640
