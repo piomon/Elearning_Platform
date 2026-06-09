@@ -28,7 +28,8 @@ import {
 import {
   PlayCircle, CheckCircle2, Zap, Brain, Target, ArrowRight, BookOpen,
   ShieldCheck, HeartHandshake, Sparkles,
-  PencilRuler, Send, Star, Clock, Trophy, LineChart
+  PencilRuler, Send, Star, Clock, Trophy, LineChart,
+  User, Mail, Tag, MessageSquare, MessageCircle
 } from "lucide-react";
 
 import { BlobBackground } from "@/components/blob-background";
@@ -96,56 +97,85 @@ function ContactForm() {
 
   if (sent) {
     return (
-      <div className="bg-card rounded-3xl border border-border shadow-sm p-10 text-center space-y-4">
-        <div className="w-16 h-16 rounded-full bg-success/15 flex items-center justify-center mx-auto">
-          <CheckCircle2 className="w-8 h-8 text-success" />
+      <div className="relative overflow-hidden bg-card rounded-[2rem] border border-border shadow-xl p-10 sm:p-12 text-center space-y-5 animate-in fade-in zoom-in-95 duration-500">
+        <div className="absolute inset-0 bg-gradient-to-br from-success/5 to-primary/5 pointer-events-none" />
+        <div className="relative w-20 h-20 rounded-full bg-success/15 flex items-center justify-center mx-auto ring-8 ring-success/5">
+          <CheckCircle2 className="w-10 h-10 text-success" />
         </div>
-        <h3 className="text-2xl font-bold font-display">Dziękujemy za wiadomość</h3>
-        <p className="text-muted-foreground">Odezwiemy się na podany adres email tak szybko, jak to możliwe.</p>
-        <Button variant="outline" className="rounded-full" onClick={() => setSent(false)}>
+        <h3 className="relative text-2xl sm:text-3xl font-black tracking-tight">Dziękujemy za wiadomość</h3>
+        <p className="relative text-muted-foreground max-w-sm mx-auto leading-relaxed">Odezwiemy się na podany adres email tak szybko, jak to możliwe — zwykle w ciągu 24 godzin.</p>
+        <Button variant="outline" size="lg" className="relative rounded-full h-12 px-6 font-semibold" onClick={() => setSent(false)}>
           Wyślij kolejną wiadomość
         </Button>
       </div>
     );
   }
 
+  const fieldWrap = "relative";
+  const iconCls = "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/70 pointer-events-none transition-colors";
+  const inputCls = "h-14 rounded-2xl bg-muted/40 border-border/70 pl-12 text-base focus-visible:bg-background transition-colors";
+
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="bg-card rounded-3xl border border-border shadow-sm p-6 sm:p-8 space-y-5">
-      <div className="grid sm:grid-cols-2 gap-5">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="relative overflow-hidden bg-card rounded-[2rem] border border-border shadow-xl p-6 sm:p-9 space-y-6">
+      <div className="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+
+      <div className="relative flex items-center gap-4 pb-2">
+        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+          <MessageCircle className="w-6 h-6 text-primary" />
+        </div>
+        <div>
+          <h3 className="text-xl font-black tracking-tight leading-tight">Napisz do nas</h3>
+          <p className="text-sm text-muted-foreground">Wypełnij formularz, a my się odezwiemy.</p>
+        </div>
+      </div>
+
+      <div className="relative grid sm:grid-cols-2 gap-5">
         <div className="space-y-2">
-          <Label htmlFor="contact-name" className="font-semibold text-foreground/80">Imię i nazwisko</Label>
-          <Input id="contact-name" {...form.register("name")} className="h-12 rounded-xl bg-muted/50" placeholder="Jan Kowalski" />
+          <Label htmlFor="contact-name" className="font-semibold text-foreground/80 text-sm">Imię i nazwisko</Label>
+          <div className={fieldWrap}>
+            <User className={iconCls} />
+            <Input id="contact-name" {...form.register("name")} className={inputCls} placeholder="Jan Kowalski" />
+          </div>
           {form.formState.errors.name && (
             <p className="text-sm text-destructive font-medium">{form.formState.errors.name.message}</p>
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="contact-email" className="font-semibold text-foreground/80">Adres email</Label>
-          <Input id="contact-email" type="email" {...form.register("email")} className="h-12 rounded-xl bg-muted/50" placeholder="jan@example.com" />
+          <Label htmlFor="contact-email" className="font-semibold text-foreground/80 text-sm">Adres email</Label>
+          <div className={fieldWrap}>
+            <Mail className={iconCls} />
+            <Input id="contact-email" type="email" {...form.register("email")} className={inputCls} placeholder="jan@example.com" />
+          </div>
           {form.formState.errors.email && (
             <p className="text-sm text-destructive font-medium">{form.formState.errors.email.message}</p>
           )}
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="contact-subject" className="font-semibold text-foreground/80">Temat</Label>
-        <Input id="contact-subject" {...form.register("subject")} className="h-12 rounded-xl bg-muted/50" placeholder="W czym możemy pomóc?" />
+      <div className="relative space-y-2">
+        <Label htmlFor="contact-subject" className="font-semibold text-foreground/80 text-sm">Temat</Label>
+        <div className={fieldWrap}>
+          <Tag className={iconCls} />
+          <Input id="contact-subject" {...form.register("subject")} className={inputCls} placeholder="W czym możemy pomóc?" />
+        </div>
         {form.formState.errors.subject && (
           <p className="text-sm text-destructive font-medium">{form.formState.errors.subject.message}</p>
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="contact-message" className="font-semibold text-foreground/80">Wiadomość</Label>
-        <Textarea id="contact-message" rows={5} {...form.register("message")} className="rounded-xl bg-muted/50 resize-none" placeholder="Napisz do nas, a my odpowiemy najszybciej, jak to możliwe." />
+      <div className="relative space-y-2">
+        <Label htmlFor="contact-message" className="font-semibold text-foreground/80 text-sm">Wiadomość</Label>
+        <div className={fieldWrap}>
+          <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-muted-foreground/70 pointer-events-none" />
+          <Textarea id="contact-message" rows={5} {...form.register("message")} className="rounded-2xl bg-muted/40 border-border/70 pl-12 pt-3.5 text-base resize-none focus-visible:bg-background transition-colors" placeholder="Napisz do nas, a my odpowiemy najszybciej, jak to możliwe." />
+        </div>
         {form.formState.errors.message && (
           <p className="text-sm text-destructive font-medium">{form.formState.errors.message.message}</p>
         )}
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-start gap-3">
+      <div className="relative space-y-2">
+        <div className="flex items-start gap-3 rounded-2xl bg-muted/30 border border-border/60 p-4">
           <Controller
             control={form.control}
             name="consent"
@@ -168,9 +198,9 @@ function ContactForm() {
         )}
       </div>
 
-      <Button type="submit" size="lg" className="w-full rounded-full h-14 text-base font-bold" disabled={mutation.isPending}>
+      <Button type="submit" size="lg" className="relative w-full rounded-full h-16 text-base font-bold shadow-lg shadow-primary/25 hover-lift" disabled={mutation.isPending}>
         {mutation.isPending ? "Wysyłanie..." : "Wyślij wiadomość"}
-        {!mutation.isPending && <Send className="w-4 h-4 ml-2" />}
+        {!mutation.isPending && <Send className="w-5 h-5 ml-2" />}
       </Button>
     </form>
   );
@@ -215,7 +245,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex flex-col w-full overflow-hidden">
+    <div className={`flex flex-col w-full overflow-hidden ${user ? "" : "pb-24 sm:pb-0"}`}>
       {/* ── HERO ── */}
       <section className="relative min-h-[95vh] flex items-center pt-24 pb-16 md:pt-32 overflow-hidden">
         <BlobBackground variant="blue" className="opacity-80" />
@@ -665,6 +695,35 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── MOBILE APP-STYLE STICKY CTA ── */}
+      {!user && (
+        <div className="sm:hidden fixed bottom-0 inset-x-0 z-50 border-t border-border/60 bg-background/90 backdrop-blur-xl px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] animate-in slide-in-from-bottom-4 duration-500">
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col leading-tight">
+              {priceLabel ? (
+                <>
+                  <span className="text-lg font-black tracking-tight">{priceLabel}</span>
+                  <span className="text-[11px] text-muted-foreground font-medium">365 dni dostępu</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-base font-bold tracking-tight">FizykaAI</span>
+                  <span className="text-[11px] text-muted-foreground font-medium">Klasa 7</span>
+                </>
+              )}
+            </div>
+            <Button
+              onClick={handleBuy}
+              disabled={isPending || primaryCourseId == null}
+              className="flex-1 h-12 rounded-full text-base font-bold shadow-lg shadow-primary/25"
+            >
+              {isPending ? "Przetwarzanie..." : "Kup dostęp"}
+              {!isPending && <ArrowRight className="w-5 h-5 ml-1.5" />}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* ── FOOTER ── */}
       <footer className="py-12 bg-background border-t border-border text-center">

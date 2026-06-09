@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Play, CheckCircle2, Sparkles, Brain, Trophy, PenTool, FileVideo, ShieldCheck,
+  Loader2, ScanLine, Cpu,
 } from "lucide-react";
 import { ProgressRing } from "@/components/progress-ring";
 
 type Phase = "video" | "quiz" | "task";
 const PHASES: Phase[] = ["video", "quiz", "task"];
+const DURATION: Record<Phase, number> = { video: 4200, quiz: 4800, task: 7400 };
 
 type Reduce = boolean | null;
 
@@ -17,15 +19,35 @@ const panel = (reduce: Reduce) => ({
   transition: { duration: reduce ? 0.15 : 0.45, ease: "easeOut" as const },
 });
 
-function Dots() {
+function useTypewriter(text: string, active: boolean, reduce: Reduce, speed = 26) {
+  const [out, setOut] = useState(reduce ? text : "");
+  useEffect(() => {
+    if (!active) return;
+    if (reduce) {
+      setOut(text);
+      return;
+    }
+    setOut("");
+    let i = 0;
+    const id = setInterval(() => {
+      i += 1;
+      setOut(text.slice(0, i));
+      if (i >= text.length) clearInterval(id);
+    }, speed);
+    return () => clearInterval(id);
+  }, [active, text, reduce, speed]);
+  return out;
+}
+
+function Dots({ reduce }: { reduce: Reduce }) {
   return (
     <span className="ml-1 inline-flex gap-1">
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
           className="w-1.5 h-1.5 rounded-full bg-primary"
-          animate={{ opacity: [0.25, 1, 0.25] }}
-          transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+          animate={reduce ? { opacity: 0.6 } : { opacity: [0.25, 1, 0.25] }}
+          transition={reduce ? {} : { duration: 1, repeat: Infinity, delay: i * 0.2 }}
         />
       ))}
     </span>
@@ -37,6 +59,13 @@ function VideoPhase({ reduce }: { reduce: Reduce }) {
     <motion.div {...panel(reduce)} className="h-full flex flex-col gap-3">
       <div className="relative flex-1 rounded-2xl overflow-hidden border border-border/50 bg-gradient-to-br from-slate-900 via-slate-800 to-primary/50 shadow-inner flex items-center justify-center">
         <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_28%_22%,rgba(56,189,248,0.55),transparent_55%)]" />
+        {!reduce && (
+          <motion.div
+            className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12"
+            animate={{ x: ["-120%", "320%"] }}
+            transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+          />
+        )}
         <div className="relative">
           {!reduce && (
             <motion.span
@@ -153,47 +182,107 @@ function QuizPhase({ reduce }: { reduce: Reduce }) {
   );
 }
 
+const CHECKS = [
+  { label: "Odczytano dane: s = 120 m, t = 4 s", at: 1 },
+  { label: "Rozpoznano wzór: v = s / t", at: 2 },
+  { label: "Zweryfikowano obliczenia", at: 3 },
+];
+
 function TaskPhase({ reduce }: { reduce: Reduce }) {
-  const [analyzing, setAnalyzing] = useState(!reduce);
+  const [step, setStep] = useState(reduce ? 4 : 0);
+  useEffect(() => {
+    if (reduce) setStep(4);
+  }, [reduce]);
   useEffect(() => {
     if (reduce) return;
-    const t = setTimeout(() => setAnalyzing(false), 1800);
-    return () => clearTimeout(t);
+    const timers = [
+      setTimeout(() => setStep(1), 950),
+      setTimeout(() => setStep(2), 1750),
+      setTimeout(() => setStep(3), 2550),
+      setTimeout(() => setStep(4), 3350),
+    ];
+    return () => timers.forEach(clearTimeout);
   }, [reduce]);
+
+  const done = step >= 4;
+  const feedback = "Świetnie! Poprawnie zastosowałeś wzór na prędkość. Wynik 30 m/s jest prawidłowy.";
+  const typed = useTypewriter(feedback, done, reduce);
 
   return (
     <motion.div {...panel(reduce)} className="h-full flex flex-col gap-2.5">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Zadanie · Sprawdza AI</span>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+          <Cpu className="w-3.5 h-3.5" /> Zadanie · Sprawdza AI
+        </span>
         <PenTool className="w-4 h-4 text-primary" />
       </div>
+
+      {/* Student answer being scanned */}
       <div className="relative rounded-xl border border-border/60 bg-card p-3 overflow-hidden">
         <p className="text-[11px] text-muted-foreground leading-snug">Samochód pokonał 120 m w 4 s. Oblicz jego prędkość.</p>
         <p className="mt-2 font-mono text-sm font-semibold text-foreground">
           v = s / t = 120 / 4 = <span className="text-primary">30 m/s</span>
         </p>
-        {analyzing && !reduce && (
+        {!done && !reduce && (
+          <>
+            <motion.div
+              className="absolute left-0 right-0 h-10 bg-gradient-to-b from-primary/0 via-primary/25 to-primary/0"
+              initial={{ top: "-25%" }}
+              animate={{ top: "100%" }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <div className="absolute top-2 right-2 flex items-center gap-1 text-[9px] font-bold text-primary">
+              <ScanLine className="w-3 h-3" /> skan
+            </div>
+          </>
+        )}
+        {done && (
           <motion.div
-            className="absolute left-0 right-0 h-10 bg-gradient-to-b from-primary/0 via-primary/25 to-primary/0"
-            initial={{ top: "-25%" }}
-            animate={{ top: "100%" }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-          />
+            initial={reduce ? false : { scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 18 }}
+            className="absolute top-2 right-2 w-5 h-5 rounded-full bg-success flex items-center justify-center"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+          </motion.div>
         )}
       </div>
+
+      {/* AI verification checklist */}
       <div className="flex-1 min-h-0">
         <AnimatePresence mode="wait">
-          {analyzing ? (
+          {!done ? (
             <motion.div
-              key="analyzing"
+              key="checks"
               initial={reduce ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex items-center gap-2 rounded-xl bg-primary/5 border border-primary/15 p-3"
+              className="rounded-xl bg-primary/5 border border-primary/15 p-3 space-y-2"
             >
-              <Sparkles className="w-4 h-4 text-primary shrink-0" />
-              <span className="text-xs font-medium text-primary">FizykaAI analizuje rozwiązanie</span>
-              <Dots />
+              <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary">
+                FizykaAI analizuje rozwiązanie <Dots reduce={reduce} />
+              </div>
+              {CHECKS.map((c) => {
+                const isDone = step >= c.at;
+                const isActive = step === c.at - 1;
+                return (
+                  <motion.div
+                    key={c.at}
+                    initial={reduce ? false : { opacity: 0, x: 8 }}
+                    animate={{ opacity: isDone || isActive ? 1 : 0.4, x: 0 }}
+                    className="flex items-center gap-2 text-[11px]"
+                  >
+                    {isDone ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0" />
+                    ) : isActive ? (
+                      <Loader2 className="w-3.5 h-3.5 text-primary shrink-0 animate-spin" />
+                    ) : (
+                      <span className="w-3.5 h-3.5 rounded-full border-2 border-muted shrink-0" />
+                    )}
+                    <span className={isDone ? "text-foreground/80 font-medium" : "text-muted-foreground"}>{c.label}</span>
+                  </motion.div>
+                );
+              })}
             </motion.div>
           ) : (
             <motion.div
@@ -201,24 +290,39 @@ function TaskPhase({ reduce }: { reduce: Reduce }) {
               initial={reduce ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="rounded-xl bg-success/10 border border-success/20 p-3"
+              className="rounded-xl bg-success/10 border border-success/20 p-3 flex gap-3"
             >
-              <div className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-5 h-5 text-success" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                    FizykaAI <Sparkles className="w-3 h-3 text-primary" />
-                  </p>
-                  <p className="text-[11px] text-foreground/80 leading-snug">
-                    Świetnie! Poprawnie zastosowałeś wzór na prędkość v = s / t.
-                  </p>
+              <div className="relative shrink-0">
+                {!reduce && (
+                  <motion.span
+                    className="absolute inset-0 rounded-full bg-success/30"
+                    animate={{ scale: [1, 1.6], opacity: [0.5, 0] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+                  />
+                )}
+                <div className="relative w-9 h-9 rounded-full bg-success/20 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-success" />
                 </div>
               </div>
-              <div className="mt-2.5 flex items-center gap-2">
-                <span className="text-[10px] font-bold text-success bg-success/15 px-2 py-0.5 rounded-full">+10 pkt</span>
-                <span className="text-[10px] font-medium text-muted-foreground">Temat ukończony</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  FizykaAI <span className="text-[9px] font-semibold text-success bg-success/15 px-1.5 py-0.5 rounded-full">100% trafność</span>
+                </p>
+                <p className="mt-1 text-[11px] text-foreground/80 leading-snug min-h-[2.4em]">
+                  {typed}
+                  {!reduce && typed.length < feedback.length && (
+                    <span className="inline-block w-1 h-3 bg-primary/70 ml-0.5 align-middle animate-pulse" />
+                  )}
+                </p>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-success bg-success/15 px-2 py-0.5 rounded-full">+10 pkt</span>
+                  <span className="text-[10px] font-medium text-muted-foreground">Temat ukończony</span>
+                </div>
+              </div>
+              <div className="shrink-0 self-center">
+                <ProgressRing progress={100} size={42} strokeWidth={4} colorClass="text-success">
+                  <span className="text-[8px] font-bold text-success">100%</span>
+                </ProgressRing>
               </div>
             </motion.div>
           )}
@@ -262,17 +366,21 @@ export function HeroShowcase() {
   const [phase, setPhase] = useState<Phase>(reduce ? "task" : "video");
 
   useEffect(() => {
-    if (reduce) return;
-    const id = setInterval(() => {
-      setPhase((p) => PHASES[(PHASES.indexOf(p) + 1) % PHASES.length]);
-    }, 3800);
-    return () => clearInterval(id);
+    if (reduce) setPhase("task");
   }, [reduce]);
 
+  useEffect(() => {
+    if (reduce) return;
+    const t = setTimeout(() => {
+      setPhase((p) => PHASES[(PHASES.indexOf(p) + 1) % PHASES.length]);
+    }, DURATION[phase]);
+    return () => clearTimeout(t);
+  }, [phase, reduce]);
+
   const steps = [
-    { id: "video" as const, label: "Wideo", icon: FileVideo },
-    { id: "quiz" as const, label: "Quiz", icon: Brain },
-    { id: "task" as const, label: "Zadanie AI", icon: PenTool },
+    { id: "video" as const, icon: FileVideo },
+    { id: "quiz" as const, icon: Brain },
+    { id: "task" as const, icon: PenTool },
   ];
 
   return (
