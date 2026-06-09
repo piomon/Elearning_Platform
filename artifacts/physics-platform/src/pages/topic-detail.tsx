@@ -268,8 +268,60 @@ export default function TopicDetail() {
     }
   };
 
+  const completedSiblings = orderedSiblings.filter(
+    (t) => allProgress?.find((p) => p.topicId === t.id)?.taskCheckedByAi,
+  ).length;
+  const sectionPercent =
+    orderedSiblings.length > 0
+      ? Math.round((completedSiblings / orderedSiblings.length) * 100)
+      : 0;
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="lg:grid lg:grid-cols-[300px_1fr] lg:gap-8 lg:items-start">
+        {/* Desktop course-program sidebar */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-24 rounded-3xl border bg-card shadow-sm overflow-hidden">
+            <div className="p-5 border-b bg-muted/30">
+              <span className="text-xs font-bold uppercase tracking-wider text-primary">Program działu</span>
+              <div className="mt-3 flex items-center justify-between text-sm">
+                <span className="font-semibold text-foreground">{completedSiblings}/{orderedSiblings.length} ukończonych</span>
+                <span className="text-muted-foreground">{sectionPercent}%</span>
+              </div>
+              <div className="mt-2 h-2 w-full rounded-full bg-muted overflow-hidden">
+                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${sectionPercent}%` }} />
+              </div>
+            </div>
+            <nav className="p-2 max-h-[calc(100vh-16rem)] overflow-y-auto" aria-label="Tematy w dziale">
+              {orderedSiblings.map((t, idx) => {
+                const tp = allProgress?.find((p) => p.topicId === t.id);
+                const tDone = tp?.taskCheckedByAi;
+                const tStarted = tp && !tDone;
+                const isCurrent = t.id === topicId;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => { setLocation(`/topics/${t.id}`); window.scrollTo({ top: 0 }); }}
+                    aria-current={isCurrent ? "page" : undefined}
+                    className={`w-full flex items-center gap-3 p-3 rounded-2xl text-left transition-all
+                      ${isCurrent ? "bg-primary/10 ring-1 ring-primary/20" : "hover:bg-muted/60"}`}
+                  >
+                    <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-sm font-bold
+                      ${tDone ? "bg-success/20 text-success" : isCurrent ? "bg-primary text-primary-foreground" : tStarted ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
+                    >
+                      {tDone ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
+                    </div>
+                    <span className={`text-sm leading-tight line-clamp-2 ${isCurrent ? "font-bold text-foreground" : tDone ? "text-foreground/80" : "text-muted-foreground"}`}>
+                      {t.title}
+                    </span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </aside>
+
+        <div className="space-y-8 min-w-0">
       <div>
         <Button variant="ghost" className="mb-4 -ml-4 text-muted-foreground rounded-full hover:text-foreground" onClick={() => window.history.back()}>
           <ChevronLeft className="w-5 h-5 mr-1" /> Wróć do tematów
@@ -628,6 +680,8 @@ export default function TopicDetail() {
           ) : <div className="flex-1 hidden sm:block" />}
         </nav>
       )}
+        </div>
+      </div>
     </div>
   );
 }

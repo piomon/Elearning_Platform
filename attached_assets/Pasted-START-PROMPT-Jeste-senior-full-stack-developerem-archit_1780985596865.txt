@@ -1,0 +1,758 @@
+START PROMPT
+
+Jesteś senior full-stack developerem, architektem aplikacji LMS/SaaS, security engineerem, QA leadem, product designerem UI/UX i specjalistą od wdrożeń produkcyjnych.
+
+Twoim zadaniem jest przeprowadzić pełny audyt, naprawę i odbiór techniczny istniejącej aplikacji edukacyjnej AI zgodnie z MVP. Masz pracować na istniejącym repozytorium oraz na audycie technicznym:
+
+Audyt_Techniczny_Kodu_MVP_Platforma_Edukacyjna_AI_v2.docx
+
+Najważniejsza zasada:
+NIE WOLNO uznać aplikacji za skończoną, jeśli jakikolwiek punkt MVP nie jest spełniony w 100%. Jeżeli coś nie jest spełnione, masz to naprawić, dopisać testy i ponownie sprawdzić.
+
+Aplikacja ma być pełnym komercyjnym MVP platformy e-learningowej z AI. Ma wyglądać profesjonalnie, premium, nowocześnie i inspiracyjnie, w stylu najlepszych platform LMS/e-learningowych typu LearnWorlds, ale bez kopiowania brandu, układu 1:1, tekstów, grafik ani identyfikacji wizualnej LearnWorlds.
+
+====================================================
+0. BEZWZGLĘDNY CEL
+==================
+
+Masz sprawdzić aplikację:
+
+1. Krok po kroku.
+2. Funkcja po funkcji.
+3. Plik po pliku.
+4. Endpoint po endpointcie.
+5. Komponent po komponencie.
+6. Widok po widoku.
+7. Test po teście.
+8. Linia po linii tam, gdzie audyt wskazuje P0/P1 albo gdzie kod dotyczy MVP.
+
+Jeżeli cokolwiek nie spełnia MVP w 100%, masz:
+
+1. znaleźć dokładny problem,
+2. wskazać plik i miejsce,
+3. naprawić kod,
+4. dodać testy,
+5. uruchomić testy,
+6. potwierdzić wynik,
+7. dopiero wtedy przejść dalej.
+
+Nie zostawiaj TODO.
+Nie zostawiaj “do poprawy później”.
+Nie rób obejść tylko po to, żeby testy przeszły.
+Nie usuwaj funkcji MVP, żeby uniknąć problemu.
+Nie zostawiaj żadnego hardcoded courseId=1.
+Nie ufaj klientowi w sprawach płatności, dostępu, postępu ani uprawnień.
+Nie uznawaj funkcji za gotową bez testów.
+
+====================================================
+
+1. NAJPIERW PRZECZYTAJ AUDYT I ZRÓB MAPĘ MVP
+   ====================================================
+
+Najpierw przeczytaj cały audyt techniczny.
+
+Na podstawie audytu przygotuj własną tabelę kontrolną MVP:
+
+* strona sprzedażowa,
+* rejestracja,
+* logowanie,
+* profil ucznia,
+* dashboard ucznia,
+* struktura kursu,
+* dokładnie 3 główne działy MVP,
+* lekcje,
+* wideo,
+* opis lekcji,
+* quiz/powtórka,
+* zadanie,
+* Excalidraw,
+* sprawdzanie zadania przez AI/Gemini,
+* feedback AI,
+* postęp ucznia,
+* płatności Przelewy24,
+* dostęp po płatności,
+* panel admina,
+* CMS kursu,
+* CMS lekcji,
+* CMS wideo,
+* CMS quizów,
+* CMS zadań,
+* zarządzanie użytkownikami,
+* zarządzanie dostępami,
+* Docker,
+* env,
+* VPS/production,
+* mobile 320-430 px,
+* tablet,
+* desktop,
+* testy,
+* dokumentacja.
+
+Dla każdego punktu oznacz:
+
+* SPEŁNIONE,
+* NIEPEŁNE,
+* NIESPEŁNIONE,
+* BRAK TESTÓW,
+* WYMAGA NAPRAWY.
+
+Jeśli status nie jest SPEŁNIONE + MA TESTY, musisz naprawić.
+
+====================================================
+2. SPRAWDŹ LEARNWORLDS I ZDEFINIUJ NOWY KIERUNEK UI
+===================================================
+
+Przed przebudową UI sprawdź aktualny wygląd i strukturę profesjonalnych platform e-learningowych typu LearnWorlds.
+
+Sprawdź oficjalne strony LearnWorlds, przykłady akademii, course player, learner dashboard, landing page, course catalog, moduły kursu i mobilny układ ucznia.
+
+Nie kopiuj LearnWorlds 1:1. Masz się zainspirować jakością, logiką i profesjonalnym stylem.
+
+Nasza aplikacja ma wyglądać jak profesjonalna aplikacja e-learningowa, a nie techniczne demo.
+
+Obecny problem do naprawy:
+
+* aplikacja nadal nie wygląda wystarczająco profesjonalnie,
+* brakuje kafelkowego, nowoczesnego układu kursu,
+* wideo ustawione “na środku” bez sensownego kontekstu wygląda biednie i nie jak LMS,
+* lekcja nie ma premium learning experience,
+* brakuje poczucia aplikacji edukacyjnej,
+* brakuje course playera,
+* brakuje bocznego programu kursu na desktopie,
+* brakuje dolnej nawigacji na mobile,
+* widoki są zbyt stronowe, a za mało aplikacyjne,
+* panel admina na mobile nie wygląda profesjonalnie,
+* Excalidraw na mobile musi działać wygodnie.
+
+Nowy kierunek UI ma być następujący:
+
+A. Publiczna strona sprzedażowa:
+
+* premium hero,
+* duży jasny claim edukacyjny,
+* CTA nad foldem,
+* kafelki korzyści,
+* sekcja “dla kogo jest kurs”,
+* sekcja “czego się nauczysz”,
+* preview modułów kursu,
+* sekcja AI jako asystent nauki,
+* sekcja bezpieczne płatności,
+* cena,
+* FAQ,
+* zaufanie dla rodziców,
+* mobile CTA sticky albo bardzo łatwo dostępne.
+
+B. Dashboard ucznia:
+
+* układ jak aplikacja LMS,
+* karta “Kontynuuj naukę” jako główny element,
+* kafelki modułów,
+* pasek postępu,
+* ostatnia lekcja,
+* status dostępu,
+* szybkie akcje,
+* estetyczne statystyki,
+* mobile bottom nav.
+
+C. Widok kursu:
+
+* nie lista tekstowa, tylko profesjonalne kafelki działów i lekcji,
+* dokładnie 3 główne działy MVP,
+* każdy dział jako duża karta z progressem,
+* lekcje jako mniejsze karty,
+* statusy: ukończone, w trakcie, zablokowane, dostępne,
+* ikony: wideo, quiz, zadanie AI,
+* estimated time,
+* desktop: sidebar albo dwukolumnowy layout,
+* mobile: karty full-width.
+
+D. Widok lekcji / course player:
+To najważniejszy widok. Ma wyglądać jak prawdziwy course player LMS.
+
+Układ desktop:
+
+* lewy lub prawy sidebar z programem kursu,
+* centralna strefa nauki,
+* górny pasek z tytułem lekcji i postępem,
+* video nie może być samotnie wrzucone na środek bez kontekstu,
+* video ma być w eleganckiej karcie playera,
+* obok lub pod spodem: opis, cele lekcji, materiały,
+* poniżej stepper: Wideo → Quiz → Zadanie AI → Feedback,
+* sticky “Następna lekcja” i “Poprzednia lekcja”,
+* wyraźny progress lekcji,
+* AI feedback jako profesjonalna karta.
+
+Układ mobile:
+
+* course player full-width,
+* bottom nav,
+* sticky stepper,
+* duże przyciski,
+* brak poziomego scrolla,
+* Excalidraw dostosowany do dotyku,
+* feedback AI jako accordion/card,
+* nawigacja poprzednia/następna zawsze łatwa do kliknięcia.
+
+E. Kafelki:
+Cała aplikacja ma mieć nowoczesne kafelki:
+
+* kafelki modułów,
+* kafelki lekcji,
+* kafelki postępu,
+* kafelki quizu,
+* kafelki admina na mobile,
+* kafelki statystyk,
+* kafelki benefitów na landing page.
+
+F. Video:
+Video nie może być “na środku bez sensu”.
+Video ma być częścią course playera:
+
+* karta video z nagłówkiem,
+* tytuł lekcji,
+* krótki opis,
+* oznaczenie etapu,
+* przycisk “Oznacz jako obejrzane” lub wykrywanie zakończenia,
+* obok/pod spodem cele lekcji,
+* pod spodem quiz i zadanie,
+* na desktopie sidebar programu.
+
+G. Styl wizualny:
+
+* jasne tło,
+* premium edukacyjny niebiesko-biały motyw,
+* subtelne gradienty,
+* cienie soft,
+* duże radiusy,
+* profesjonalna typografia,
+* dobre spacingi,
+* brak chaosu,
+* brak przypadkowych tabel na mobile,
+* UI ma wyglądać jak produkt za który klient płaci.
+
+====================================================
+3. P0 — NAPRAW BLOKERY ODBIORU MVP
+==================================
+
+Na podstawie audytu napraw wszystkie P0.
+
+P0-01: Publiczny endpoint tematów sekcji
+Sprawdź:
+
+* artifacts/api-server/src/routes/courses.ts
+* artifacts/api-server/src/lib/access.ts
+
+Wymagania:
+
+* endpoint /sections/:sectionId/topics nie może być publiczny,
+* requireAuth,
+* requireCourseAccess,
+* helper getCourseIdBySectionId,
+* walidacja sectionId,
+* 400 dla błędnego ID,
+* 404 dla nieistniejącej sekcji,
+* 401 dla braku logowania,
+* 403 dla braku dostępu,
+* admin ma dostęp.
+
+Testy obowiązkowe:
+
+* unauthenticated = 401,
+* user bez access = 403,
+* user z access = 200,
+* admin = 200,
+* invalid sectionId = 400,
+* not found section = 404.
+
+P0-02: Postęp ucznia sterowany przez klienta
+Sprawdź:
+
+* artifacts/api-server/src/routes/progress.ts
+* artifacts/api-server/src/routes/quizzes.ts
+* artifacts/api-server/src/routes/ai.ts
+* frontend topic-detail.tsx
+
+Wymagania:
+
+* klient nie może wysyłać courseId jako źródła prawdy,
+* klient nie może wysyłać sectionId jako źródła prawdy,
+* klient nie może sam ustawiać quizCompleted,
+* klient nie może sam ustawiać taskCheckedByAi,
+* backend sam pobiera topic -> section -> course,
+* backend sprawdza dostęp do kursu,
+* progress zapisuje tylko bezpieczne pola,
+* quizCompleted ustawiane tylko po faktycznym quiz submit,
+* taskCheckedByAi ustawiane tylko po faktycznym AI check,
+* videoCompleted tylko przez kontrolowane zdarzenie.
+
+Testy obowiązkowe:
+
+* brak dostępu do kursu = 403,
+* fałszywy topicId = 404,
+* próba ustawienia obcych flag = 400 albo ignorowane bez skutku,
+* poprawny update video = 200,
+* quiz submit aktualizuje progress,
+* AI check aktualizuje progress,
+* user nie może wpisać postępu do cudzego kursu.
+
+P0-03: Build/typecheck/test
+Wymagania:
+
+* packageManager pinned,
+* pnpm działa,
+* typecheck działa,
+* backend tests działają,
+* frontend build działa,
+* backend build działa,
+* Docker Compose działa,
+* migracje działają na czystej bazie,
+* seed działa.
+
+Komendy obowiązkowe:
+corepack prepare pnpm@9.15.9 --activate
+pnpm install --frozen-lockfile
+pnpm run typecheck
+pnpm --filter @workspace/api-server run test
+PORT=8080 BASE_PATH=/ pnpm --filter @workspace/physics-platform run build
+pnpm --filter @workspace/api-server run build
+docker compose down -v
+docker compose up -d --build
+docker compose logs --no-color api web db
+
+====================================================
+4. P1 — NAPRAW WSZYSTKIE BRAKI PRODUKCYJNE
+==========================================
+
+Napraw wszystkie P1 z audytu.
+
+A. Env/Docker:
+
+* .env.example musi być kompletne,
+* docker-compose.yml musi przekazywać wymagane env,
+* docker-compose.prod.yml musi być zgodne z produkcją,
+* backend nie może wymagać SMTP/contact, jeśli contact jest poza MVP albo feature flag disabled,
+* P24 env opisane,
+* Bunny env opisane,
+* Gemini env opisane,
+* COURSE_PRICE_GROSZ opisane,
+* ALLOWED_ORIGINS opisane.
+
+B. Usuń hardcoded courseId=1:
+
+* znajdź wszystkie wystąpienia courseId=1,
+* usuń je,
+* topic DTO ma zwracać courseId i sectionId,
+* płatności mają używać courseId z bezpieczną walidacją,
+* admin grant access ma mieć wybór kursu.
+
+C. Płatności:
+
+* safe returnUrl,
+* brak open redirect,
+* providerSessionId i providerOrderId rozdzielone,
+* webhook idempotentny,
+* mock payment tylko dev/test,
+* success page obsługuje mock=true,
+* dostęp aktywuje się po płatności.
+
+D. Quizy:
+
+* tylko A/B/C/D,
+* dokładnie 4 odpowiedzi,
+* dokładnie jedna poprawna,
+* submit wymaga wszystkich odpowiedzi,
+* scoring server-side,
+* progress po zaliczeniu.
+
+E. Auth:
+
+* backend zod validation,
+* email normalizacja,
+* hasło min 8 + litera + cyfra,
+* token/cookie security,
+* logout,
+* ban usera blokuje dostęp,
+* jeżeli zostaje JWT, skróć lifetime i dodaj revocation/rotation.
+
+F. AI:
+
+* taskId walidowany jako number,
+* dostęp sprawdzany backendowo,
+* prompt i API key tylko backend,
+* limit rozmiaru obrazu,
+* rate limit,
+* progress upsert po AI,
+* historia ai_checks.
+
+G. Admin:
+
+* requireAdmin wszędzie,
+* zod validation,
+* self-ban guard,
+* nie można odebrać ostatniego admina,
+* transakcje,
+* audit log,
+* card layout na mobile.
+
+====================================================
+5. TESTY DO KAŻDEJ FUNKCJONALNOŚCI
+==================================
+
+Do każdej funkcjonalności MVP mają istnieć testy.
+
+Jeżeli funkcja nie ma testu, nie jest gotowa.
+
+Minimalny zestaw testów:
+
+1. Auth:
+
+* register success,
+* register invalid email,
+* register weak password,
+* login success,
+* login wrong password,
+* /me,
+* logout,
+* banned user blocked.
+
+2. Access:
+
+* brak loginu = 401,
+* brak dostępu = 403,
+* dostęp aktywny = 200,
+* admin = 200.
+
+3. Courses:
+
+* kurs zwraca dokładnie 3 główne działy MVP,
+* działy mają tematy,
+* statusy lekcji działają,
+* locked/unlocked działa.
+
+4. Topics/Lessons:
+
+* topic detail protected,
+* zwraca courseId i sectionId,
+* zwraca video,
+* zwraca quiz bez correctAnswerId przed submit,
+* zwraca task bez sekretnego promptu,
+* next/previous lesson działa.
+
+5. Video:
+
+* videoUrl/Bunny embed działa,
+* invalid video config obsłużony,
+* video completed aktualizuje progress.
+
+6. Quiz:
+
+* tylko A-D,
+* dokładnie 4 odpowiedzi,
+* dokładnie jedna correct,
+* submit wszystkich pytań,
+* submit niepełny odrzucony,
+* wynik liczony backendowo,
+* progress po quizie.
+
+7. AI:
+
+* brak dostępu = 403,
+* invalid taskId = 400,
+* invalid image = 400,
+* za duży obraz = 400,
+* rate limit działa,
+* poprawne sprawdzenie zapisuje ai_checks,
+* poprawne sprawdzenie aktualizuje progress.
+
+8. Progress:
+
+* user nie może fałszować courseId,
+* user nie może fałszować sectionId,
+* user nie może sam ustawić quizCompleted,
+* user nie może sam ustawić taskCheckedByAi,
+* poprawny progress działa.
+
+9. Payments:
+
+* create payment,
+* price liczona backendowo,
+* returnUrl safe,
+* malicious returnUrl fallback,
+* webhook invalid sign rejected,
+* webhook wrong amount rejected,
+* webhook success grants access,
+* webhook idempotentny,
+* mock payment dev/test działa.
+
+10. Admin:
+
+* non-admin blocked,
+* admin users list,
+* grant access,
+* revoke access,
+* ban/unban,
+* self-ban blocked,
+* CMS course,
+* CMS section,
+* CMS topic,
+* CMS video,
+* CMS quiz,
+* CMS task,
+* validation errors.
+
+11. UI/e2e:
+
+* landing page mobile,
+* register,
+* login,
+* purchase mock dev,
+* dashboard access,
+* course overview,
+* lesson player,
+* video,
+* quiz,
+* task,
+* AI feedback,
+* next lesson,
+* previous lesson,
+* admin CRUD,
+* no horizontal scroll on mobile.
+
+12. Responsive:
+    Testuj viewporty:
+
+* 320,
+* 360,
+* 375,
+* 390,
+* 414,
+* 430,
+* 768,
+* 1024,
+* 1280.
+
+Dla każdego viewportu sprawdź:
+
+* brak poziomego scrolla,
+* CTA widoczne,
+* bottom nav działa,
+* course cards wyglądają dobrze,
+* lesson player działa,
+* Excalidraw mieści się i jest używalny,
+* admin mobile cards działają.
+
+====================================================
+6. KOMPLETNA PRZEBUDOWA WYGLĄDU NA LMS PREMIUM
+==============================================
+
+To jest najważniejsze obok security.
+
+Aplikacja obecnie nie spełnia wyglądu profesjonalnego LMS. Masz to naprawić kompleksowo.
+
+Wymagania UI:
+
+1. Wprowadź prawdziwy layout aplikacji e-learningowej.
+2. Dodaj kafelki wszędzie tam, gdzie obecnie są suche listy.
+3. Przebuduj dashboard ucznia.
+4. Przebuduj widok kursu.
+5. Przebuduj widok lekcji jako course player.
+6. Przebuduj video card.
+7. Dodaj sidebar programu kursu na desktopie.
+8. Dodaj bottom nav na mobile.
+9. Dodaj stepper lekcji.
+10. Dodaj progress lesson.
+11. Dodaj next/previous lesson.
+12. Dodaj lepsze empty/loading/error states.
+13. Dodaj estetyczne skeletony.
+14. Dodaj profesjonalne success/error toasty.
+15. Panel admina na mobile ma mieć karty zamiast nieczytelnych tabel.
+
+Course player — wymagany layout:
+
+Desktop:
+
+* Top bar: nazwa kursu, nazwa lekcji, progress.
+* Sidebar: lista 3 działów i lekcji, status każdej lekcji.
+* Main area:
+
+  * karta video,
+  * karta “Cele lekcji”,
+  * karta quizu,
+  * karta zadania AI,
+  * karta Excalidraw,
+  * karta feedback AI.
+* Bottom actions:
+
+  * Poprzednia lekcja,
+  * Następna lekcja,
+  * Zakończ lekcję.
+
+Mobile:
+
+* Top compact header.
+* Video jako karta, nie samotny element.
+* Sticky tabs: Wideo / Quiz / Zadanie / AI.
+* Bottom nav.
+* Duże touch targety.
+* Excalidraw h-[65dvh] z min/max height.
+* Brak poziomego scrolla.
+* Feedback AI jako accordion/card.
+
+Kafelki lekcji:
+Każdy kafelek lekcji ma mieć:
+
+* tytuł,
+* numer lekcji,
+* status,
+* ikony: video, quiz, AI,
+* estimated time,
+* przycisk kontynuacji,
+* wizualny progress.
+
+Kafelki działów:
+Każdy z 3 działów ma mieć:
+
+* nazwę działu,
+* krótki opis,
+* procent ukończenia,
+* liczba lekcji,
+* status,
+* CTA “Kontynuuj”.
+
+====================================================
+7. EXCALIDRAW
+=============
+
+Napraw Excalidraw tak, żeby był realnie używalny.
+
+Wymagania:
+
+* brak sztywnego 600 px,
+* responsive height,
+* działa na 320 px,
+* działa dotykowo,
+* obraz zadania można wstawić na canvas,
+* eksport PNG działa,
+* AI może analizować eksport,
+* komunikaty są profesjonalne,
+* nie pisz, że najlepiej działa tylko na komputerze,
+* telefon ma być wspierany.
+
+Testy:
+
+* render na desktop,
+* render na mobile,
+* insert image,
+* export PNG,
+* submit to AI.
+
+====================================================
+8. DOKUMENTACJA
+===============
+
+Zaktualizuj README tak, by było produkcyjne.
+
+README musi mieć:
+
+* opis MVP,
+* opis architektury,
+* stack,
+* env pełne,
+* local setup,
+* Docker setup,
+* VPS deployment,
+* P24 setup,
+* Bunny setup,
+* Gemini setup,
+* seed,
+* admin user,
+* testy,
+* backup DB,
+* update deployment,
+* troubleshooting,
+* security notes,
+* acceptance checklist.
+
+====================================================
+9. FINALNY RAPORT
+=================
+
+Na końcu wygeneruj raport:
+
+1. Tabela MVP:
+
+* funkcjonalność,
+* status przed,
+* status po,
+* test,
+* pliki zmienione.
+
+2. Lista napraw P0.
+
+3. Lista napraw P1.
+
+4. Lista zmian UI/UX.
+
+5. Lista zmian mobile.
+
+6. Lista zmian LearnWorlds-inspired:
+
+* co sprawdzono,
+* jakie wzorce zastosowano,
+* co konkretnie przebudowano,
+* potwierdzenie, że nic nie jest kopią 1:1.
+
+7. Lista testów:
+
+* backend,
+* frontend,
+* e2e,
+* responsive.
+
+8. Komendy uruchomione i wyniki:
+
+* install,
+* typecheck,
+* tests,
+* build,
+* docker,
+* seed.
+
+9. Lista zmienionych plików.
+
+10. Lista migracji.
+
+11. Znane ograniczenia:
+    Jeżeli jakiekolwiek ograniczenie dotyczy MVP, nie wolno pisać, że projekt jest skończony.
+
+====================================================
+10. DEFINICJA GOTOWOŚCI
+=======================
+
+Projekt można uznać za gotowy tylko, jeśli:
+
+* 100% MVP spełnione,
+* każdy element MVP ma test,
+* wszystkie P0 naprawione,
+* wszystkie P1 naprawione,
+* brak hardcoded courseId=1,
+* brak publicznych endpointów płatnej treści,
+* progress zabezpieczony,
+* płatności zabezpieczone,
+* AI zabezpieczone,
+* admin zabezpieczony,
+* Docker działa,
+* env kompletne,
+* README kompletne,
+* mobile działa jak aplikacja,
+* UI wygląda jak profesjonalny LMS premium,
+* course player wygląda profesjonalnie,
+* video jest częścią sensownego layoutu,
+* są kafelki, statusy, progress, sidebar, bottom nav,
+* testy przechodzą,
+* build przechodzi,
+* typecheck przechodzi.
+
+Jeżeli którykolwiek punkt nie jest spełniony, kontynuuj pracę i naprawiaj.
+
+END PROMPT
