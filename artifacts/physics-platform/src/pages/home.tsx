@@ -34,6 +34,7 @@ import {
 import { BlobBackground } from "@/components/blob-background";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
 import { AnimatedWrapper } from "@/components/animated-wrapper";
+import { HeroShowcase } from "@/components/hero-showcase";
 import { ProgressRing } from "@/components/progress-ring";
 import { StatCard } from "@/components/stat-card";
 import { FeatureCard } from "@/components/feature-card";
@@ -286,96 +287,7 @@ export default function Home() {
             </AnimatedWrapper>
 
             <AnimatedWrapper direction="left" delay={0.3}>
-              <div className="relative mx-auto w-full max-w-2xl lg:max-w-none perspective-1000">
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20 bg-background/90 backdrop-blur-xl aspect-square sm:aspect-[4/3] flex flex-col p-4 sm:p-6 transform rotate-y-[-5deg] rotate-x-[5deg] hover:rotate-0 transition-transform duration-700 ease-out">
-                  {/* Browser-like header */}
-                  <div className="flex items-center gap-2 mb-6 border-b border-border/50 pb-4">
-                    <div className="w-3.5 h-3.5 rounded-full bg-red-400 shadow-inner" />
-                    <div className="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-inner" />
-                    <div className="w-3.5 h-3.5 rounded-full bg-emerald-400 shadow-inner" />
-                    <div className="mx-auto bg-muted/50 rounded-md h-6 w-1/3" />
-                  </div>
-
-                  {/* App Content */}
-                  <div className="flex-1 grid grid-cols-12 gap-4">
-                    {/* Sidebar mock */}
-                    <div className="col-span-3 space-y-3 border-r border-border/50 pr-4 hidden sm:block">
-                      <div className="h-8 w-full bg-primary/10 rounded-lg flex items-center px-3">
-                        <div className="w-4 h-4 bg-primary/40 rounded-sm mr-2" />
-                        <div className="h-2 w-16 bg-primary/40 rounded-full" />
-                      </div>
-                      <div className="h-8 w-full bg-muted/50 rounded-lg flex items-center px-3">
-                        <div className="w-4 h-4 bg-muted-foreground/30 rounded-sm mr-2" />
-                        <div className="h-2 w-20 bg-muted-foreground/30 rounded-full" />
-                      </div>
-                      <div className="h-8 w-full bg-muted/50 rounded-lg flex items-center px-3">
-                        <div className="w-4 h-4 bg-muted-foreground/30 rounded-sm mr-2" />
-                        <div className="h-2 w-12 bg-muted-foreground/30 rounded-full" />
-                      </div>
-                    </div>
-                    
-                    {/* Main area mock */}
-                    <div className="col-span-12 sm:col-span-9 flex flex-col space-y-4">
-                      {/* Video Player Mock */}
-                      <div className="relative w-full rounded-2xl bg-secondary overflow-hidden aspect-video flex items-center justify-center border border-border/50 shadow-inner">
-                        <img src="https://images.unsplash.com/photo-1636466497217-26c8c54151a6?auto=format&fit=crop&q=80&w=800" alt="Physics" className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                        <PlayCircle className="w-16 h-16 text-white drop-shadow-lg relative z-10" />
-                        <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3">
-                          <div className="h-1.5 flex-1 bg-white/30 rounded-full overflow-hidden">
-                            <div className="h-full w-2/3 bg-primary rounded-full" />
-                          </div>
-                          <span className="text-white text-xs font-medium drop-shadow-md">04:20 / 06:15</span>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        {/* Progress card mock */}
-                        <div className="bg-card rounded-2xl border border-border/60 p-4 shadow-sm flex items-center gap-4">
-                          <ProgressRing progress={67} size={48} strokeWidth={4}>
-                            <span className="text-xs font-bold">67%</span>
-                          </ProgressRing>
-                          <div>
-                            <div className="h-3 w-20 bg-foreground/80 rounded-full mb-2" />
-                            <div className="h-2 w-16 bg-muted-foreground/50 rounded-full" />
-                          </div>
-                        </div>
-                        {/* Quiz mock */}
-                        <div className="bg-violet-500/10 rounded-2xl border border-violet-500/20 p-4 shadow-sm flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
-                            <Brain className="w-5 h-5 text-violet-600" />
-                          </div>
-                          <div>
-                            <div className="h-3 w-16 bg-violet-600/80 rounded-full mb-2" />
-                            <div className="h-2 w-12 bg-violet-600/50 rounded-full" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Floating Elements */}
-                <div className="absolute -right-8 -top-8 bg-card p-4 rounded-2xl shadow-xl border border-border flex items-center gap-3 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 hidden md:flex hover-lift z-20">
-                  <div className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center">
-                    <CheckCircle2 className="w-6 h-6 text-success" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground font-medium">Zadanie domowe</p>
-                    <p className="text-sm font-bold text-foreground">Świetnie rozwiązane!</p>
-                  </div>
-                </div>
-                
-                <div className="absolute -left-6 -bottom-6 bg-card p-4 rounded-2xl shadow-xl border border-border flex items-center gap-3 animate-in fade-in slide-in-from-top-8 duration-700 delay-700 hidden md:flex hover-lift z-20">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Trophy className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground font-medium">Nowe osiągnięcie</p>
-                    <p className="text-sm font-bold text-foreground">Mistrz Kinematyki</p>
-                  </div>
-                </div>
-              </div>
+              <HeroShowcase />
             </AnimatedWrapper>
 
           </div>
