@@ -37,25 +37,13 @@ function readProd(name: string, fallback: string): string {
   return fallback;
 }
 
+// Optional in all environments. Third-party credentials (Gemini, Przelewy24,
+// SMTP, Bunny) are read when present; when absent the related feature is cleanly
+// disabled via the isXConfigured() guards rather than crashing the server. Add
+// the secrets in production to activate the feature on the next deploy.
 function readOptional(name: string): string | undefined {
   const value = process.env[name];
   return value && value.trim() !== "" ? value : undefined;
-}
-
-// Required in production (fail fast at startup), optional in development/test so
-// the server can run with feature-flagged degradation when third-party
-// credentials (Gemini, Przelewy24, SMTP, Bunny) are not configured locally.
-function readProdRequired(name: string): string | undefined {
-  const value = process.env[name];
-  if (value && value.trim() !== "") {
-    return value;
-  }
-  if (isProd) {
-    throw new EnvError(
-      `Brak wymaganej zmiennej środowiskowej (produkcja): ${name}`,
-    );
-  }
-  return undefined;
 }
 
 const devOrigins = [
@@ -104,14 +92,14 @@ export const config = {
   })(),
   currency: "PLN",
   gemini: {
-    apiKey: readProdRequired("GEMINI_API_KEY"),
+    apiKey: readOptional("GEMINI_API_KEY"),
     model: process.env.GEMINI_MODEL ?? "gemini-1.5-flash",
   },
   p24: {
-    merchantId: readProdRequired("P24_MERCHANT_ID"),
-    posId: readProdRequired("P24_POS_ID"),
-    apiKey: readProdRequired("P24_API_KEY"),
-    crc: readProdRequired("P24_CRC"),
+    merchantId: readOptional("P24_MERCHANT_ID"),
+    posId: readOptional("P24_POS_ID"),
+    apiKey: readOptional("P24_API_KEY"),
+    crc: readOptional("P24_CRC"),
     env: p24Env,
     baseUrl:
       p24Env === "production"
@@ -119,17 +107,17 @@ export const config = {
         : "https://sandbox.przelewy24.pl",
   },
   smtp: {
-    host: readProdRequired("SMTP_HOST"),
+    host: readOptional("SMTP_HOST"),
     port: Number(process.env.SMTP_PORT ?? 587),
-    user: readProdRequired("SMTP_USER"),
-    pass: readProdRequired("SMTP_PASS"),
+    user: readOptional("SMTP_USER"),
+    pass: readOptional("SMTP_PASS"),
     fromEmail:
-      readProdRequired("CONTACT_FROM_EMAIL") ?? readOptional("SMTP_USER"),
+      readOptional("CONTACT_FROM_EMAIL") ?? readOptional("SMTP_USER"),
     toEmail: readOptional("CONTACT_EMAIL") ?? readOptional("CONTACT_FROM_EMAIL"),
   },
   bunny: {
-    libraryId: readProdRequired("BUNNY_LIBRARY_ID"),
-    cdnHostname: readProdRequired("BUNNY_CDN_HOSTNAME"),
+    libraryId: readOptional("BUNNY_LIBRARY_ID"),
+    cdnHostname: readOptional("BUNNY_CDN_HOSTNAME"),
   },
 } as const;
 

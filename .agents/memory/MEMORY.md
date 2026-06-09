@@ -3,3 +3,4 @@
 - [Local dev run setup](dev-run-setup.md) — to run locally: set JWT_SECRET (dev env), push schema, seed; fresh DB is empty so /api/courses 500s until seeded.
 - [Monorepo build & test quirks](monorepo-build-quirks.md) — typecheck only at root (builds project refs); never set root `packageManager`; detached installs; tests need real Postgres + drizzle generate for schema changes.
 - [Completion celebration pattern](completion-celebration.md) — confetti/celebration on server-confirmed state must fire on the false→true transition (prev-value ref + reset per entity id), never on initial truthy render.
+- [Production env contract](production-env-contract.md) — api-server crash-loops the deploy health check if required prod env vars missing; Gemini/P24/Bunny/SMTP are optional-at-boot and gated by isXConfigured guards.
