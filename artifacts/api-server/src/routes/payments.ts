@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import { paymentLimiter } from "../middlewares/rate-limit";
 import { logger } from "../lib/logger";
-import { config, isP24Configured } from "../config/env";
+import { config, isPaynowConfigured } from "../config/env";
 
 const router = Router();
 
@@ -30,9 +30,18 @@ function safeReturnUrl(returnUrl: unknown): string {
   }
 }
 
+// Paynow authenticates requests and signs notifications with an HMAC-SHA256 of
+// the exact (raw) payload, encoded as base64, using the merchant Signature Key.
+function signPaynow(rawBody: string | Buffer): string {
+  return crypto
+    .createHmac("sha256", config.paynow.signatureKey!)
+    .update(rawBody)
+    .digest("base64");
+}
+
 async function grantCourseAccess(userId: number, courseId: number, paymentId: number) {
-  // Atomic and idempotent: concurrent provider callbacks (P24 retries) can race
-  // here, so rely on the partial unique index over active grants
+  // Atomic and idempotent: concurrent provider callbacks (Paynow retries) can
+  // race here, so rely on the partial unique index over active grants
   // (access_grants_active_user_course_uniq) instead of select-then-insert.
   await db
     .insert(accessGrants)
@@ -48,7 +57,11 @@ async function grantCourseAccess(userId: number, courseId: number, paymentId: nu
 }
 
 router.get("/payments/price", async (_req, res) => {
-  res.json({ price: config.coursePriceGrosz, currency: config.currency });
+  res.json({
+    price: config.coursePriceGrosz,
+    currency: config.currency,
+    oldPrice: config.courseOldPriceGrosz,
+  });
 });
 
 router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: AuthRequest, res) => {
@@ -72,7 +85,7 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
       .insert(payments)
       .values({
         userId: req.user!.id,
-        provider: "przelewy24",
+        provider: "paynow",
         amount,
         currency: config.currency,
         status: "pending",
@@ -80,7 +93,10 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
       })
       .returning();
 
-    if (!isP24Configured()) {
+    // Without Paynow credentials we cannot create a real payment. In production
+    // we fail closed; in development/test we fall back to a mock success URL so
+    // the post-payment flow can be exercised locally (see mock-complete below).
+    if (!isPaynowConfigured()) {
       if (config.isProd) {
         res.status(503).json({ error: "Płatności są chwilowo niedostępne." });
         return;
@@ -90,44 +106,50 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
       return;
     }
 
-    const sessionId = `${payment.id}-${Date.now()}`;
-    const signData = JSON.stringify({
-      sessionId,
-      merchantId: Number(config.p24.merchantId),
-      amount,
-      currency: config.currency,
-      crc: config.p24.crc,
-    });
-    const sign = crypto.createHash("sha384").update(signData).digest("hex");
+    const continueUrl = safeReturnUrl(returnUrl);
 
-    const p24Body = {
-      merchantId: Number(config.p24.merchantId),
-      posId: Number(config.p24.posId),
-      sessionId,
+    // externalId ties the Paynow payment back to our row; amount is fixed
+    // server-side so the buyer can never tamper with the charged price.
+    const paynowBody = JSON.stringify({
       amount,
       currency: config.currency,
+      externalId: String(payment.id),
       description: `Dostęp do kursu: ${course.title}`,
-      email: req.user!.email,
-      country: "PL",
-      language: "pl",
-      urlReturn: safeReturnUrl(returnUrl),
-      urlStatus: `${config.apiUrl}/api/payments/webhook`,
-      sign,
-    };
-
-    const p24Res = await fetch(`${config.p24.baseUrl}/api/v1/transaction/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${Buffer.from(`${config.p24.posId}:${config.p24.apiKey}`).toString("base64")}`,
-      },
-      body: JSON.stringify(p24Body),
+      continueUrl,
+      buyer: { email: req.user!.email },
     });
-    const p24Data = (await p24Res.json()) as { data?: { token?: string } };
-    const token = p24Data?.data?.token;
 
-    if (!token) {
-      logger.error({ status: p24Res.status }, "P24 register failed");
+    let paynowData:
+      | { paymentId?: string; status?: string; redirectUrl?: string }
+      | null = null;
+    let ok = false;
+    let httpStatus = 0;
+    try {
+      const paynowRes = await fetch(`${config.paynow.apiUrl}/v1/payments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Api-Key": config.paynow.apiKey!,
+          Signature: signPaynow(paynowBody),
+          // Reusing the same key for retries of one payment row makes Paynow
+          // return the existing payment instead of creating a duplicate.
+          "Idempotency-Key": `paynow-payment-${payment.id}`,
+        },
+        body: paynowBody,
+      });
+      httpStatus = paynowRes.status;
+      ok = paynowRes.ok;
+      paynowData = (await paynowRes.json().catch(() => null)) as
+        | { paymentId?: string; status?: string; redirectUrl?: string }
+        | null;
+    } catch (fetchErr) {
+      logger.error({ fetchErr }, "Paynow create request failed");
+      res.status(502).json({ error: "Błąd inicjalizacji płatności" });
+      return;
+    }
+
+    if (!ok || !paynowData?.paymentId || !paynowData?.redirectUrl) {
+      logger.error({ status: httpStatus }, "Paynow create failed");
       res.status(502).json({ error: "Błąd inicjalizacji płatności" });
       return;
     }
@@ -135,15 +157,13 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
     await db
       .update(payments)
       .set({
-        providerPaymentId: sessionId,
-        providerSessionId: sessionId,
+        providerPaymentId: paynowData.paymentId,
+        providerSessionId: paynowData.paymentId,
         updatedAt: new Date(),
       })
       .where(eq(payments.id, payment.id));
-    res.json({
-      redirectUrl: `${config.p24.baseUrl}/trnRequest/${token}`,
-      paymentId: payment.id,
-    });
+
+    res.json({ redirectUrl: paynowData.redirectUrl, paymentId: payment.id });
   } catch (err) {
     logger.error({ err }, "Create payment error");
     res.status(500).json({ error: "Błąd serwera" });
@@ -152,125 +172,94 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
 
 router.post("/payments/webhook", async (req, res) => {
   try {
-    const { sessionId, orderId, amount, currency, sign } = req.body;
-
-    if (!sessionId) {
-      res.status(400).json({ error: "Brak sessionId" });
+    // Verify the Paynow signature over the exact raw request body. Without the
+    // Signature Key the notification cannot be trusted, so production rejects it
+    // outright; only dev/test (mock flow) is allowed to skip verification.
+    if (isPaynowConfigured()) {
+      const rawBody = (req as unknown as { rawBody?: Buffer }).rawBody;
+      const provided = req.header("Signature") ?? "";
+      if (!rawBody || !provided) {
+        res.status(400).json({ error: "Brak podpisu" });
+        return;
+      }
+      const expectedBuf = Buffer.from(signPaynow(rawBody));
+      const providedBuf = Buffer.from(provided);
+      if (
+        providedBuf.length !== expectedBuf.length ||
+        !crypto.timingSafeEqual(providedBuf, expectedBuf)
+      ) {
+        logger.warn("Webhook signature mismatch");
+        res.status(400).json({ error: "Nieprawidłowy podpis" });
+        return;
+      }
+    } else if (config.isProd) {
+      res.status(503).json({ error: "Weryfikacja płatności niedostępna" });
       return;
     }
 
-    const paymentId = Number(String(sessionId).split("-")[0]);
-    if (!paymentId || Number.isNaN(paymentId)) {
-      res.status(400).json({ error: "Nieprawidłowe sessionId" });
+    const {
+      externalId,
+      paymentId: providerPaymentId,
+      status,
+    } = req.body as {
+      externalId?: string;
+      paymentId?: string;
+      status?: string;
+    };
+
+    const localId = Number(externalId);
+    if (!localId || Number.isNaN(localId)) {
+      res.status(400).json({ error: "Nieprawidłowe externalId" });
       return;
     }
 
     const [payment] = await db
       .select()
       .from(payments)
-      .where(eq(payments.id, paymentId))
+      .where(eq(payments.id, localId))
       .limit(1);
     if (!payment) {
       res.status(404).json({ error: "Płatność nie znaleziona" });
       return;
     }
 
-    // Idempotency: already processed.
+    // Idempotency: a confirmed payment is terminal — never regress or re-grant.
     if (payment.status === "completed") {
       res.json({ message: "OK" });
       return;
     }
 
-    // Verify P24 signature when configured.
-    if (isP24Configured()) {
-      const expectedSign = crypto
-        .createHash("sha384")
-        .update(
-          JSON.stringify({
-            sessionId,
-            orderId,
-            amount,
-            currency,
-            crc: config.p24.crc,
-          }),
-        )
-        .digest("hex");
-      if (expectedSign !== sign) {
-        logger.warn({ paymentId }, "Webhook signature mismatch");
-        res.status(400).json({ error: "Nieprawidłowy podpis" });
-        return;
-      }
+    // Bind the notification to the Paynow payment we created for this row.
+    if (
+      providerPaymentId &&
+      payment.providerPaymentId &&
+      providerPaymentId !== payment.providerPaymentId
+    ) {
+      logger.warn({ localId }, "Webhook paymentId mismatch");
+      res.status(400).json({ error: "Niezgodny identyfikator płatności" });
+      return;
+    }
 
-      // Verify the amount and currency match what we expect for this payment.
-      if (Number(amount) !== payment.amount || (currency && currency !== payment.currency)) {
-        logger.warn(
-          { paymentId, amount, expected: payment.amount },
-          "Webhook amount mismatch",
-        );
-        res.status(400).json({ error: "Niezgodna kwota płatności" });
-        return;
-      }
+    const normalized = String(status ?? "").toUpperCase();
 
-      // Confirm the transaction directly with Przelewy24 before completing it.
-      // The webhook body alone is not authoritative — P24 requires an explicit
-      // verify call, and only a "success" status should grant access.
-      const verifySign = crypto
-        .createHash("sha384")
-        .update(
-          JSON.stringify({
-            sessionId,
-            orderId,
-            amount,
-            currency,
-            crc: config.p24.crc,
-          }),
-        )
-        .digest("hex");
+    // Non-terminal states: acknowledge without changing access.
+    if (normalized === "NEW" || normalized === "PENDING") {
+      res.json({ message: "OK" });
+      return;
+    }
 
-      let verifyStatus: string | undefined;
-      try {
-        const verifyRes = await fetch(
-          `${config.p24.baseUrl}/api/v1/transaction/verify`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Basic ${Buffer.from(`${config.p24.posId}:${config.p24.apiKey}`).toString("base64")}`,
-            },
-            body: JSON.stringify({
-              merchantId: Number(config.p24.merchantId),
-              posId: Number(config.p24.posId),
-              sessionId,
-              amount: Number(amount),
-              currency: currency ?? payment.currency,
-              orderId,
-              sign: verifySign,
-            }),
-          },
-        );
-        const verifyData = (await verifyRes.json()) as {
-          data?: { status?: string };
-        };
-        verifyStatus = verifyData?.data?.status;
-      } catch (verifyErr) {
-        logger.error({ verifyErr, paymentId }, "P24 verify request failed");
-        res.status(502).json({ error: "Weryfikacja płatności nie powiodła się" });
-        return;
-      }
-
-      if (verifyStatus !== "success") {
-        logger.warn({ paymentId, verifyStatus }, "P24 verify not successful");
-        res.status(400).json({ error: "Płatność nie została potwierdzona" });
-        return;
-      }
-    } else if (config.isProd) {
-      // Never trust unverified webhooks in production.
-      res.status(503).json({ error: "Weryfikacja płatności niedostępna" });
+    if (normalized !== "CONFIRMED") {
+      // REJECTED / ERROR / EXPIRED / ABANDONED — record the failure, no access.
+      await db
+        .update(payments)
+        .set({ status: "failed", updatedAt: new Date() })
+        .where(eq(payments.id, localId));
+      res.json({ message: "OK" });
       return;
     }
 
     if (payment.courseId == null) {
-      logger.error({ paymentId }, "Payment has no associated course");
+      logger.error({ localId }, "Payment has no associated course");
       res.status(500).json({ error: "Płatność bez przypisanego kursu" });
       return;
     }
@@ -279,10 +268,13 @@ router.post("/payments/webhook", async (req, res) => {
       .update(payments)
       .set({
         status: "completed",
-        providerOrderId: orderId != null ? String(orderId) : payment.providerOrderId,
+        providerOrderId:
+          providerPaymentId != null
+            ? String(providerPaymentId)
+            : payment.providerOrderId,
         updatedAt: new Date(),
       })
-      .where(eq(payments.id, paymentId));
+      .where(eq(payments.id, localId));
 
     await grantCourseAccess(payment.userId, payment.courseId, payment.id);
 

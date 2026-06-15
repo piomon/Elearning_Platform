@@ -97,11 +97,27 @@ describe("POST /progress (client-trusted data is rejected)", () => {
     const { course, topic } = await seedCourse();
     await grantAccess(user.id, course.id);
 
+    // Record initial navigation, which creates the progress row.
     await request(app)
       .post("/api/progress")
       .set("Authorization", `Bearer ${token}`)
-      .send({ topicId: topic.id, currentElementType: "video", videoCompleted: true });
+      .send({ topicId: topic.id, currentElementType: "video" });
 
+    // videoCompleted is server-owned (set only from real watch telemetry via
+    // POST /progress/video); the client can never send it. Simulate an earned
+    // completion at the DB level so we can assert the navigation upsert below
+    // does not clobber it.
+    await db
+      .update(learningProgress)
+      .set({ videoCompleted: true })
+      .where(
+        and(
+          eq(learningProgress.userId, user.id),
+          eq(learningProgress.topicId, topic.id),
+        ),
+      );
+
+    // A later navigation update (moving on to the quiz) must preserve it.
     await request(app)
       .post("/api/progress")
       .set("Authorization", `Bearer ${token}`)

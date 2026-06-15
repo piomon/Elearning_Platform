@@ -28,7 +28,7 @@ import {
 import {
   PlayCircle, CheckCircle2, Zap, Brain, Target, ArrowRight, BookOpen,
   ShieldCheck, HeartHandshake, Sparkles,
-  PencilRuler, Send, Star, Clock, Trophy, LineChart,
+  PencilRuler, Send, Star, Trophy, LineChart,
   User, Mail, Tag, MessageSquare, MessageCircle
 } from "lucide-react";
 
@@ -214,6 +214,10 @@ export default function Home() {
 
   const primaryCourseId = courses && courses.length > 0 ? courses[0].id : null;
   const priceLabel = priceData ? formatPln(priceData.price, priceData.currency) : null;
+  const oldPriceLabel =
+    priceData && priceData.oldPrice && priceData.oldPrice > priceData.price
+      ? formatPln(priceData.oldPrice, priceData.currency)
+      : null;
 
   const handleBuy = () => {
     if (primaryCourseId != null) {
@@ -224,23 +228,19 @@ export default function Home() {
   const faqs = [
     {
       q: "Dla kogo jest ta platforma?",
-      a: "Dla uczniów klasy 7 szkoły podstawowej oraz ich rodziców. Materiał jest w pełni zgodny z polską podstawą programową z fizyki.",
+      a: "Dla uczniów klasy 7 szkoły podstawowej oraz ich rodziców, którzy chcą spokojnie i skutecznie ogarnąć fizykę.",
     },
     {
       q: "Jak działa sprawdzanie zadań przez AI?",
       a: "Uczeń rozwiązuje zadanie na wirtualnej tablicy, a sztuczna inteligencja analizuje tok rozumowania i wskazuje, co jest poprawne, a nad czym warto jeszcze popracować.",
     },
     {
-      q: "Jak długo trwa dostęp po zakupie?",
-      a: "Dostęp do wszystkich materiałów jest aktywny przez 365 dni od momentu zakupu.",
+      q: "Jak uzyskuję dostęp po zakupie?",
+      a: "Po potwierdzeniu płatności dostęp do wszystkich materiałów kursu odblokowuje się automatycznie — uczysz się we własnym tempie.",
     },
     {
       q: "Czy potrzebuję specjalnego sprzętu?",
-      a: "Wystarczy komputer, tablet lub telefon z przeglądarką. Do wygodnego rozwiązywania zadań polecamy tablet lub komputer z myszką.",
-    },
-    {
-      q: "Czy płatność jest bezpieczna?",
-      a: "Tak. Płatności obsługiwane są przez zewnętrznego, zaufanego operatora płatności online. Nie przechowujemy danych Twojej karty.",
+      a: "Do wygodnej nauki rekomendujemy komputer lub tablet. Tablica i zadania działają najlepiej na większym ekranie.",
     },
   ];
 
@@ -265,8 +265,8 @@ export default function Home() {
                     Quizy po każdej lekcji
                   </div>
                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-background/80 backdrop-blur-md text-amber-600 border border-amber-500/20 shadow-sm">
-                    <Clock className="w-4 h-4" />
-                    365 dni dostępu
+                    <PencilRuler className="w-4 h-4" />
+                    Interaktywna tablica
                   </div>
                 </div>
 
@@ -275,9 +275,14 @@ export default function Home() {
                   <span className="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary to-cyan-400">zrozumiała jak nigdy.</span>
                 </h1>
 
-                <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                  Koniec z zakuwaniem wzorów. Nowoczesna platforma edukacyjna, która uczy fizyki przez interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.
-                </p>
+                <div className="space-y-4 max-w-2xl mx-auto lg:mx-0">
+                  <p className="text-xl text-muted-foreground leading-relaxed">
+                    Fizyka w 7 klasie to nowość i spore wyzwanie. Chcesz, żeby Twoje dziecko od razu polubiło ten przedmiot, zamiast stresować się na pierwszych lekcjach? Wybierzcie innowacyjny kurs na start!
+                  </p>
+                  <p className="text-xl text-muted-foreground leading-relaxed">
+                    Zamieniliśmy nudny podręcznik w niezwykłą przygodę. Nowoczesna platforma edukacyjna, która uczy fizyki przez interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.
+                  </p>
+                </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
                   {user ? (
@@ -328,7 +333,7 @@ export default function Home() {
       <section className="py-12 border-y border-border bg-card/50 backdrop-blur-sm relative z-20">
         <div className="container mx-auto max-w-6xl px-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { icon: <ShieldCheck className="w-8 h-8 text-emerald-500" />, title: "Zgodność z programem", desc: "Zawsze na bieżąco z wymogami MEN." },
+            { icon: <ShieldCheck className="w-8 h-8 text-emerald-500" />, title: "Program dla klasy 7", desc: "Materiały wspierają naukę fizyki w klasie 7." },
             { icon: <Target className="w-8 h-8 text-primary" />, title: "Prosty cel", desc: "Krok po kroku do lepszych ocen." },
             { icon: <Brain className="w-8 h-8 text-violet-500" />, title: "Mądre powtórki", desc: "Utrwalanie zamiast wkuwania." },
             { icon: <HeartHandshake className="w-8 h-8 text-amber-500" />, title: "Spokojna nauka", desc: "Bez stresu i presji czasu." },
@@ -418,7 +423,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid gap-6">
+          <div className="grid sm:grid-cols-2 gap-6">
             <AnimatedWrapper direction="left" delay={0.1}>
               <CourseModuleCard 
                 title="Kinematyka"
@@ -436,16 +441,6 @@ export default function Home() {
                 lessonCount={15}
                 progress={0}
                 gradientClass="from-violet-500/30 to-fuchsia-500/30"
-              />
-            </AnimatedWrapper>
-
-            <AnimatedWrapper direction="left" delay={0.3}>
-              <CourseModuleCard 
-                title="Praca, Moc, Energia"
-                description="Zasada zachowania energii, energia kinetyczna i potencjalna. Zrozum zasady, które rządzą wszechświatem i codziennym życiem."
-                lessonCount={10}
-                progress={0}
-                gradientClass="from-amber-500/30 to-orange-500/30"
               />
             </AnimatedWrapper>
           </div>
@@ -562,15 +557,15 @@ export default function Home() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatCard 
               title="Bezpieczne płatności"
-              value="100%"
-              description="Szyfrowane transakcje przez operatora"
+              value="BLIK"
+              description="Szybka płatność BLIK / Paynow"
               icon={<ShieldCheck className="w-6 h-6" />}
               colorClass="bg-emerald-500/10 text-emerald-600"
             />
             <StatCard 
-              title="Zgodność z MEN"
-              value="Klasa 7"
-              description="Aktualna podstawa programowa"
+              title="Program dla klasy 7"
+              value="Fizyka"
+              description="Materiały do nauki w klasie 7"
               icon={<BookOpen className="w-6 h-6" />}
               colorClass="bg-blue-500/10 text-blue-600"
             />
@@ -582,10 +577,10 @@ export default function Home() {
               colorClass="bg-violet-500/10 text-violet-600"
             />
             <StatCard 
-              title="Gwarancja dostępu"
-              value="365"
-              description="Dni nielimitowanego dostępu"
-              icon={<Clock className="w-6 h-6" />}
+              title="Cena miesięczna"
+              value="35 zł"
+              description="Bez ukrytych opłat"
+              icon={<Tag className="w-6 h-6" />}
               colorClass="bg-amber-500/10 text-amber-600"
             />
           </div>
@@ -604,20 +599,32 @@ export default function Home() {
                 <p className="text-muted-foreground">Wszystko, czego potrzebuje uczeń klasy 7.</p>
               </div>
 
-              <div className="flex justify-center items-baseline gap-2 mb-8">
-                {priceLabel ? (
-                  <span className="text-5xl md:text-6xl font-black tracking-tight">
-                    {priceLabel}
-                  </span>
-                ) : (
-                  <LoadingSkeleton className="h-14 w-40" />
-                )}
-                <span className="text-xl text-muted-foreground font-medium">/ rok</span>
+              <div className="flex flex-col items-center gap-3 mb-8">
+                <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-4 py-1.5 text-sm font-bold">
+                  Promocja na start
+                </span>
+                <div className="flex justify-center items-baseline gap-3">
+                  {priceLabel ? (
+                    <>
+                      {oldPriceLabel && (
+                        <span className="text-2xl md:text-3xl font-bold text-muted-foreground/70 line-through decoration-2">
+                          {oldPriceLabel}
+                        </span>
+                      )}
+                      <span className="text-5xl md:text-6xl font-black tracking-tight">
+                        {priceLabel}
+                      </span>
+                    </>
+                  ) : (
+                    <LoadingSkeleton className="h-14 w-40" />
+                  )}
+                  <span className="text-xl text-muted-foreground font-medium">/ mies.</span>
+                </div>
               </div>
 
               <ul className="space-y-4 mb-10 text-left max-w-sm mx-auto">
                 {[
-                  "Nielimitowany dostęp przez 365 dni",
+                  "Pełny dostęp do kursu fizyki klasy 7",
                   "Wszystkie moduły i lekcje wideo",
                   "Interaktywne quizy sprawdzające",
                   "Zadania z asystentem AI",
@@ -639,7 +646,7 @@ export default function Home() {
               >
                 {isPending ? "Przetwarzanie..." : "Kup dostęp i zacznij naukę"} <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <p className="text-sm text-muted-foreground mt-4">Płacisz tylko raz, dostęp jest na cały rok.</p>
+              <p className="text-sm text-muted-foreground mt-4">Płatność przez BLIK / Paynow. Po potwierdzeniu płatności dostęp zostanie odblokowany automatycznie.</p>
             </div>
           </AnimatedWrapper>
         </div>
@@ -703,12 +710,20 @@ export default function Home() {
             <div className="flex flex-col leading-tight">
               {priceLabel ? (
                 <>
-                  <span className="text-lg font-black tracking-tight">{priceLabel}</span>
-                  <span className="text-[11px] text-muted-foreground font-medium">365 dni dostępu</span>
+                  <span className="text-lg font-black tracking-tight">
+                    {priceLabel}<span className="text-xs font-bold text-muted-foreground"> / mies.</span>
+                  </span>
+                  <span className="text-[11px] text-muted-foreground font-medium">
+                    {oldPriceLabel ? (
+                      <><span className="line-through">{oldPriceLabel}</span> cena promocyjna</>
+                    ) : (
+                      "Cena promocyjna"
+                    )}
+                  </span>
                 </>
               ) : (
                 <>
-                  <span className="text-base font-bold tracking-tight">FizykaAI</span>
+                  <span className="text-base font-bold tracking-tight">fizyka7</span>
                   <span className="text-[11px] text-muted-foreground font-medium">Klasa 7</span>
                 </>
               )}
@@ -730,7 +745,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-2 mb-6">
             <Zap className="w-6 h-6 text-primary fill-primary" />
-            <span className="font-black text-xl tracking-tight">FizykaAI</span>
+            <span className="font-black text-xl tracking-tight">fizyka7</span>
           </div>
           <p className="text-muted-foreground mb-6">Innowacyjna edukacja dla klasy 7.</p>
           <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground font-medium mb-8">
@@ -739,7 +754,7 @@ export default function Home() {
             <Link href="/login" className="hover:text-primary transition-colors">Logowanie</Link>
             <Link href="/register" className="hover:text-primary transition-colors">Rejestracja</Link>
           </div>
-          <p className="text-sm text-muted-foreground opacity-60">© {new Date().getFullYear()} FizykaAI. Wszystkie prawa zastrzeżone.</p>
+          <p className="text-sm text-muted-foreground opacity-60">© {new Date().getFullYear()} fizyka7. Wszystkie prawa zastrzeżone.</p>
         </div>
       </footer>
     </div>

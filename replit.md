@@ -2,7 +2,7 @@
 
 Polska platforma edukacyjna (LMS) z treściami z fizyki, sprawdzaniem zadań przez AI
 (Gemini), quizami, wideo (Bunny) i tablicą Excalidraw. Dostęp do kursów płatny przez
-Przelewy24.
+Paynow.
 
 ## Run & Operate
 
@@ -23,7 +23,7 @@ Przelewy24.
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
-- AI: Gemini; Video: Bunny; Payments: Przelewy24 (P24)
+- AI: Gemini; Video: Bunny; Payments: Paynow
 - Deploy: Docker Compose + Traefik (Let's Encrypt)
 
 ## Where things live

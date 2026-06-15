@@ -31,3 +31,21 @@ The vitest harness creates `<db>_test`, migrates from `lib/db/drizzle`, single
 fork. Routes are mounted under `/api`. Adding a schema column requires a real
 drizzle migration (`pnpm --filter @workspace/db run generate`) so the test
 harness picks it up — `push` alone won't create the versioned migration file.
+
+# Vite artifacts throw at config-load if PORT/BASE_PATH are unset (even for `build`)
+`physics-platform` and `mockup-sandbox` `vite.config.ts` throw "PORT/BASE_PATH
+environment variable is required" while *loading the config*, so a bare
+`pnpm -w run build` fails on them even though nothing is wrong with the code.
+**Why:** the configs read `process.env.PORT`/`BASE_PATH` at module top-level; the
+dev workflow and the deployment inject these, a plain shell does not.
+**How to apply:** to validate a production build locally, run
+`PORT=5000 BASE_PATH=/ pnpm --filter @workspace/physics-platform run build`.
+`mockup-sandbox` is the Canvas dev tool (not a product artifact) — its build
+failing in CI-style runs is expected/irrelevant.
+
+# Testing the Paynow webhook signature path
+The webhook only runs HMAC verification when `isPaynowConfigured()` (both
+`PAYNOW_API_KEY` + `PAYNOW_SIGNATURE_KEY` set); default test env is unset → mock
+path. To exercise the real signature/status-mapping path in a test, set those two
+vars via `vi.hoisted(...)` BEFORE importing `app`/`env.ts` (static imports would
+cache config first), then sign the exact raw JSON string you `.send()`.

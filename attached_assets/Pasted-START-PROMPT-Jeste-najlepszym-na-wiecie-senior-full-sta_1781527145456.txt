@@ -1,0 +1,959 @@
+START PROMPT
+
+Jesteś najlepszym na świecie senior full-stack developerem, architektem aplikacji LMS/SaaS, security engineerem, QA leadem, DevOps engineerem, product designerem, UX/UI designerem klasy światowej, motion designerem oraz ekspertem od platform edukacyjnych premium.
+
+Twoim zadaniem jest przeprowadzić pełny, kompletny, bezlitosny audyt i naprawę istniejącej aplikacji edukacyjnej „fizyka7”, pracując na załączonej paczce kodu aplikacji, załączonej umowie, audytach, raportach, plikach kursu, materiałach wideo/quizowych/PNG oraz aktualnych wytycznych biznesowych.
+
+Nie działaj powierzchownie. Nie rób kosmetyki. Nie zgaduj. Nie zostawiaj TODO. Nie oznaczaj pracy jako zakończonej, dopóki nie przeczytasz załączników, nie sprawdzisz repozytorium linia po linii w obszarach MVP, nie wdrożysz poprawek, nie uruchomisz testów, nie przejdziesz checklisty i nie przygotujesz raportu końcowego.
+
+Aplikacja ma wyglądać i działać jak profesjonalna, komercyjna platforma edukacyjna premium, a nie demo, WordPress, landing page ani prototyp.
+
+## 0. Najważniejsza zasada pracy
+
+Najpierw przeczytaj i przeanalizuj wszystkie załączniki:
+
+1. Załączony ZIP z aplikacją:
+
+   * `Elearning_Platform-main`
+   * pełne repozytorium aplikacji,
+   * kod frontendu,
+   * kod backendu,
+   * bazę danych,
+   * migracje,
+   * OpenAPI,
+   * wygenerowane klienty,
+   * Docker,
+   * README,
+   * raport końcowy,
+   * audyt techniczny,
+   * folder `attached_assets`,
+   * pliki kursu,
+   * quizy,
+   * PNG,
+   * konfiguracje Bunny,
+   * wcześniejsze prompty i wytyczne.
+
+2. Załączoną umowę:
+
+   * zakres MVP,
+   * zakres pełnej pierwszej wersji,
+   * technologie,
+   * moduły,
+   * odpowiedzialności,
+   * checklistę przekazania,
+   * protokół odbioru,
+   * wymagania dotyczące dokumentacji,
+   * wymagania dotyczące kodu, wdrożenia i przeniesienia projektu.
+
+3. Wewnętrzne pliki w repozytorium, w szczególności:
+
+   * `README.md`,
+   * `RAPORT_MVP.md`,
+   * `.env.example`,
+   * `replit.md`,
+   * `.agents/memory/*`,
+   * `attached_assets/Audyt_Techniczny_Kodu_MVP_Platforma_Edukacyjna_AI_v2_*.docx`,
+   * wszystkie pliki `Pasted-*.txt`,
+   * `scripts/src/course-data.ts`,
+   * `scripts/data/bunny-videos.json`,
+   * `attached_assets/course_extract/KURS_STRUKTURA_I_QUIZY_KOMPLETNY_OPIS.txt`,
+   * `attached_assets/course_extract/lista_quizow_i_png_bez_filmow.csv`,
+   * `attached_assets/course_extract/manifest_zmian_nazw.csv`,
+   * `attached_assets/course_extract/plan_nazw_do_bunny_video.csv`.
+
+Masz wyciągnąć z załączników wszystko, co wpływa na aplikację, audyt, MVP, UX/UI, płatności, zgodność z umową, bezpieczeństwo, kurs, treści, strukturę lekcji i odbiór projektu.
+
+## 1. Aktualny stan aplikacji z załączonego ZIP
+
+Repozytorium jest monorepo aplikacji edukacyjnej.
+
+Stack:
+
+* frontend: React + TypeScript + Vite + Tailwind,
+* backend: Node.js + Express + TypeScript,
+* baza danych: PostgreSQL + Drizzle ORM,
+* API: OpenAPI + wygenerowany klient React Query,
+* AI: Google Gemini API po stronie backendu,
+* wideo: Bunny.net Stream,
+* tablica: Excalidraw,
+* płatności obecnie w kodzie: Przelewy24/P24,
+* docelowo teraz: Paynow Sandbox i później Paynow produkcja,
+* wdrożenie: Docker / Docker Compose / VPS / Nginx / Traefik,
+* testy: Vitest backend, typecheck, build, docelowo także E2E/Playwright.
+
+Główne katalogi:
+
+* `artifacts/api-server` — backend Express,
+* `artifacts/physics-platform` — frontend React,
+* `lib/db` — schema i migracje Drizzle,
+* `lib/api-spec` — OpenAPI,
+* `lib/api-client-react` — wygenerowany klient,
+* `lib/api-zod` — wygenerowane typy/schematy,
+* `scripts` — seed i dane kursu,
+* `docker` — Dockerfile API i web,
+* `deploy` — skrypty wdrożeniowe,
+* `attached_assets` — audyt, prompty, kurs, quizy, PNG, materiały pomocnicze.
+
+Według plików kursu aplikacja zawiera:
+
+* 3 główne działy kursu,
+* 21 lekcji,
+* 14 quizów,
+* 34 obrazki PNG,
+* mapę filmów Bunny.net,
+* 56 filmów w Bunny według mapy `bunny-videos.json`,
+* strukturę kursu i quizów w `scripts/src/course-data.ts`.
+
+To wszystko ma zostać sprawdzone i wykorzystane, a nie pominięte.
+
+## 2. Zakres z umowy, który musi zostać zweryfikowany
+
+Na podstawie umowy aplikacja ma obejmować co najmniej:
+
+1. Stronę główną / sprzedażową.
+2. Konto ucznia:
+
+   * rejestracja,
+   * logowanie,
+   * profil,
+   * widok dostępnych materiałów.
+3. Strukturę kursu:
+
+   * 3 główne działy w pierwszej wersji,
+   * lekcje przypisane do działów,
+   * możliwość dalszej rozbudowy.
+4. Lekcje:
+
+   * wideo,
+   * opis,
+   * zadanie,
+   * quiz lub element powtórkowy.
+5. Wideo:
+
+   * Bunny.net Stream albo osadzenie materiałów z konta zamawiającego.
+6. Tablicę:
+
+   * Excalidraw osadzony w lekcji.
+7. AI:
+
+   * przycisk „Sprawdź zadanie”,
+   * zrzut rozwiązania ucznia,
+   * przesłanie obrazu do backendu,
+   * analiza przez Gemini API,
+   * odpowiedź pokazana uczniowi.
+8. Quizy:
+
+   * pytania jednokrotnego wyboru,
+   * odpowiedzi A/B/C/D,
+   * wynik,
+   * informacja o poprawnej odpowiedzi.
+9. Płatności / dostęp:
+
+   * wcześniej P24/PayU,
+   * teraz wymaganie biznesowe zmienia kierunek na Paynow,
+   * dostęp do lekcji ma być zdejmowany automatycznie po potwierdzonej płatności.
+10. Panel administratora:
+
+* użytkownicy,
+* dostępy,
+* kurs,
+* działy,
+* lekcje,
+* quizy,
+* płatności,
+* formularze / kontakt, jeżeli istnieją.
+
+11. Responsywność:
+
+* desktop,
+* tablet,
+* mobile bez rozsypywania layoutu,
+* ale w komunikacji marketingowej nie wskazywać telefonu jako rekomendowanego urządzenia do obsługi programu.
+
+12. Backend API i baza danych:
+
+* użytkownicy,
+* lekcje,
+* quizy,
+* odpowiedzi,
+* dostęp,
+* płatności,
+* postępy.
+
+13. Dokumentacja:
+
+* instrukcja uruchomienia,
+* opis env,
+* opis wdrożenia,
+* opis konfiguracji Bunny,
+* opis konfiguracji Gemini,
+* opis płatności,
+* checklista przekazania.
+
+Masz sprawdzić zgodność aplikacji z tym zakresem punkt po punkcie.
+
+## 3. Pilne zmiany prawne i treściowe na stronie
+
+Te zmiany mają najwyższy priorytet, ponieważ część z nich ma znaczenie prawne.
+
+### 3.1. Usuń „Program zgodny z MEN” i podobne sformułowania
+
+Natychmiast usuń ze strony i kodu wszystkie sformułowania typu:
+
+* „Program zgodny z MEN”,
+* „Zgodność z MEN”,
+* „zgodne z MEN”,
+* „zgodne z wymogami MEN”,
+* „w pełni zgodny z polską podstawą programową”,
+* każde sformułowanie sugerujące oficjalne zatwierdzenie, akredytację lub formalną zgodność z MEN.
+
+Nie jesteśmy placówką oświatową i nie możemy posługiwać się takim komunikatem.
+
+W kodzie obecnie do sprawdzenia m.in.:
+
+* `artifacts/physics-platform/src/pages/home.tsx`
+
+  * FAQ: odpowiedź przy „Dla kogo jest ta platforma?” mówi o pełnej zgodności z podstawą programową,
+  * trust strip / benefit: „Zgodność z programem”, opis „Zawsze na bieżąco z wymogami MEN”,
+  * sekcja dla rodzica: karta „Zgodność z MEN”.
+* `artifacts/physics-platform/src/pages/regulamin.tsx`
+
+  * zapis o platformie zgodnej z polską podstawą programową.
+* wszystkie meta, opisy, teksty, alt, footer, SEO i komponenty.
+
+Zastąp neutralnymi, bezpiecznymi prawnie sformułowaniami, np.:
+
+* „Materiały wspierają naukę fizyki w klasie 7.”
+* „Kurs pomaga uczniowi uporządkować najważniejsze zagadnienia z fizyki w klasie 7.”
+* „Program został przygotowany z myślą o uczniach rozpoczynających fizykę w klasie 7.”
+* „Materiały pomagają w systematycznej nauce fizyki.”
+
+Nie używaj słów sugerujących formalną certyfikację, akredytację, zatwierdzenie ani oficjalną zgodność z MEN.
+
+### 3.2. Usuń „Dostęp na rok”, „365 dni”, „/ rok” i komunikację roczną
+
+Usuń wszystkie komunikaty sugerujące roczny dostęp, między innymi:
+
+* „Dostęp na rok”,
+* „365 dni dostępu”,
+* „Nielimitowany dostęp przez 365 dni”,
+* „Płacisz tylko raz, dostęp jest na cały rok”,
+* „/ rok” przy cenie,
+* FAQ „Jak długo trwa dostęp po zakupie?” jeżeli odpowiada o 365 dniach,
+* zapisy w regulaminie o dostępie na 365 dni,
+* komunikaty w mobile sticky CTA.
+
+W kodzie obecnie do sprawdzenia m.in.:
+
+* `home.tsx`:
+
+  * badge w hero: „365 dni dostępu”,
+  * FAQ: „Dostęp do wszystkich materiałów jest aktywny przez 365 dni...”,
+  * pricing: cena z dopiskiem „/ rok”,
+  * lista korzyści: „Nielimitowany dostęp przez 365 dni”,
+  * tekst pod CTA: „Płacisz tylko raz, dostęp jest na cały rok”,
+  * mobile CTA: „365 dni dostępu”,
+  * karta „Gwarancja dostępu” z wartością „365”.
+* `regulamin.tsx`:
+
+  * zapis o dostępie na 365 dni.
+
+Docelowo komunikacja ma mówić o cenie miesięcznej: 35 zł miesięcznie.
+
+### 3.3. Usuń FAQ „Czy płatność jest bezpieczna?”
+
+Usuń całe pytanie i odpowiedź:
+
+„Czy płatność jest bezpieczna?”
+
+Nie zostawiaj pustego accordion itemu, pustych odstępów ani niedziałającego FAQ.
+
+Powód biznesowy: płatność ma być przez BLIK / Paynow, nie przez kartę, ponieważ klienci zniechęcają się, gdy widzą komunikację o karcie albo konieczność płacenia kartą.
+
+Usuń też sformułowania typu:
+
+* „Nie przechowujemy danych Twojej karty”,
+* „dane karty”,
+* komunikację sugerującą, że główną metodą jest karta.
+
+Zamiast tego w miejscach płatności komunikuj prosto:
+
+* „Płatność przez BLIK / Paynow.”
+* „Szybka płatność BLIK.”
+* „Po potwierdzeniu płatności dostęp zostanie odblokowany automatycznie.”
+
+### 3.4. Usuń telefon z sekcji urządzeń
+
+W sekcji informującej o urządzeniach potrzebnych do obsługi programu usuń telefon jako urządzenie obsługiwane lub rekomendowane.
+
+Obecnie w FAQ jest:
+
+„Wystarczy komputer, tablet lub telefon z przeglądarką...”
+
+Zmień na komunikat w rodzaju:
+
+„Do wygodnej nauki rekomendujemy komputer lub tablet. Tablica i zadania działają najlepiej na większym ekranie.”
+
+Nie komunikuj telefonu jako docelowego urządzenia do obsługi programu.
+
+Jednocześnie aplikacja nie może się rozsypywać na telefonie. Mobile musi działać technicznie i sprzedażowo, ale marketingowo nie sugerujemy telefonu jako rekomendowanego narzędzia do lekcji.
+
+### 3.5. Usuń ostatni punkt w dziale „Co jest w programie”
+
+Znajdź sekcję „Co jest w programie” lub jej odpowiednik na stronie. Usuń ostatni punkt listy, ponieważ są to na ten moment zbyt odległe tematy.
+
+Po usunięciu popraw layout, odstępy, grid i responsywność.
+
+## 4. Zmiana nazwy z „FizykaAI” / „fizyka ai” na „fizyka7”
+
+Na całej stronie i w widocznych dla użytkownika treściach zamień starą nazwę:
+
+* FizykaAI,
+* Fizyka AI,
+* fizyka ai,
+* FIZYKA AI,
+* fizyka-ai,
+* FizykaAi,
+
+na nową nazwę:
+
+fizyka7
+
+Jeżeli nazwa jest na początku zdania, dopuszczalne jest:
+
+Fizyka7
+
+Preferowana nazwa marki:
+
+fizyka7
+
+W kodzie obecnie do sprawdzenia m.in.:
+
+* `artifacts/physics-platform/src/components/layout.tsx`,
+* `artifacts/physics-platform/src/components/hero-showcase.tsx`,
+* `artifacts/physics-platform/src/pages/home.tsx`,
+* `artifacts/physics-platform/src/pages/privacy.tsx`,
+* `artifacts/physics-platform/src/pages/regulamin.tsx`,
+* `README.md`,
+* `RAPORT_MVP.md`,
+* `replit.md`,
+* meta title,
+* manifest,
+* OpenGraph,
+* alt text,
+* footer,
+* mobile CTA,
+* komunikaty systemowe,
+* formularze,
+* ekrany płatności,
+* maile lub powiadomienia, jeżeli istnieją.
+
+Nie zmieniaj nazw technicznych w sposób psujący importy, jeśli nie jest to konieczne. Widoczne dla użytkownika nazwy muszą być zaktualizowane w 100%.
+
+## 5. Nowy tekst hero / tekst sprzedażowy
+
+Zastąp aktualny tekst:
+
+„Koniec z zakuwaniem wzorów. Nowoczesna platforma edukacyjna, która uczy fizyki przez interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.”
+
+nowym tekstem:
+
+„Fizyka w 7 klasie to nowość i spore wyzwanie. Chcesz, żeby Twoje dziecko od razu polubiło ten przedmiot, zamiast stresować się na pierwszych lekcjach? Wybierzcie innowacyjny kurs na start! Zamieniliśmy nudny podręcznik w niezwykłą przygodę. Nowoczesna platforma edukacyjna, która uczy fizyki przez interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.”
+
+Popraw interpunkcję i łamanie tekstu tak, żeby wyglądało profesjonalnie w UI.
+
+Tekst powinien być czytelny na desktopie i mobile. Nie może tworzyć zbyt ciężkiego bloku. Możesz go podzielić na 2 krótkie akapity, ale nie zmieniaj sensu.
+
+## 6. Promocja cenowa
+
+Dodaj widoczną promocję cenową:
+
+* stara cena: 90 zł miesięcznie,
+* nowa cena promocyjna: 35 zł miesięcznie.
+
+Stara cena 90 zł ma być przekreślona.
+
+Nowa cena 35 zł miesięcznie ma być wyraźnie wyeksponowana.
+
+Preferowany zapis:
+
+90 zł/mies. — przekreślone
+35 zł/mies. — aktualna cena promocyjna
+
+W kodzie sprawdź:
+
+* `COURSE_PRICE_GROSZ` w `.env.example`,
+* `COURSE_PRICE_GROSZ` w `.replit`,
+* `config/env.ts`,
+* endpoint `/payments/price`,
+* frontend `home.tsx`,
+* pricing card,
+* mobile sticky CTA,
+* checkout/payment create,
+* opisy w regulaminie,
+* dokumentację README.
+
+Docelowo cena aktualna to:
+
+`3500` groszy
+
+Stara cena informacyjna to:
+
+`9000` groszy
+
+Nie może być sytuacji, że aplikacja pobiera 199 zł, 90 zł albo inną starą cenę, podczas gdy frontend pokazuje 35 zł. Cena w backendzie, frontendzie i płatności musi być spójna.
+
+## 7. Paynow Sandbox zamiast P24 jako aktualny kierunek płatności
+
+Obecny kod ma integrację Przelewy24/P24. Teraz wdrażamy Paynow Sandbox jako aktualny proces płatności.
+
+Przesłany został testowy link Paynow Sandbox:
+
+https://paywall.sandbox.paynow.pl/PSUL-QXQ-Q00-CM3?token=eyJraWQiOiJhMDAyNjJjYS02NTU3LTRjOTktOGU0NC1kMTFlMTAxYjhhNTIiLCJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJQU1VMLVFYUS1RMDAtQ00zIiwiYXVkIjoicGF5d2FsbC5zYW5kYm94LnBheW5vdy5wbCIsImlzcyI6InNhbmRib3gucGF5bm93LnBsIiwiZXhwIjoxNzg1NTM1MTk5LCJpYXQiOjE3ODE0OTA1ODF9.veF5n5P7p9Tw2n2e8HduWFwSgKIZSkl8KPXv4sawG5k
+
+Masz wdrożyć albo przygotować integrację Paynow tak, aby:
+
+1. Backend tworzył płatność po stronie serwera.
+2. Backend generował redirect/link do płatności.
+3. Frontend nie zawierał sekretów płatności.
+4. Webhooki były obsługiwane server-server.
+5. Dostęp do kursu był zdejmowany tylko po potwierdzonej płatności.
+6. Webhook był weryfikowany podpisem / Signature Key zgodnie z dokumentacją Paynow.
+7. Obsługa płatności była idempotentna.
+8. Odrzucona płatność nie odblokowywała lekcji.
+9. Błąd płatności pokazywał zrozumiały komunikat i możliwość ponowienia.
+10. Produkcja i sandbox były odseparowane envami.
+
+Dodaj nowe zmienne środowiskowe, np.:
+
+* `PAYNOW_ENV=sandbox`,
+* `PAYNOW_API_KEY`,
+* `PAYNOW_SIGNATURE_KEY`,
+* `PAYNOW_API_URL`,
+* `PAYNOW_RETURN_URL`,
+* `PAYNOW_NOTIFICATION_URL`.
+
+Nazwy dopasuj do faktycznej implementacji, ale opisz je w `.env.example` i README.
+
+Nie hardcoduj żadnego klucza. Klucze API i Signature Key mają być wyłącznie w `.env` / sekretach środowiskowych.
+
+## 8. Testy Paynow Sandbox / BLIK
+
+Przetestuj proces płatności BLIK w Paynow Sandbox.
+
+Podczas wyboru BLIK użyj kodów testowych:
+
+* `111 111` — powinien skutkować sukcesem transakcji,
+* `333 333` — powinien wymusić błąd autoryzacji.
+
+Scenariusz sukcesu `111 111`:
+
+1. Użytkownik klika zakup.
+2. Backend tworzy płatność Paynow.
+3. Użytkownik trafia do Paynow Sandbox.
+4. Użytkownik wybiera BLIK.
+5. Użytkownik wpisuje `111 111`.
+6. Paynow potwierdza sukces.
+7. Webhook trafia do backendu.
+8. Backend weryfikuje webhook.
+9. Backend aktualizuje status płatności.
+10. Backend nadaje dostęp do kursu.
+11. Uczeń po powrocie widzi odblokowany kurs/lekcje.
+12. Nie jest wymagana ręczna interwencja administratora.
+
+Scenariusz błędu `333 333`:
+
+1. Użytkownik klika zakup.
+2. Backend tworzy płatność Paynow.
+3. Użytkownik wybiera BLIK.
+4. Użytkownik wpisuje `333 333`.
+5. Paynow zwraca błąd.
+6. Backend nie nadaje dostępu.
+7. Status płatności zapisuje się jako nieudany/odrzucony/anulowany.
+8. Użytkownik dostaje czytelny komunikat.
+9. Użytkownik może ponowić płatność.
+10. Kurs pozostaje zablokowany.
+
+## 9. Gemini API
+
+Moduł Gemini ma działać po stronie backendu.
+
+Dostaniesz klucz Gemini API jako sekret środowiskowy. Użyj go jako:
+
+`GEMINI_API_KEY=[WARTOŚĆ PRZEKAZANA PRZEZ ZAMAWIAJĄCEGO W BEZPIECZNYM SEKRECIE]`
+
+Nie wpisuj klucza na stałe w kodzie. Nie commituj go. Nie pokazuj w UI. Nie loguj. Nie umieszczaj w frontendzie. Nie umieszczaj w README.
+
+Zaktualizuj `.env.example` tylko z pustym placeholderem:
+
+`GEMINI_API_KEY=`
+
+Jeżeli w załącznikach albo wcześniejszych promptach znajdują się jakiekolwiek jawne klucze API, potraktuj je jako wyciek sekretów. Nie kopiuj ich do kodu. Zarekomenduj rotację po zakończeniu wdrożenia.
+
+## 10. Bunny.net i materiały kursu
+
+W repozytorium znajdują się dane Bunny i struktura kursu.
+
+Masz sprawdzić:
+
+1. Czy filmy z `scripts/data/bunny-videos.json` są prawidłowo mapowane do lekcji.
+2. Czy istnieją 3 działy:
+
+   * Dział 1,
+   * Dział 2,
+   * Dział 3.
+3. Czy aplikacja obsługuje 21 lekcji.
+4. Czy quizy z `scripts/src/course-data.ts` są przypisane do właściwych lekcji.
+5. Czy 14 quizów ma poprawne odpowiedzi A/B/C/D.
+6. Czy 34 PNG z `public/course-assets` są wykorzystywane prawidłowo.
+7. Czy obrazki pomocnicze są widoczne w lekcji.
+8. Czy wideo nie pokazuje błędu „Wideo jest chwilowo niedostępne”, jeżeli istnieje prawidłowy Bunny GUID.
+9. Czy frontend nie woła Bunny API bezpośrednio z kluczem.
+10. Czy klucze Bunny są tylko w backendzie / env.
+11. Czy README opisuje konfigurację Bunny.
+
+W załączonych plikach wcześniej pojawiały się klucze Bunny API. Nie wolno ich hardcodować. Potraktuj je jako sekrety i użyj tylko przez `.env`, a w raporcie końcowym napisz, że zalecana jest rotacja sekretów.
+
+## 11. Audyt linia po linii
+
+Masz wykonać pełny audyt aplikacji.
+
+Obowiązkowo sprawdź linia po linii pliki kluczowe dla MVP:
+
+Backend:
+
+* `artifacts/api-server/src/app.ts`,
+* `artifacts/api-server/src/index.ts`,
+* `artifacts/api-server/src/config/env.ts`,
+* `artifacts/api-server/src/routes/auth.ts`,
+* `artifacts/api-server/src/routes/courses.ts`,
+* `artifacts/api-server/src/routes/progress.ts`,
+* `artifacts/api-server/src/routes/quizzes.ts`,
+* `artifacts/api-server/src/routes/ai.ts`,
+* `artifacts/api-server/src/routes/payments.ts`,
+* `artifacts/api-server/src/routes/admin.ts`,
+* `artifacts/api-server/src/routes/contact.ts`,
+* `artifacts/api-server/src/lib/access.ts`,
+* `artifacts/api-server/src/lib/bunny.ts`,
+* `artifacts/api-server/src/lib/video.ts`,
+* `artifacts/api-server/src/middlewares/auth.ts`,
+* `artifacts/api-server/src/middlewares/rate-limit.ts`,
+* wszystkie testy backendu.
+
+Frontend:
+
+* `artifacts/physics-platform/src/App.tsx`,
+* `artifacts/physics-platform/src/pages/home.tsx`,
+* `artifacts/physics-platform/src/pages/dashboard.tsx`,
+* `artifacts/physics-platform/src/pages/course-overview.tsx`,
+* `artifacts/physics-platform/src/pages/topics-list.tsx`,
+* `artifacts/physics-platform/src/pages/topic-detail.tsx`,
+* `artifacts/physics-platform/src/pages/payment/success.tsx`,
+* `artifacts/physics-platform/src/pages/payment/error.tsx`,
+* `artifacts/physics-platform/src/pages/login.tsx`,
+* `artifacts/physics-platform/src/pages/register.tsx`,
+* `artifacts/physics-platform/src/pages/privacy.tsx`,
+* `artifacts/physics-platform/src/pages/regulamin.tsx`,
+* `artifacts/physics-platform/src/pages/admin/*`,
+* `artifacts/physics-platform/src/components/layout.tsx`,
+* `artifacts/physics-platform/src/components/mobile-nav.tsx`,
+* `artifacts/physics-platform/src/components/hero-showcase.tsx`,
+* `artifacts/physics-platform/src/hooks/use-auth.tsx`,
+* `artifacts/physics-platform/src/hooks/use-purchase.ts`,
+* `artifacts/physics-platform/src/lib/format.ts`.
+
+Baza / API / konfiguracja:
+
+* `lib/db/src/schema/*`,
+* `lib/db/drizzle/*`,
+* `lib/api-spec/openapi.yaml`,
+* `lib/api-zod/src/generated/*`,
+* `lib/api-client-react/src/generated/*`,
+* `.env.example`,
+* `docker-compose.yml`,
+* `docker-compose.prod.yml`,
+* `docker/api/Dockerfile`,
+* `docker/web/Dockerfile`,
+* `docker/web/nginx.conf`,
+* `package.json`,
+* `pnpm-workspace.yaml`,
+* `README.md`.
+
+Wygenerowanych komponentów UI nie musisz przepisywać ręcznie, ale musisz je przeskanować pod kątem błędów, niedziałających importów, konfliktów, dostępności, mobile i tekstów widocznych dla użytkownika.
+
+## 12. Blokery bezpieczeństwa i produkcji
+
+Sprawdź i potwierdź, że nadal zamknięte są wszystkie wcześniejsze blokery P0/P1 z audytu i raportu MVP:
+
+1. Dostęp do płatnych treści musi być egzekwowany po stronie backendu.
+2. Klient nie może sam nadać sobie dostępu.
+3. Klient nie może sam ustawić postępu ukończenia lekcji.
+4. Klient nie może sfałszować quizu, dostępu, płatności ani statusu.
+5. Endpointy treści płatnych muszą zwracać 403 bez dostępu.
+6. Webhook płatności musi być weryfikowany.
+7. Nadawanie dostępu po płatności musi być idempotentne.
+8. Brak hardcoded `courseId=1`.
+9. Brak sekretów w frontendzie.
+10. Brak sekretów w repozytorium.
+11. Walidacja auth na backendzie.
+12. Panel admina chroniony rolą.
+13. OpenAPI, backend i klient React Query muszą być spójne.
+14. `env.ts`, `.env.example`, Docker i README muszą być spójne.
+15. Production build nie może używać mock payment.
+16. Sandbox i mock mogą działać tylko w środowisku testowym/development.
+
+Jeżeli którykolwiek punkt nie jest spełniony, napraw go i dopisz test.
+
+## 13. UX/UI premium
+
+Masz działać jak najlepszy na świecie UX/UI designer.
+
+Aplikacja ma wyglądać:
+
+* premium,
+* nowocześnie,
+* dynamicznie,
+* jak prawdziwa aplikacja LMS,
+* jak produkt komercyjny,
+* jak nowoczesny React SaaS,
+* z dobrym spacingiem,
+* z dopracowanymi kartami,
+* z czytelną hierarchią,
+* z wersją mobile bez chaosu,
+* z dobrym dashboardem ucznia,
+* z czytelnym course playerem,
+* z dobrym CTA,
+* z jasnym pricingiem,
+* z zaufaniem dla rodzica,
+* ale bez ryzykownych prawnie claimów.
+
+Nie kopiuj 1:1 LearnWorlds ani żadnej innej platformy. Inspiruj się jakością, nie kradnij layoutu, tekstów, brandingu ani grafik.
+
+Sprawdź i dopracuj:
+
+1. Hero.
+2. CTA.
+3. Sekcję korzyści.
+4. Sekcję „Jak działa nauka”.
+5. Sekcję programu.
+6. Sekcję AI.
+7. Sekcję dla rodzica.
+8. Pricing.
+9. FAQ.
+10. Footer.
+11. Login/register.
+12. Dashboard ucznia.
+13. Widok kursu.
+14. Lista tematów.
+15. Widok lekcji.
+16. Wideo.
+17. Quiz.
+18. Excalidraw.
+19. Feedback AI.
+20. Panel admina.
+21. Mobile nav.
+22. Sticky CTA.
+23. Empty states.
+24. Loading states.
+25. Error states.
+26. Payment success/error.
+
+## 14. Panel ucznia i kurs
+
+Panel ucznia ma być kompletny i profesjonalny.
+
+Po zalogowaniu uczeń powinien widzieć:
+
+* kurs fizyki dla klasy 7,
+* 3 działy,
+* lekcje w działach,
+* postęp,
+* kontynuuj naukę,
+* status ukończenia,
+* filmy,
+* quizy,
+* zadania,
+* materiały PNG,
+* AI przy lekcji,
+* jasne informacje co dalej.
+
+Nie może być chaosu, pustych demo danych ani przypadkowych testów w widoku ucznia.
+
+Sprawdź:
+
+* czy filmy są widoczne,
+* czy wideo ma dobry player,
+* czy quiz działa,
+* czy wynik quizu się zapisuje,
+* czy progress działa,
+* czy AI działa,
+* czy zadanie na tablicy działa,
+* czy uczeń wie, co ma kliknąć,
+* czy jest następna/poprzednia lekcja,
+* czy layout działa na mobile i tablecie.
+
+## 15. Panel administratora
+
+Panel administratora ma umożliwiać realne zarządzanie MVP.
+
+Sprawdź:
+
+* użytkowników,
+* role,
+* ban/odbanowanie,
+* dostępy,
+* płatności,
+* kursy,
+* działy,
+* lekcje,
+* filmy,
+* quizy,
+* pytania,
+* odpowiedzi A/B/C/D,
+* zadania,
+* prompt AI,
+* formularze kontaktowe,
+* logi admina,
+* responsywność panelu.
+
+Nie zostawiaj tabel, które całkowicie rozpadają się na mobile. Jeżeli trzeba, zastosuj card layout na małych ekranach.
+
+## 16. Regulamin i polityka prywatności
+
+Sprawdź `regulamin.tsx` i `privacy.tsx`.
+
+Usuń lub zmień:
+
+* FizykaAI na fizyka7,
+* zapisy o 365 dniach,
+* zapisy o karcie płatniczej,
+* zapisy sugerujące pełną zgodność z podstawą programową/MEN,
+* przestarzałe nazwy operatorów płatności, jeżeli przechodzimy na Paynow.
+
+Nie twórz finalnych porad prawnych. Jeżeli tekst wymaga prawnika, wpisz neutralny placeholder i zaznacz w raporcie, że regulamin/polityka prywatności wymagają zatwierdzenia przez prawnika.
+
+## 17. Dokumentacja i przekazanie projektu
+
+Po zmianach zaktualizuj:
+
+* README,
+* `.env.example`,
+* instrukcję Docker,
+* instrukcję local run,
+* instrukcję VPS,
+* instrukcję migracji,
+* instrukcję seedowania,
+* instrukcję Paynow Sandbox,
+* instrukcję Paynow production,
+* instrukcję Gemini,
+* instrukcję Bunny,
+* instrukcję testów,
+* checklistę odbioru.
+
+README musi być spójne z kodem. Nie może opisywać P24 jako jedynego operatora, jeśli wdrażamy Paynow.
+
+## 18. Testy obowiązkowe
+
+Uruchom i doprowadź do zielonego wyniku:
+
+1. Instalacja:
+
+   * `pnpm install --frozen-lockfile`
+
+2. Typecheck:
+
+   * `pnpm run typecheck`
+
+3. Testy:
+
+   * `pnpm run test`
+   * lub właściwe testy workspace.
+
+4. Build:
+
+   * `pnpm run build`
+
+5. Docker:
+
+   * `docker compose up -d --build`
+   * sprawdzenie healthcheck,
+   * sprawdzenie API,
+   * sprawdzenie frontendu.
+
+6. Migracje:
+
+   * uruchomienie migracji na czystej bazie,
+   * seed danych kursu,
+   * sprawdzenie, czy powstały 3 działy, 21 lekcji, 14 quizów i materiały PNG.
+
+7. Płatności:
+
+   * Paynow Sandbox,
+   * BLIK `111 111`,
+   * BLIK `333 333`,
+   * webhook,
+   * payment success,
+   * payment error,
+   * brak odblokowania po błędzie.
+
+8. Bezpieczeństwo:
+
+   * brak dostępu do płatnych lekcji bez uprawnienia,
+   * 403 tam, gdzie ma być 403,
+   * brak sekretów w bundle frontendu,
+   * brak sekretów w logach,
+   * brak hardcoded API keys.
+
+9. UI:
+
+   * desktop,
+   * tablet,
+   * mobile,
+   * 320 px,
+   * 360 px,
+   * 390 px,
+   * 430 px,
+   * 768 px,
+   * 1024 px,
+   * 1280 px.
+
+Jeżeli nie możesz uruchomić któregoś testu z powodu środowiska, napisz dokładnie dlaczego i podaj komendę do uruchomienia u właściciela projektu. Nie udawaj, że test przeszedł.
+
+## 19. Konkretna lista zmian do wdrożenia natychmiast
+
+Priorytet 1 — prawne i krytyczne:
+
+1. Usuń „Program zgodny z MEN” i podobne claimy.
+2. Usuń „Zgodność z MEN”.
+3. Usuń „wymogi MEN”.
+4. Usuń komunikaty o pełnej zgodności z podstawą programową.
+5. Usuń „Dostęp na rok”, „365 dni”, „/ rok”.
+6. Usuń FAQ „Czy płatność jest bezpieczna?”.
+7. Usuń komunikację o karcie płatniczej.
+8. Zmień FizykaAI / fizyka ai na fizyka7.
+9. Zmień hero copy na nowy tekst.
+10. Usuń telefon jako rekomendowane urządzenie.
+
+Priorytet 2 — sprzedaż i płatność:
+
+11. Dodaj promocję 90 zł/mies. przekreślone -> 35 zł/mies.
+12. Ustaw backendową cenę na 3500 groszy.
+13. Upewnij się, że płatność pobiera 35 zł.
+14. Wdroż / przygotuj Paynow Sandbox.
+15. Dodaj env Paynow.
+16. Zaktualizuj payment success/error.
+17. Przetestuj BLIK `111 111`.
+18. Przetestuj BLIK `333 333`.
+
+Priorytet 3 — audyt i jakość MVP:
+
+19. Sprawdź zgodność z umową.
+20. Sprawdź zgodność z raportem MVP.
+21. Sprawdź kurs: 3 działy, 21 lekcji, 14 quizów, 34 PNG, filmy Bunny.
+22. Sprawdź panel ucznia.
+23. Sprawdź panel admina.
+24. Sprawdź AI.
+25. Sprawdź Excalidraw.
+26. Sprawdź dostęp po płatności.
+27. Sprawdź backendową ochronę treści.
+28. Sprawdź Docker.
+29. Sprawdź README.
+30. Przygotuj raport końcowy.
+
+## 20. Zakaz
+
+Nie wolno:
+
+* hardcodować kluczy API,
+* commitować `.env`,
+* wkładać Gemini API key do frontendu,
+* wkładać Bunny API key do frontendu,
+* wkładać Paynow API key do frontendu,
+* zostawiać P24 jako aktywnego procesu, jeśli docelowo wdrażamy Paynow,
+* zostawiać mock payment w produkcji,
+* ufać klientowi w sprawach płatności,
+* ufać klientowi w sprawach dostępu,
+* ufać klientowi w sprawach postępu,
+* używać tekstów o MEN,
+* używać tekstów o rocznym dostępie,
+* mówić klientom o karcie jako głównej metodzie,
+* zostawiać „FizykaAI” w UI,
+* ukrywać błędów tylko frontendowo,
+* usuwać funkcji MVP, żeby uniknąć naprawy,
+* zostawiać TODO,
+* twierdzić, że gotowe bez testów.
+
+## 21. Oczekiwany raport końcowy
+
+Po zakończeniu przygotuj raport końcowy w języku polskim.
+
+Raport ma zawierać:
+
+1. Listę przeczytanych załączników.
+2. Listę sprawdzonych plików.
+3. Podsumowanie zmian treściowych.
+4. Podsumowanie zmian prawnych.
+5. Podsumowanie zmian UX/UI.
+6. Podsumowanie zmian płatności.
+7. Podsumowanie zmian backendu.
+8. Podsumowanie zmian frontendu.
+9. Podsumowanie zmian bazy danych.
+10. Podsumowanie zmian env/Docker/README.
+11. Wyniki testów:
+
+    * typecheck,
+    * testy,
+    * build,
+    * Docker,
+    * migracje,
+    * seed,
+    * Paynow Sandbox.
+12. Wyniki testów BLIK:
+
+    * `111 111`,
+    * `333 333`.
+13. Potwierdzenie, że usunięto:
+
+    * „Program zgodny z MEN”,
+    * „Zgodność z MEN”,
+    * „Dostęp na rok”,
+    * „365 dni”,
+    * FAQ „Czy płatność jest bezpieczna?”,
+    * komunikację o karcie,
+    * telefon jako rekomendowane urządzenie,
+    * FizykaAI / fizyka ai.
+14. Potwierdzenie ceny:
+
+    * stara: 90 zł/mies. przekreślona,
+    * nowa: 35 zł/mies.,
+    * backend: 3500 groszy.
+15. Potwierdzenie, że sekrety są tylko w env.
+16. Potwierdzenie, że klucze API nie są w bundle frontendu.
+17. Listę ewentualnych rzeczy wymagających decyzji właściciela.
+18. Listę rekomendacji po wdrożeniu, np. rotacja sekretów, prawnik do regulaminu, produkcyjna konfiguracja Paynow.
+
+## 22. Definicja „gotowe”
+
+Zadanie można uznać za gotowe tylko wtedy, gdy:
+
+* strona nie zawiera ryzykownych prawnie claimów,
+* nazwa marki to fizyka7,
+* cena jest spójna i wynosi 35 zł/mies.,
+* stara cena 90 zł jest przekreślona,
+* Paynow Sandbox działa albo jest jasno wdrożony zgodnie z dokumentacją,
+* BLIK sukces i błąd są przetestowane,
+* dostęp po płatności działa automatycznie,
+* błąd płatności nie odblokowuje kursu,
+* panel ucznia jest profesjonalny,
+* panel admina działa,
+* kurs ma poprawną strukturę,
+* Gemini działa po backendzie,
+* Bunny działa po backendzie,
+* nie ma sekretów w frontendzie,
+* testy przechodzą,
+* build przechodzi,
+* Docker działa,
+* README jest aktualne,
+* raport końcowy jest przygotowany.
+
+Działaj teraz kompleksowo.

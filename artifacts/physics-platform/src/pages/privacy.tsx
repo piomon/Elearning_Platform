@@ -14,13 +14,13 @@ export default function Privacy() {
       <article className="prose-custom space-y-8">
         <header className="space-y-2">
           <h1 className="text-4xl font-black tracking-tight font-display text-foreground">Polityka prywatności</h1>
-          <p className="text-muted-foreground">Informacje o przetwarzaniu danych osobowych na platformie FizykaAI.</p>
+          <p className="text-muted-foreground">Informacje o przetwarzaniu danych osobowych na platformie fizyka7.</p>
         </header>
 
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-foreground">1. Administrator danych</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Administratorem danych osobowych przetwarzanych w ramach platformy FizykaAI jest operator platformy. Dane przetwarzane są zgodnie z obowiązującymi przepisami o ochronie danych osobowych (RODO).
+            Administratorem danych osobowych przetwarzanych w ramach platformy fizyka7 jest operator platformy. Dane przetwarzane są zgodnie z obowiązującymi przepisami o ochronie danych osobowych (RODO).
           </p>
         </section>
 
@@ -56,7 +56,7 @@ export default function Privacy() {
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-foreground">6. Bezpieczeństwo</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Stosujemy odpowiednie środki techniczne i organizacyjne, aby chronić dane przed nieuprawnionym dostępem. Hasła przechowywane są w formie zaszyfrowanej, a dane kart płatniczych nie są przechowywane na naszych serwerach.
+            Stosujemy odpowiednie środki techniczne i organizacyjne, aby chronić dane przed nieuprawnionym dostępem. Hasła przechowywane są w formie zaszyfrowanej, a dane płatnicze nie są przechowywane na naszych serwerach.
           </p>
         </section>
 

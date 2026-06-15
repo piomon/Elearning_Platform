@@ -260,7 +260,7 @@ function TaskPhase({ reduce }: { reduce: Reduce }) {
               className="rounded-xl bg-primary/5 border border-primary/15 p-3 space-y-2"
             >
               <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary">
-                FizykaAI analizuje rozwiązanie <Dots reduce={reduce} />
+                Fizyka7 analizuje rozwiązanie <Dots reduce={reduce} />
               </div>
               {CHECKS.map((c) => {
                 const isDone = step >= c.at;
@@ -306,7 +306,7 @@ function TaskPhase({ reduce }: { reduce: Reduce }) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  FizykaAI <span className="text-[9px] font-semibold text-success bg-success/15 px-1.5 py-0.5 rounded-full">100% trafność</span>
+                  Fizyka7 <span className="text-[9px] font-semibold text-success bg-success/15 px-1.5 py-0.5 rounded-full">100% trafność</span>
                 </p>
                 <p className="mt-1 text-[11px] text-foreground/80 leading-snug min-h-[2.4em]">
                   {typed}
@@ -391,7 +391,7 @@ export function HeroShowcase() {
           <div className="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-inner" />
           <div className="w-3.5 h-3.5 rounded-full bg-emerald-400 shadow-inner" />
           <div className="mx-auto flex items-center gap-1.5 bg-muted/50 rounded-md h-7 px-3 text-[10px] font-medium text-muted-foreground">
-            <ShieldCheck className="w-3 h-3 text-success" /> fizykaai.pl/lekcja/predkosc
+            <ShieldCheck className="w-3 h-3 text-success" /> fizyka7.pl/lekcja/predkosc
           </div>
         </div>
 

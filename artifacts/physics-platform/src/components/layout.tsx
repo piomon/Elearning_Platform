@@ -28,7 +28,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <span
               className="font-display font-bold text-xl tracking-tight hidden sm:block text-foreground"
             >
-              FizykaAI
+              fizyka7
             </span>
           </Link>
 
@@ -102,7 +102,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <div className="w-6 h-6 rounded flex items-center justify-center text-primary-foreground font-bold text-xs bg-primary">
                   <BookOpen className="w-3 h-3" />
                 </div>
-                <span className="font-display font-bold tracking-tight text-foreground">FizykaAI</span>
+                <span className="font-display font-bold tracking-tight text-foreground">fizyka7</span>
               </div>
               <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm font-medium text-muted-foreground">
                 <Link href="/regulamin" className="hover:text-foreground transition-colors">Regulamin</Link>
@@ -114,7 +114,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </nav>
             </div>
             <p className="text-center md:text-left text-sm text-muted-foreground border-t border-border/40 pt-6">
-              &copy; {new Date().getFullYear()} FizykaAI. Edukacja z przyszłością.
+              &copy; {new Date().getFullYear()} fizyka7. Edukacja z przyszłością.
             </p>
           </div>
         </footer>

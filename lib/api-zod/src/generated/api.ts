@@ -353,7 +353,8 @@ export const LessonChatResponse = zod.object({
 
 export const GetCoursePriceResponse = zod.object({
   "price": zod.number(),
-  "currency": zod.string()
+  "currency": zod.string(),
+  "oldPrice": zod.number().optional().describe('Informational pre-promo price in grosz, shown struck-through.')
 })
 
 
@@ -369,13 +370,10 @@ export const CreatePaymentResponse = zod.object({
 
 
 export const PaymentWebhookBody = zod.object({
-  "merchantId": zod.string().nullish(),
-  "posId": zod.string().nullish(),
-  "sessionId": zod.string().nullish(),
-  "amount": zod.number().nullish(),
-  "currency": zod.string().nullish(),
-  "orderId": zod.string().nullish(),
-  "sign": zod.string().nullish()
+  "externalId": zod.string().nullish(),
+  "paymentId": zod.string().nullish(),
+  "status": zod.string().nullish(),
+  "modifiedAt": zod.string().nullish()
 })
 
 export const PaymentWebhookResponse = zod.object({

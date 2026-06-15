@@ -59,7 +59,20 @@ app.use(
 // express.json() is a no-op once a body is parsed, so the global parser below
 // will skip /api/ai requests this one already handled.
 app.use("/api/ai", express.json({ limit: "8mb" }));
-app.use(express.json({ limit: "5mb" }));
+app.use(
+  express.json({
+    limit: "5mb",
+    // Capture the raw bytes only for the Paynow webhook so its HMAC signature
+    // can be verified against the exact payload (JSON.stringify would re-order
+    // keys and break the signature).
+    verify(req, _res, buf) {
+      const url = (req as { originalUrl?: string }).originalUrl ?? "";
+      if (url.split("?")[0] === "/api/payments/webhook") {
+        (req as { rawBody?: Buffer }).rawBody = buf;
+      }
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
 app.use("/api", router);

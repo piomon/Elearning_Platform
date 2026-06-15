@@ -17,7 +17,7 @@ export default function PaymentError() {
         <h1 className="text-3xl sm:text-4xl font-black font-display tracking-tight text-foreground">Płatność odrzucona</h1>
         
         <p className="text-lg text-muted-foreground leading-relaxed">
-          Niestety transakcja nie mogła zostać zrealizowana. Twoje konto bankowe nie zostało obciążone. Spróbuj ponownie lub wybierz inną metodę płatności.
+          Niestety transakcja nie mogła zostać zrealizowana. Twoje konto bankowe nie zostało obciążone. Spróbuj ponownie za chwilę.
         </p>
         
         <div className="pt-8">

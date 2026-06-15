@@ -93,7 +93,7 @@ export default function PaymentSuccess() {
           </div>
           <h1 className="text-4xl sm:text-5xl font-black font-display tracking-tight text-foreground">Witamy na pokładzie!</h1>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Płatność została pomyślnie zrealizowana. Roczny dostęp do wszystkich materiałów edukacyjnych został właśnie aktywowany.
+            Płatność została pomyślnie zrealizowana. Dostęp do wszystkich materiałów edukacyjnych został właśnie aktywowany.
           </p>
           <div className="pt-8">
             <Link href="/dashboard" className="block w-full">

@@ -9,4 +9,6 @@
 export interface PaymentPrice {
   price: number;
   currency: string;
+  /** Informational pre-promo price in grosz, shown struck-through. */
+  oldPrice?: number;
 }

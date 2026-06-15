@@ -442,6 +442,8 @@ export interface TaskCheckResult {
 export interface PaymentPrice {
   price: number;
   currency: string;
+  /** Informational pre-promo price in grosz, shown struck-through. */
+  oldPrice?: number;
 }
 
 export interface PaymentInput {
@@ -468,19 +470,13 @@ export interface Payment {
 
 export interface WebhookInput {
   /** @nullable */
-  merchantId?: string | null;
+  externalId?: string | null;
   /** @nullable */
-  posId?: string | null;
+  paymentId?: string | null;
   /** @nullable */
-  sessionId?: string | null;
+  status?: string | null;
   /** @nullable */
-  amount?: number | null;
-  /** @nullable */
-  currency?: string | null;
-  /** @nullable */
-  orderId?: string | null;
-  /** @nullable */
-  sign?: string | null;
+  modifiedAt?: string | null;
 }
 
 export interface ContactInput {

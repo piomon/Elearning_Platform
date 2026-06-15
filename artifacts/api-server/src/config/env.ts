@@ -37,7 +37,7 @@ function readProd(name: string, fallback: string): string {
   return fallback;
 }
 
-// Optional in all environments. Third-party credentials (Gemini, Przelewy24,
+// Optional in all environments. Third-party credentials (Gemini, Paynow,
 // SMTP, Bunny) are read when present; when absent the related feature is cleanly
 // disabled via the isXConfigured() guards rather than crashing the server. Add
 // the secrets in production to activate the feature on the next deploy.
@@ -70,9 +70,9 @@ function parseAllowedOrigins(): string[] {
   return devOrigins;
 }
 
-const p24EnvRaw = (process.env.P24_ENV ?? "sandbox").toLowerCase();
-const p24Env: "sandbox" | "production" =
-  p24EnvRaw === "production" ? "production" : "sandbox";
+const paynowEnvRaw = (process.env.PAYNOW_ENV ?? "sandbox").toLowerCase();
+const paynowEnv: "sandbox" | "production" =
+  paynowEnvRaw === "production" ? "production" : "sandbox";
 
 const appUrlFallback = devOrigins[0] ?? "http://localhost";
 
@@ -87,24 +87,31 @@ export const config = {
   apiUrl: readProd("API_URL", appUrlFallback),
   allowedOrigins: parseAllowedOrigins(),
   coursePriceGrosz: (() => {
-    const parsed = Number(readProd("COURSE_PRICE_GROSZ", "19900"));
-    return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : 19900;
+    const parsed = Number(readProd("COURSE_PRICE_GROSZ", "3500"));
+    return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : 3500;
+  })(),
+  // Informational "old" price shown struck-through next to the promo price.
+  // Optional everywhere; defaults to 9000 grosz (90 zł) when unset.
+  courseOldPriceGrosz: (() => {
+    const parsed = Number(process.env.COURSE_OLD_PRICE_GROSZ ?? "9000");
+    return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : 9000;
   })(),
   currency: "PLN",
   gemini: {
     apiKey: readOptional("GEMINI_API_KEY"),
     model: process.env.GEMINI_MODEL ?? "gemini-1.5-flash",
   },
-  p24: {
-    merchantId: readOptional("P24_MERCHANT_ID"),
-    posId: readOptional("P24_POS_ID"),
-    apiKey: readOptional("P24_API_KEY"),
-    crc: readOptional("P24_CRC"),
-    env: p24Env,
-    baseUrl:
-      p24Env === "production"
-        ? "https://secure.przelewy24.pl"
-        : "https://sandbox.przelewy24.pl",
+  paynow: {
+    apiKey: readOptional("PAYNOW_API_KEY"),
+    signatureKey: readOptional("PAYNOW_SIGNATURE_KEY"),
+    env: paynowEnv,
+    apiUrl:
+      readOptional("PAYNOW_API_URL") ??
+      (paynowEnv === "production"
+        ? "https://api.paynow.pl"
+        : "https://api.sandbox.paynow.pl"),
+    returnUrl: readOptional("PAYNOW_RETURN_URL"),
+    notificationUrl: readOptional("PAYNOW_NOTIFICATION_URL"),
   },
   smtp: {
     host: readOptional("SMTP_HOST"),
@@ -132,13 +139,8 @@ export function isGeminiConfigured(): boolean {
   return Boolean(config.gemini.apiKey);
 }
 
-export function isP24Configured(): boolean {
-  return Boolean(
-    config.p24.merchantId &&
-      config.p24.posId &&
-      config.p24.apiKey &&
-      config.p24.crc,
-  );
+export function isPaynowConfigured(): boolean {
+  return Boolean(config.paynow.apiKey && config.paynow.signatureKey);
 }
 
 export function isSmtpConfigured(): boolean {

@@ -39,11 +39,11 @@ describe("POST /payments/create", () => {
 describe("Mock payment flow grants course access", () => {
   it("activates access only after mock-complete", async () => {
     const { token } = await createUser();
-    const { course, section } = await seedCourse();
+    const { course, topic } = await seedCourse();
 
-    // No access before paying.
+    // No access to the paid lesson content before paying.
     const before = await request(app)
-      .get(`/api/sections/${section.id}/topics`)
+      .get(`/api/topics/${topic.id}`)
       .set("Authorization", `Bearer ${token}`);
     expect(before.status).toBe(403);
 
@@ -59,7 +59,7 @@ describe("Mock payment flow grants course access", () => {
     expect(complete.status).toBe(200);
 
     const after = await request(app)
-      .get(`/api/sections/${section.id}/topics`)
+      .get(`/api/topics/${topic.id}`)
       .set("Authorization", `Bearer ${token}`);
     expect(after.status).toBe(200);
   });

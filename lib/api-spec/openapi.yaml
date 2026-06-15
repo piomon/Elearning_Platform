@@ -2058,6 +2058,9 @@ components:
           type: integer
         currency:
           type: string
+        oldPrice:
+          type: integer
+          description: Informational pre-promo price in grosz, shown struck-through.
 
     PaymentInput:
       type: object
@@ -2098,22 +2101,19 @@ components:
         createdAt:
           type: string
 
+    # Paynow notification payload (server-to-server). The request is
+    # authenticated by the `Signature` header (HMAC-SHA256 of the raw body),
+    # never by the fields below alone.
     WebhookInput:
       type: object
       properties:
-        merchantId:
+        externalId:
           type: ["string", "null"]
-        posId:
+        paymentId:
           type: ["string", "null"]
-        sessionId:
+        status:
           type: ["string", "null"]
-        amount:
-          type: ["integer", "null"]
-        currency:
-          type: ["string", "null"]
-        orderId:
-          type: ["string", "null"]
-        sign:
+        modifiedAt:
           type: ["string", "null"]
 
     # ─── CONTACT SCHEMAS ──────────────────────────────────────────────────────

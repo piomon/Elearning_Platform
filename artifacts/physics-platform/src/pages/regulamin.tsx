@@ -14,13 +14,13 @@ export default function Regulamin() {
       <article className="prose-custom space-y-8">
         <header className="space-y-2">
           <h1 className="text-4xl font-black tracking-tight font-display text-foreground">Regulamin</h1>
-          <p className="text-muted-foreground">Zasady korzystania z platformy edukacyjnej FizykaAI.</p>
+          <p className="text-muted-foreground">Zasady korzystania z platformy edukacyjnej fizyka7.</p>
         </header>
 
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-foreground">1. Postanowienia ogólne</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Niniejszy regulamin określa zasady korzystania z platformy edukacyjnej FizykaAI, przeznaczonej do nauki fizyki na poziomie klasy 7 szkoły podstawowej, zgodnie z polską podstawą programową.
+            Niniejszy regulamin określa zasady korzystania z platformy edukacyjnej fizyka7, przeznaczonej do nauki fizyki na poziomie klasy 7 szkoły podstawowej.
           </p>
         </section>
 
@@ -34,7 +34,7 @@ export default function Regulamin() {
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-foreground">3. Dostęp do materiałów i płatności</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Dostęp do treści edukacyjnych jest płatny i przyznawany na okres 365 dni od momentu zaksięgowania płatności. Płatności obsługiwane są przez zewnętrznego operatora płatności online. Platforma nie przechowuje danych kart płatniczych.
+            Dostęp do treści edukacyjnych jest płatny. Płatność realizowana jest przez zewnętrznego operatora płatności (BLIK / Paynow), a dostęp do materiałów odblokowywany jest automatycznie po potwierdzeniu płatności. Platforma nie przechowuje danych płatniczych użytkownika.
           </p>
         </section>
 

@@ -8,17 +8,11 @@
 
 export interface WebhookInput {
   /** @nullable */
-  merchantId?: string | null;
+  externalId?: string | null;
   /** @nullable */
-  posId?: string | null;
+  paymentId?: string | null;
   /** @nullable */
-  sessionId?: string | null;
+  status?: string | null;
   /** @nullable */
-  amount?: number | null;
-  /** @nullable */
-  currency?: string | null;
-  /** @nullable */
-  orderId?: string | null;
-  /** @nullable */
-  sign?: string | null;
+  modifiedAt?: string | null;
 }

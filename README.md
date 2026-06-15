@@ -144,9 +144,11 @@ niej) · — = opcjonalna.
 | `LOG_LEVEL` | — | Poziom logów: `info`, `debug`, `warn`, `error`. |
 | `APP_URL` / `API_URL` | prod | Publiczne adresy (linki w e-mailach, walidacja `returnUrl` płatności). |
 | `ALLOWED_ORIGINS` | prod | Dozwolone originy CORS (po przecinku). Zwykle = `APP_URL`. |
-| `COURSE_PRICE_GROSZ` | — | Cena kursu w groszach (domyślnie `19900` = 199,00 zł). |
-| `P24_MERCHANT_ID` / `P24_POS_ID` / `P24_API_KEY` / `P24_CRC` | prod | Dane Przelewy24. Bez nich w dev działa płatność „mock". |
-| `P24_ENV` | — | `sandbox` (domyślnie) lub `production`. |
+| `COURSE_PRICE_GROSZ` | — | Cena kursu w groszach (domyślnie `3500` = 35,00 zł). |
+| `COURSE_OLD_PRICE_GROSZ` | — | Stara cena informacyjna w groszach, pokazywana z przekreśleniem (domyślnie `9000` = 90,00 zł). |
+| `PAYNOW_API_KEY` / `PAYNOW_SIGNATURE_KEY` | prod | Dane Paynow. Bez nich w dev działa płatność „mock", a w produkcji płatność zwraca 503. |
+| `PAYNOW_ENV` | — | `sandbox` (domyślnie) lub `production`. |
+| `PAYNOW_API_URL` / `PAYNOW_RETURN_URL` / `PAYNOW_NOTIFICATION_URL` | — | Opcjonalne nadpisania (domyślnie dobierane wg `PAYNOW_ENV`). |
 | `BUNNY_LIBRARY_ID` / `BUNNY_CDN_HOSTNAME` | prod | Hosting wideo Bunny.net. |
 | `GEMINI_API_KEY` | prod | Sprawdzanie zadań przez AI. Bez klucza w dev działa tryb demonstracyjny. |
 | `GEMINI_MODEL` | — | Model Gemini (domyślnie `gemini-1.5-flash`). |

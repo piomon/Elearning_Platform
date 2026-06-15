@@ -51,4 +51,5 @@ JWT_SECRET = "4e00bd866332f91a9741753e950dc95aec23fe788ceef282db808da6565a4d7ba8
 APP_URL = "https://elearning-platform.replit.app"
 API_URL = "https://elearning-platform.replit.app"
 ALLOWED_ORIGINS = "https://elearning-platform.replit.app"
-COURSE_PRICE_GROSZ = "19900"
+COURSE_PRICE_GROSZ = "3500"
+COURSE_OLD_PRICE_GROSZ = "9000"

@@ -8,7 +8,7 @@ export const payments = pgTable(
   {
     id: serial("id").primaryKey(),
     userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-    provider: text("provider").notNull().default("przelewy24"),
+    provider: text("provider").notNull().default("paynow"),
     providerPaymentId: text("provider_payment_id"),
     providerSessionId: text("provider_session_id"),
     providerOrderId: text("provider_order_id"),

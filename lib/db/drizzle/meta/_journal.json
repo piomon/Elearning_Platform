@@ -29,6 +29,13 @@
       "when": 1780951980256,
       "tag": "0003_silent_doctor_spectrum",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1781529372663,
+      "tag": "0004_minor_elektra",
+      "breakpoints": true
     }
   ]
 }
