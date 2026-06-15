@@ -11,6 +11,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { usePurchase } from "@/hooks/use-purchase";
 import { formatPln } from "@/lib/format";
+import { usePromoCountdown, discountPercent } from "@/lib/promo";
 import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,7 @@ import {
   PlayCircle, CheckCircle2, Zap, Brain, Target, ArrowRight, BookOpen,
   ShieldCheck, HeartHandshake, Sparkles,
   PencilRuler, Send, Star, Trophy, LineChart,
-  User, Mail, Tag, MessageSquare, MessageCircle
+  User, Mail, Tag, MessageSquare, MessageCircle, Flame
 } from "lucide-react";
 
 import { BlobBackground } from "@/components/blob-background";
@@ -206,18 +207,38 @@ function ContactForm() {
   );
 }
 
+function CountdownBox({ value, label }: { value: number | string; label: string }) {
+  return (
+    <span className="inline-flex flex-col items-center leading-none">
+      <span className="text-2xl md:text-3xl font-black tracking-tight text-foreground">
+        {value}
+      </span>
+      <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </span>
+    </span>
+  );
+}
+
 export default function Home() {
   const { data: courses } = useListCourses();
   const { data: priceData } = useGetCoursePrice();
   const { user } = useAuth();
   const { startPurchase, isPending } = usePurchase();
 
+  const countdown = usePromoCountdown();
+
   const primaryCourseId = courses && courses.length > 0 ? courses[0].id : null;
   const priceLabel = priceData ? formatPln(priceData.price, priceData.currency) : null;
+  const hasOldPrice = !!(priceData && priceData.oldPrice && priceData.oldPrice > priceData.price);
   const oldPriceLabel =
-    priceData && priceData.oldPrice && priceData.oldPrice > priceData.price
-      ? formatPln(priceData.oldPrice, priceData.currency)
+    hasOldPrice && priceData
+      ? formatPln(priceData.oldPrice!, priceData.currency)
       : null;
+  const discount =
+    hasOldPrice && priceData
+      ? discountPercent(priceData.oldPrice!, priceData.price)
+      : 0;
 
   const handleBuy = () => {
     if (primaryCourseId != null) {
@@ -600,9 +621,16 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col items-center gap-3 mb-8">
-                <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-4 py-1.5 text-sm font-bold">
-                  Promocja na start
-                </span>
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-4 py-1.5 text-sm font-bold">
+                    Promocja na start
+                  </span>
+                  {discount > 0 && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary via-violet-600 to-cyan-500 text-white px-4 py-1.5 text-sm font-black shadow-sm">
+                      <Flame className="w-3.5 h-3.5" /> -{discount}%
+                    </span>
+                  )}
+                </div>
                 <div className="flex justify-center items-baseline gap-3">
                   {priceLabel ? (
                     <>
@@ -619,6 +647,21 @@ export default function Home() {
                     <LoadingSkeleton className="h-14 w-40" />
                   )}
                   <span className="text-xl text-muted-foreground font-medium">/ mies.</span>
+                </div>
+
+                <div className="mt-2 w-full max-w-sm rounded-2xl border border-border bg-muted/40 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                    Promocja kończy się z końcem września
+                  </p>
+                  <div className="flex items-center justify-center gap-2 font-mono tabular-nums">
+                    <CountdownBox value={countdown.days} label="dni" />
+                    <span className="text-2xl font-black text-muted-foreground/50">:</span>
+                    <CountdownBox value={String(countdown.hours).padStart(2, "0")} label="godz" />
+                    <span className="text-2xl font-black text-muted-foreground/50">:</span>
+                    <CountdownBox value={String(countdown.minutes).padStart(2, "0")} label="min" />
+                    <span className="text-2xl font-black text-muted-foreground/50">:</span>
+                    <CountdownBox value={String(countdown.seconds).padStart(2, "0")} label="sek" />
+                  </div>
                 </div>
               </div>
 
@@ -710,15 +753,21 @@ export default function Home() {
             <div className="flex flex-col leading-tight">
               {priceLabel ? (
                 <>
-                  <span className="text-lg font-black tracking-tight">
-                    {priceLabel}<span className="text-xs font-bold text-muted-foreground"> / mies.</span>
-                  </span>
-                  <span className="text-[11px] text-muted-foreground font-medium">
-                    {oldPriceLabel ? (
-                      <><span className="line-through">{oldPriceLabel}</span> cena promocyjna</>
-                    ) : (
-                      "Cena promocyjna"
+                  <span className="flex items-baseline gap-1.5">
+                    {oldPriceLabel && (
+                      <span className="text-xs font-bold text-muted-foreground/70 line-through">{oldPriceLabel}</span>
                     )}
+                    <span className="text-lg font-black tracking-tight">
+                      {priceLabel}<span className="text-xs font-bold text-muted-foreground"> / mies.</span>
+                    </span>
+                    {discount > 0 && (
+                      <span className="inline-flex items-center rounded-full bg-gradient-to-r from-primary via-violet-600 to-cyan-500 text-white px-1.5 py-0.5 text-[10px] font-black">
+                        -{discount}%
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground font-medium tabular-nums">
+                    Promo do końca września: {countdown.days}d {String(countdown.hours).padStart(2, "0")}:{String(countdown.minutes).padStart(2, "0")}:{String(countdown.seconds).padStart(2, "0")}
                   </span>
                 </>
               ) : (

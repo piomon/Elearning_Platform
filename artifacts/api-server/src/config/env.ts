@@ -91,10 +91,10 @@ export const config = {
     return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : 3500;
   })(),
   // Informational "old" price shown struck-through next to the promo price.
-  // Optional everywhere; defaults to 9000 grosz (90 zł) when unset.
+  // Optional everywhere; defaults to 19900 grosz (199 zł) when unset.
   courseOldPriceGrosz: (() => {
-    const parsed = Number(process.env.COURSE_OLD_PRICE_GROSZ ?? "9000");
-    return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : 9000;
+    const parsed = Number(process.env.COURSE_OLD_PRICE_GROSZ ?? "19900");
+    return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : 19900;
   })(),
   currency: "PLN",
   gemini: {

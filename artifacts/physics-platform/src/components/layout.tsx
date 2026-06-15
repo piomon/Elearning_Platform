@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Moon, Sun, BookOpen } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { MobileNav } from "@/components/mobile-nav";
+import { PromoBanner } from "@/components/promo-banner";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -15,8 +16,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background selection:bg-primary/20">
+      <div className="sticky top-0 z-50">
+      <PromoBanner />
       <header
-        className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl"
+        className="border-b border-border/40 bg-background/80 backdrop-blur-xl"
       >
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href={user ? (isAdmin ? "/admin" : "/dashboard") : "/"} className="flex items-center gap-2 group transition-transform hover:scale-105 active:scale-95">
@@ -87,6 +90,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
       </header>
+      </div>
 
       <main className={`flex-1 flex flex-col ${user && !isAdmin ? "pb-20 sm:pb-0" : ""}`}>
         {children}
