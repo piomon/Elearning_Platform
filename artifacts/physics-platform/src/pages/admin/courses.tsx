@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { slugify } from "@/lib/utils";
 import {
   BookOpen, Edit, Trash2, Plus, ChevronRight, ChevronDown, Video as VideoIcon,
-  ListChecks, ClipboardList, GraduationCap, Image as ImageIcon,
+  ListChecks, ClipboardList, GraduationCap, Image as ImageIcon, Eye,
 } from "lucide-react";
 import {
   Toast, opts, ConfirmDelete, STATUS_LABELS, statusBadgeVariant, StatusSelect,
@@ -204,6 +204,11 @@ function CourseCard({ course, onChanged, toast }: { course: AdminCourseTree; onC
               <span className="text-xs text-muted-foreground">Publikuj</span>
               <Switch checked={course.isPublished} onCheckedChange={togglePublish} />
             </div>
+            <Button variant="outline" size="sm" className="rounded-xl border-border/60" asChild title="Podgląd jako uczeń">
+              <a href={`/courses/${course.slug}?preview=${course.id}`} target="_blank" rel="noopener noreferrer">
+                <Eye className="w-4 h-4" />
+              </a>
+            </Button>
             <Button variant="outline" size="sm" className="rounded-xl border-border/60" onClick={() => setEditOpen(true)}>
               <Edit className="w-4 h-4" />
             </Button>

@@ -23,8 +23,12 @@ function successReturnUrl(): string {
   return `${window.location.origin}${base}/payment/success`;
 }
 
-async function redirectToPayment(courseId: number) {
-  const res = await createPayment({ courseId, returnUrl: successReturnUrl() });
+async function redirectToPayment(courseId: number, discountCode?: string | null) {
+  const res = await createPayment({
+    courseId,
+    returnUrl: successReturnUrl(),
+    discountCode: discountCode && discountCode.trim() ? discountCode.trim() : null,
+  });
   window.location.href = res.redirectUrl;
 }
 
@@ -34,7 +38,7 @@ export function usePurchase() {
   const { toast } = useToast();
   const [isPending, setIsPending] = useState(false);
 
-  const startPurchase = async (courseId: number) => {
+  const startPurchase = async (courseId: number, discountCode?: string | null) => {
     if (!user) {
       savePurchaseIntent(courseId);
       setLocation("/register");
@@ -46,7 +50,7 @@ export function usePurchase() {
     }
     setIsPending(true);
     try {
-      await redirectToPayment(courseId);
+      await redirectToPayment(courseId, discountCode);
     } catch (err) {
       setIsPending(false);
       toast({

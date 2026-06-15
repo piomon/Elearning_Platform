@@ -261,6 +261,26 @@ Po zalogowaniu jako administrator (`/admin`) dostępny jest panel z wbudowanym m
   **oraz kwotę pobieraną przez Paynow** (cena widoczna = kwota płatności, zawsze).
 - **FAQ** (`/admin/faq`) — pytania i odpowiedzi (dodawanie, edycja, widoczność, kolejność).
 - **SEO** (`/admin/seo`) — meta title/description, Open Graph, canonical i `robots`.
+- **Kody rabatowe** (`/admin/discounts`) — kody promocyjne (procentowe lub kwotowe), opcjonalnie
+  przypisane do kursu, z datami ważności i limitami (łącznym oraz na użytkownika). Można je
+  włączać/wyłączać, a kodu już użytego nie da się usunąć (tylko wyłączyć). Każdy kod ma historię
+  użyć (kto, kiedy, kwota przed/po rabacie). Rabat jest **przeliczany wyłącznie po stronie serwera**
+  przy zakupie — klient nigdy nie dyktuje kwoty.
+- **Dostępy** (`/admin/access`) — dedykowany widok „kto ma dostęp do czego”: aktywne i nieaktywne
+  dostępy z filtrowaniem i wyszukiwaniem, ręczne **nadawanie** (z opcjonalną datą wygaśnięcia i
+  notatką) oraz **odbieranie** dostępu, a także pełna **historia zmian** (nadania/odebrania wraz z
+  administratorem i notatką).
+- **Ustawienia** (`/admin/settings`) — techniczne ustawienia platformy z katalogu (klucz → wartość,
+  **bez sekretów**; nieznane klucze są odrzucane) oraz **import/eksport danych**: lekcje (CSV/JSON),
+  użytkownicy (CSV), płatności (CSV) i quizy (JSON w obie strony). Pliki CSV są zapisywane z BOM,
+  aby Excel poprawnie pokazywał polskie znaki.
+
+**Podgląd „jak u ucznia”** — przed publikacją można obejrzeć treść tak, jak zobaczy ją uczeń,
+bez publikowania: lekcja i quiz (zakładka *Podgląd* w edytorze lekcji), karta/strona kursu
+(przycisk podglądu przy kursie → `/courses/:slug?preview=:id`) oraz strona główna z FAQ i cennikiem
+(przycisk *Podgląd jako uczeń* → `/?preview=1`). Tryb podglądu jest dostępny tylko dla administratora
+i pobiera treść z chronionych endpointów `*/api/admin/*/preview` (quiz nigdy nie ujawnia poprawnych
+odpowiedzi).
 
 Wszystkie zmiany przechodzą przez endpointy `*/api/admin/*` chronione `requireAuth + requireAdmin`
 i są zapisywane w dzienniku administratora.

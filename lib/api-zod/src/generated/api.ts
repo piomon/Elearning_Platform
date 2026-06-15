@@ -409,9 +409,26 @@ export const GetCoursePriceResponse = zod.object({
 })
 
 
+export const ValidateDiscountBody = zod.object({
+  "courseId": zod.number(),
+  "code": zod.string()
+})
+
+export const ValidateDiscountResponse = zod.object({
+  "code": zod.string(),
+  "type": zod.enum(['percent', 'amount']),
+  "value": zod.number(),
+  "amountBeforeGrosz": zod.number(),
+  "discountGrosz": zod.number(),
+  "amountAfterGrosz": zod.number(),
+  "currency": zod.string()
+})
+
+
 export const CreatePaymentBody = zod.object({
   "courseId": zod.number(),
-  "returnUrl": zod.string().optional()
+  "returnUrl": zod.string().optional(),
+  "discountCode": zod.string().nullish()
 })
 
 export const CreatePaymentResponse = zod.object({
@@ -1993,5 +2010,303 @@ export const TestAiPromptResponse = zod.object({
   "model": zod.string(),
   "demo": zod.boolean()
 })
+
+
+export const ListDiscountsResponseItem = zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "type": zod.enum(['percent', 'amount']),
+  "value": zod.number(),
+  "courseId": zod.number().nullish(),
+  "courseTitle": zod.string().nullish(),
+  "validFrom": zod.string().nullish(),
+  "validTo": zod.string().nullish(),
+  "maxUses": zod.number().nullish(),
+  "maxUsesPerUser": zod.number().nullish(),
+  "usedCount": zod.number(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
+})
+export const ListDiscountsResponse = zod.array(ListDiscountsResponseItem)
+
+
+export const CreateDiscountBody = zod.object({
+  "code": zod.string(),
+  "type": zod.enum(['percent', 'amount']),
+  "value": zod.number(),
+  "courseId": zod.number().nullish(),
+  "validFrom": zod.string().nullish(),
+  "validTo": zod.string().nullish(),
+  "maxUses": zod.number().nullish(),
+  "maxUsesPerUser": zod.number().nullish(),
+  "isActive": zod.boolean().optional()
+})
+
+
+export const UpdateDiscountParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateDiscountBody = zod.object({
+  "code": zod.string(),
+  "type": zod.enum(['percent', 'amount']),
+  "value": zod.number(),
+  "courseId": zod.number().nullish(),
+  "validFrom": zod.string().nullish(),
+  "validTo": zod.string().nullish(),
+  "maxUses": zod.number().nullish(),
+  "maxUsesPerUser": zod.number().nullish(),
+  "isActive": zod.boolean().optional()
+})
+
+export const UpdateDiscountResponse = zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "type": zod.enum(['percent', 'amount']),
+  "value": zod.number(),
+  "courseId": zod.number().nullish(),
+  "courseTitle": zod.string().nullish(),
+  "validFrom": zod.string().nullish(),
+  "validTo": zod.string().nullish(),
+  "maxUses": zod.number().nullish(),
+  "maxUsesPerUser": zod.number().nullish(),
+  "usedCount": zod.number(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+export const DeleteDiscountParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteDiscountResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const ToggleDiscountParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ToggleDiscountResponse = zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "type": zod.enum(['percent', 'amount']),
+  "value": zod.number(),
+  "courseId": zod.number().nullish(),
+  "courseTitle": zod.string().nullish(),
+  "validFrom": zod.string().nullish(),
+  "validTo": zod.string().nullish(),
+  "maxUses": zod.number().nullish(),
+  "maxUsesPerUser": zod.number().nullish(),
+  "usedCount": zod.number(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+export const ListDiscountUsesParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ListDiscountUsesResponse = zod.object({
+  "code": zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "type": zod.enum(['percent', 'amount']),
+  "value": zod.number(),
+  "courseId": zod.number().nullish(),
+  "courseTitle": zod.string().nullish(),
+  "validFrom": zod.string().nullish(),
+  "validTo": zod.string().nullish(),
+  "maxUses": zod.number().nullish(),
+  "maxUsesPerUser": zod.number().nullish(),
+  "usedCount": zod.number(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
+}),
+  "uses": zod.array(zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "email": zod.string().nullish(),
+  "firstName": zod.string().nullish(),
+  "lastName": zod.string().nullish(),
+  "paymentId": zod.number().nullish(),
+  "courseId": zod.number().nullish(),
+  "amountBeforeGrosz": zod.number(),
+  "discountGrosz": zod.number(),
+  "amountAfterGrosz": zod.number(),
+  "createdAt": zod.string()
+}))
+})
+
+
+export const ListAccessQueryParams = zod.object({
+  "status": zod.enum(['active', 'inactive']).optional(),
+  "q": zod.coerce.string().optional()
+})
+
+export const ListAccessResponseItem = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "email": zod.string().nullish(),
+  "firstName": zod.string().nullish(),
+  "lastName": zod.string().nullish(),
+  "courseId": zod.number(),
+  "courseTitle": zod.string().nullish(),
+  "source": zod.string(),
+  "paymentId": zod.number().nullish(),
+  "grantedByAdminId": zod.number().nullish(),
+  "status": zod.string(),
+  "validFrom": zod.string().nullish(),
+  "validTo": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string().nullish()
+})
+export const ListAccessResponse = zod.array(ListAccessResponseItem)
+
+
+export const CreateAccessBody = zod.object({
+  "userId": zod.number(),
+  "courseId": zod.number(),
+  "validTo": zod.string().nullish(),
+  "note": zod.string().nullish()
+})
+
+
+export const RevokeAccessGrantParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const RevokeAccessGrantBody = zod.object({
+  "note": zod.string().nullish()
+})
+
+export const RevokeAccessGrantResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "email": zod.string().nullish(),
+  "firstName": zod.string().nullish(),
+  "lastName": zod.string().nullish(),
+  "courseId": zod.number(),
+  "courseTitle": zod.string().nullish(),
+  "source": zod.string(),
+  "paymentId": zod.number().nullish(),
+  "grantedByAdminId": zod.number().nullish(),
+  "status": zod.string(),
+  "validFrom": zod.string().nullish(),
+  "validTo": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string().nullish()
+})
+
+
+export const ListAccessHistoryQueryParams = zod.object({
+  "page": zod.coerce.number().optional(),
+  "limit": zod.coerce.number().optional()
+})
+
+export const ListAccessHistoryResponse = zod.object({
+  "logs": zod.array(zod.object({
+  "id": zod.number(),
+  "adminId": zod.number(),
+  "adminEmail": zod.string().nullish(),
+  "adminFirstName": zod.string().nullish(),
+  "action": zod.string(),
+  "entityType": zod.string().nullish(),
+  "entityId": zod.number().nullish(),
+  "metadata": zod.record(zod.string(), zod.unknown()).nullish(),
+  "createdAt": zod.string()
+})),
+  "total": zod.number(),
+  "page": zod.number(),
+  "limit": zod.number()
+})
+
+
+export const GetPlatformSettingsResponseItem = zod.object({
+  "key": zod.string(),
+  "type": zod.enum(['boolean', 'number', 'string']),
+  "label": zod.string(),
+  "description": zod.string(),
+  "default": zod.unknown(),
+  "value": zod.unknown(),
+  "min": zod.number().optional(),
+  "max": zod.number().optional(),
+  "maxLength": zod.number().optional()
+})
+export const GetPlatformSettingsResponse = zod.array(GetPlatformSettingsResponseItem)
+
+
+export const UpdatePlatformSettingsBody = zod.object({
+  "settings": zod.array(zod.object({
+  "key": zod.string(),
+  "value": zod.unknown()
+})).optional()
+})
+
+export const UpdatePlatformSettingsResponseItem = zod.object({
+  "key": zod.string(),
+  "type": zod.enum(['boolean', 'number', 'string']),
+  "label": zod.string(),
+  "description": zod.string(),
+  "default": zod.unknown(),
+  "value": zod.unknown(),
+  "min": zod.number().optional(),
+  "max": zod.number().optional(),
+  "maxLength": zod.number().optional()
+})
+export const UpdatePlatformSettingsResponse = zod.array(UpdatePlatformSettingsResponseItem)
+
+
+export const ExportLessonsQueryParams = zod.object({
+  "format": zod.enum(['csv', 'json']).optional()
+})
+
+export const ExportLessonsResponseItem = zod.object({
+
+}).passthrough()
+export const ExportLessonsResponse = zod.array(ExportLessonsResponseItem)
+
+
+export const ExportQuizParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ExportQuizResponse = zod.object({
+
+}).passthrough()
+
+
+export const ImportQuizBody = zod.object({
+  "topicId": zod.number(),
+  "quiz": zod.object({
+
+}).passthrough()
+})
+
+
+export const PreviewQuizParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const PreviewQuizResponse = zod.object({
+
+}).passthrough()
+
+
+export const PreviewLandingResponse = zod.object({
+
+}).passthrough()
+
+
+export const PreviewCourseParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const PreviewCourseResponse = zod.object({
+
+}).passthrough()
 
 

@@ -7,3 +7,4 @@
 - [Status filtering scope](status-filtering-scope.md) — publish-status gating must cover AI/progress/metadata routes, not just GET content; reuse access.ts chain helpers; tasks inherit topic visibility.
 - [React effect/mutation loops](react-effect-mutation-loops.md) — never put a TanStack Query mutation result (or a callback closing over it) in effect/callback deps; use mutate/refetch (stable) or a ref, or you get infinite render loops.
 - [Quiz time-limit](quiz-time-limit.md) — timed quizzes use a signed start-ticket; server rejects late/forged submissions, client countdown is UX only.
+- [Discount redemption idempotency](discount-redemption-idempotency.md) — use a PLAIN unique index + ON CONFLICT for "record once" guards; partial indexes break ON CONFLICT and this drizzle version drops targetWhere.

@@ -1,13 +1,14 @@
 import { Router } from "express";
 import crypto from "crypto";
 import { db } from "@workspace/db";
-import { payments, accessGrants, courses } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { payments, accessGrants, courses, discountCodes, discountCodeUses } from "@workspace/db";
+import { eq, sql } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import { paymentLimiter } from "../middlewares/rate-limit";
 import { logger } from "../lib/logger";
 import { config, isPaynowConfigured } from "../config/env";
 import { getPricingSettings } from "../lib/settings";
+import { validateDiscountForPurchase } from "../lib/discounts";
 
 const router = Router();
 
@@ -40,11 +41,20 @@ function signPaynow(rawBody: string | Buffer): string {
     .digest("base64");
 }
 
-async function grantCourseAccess(userId: number, courseId: number, paymentId: number) {
+// A db handle that may be the root connection or a transaction. Lets the same
+// helpers run standalone or inside `db.transaction(...)`.
+type DbExecutor = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+async function grantCourseAccess(
+  userId: number,
+  courseId: number,
+  paymentId: number,
+  tx: DbExecutor = db,
+) {
   // Atomic and idempotent: concurrent provider callbacks (Paynow retries) can
   // race here, so rely on the partial unique index over active grants
   // (access_grants_active_user_course_uniq) instead of select-then-insert.
-  await db
+  await tx
     .insert(accessGrants)
     .values({
       userId,
@@ -55,6 +65,38 @@ async function grantCourseAccess(userId: number, courseId: number, paymentId: nu
       validFrom: new Date(),
     })
     .onConflictDoNothing();
+}
+
+// Record a discount redemption exactly once when a payment completes. Idempotent
+// against provider retries: the partial unique index on discount_code_uses
+// (payment_id) makes the insert a no-op on the second attempt, and usedCount is
+// only bumped when the insert actually created a row — so concurrent webhooks
+// can never inflate the counter. Run inside the same transaction as the payment
+// completion so a failure here rolls the whole completion back and a retry redoes
+// it cleanly.
+async function finalizeDiscountUse(
+  payment: typeof payments.$inferSelect,
+  tx: DbExecutor = db,
+) {
+  if (!payment.discountCodeId || payment.discountGrosz <= 0) return;
+  const inserted = await tx
+    .insert(discountCodeUses)
+    .values({
+      discountCodeId: payment.discountCodeId,
+      userId: payment.userId,
+      paymentId: payment.id,
+      courseId: payment.courseId ?? null,
+      amountBeforeGrosz: payment.amount + payment.discountGrosz,
+      discountGrosz: payment.discountGrosz,
+      amountAfterGrosz: payment.amount,
+    })
+    .onConflictDoNothing({ target: discountCodeUses.paymentId })
+    .returning({ id: discountCodeUses.id });
+  if (inserted.length === 0) return;
+  await tx
+    .update(discountCodes)
+    .set({ usedCount: sql`${discountCodes.usedCount} + 1`, updatedAt: new Date() })
+    .where(eq(discountCodes.id, payment.discountCodeId));
 }
 
 router.get("/payments/price", async (_req, res) => {
@@ -71,9 +113,50 @@ router.get("/payments/price", async (_req, res) => {
   });
 });
 
+// Validate a discount code against the current price for a course and return the
+// computed amounts so the checkout page can show the buyer their new total
+// before paying. The discount is re-validated server-side at create time too.
+router.post("/payments/validate-discount", paymentLimiter, requireAuth as any, async (req: AuthRequest, res) => {
+  try {
+    const cId = Number(req.body?.courseId);
+    if (!Number.isInteger(cId) || cId <= 0) {
+      res.status(400).json({ error: "Nieprawidłowy identyfikator kursu" });
+      return;
+    }
+    const [course] = await db.select().from(courses).where(eq(courses.id, cId)).limit(1);
+    if (!course || course.status !== "published") {
+      res.status(404).json({ error: "Kurs nie znaleziony" });
+      return;
+    }
+    const { priceGrosz: fullPrice, currency } = await getPricingSettings();
+    const result = await validateDiscountForPurchase({
+      rawCode: req.body?.code,
+      userId: req.user!.id,
+      courseId: cId,
+      amountBeforeGrosz: fullPrice,
+    });
+    if (!result.ok) {
+      res.status(result.status).json({ error: result.error });
+      return;
+    }
+    res.json({
+      code: result.code.code,
+      type: result.code.type,
+      value: result.code.value,
+      amountBeforeGrosz: result.amountBeforeGrosz,
+      discountGrosz: result.discountGrosz,
+      amountAfterGrosz: result.amountAfterGrosz,
+      currency,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Validate discount error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
 router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: AuthRequest, res) => {
   try {
-    const { courseId, returnUrl } = req.body;
+    const { courseId, returnUrl, discountCode } = req.body;
     const cId = Number(courseId);
     if (!Number.isInteger(cId) || cId <= 0) {
       res.status(400).json({ error: "Nieprawidłowy identyfikator kursu" });
@@ -89,7 +172,29 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
     // Amount is taken from the DB pricing singleton (single source of truth) so
     // the charged price always matches what the page shows. Fixed server-side
     // so the buyer can never tamper with it.
-    const { priceGrosz: amount, currency } = await getPricingSettings();
+    const { priceGrosz: fullPrice, currency } = await getPricingSettings();
+
+    // Apply a discount code when supplied. The discount is re-validated and
+    // recomputed server-side here (never trusting any client-sent amount) so the
+    // charged price and the amount sent to Paynow always agree.
+    let amount = fullPrice;
+    let discountCodeId: number | null = null;
+    let discountGrosz = 0;
+    if (typeof discountCode === "string" && discountCode.trim()) {
+      const result = await validateDiscountForPurchase({
+        rawCode: discountCode,
+        userId: req.user!.id,
+        courseId: cId,
+        amountBeforeGrosz: fullPrice,
+      });
+      if (!result.ok) {
+        res.status(result.status).json({ error: result.error });
+        return;
+      }
+      amount = result.amountAfterGrosz;
+      discountGrosz = result.discountGrosz;
+      discountCodeId = result.code.id;
+    }
 
     const [payment] = await db
       .insert(payments)
@@ -100,6 +205,8 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
         currency,
         status: "pending",
         courseId: cId,
+        discountCodeId,
+        discountGrosz,
       })
       .returning();
 
@@ -274,19 +381,27 @@ router.post("/payments/webhook", async (req, res) => {
       return;
     }
 
-    await db
-      .update(payments)
-      .set({
-        status: "completed",
-        providerOrderId:
-          providerPaymentId != null
-            ? String(providerPaymentId)
-            : payment.providerOrderId,
-        updatedAt: new Date(),
-      })
-      .where(eq(payments.id, localId));
-
-    await grantCourseAccess(payment.userId, payment.courseId, payment.id);
+    // Complete the payment, grant access and record the discount use atomically:
+    // either all three commit or none do. Combined with the idempotent inserts
+    // (onConflictDoNothing) this makes provider retries safe — a failed
+    // finalization rolls back the "completed" status so a retry redoes it instead
+    // of being short-circuited by the early-return above.
+    const courseId = payment.courseId;
+    await db.transaction(async (tx) => {
+      await tx
+        .update(payments)
+        .set({
+          status: "completed",
+          providerOrderId:
+            providerPaymentId != null
+              ? String(providerPaymentId)
+              : payment.providerOrderId,
+          updatedAt: new Date(),
+        })
+        .where(eq(payments.id, localId));
+      await grantCourseAccess(payment.userId, courseId, payment.id, tx);
+      await finalizeDiscountUse({ ...payment, status: "completed" }, tx);
+    });
 
     res.json({ message: "OK" });
   } catch (err) {
@@ -341,14 +456,17 @@ if (config.isDev || config.isTest) {
           return;
         }
 
-        if (payment.status !== "completed") {
-          await db
-            .update(payments)
-            .set({ status: "completed", updatedAt: new Date() })
-            .where(eq(payments.id, paymentId));
-        }
-
-        await grantCourseAccess(payment.userId, payment.courseId, payment.id);
+        const courseId = payment.courseId;
+        await db.transaction(async (tx) => {
+          if (payment.status !== "completed") {
+            await tx
+              .update(payments)
+              .set({ status: "completed", updatedAt: new Date() })
+              .where(eq(payments.id, paymentId));
+          }
+          await grantCourseAccess(payment.userId, courseId, payment.id, tx);
+          await finalizeDiscountUse({ ...payment, status: "completed" }, tx);
+        });
 
         res.json({ message: "Dostęp aktywowany!" });
       } catch (err) {

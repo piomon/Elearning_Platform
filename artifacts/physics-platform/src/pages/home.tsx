@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -9,8 +9,11 @@ import {
   useGetLandingContent,
   useGetFaqContent,
   useSubmitContact,
+  usePreviewLanding,
   type LandingSection,
 } from "@workspace/api-client-react";
+import { PreviewBanner } from "@/components/preview-banner";
+import { CheckoutDialog } from "@/components/checkout-dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { usePurchase } from "@/hooks/use-purchase";
 import { formatPln } from "@/lib/format";
@@ -428,11 +431,25 @@ const STEP_STYLES = [
 ];
 
 export default function Home() {
-  const { data: courses } = useListCourses();
-  const { data: priceData } = useGetCoursePrice();
-  const { data: landingData } = useGetLandingContent();
-  const { data: faqData } = useGetFaqContent();
+  const search = useSearch();
   const { user } = useAuth();
+  const isPreview = new URLSearchParams(search).get("preview") === "1" && user?.role === "admin";
+
+  const { data: courses } = useListCourses();
+  const { data: pricePublic } = useGetCoursePrice({ query: { enabled: !isPreview } } as never);
+  const { data: landingPublic } = useGetLandingContent({ query: { enabled: !isPreview } } as never);
+  const { data: faqPublic } = useGetFaqContent({ query: { enabled: !isPreview } } as never);
+  const { data: previewData } = usePreviewLanding({ query: { enabled: isPreview } } as never);
+
+  const preview = (previewData ?? {}) as {
+    sections?: LandingSection[];
+    faq?: { question: string; answer: string }[];
+    pricing?: typeof pricePublic;
+  };
+  const priceData = isPreview ? preview.pricing : pricePublic;
+  const landingData = isPreview ? preview.sections : landingPublic;
+  const faqData = isPreview ? preview.faq : faqPublic;
+
   const { startPurchase, isPending } = usePurchase();
 
   // Promo is driven by the pricing singleton (single source of truth). When no
@@ -461,10 +478,18 @@ export default function Home() {
     ? `Promocja kończy się: ${new Date(priceData.promoEndsAt).toLocaleDateString("pl-PL", { day: "numeric", month: "long" })}`
     : "Promocja kończy się z końcem września";
 
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+
   const handleBuy = () => {
-    if (primaryCourseId != null) {
+    if (primaryCourseId == null) return;
+    // Logged-out or already-purchased users are routed away by startPurchase
+    // (to register / dashboard); only show the discount checkout to a logged-in
+    // buyer who still needs access.
+    if (!user || user.hasAccess) {
       void startPurchase(primaryCourseId);
+      return;
     }
+    setCheckoutOpen(true);
   };
 
   // Index landing sections by key + compute render order honoring sortOrder /
@@ -964,6 +989,7 @@ export default function Home() {
   return (
     <div className={`flex flex-col w-full overflow-hidden ${user ? "" : "pb-24 sm:pb-0"}`}>
       <SeoHead />
+      {isPreview && <PreviewBanner label="Podgląd strony głównej jak u ucznia — uwzględnia ukryte sekcje." />}
 
       {ordered.map(({ key, isEnabled }) => {
         if (!isEnabled) return null;
@@ -1033,6 +1059,18 @@ export default function Home() {
           <p className="text-sm text-muted-foreground opacity-60">© {new Date().getFullYear()} fizyka7. Wszystkie prawa zastrzeżone.</p>
         </div>
       </footer>
+
+      <CheckoutDialog
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
+        courseId={primaryCourseId}
+        basePriceGrosz={priceData?.price ?? null}
+        currency={priceData?.currency ?? "PLN"}
+        isPending={isPending}
+        onConfirm={(courseId, discountCode) => {
+          void startPurchase(courseId, discountCode);
+        }}
+      />
     </div>
   );
 }

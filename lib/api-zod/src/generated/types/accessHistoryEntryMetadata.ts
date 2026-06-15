@@ -6,9 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface PaymentInput {
-  courseId: number;
-  returnUrl?: string;
-  /** @nullable */
-  discountCode?: string | null;
-}
+/**
+ * @nullable
+ */
+export type AccessHistoryEntryMetadata = { [key: string]: unknown } | null;

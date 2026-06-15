@@ -573,6 +573,218 @@ export interface PaymentPrice {
 export interface PaymentInput {
   courseId: number;
   returnUrl?: string;
+  /** @nullable */
+  discountCode?: string | null;
+}
+
+export interface ValidateDiscountInput {
+  courseId: number;
+  code: string;
+}
+
+export type DiscountPreviewType = typeof DiscountPreviewType[keyof typeof DiscountPreviewType];
+
+
+export const DiscountPreviewType = {
+  percent: 'percent',
+  amount: 'amount',
+} as const;
+
+export interface DiscountPreview {
+  code: string;
+  type: DiscountPreviewType;
+  value: number;
+  amountBeforeGrosz: number;
+  discountGrosz: number;
+  amountAfterGrosz: number;
+  currency: string;
+}
+
+export type DiscountCodeType = typeof DiscountCodeType[keyof typeof DiscountCodeType];
+
+
+export const DiscountCodeType = {
+  percent: 'percent',
+  amount: 'amount',
+} as const;
+
+export interface DiscountCode {
+  id: number;
+  code: string;
+  type: DiscountCodeType;
+  value: number;
+  /** @nullable */
+  courseId?: number | null;
+  /** @nullable */
+  courseTitle?: string | null;
+  /** @nullable */
+  validFrom?: string | null;
+  /** @nullable */
+  validTo?: string | null;
+  /** @nullable */
+  maxUses?: number | null;
+  /** @nullable */
+  maxUsesPerUser?: number | null;
+  usedCount: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export type DiscountInputType = typeof DiscountInputType[keyof typeof DiscountInputType];
+
+
+export const DiscountInputType = {
+  percent: 'percent',
+  amount: 'amount',
+} as const;
+
+export interface DiscountInput {
+  code: string;
+  type: DiscountInputType;
+  value: number;
+  /** @nullable */
+  courseId?: number | null;
+  /** @nullable */
+  validFrom?: string | null;
+  /** @nullable */
+  validTo?: string | null;
+  /** @nullable */
+  maxUses?: number | null;
+  /** @nullable */
+  maxUsesPerUser?: number | null;
+  isActive?: boolean;
+}
+
+export interface DiscountUse {
+  id: number;
+  userId: number;
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  firstName?: string | null;
+  /** @nullable */
+  lastName?: string | null;
+  /** @nullable */
+  paymentId?: number | null;
+  /** @nullable */
+  courseId?: number | null;
+  amountBeforeGrosz: number;
+  discountGrosz: number;
+  amountAfterGrosz: number;
+  createdAt: string;
+}
+
+export interface DiscountUses {
+  code: DiscountCode;
+  uses: DiscountUse[];
+}
+
+export interface AdminAccessGrant {
+  id: number;
+  userId: number;
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  firstName?: string | null;
+  /** @nullable */
+  lastName?: string | null;
+  courseId: number;
+  /** @nullable */
+  courseTitle?: string | null;
+  source: string;
+  /** @nullable */
+  paymentId?: number | null;
+  /** @nullable */
+  grantedByAdminId?: number | null;
+  status: string;
+  /** @nullable */
+  validFrom?: string | null;
+  /** @nullable */
+  validTo?: string | null;
+  createdAt: string;
+  /** @nullable */
+  updatedAt?: string | null;
+}
+
+export interface AccessGrantInput {
+  userId: number;
+  courseId: number;
+  /** @nullable */
+  validTo?: string | null;
+  /** @nullable */
+  note?: string | null;
+}
+
+export interface AccessRevokeInput {
+  /** @nullable */
+  note?: string | null;
+}
+
+/**
+ * @nullable
+ */
+export type AccessHistoryEntryMetadata = { [key: string]: unknown } | null;
+
+export interface AccessHistoryEntry {
+  id: number;
+  adminId: number;
+  /** @nullable */
+  adminEmail?: string | null;
+  /** @nullable */
+  adminFirstName?: string | null;
+  action: string;
+  /** @nullable */
+  entityType?: string | null;
+  /** @nullable */
+  entityId?: number | null;
+  /** @nullable */
+  metadata?: AccessHistoryEntryMetadata;
+  createdAt: string;
+}
+
+export interface AccessHistory {
+  logs: AccessHistoryEntry[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export type PlatformSettingType = typeof PlatformSettingType[keyof typeof PlatformSettingType];
+
+
+export const PlatformSettingType = {
+  boolean: 'boolean',
+  number: 'number',
+  string: 'string',
+} as const;
+
+export interface PlatformSetting {
+  key: string;
+  type: PlatformSettingType;
+  label: string;
+  description: string;
+  default: unknown;
+  value: unknown;
+  min?: number;
+  max?: number;
+  maxLength?: number;
+}
+
+export type PlatformSettingsUpdateSettingsItem = {
+  key: string;
+  value: unknown;
+};
+
+export interface PlatformSettingsUpdate {
+  settings?: PlatformSettingsUpdateSettingsItem[];
+  [key: string]: unknown;
+ }
+
+export type QuizImportInputQuiz = { [key: string]: unknown };
+
+export interface QuizImportInput {
+  topicId: number;
+  quiz: QuizImportInputQuiz;
 }
 
 export interface PaymentCreated {
@@ -1276,4 +1488,46 @@ entityType?: string;
 page?: number;
 limit?: number;
 };
+
+export type ListAccessParams = {
+status?: ListAccessStatus;
+q?: string;
+};
+
+export type ListAccessStatus = typeof ListAccessStatus[keyof typeof ListAccessStatus];
+
+
+export const ListAccessStatus = {
+  active: 'active',
+  inactive: 'inactive',
+} as const;
+
+export type ListAccessHistoryParams = {
+page?: number;
+limit?: number;
+};
+
+export type ExportLessonsParams = {
+format?: ExportLessonsFormat;
+};
+
+export type ExportLessonsFormat = typeof ExportLessonsFormat[keyof typeof ExportLessonsFormat];
+
+
+export const ExportLessonsFormat = {
+  csv: 'csv',
+  json: 'json',
+} as const;
+
+export type ExportLessons200TwoItem = { [key: string]: unknown };
+
+export type ExportQuiz200 = { [key: string]: unknown };
+
+export type ImportQuiz201 = { [key: string]: unknown };
+
+export type PreviewQuiz200 = { [key: string]: unknown };
+
+export type PreviewLanding200 = { [key: string]: unknown };
+
+export type PreviewCourse200 = { [key: string]: unknown };
 

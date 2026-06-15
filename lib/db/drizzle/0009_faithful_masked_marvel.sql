@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "discount_code_uses_payment_uniq" ON "discount_code_uses" USING btree ("payment_id");

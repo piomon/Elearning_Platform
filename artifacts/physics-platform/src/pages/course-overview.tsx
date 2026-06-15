@@ -1,21 +1,35 @@
-import { useRoute, useLocation } from "wouter";
-import { useGetCourse, useGetMyProgress } from "@workspace/api-client-react";
+import { useRoute, useLocation, useSearch } from "wouter";
+import { useGetCourse, useGetMyProgress, usePreviewCourse } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress as ProgressBar } from "@/components/ui/progress";
 import { ChevronLeft, ArrowRight, BookOpen, CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { PreviewBanner } from "@/components/preview-banner";
 
 export default function CourseOverview() {
   const [, params] = useRoute("/courses/:slug");
   const [, setLocation] = useLocation();
+  const search = useSearch();
+  const { user } = useAuth();
 
   const slug = params?.slug || "";
-  
-  const { data: course, isLoading, error } = useGetCourse(slug, {
-    query: { enabled: !!slug } as any,
-  });
+  const previewId = new URLSearchParams(search).get("preview");
+  const isPreview = !!previewId && user?.role === "admin";
 
-  const { data: progress } = useGetMyProgress();
+  const { data: coursePublic, isLoading: loadingPublic, error: errorPublic } = useGetCourse(slug, {
+    query: { enabled: !!slug && !isPreview } as any,
+  });
+  const { data: coursePreview, isLoading: loadingPreview, error: errorPreview } = usePreviewCourse(
+    Number(previewId),
+    { query: { enabled: isPreview } } as never,
+  );
+
+  const course = (isPreview ? coursePreview : coursePublic) as typeof coursePublic;
+  const isLoading = isPreview ? loadingPreview : loadingPublic;
+  const error = isPreview ? errorPreview : errorPublic;
+
+  const { data: progress } = useGetMyProgress({ query: { enabled: !isPreview } } as never);
 
   if (isLoading) {
     return (
@@ -45,6 +59,7 @@ export default function CourseOverview() {
 
   return (
     <div className="container mx-auto px-4 py-10 max-w-4xl space-y-10">
+      {isPreview && <PreviewBanner label="Podgląd karty kursu jak u ucznia — kurs może nie być opublikowany." />}
       <div>
         <Button variant="ghost" className="mb-6 -ml-4 text-muted-foreground hover:text-foreground rounded-full" onClick={() => setLocation("/dashboard")}>
           <ChevronLeft className="w-5 h-5 mr-1" /> Wróć do kokpitu

@@ -23,9 +23,19 @@ import {
   pricingSettings,
   lessonImages,
   aiSettings,
+  discountCodes,
+  discountCodeUses,
+  platformSettings,
 } from "@workspace/db";
 import { eq, ne, and, desc, asc, count, countDistinct, sum, gte, ilike, or, sql, inArray } from "drizzle-orm";
 import { requireAuth, requireAdmin, type AuthRequest } from "../middlewares/auth";
+import {
+  SETTINGS_CATALOG,
+  getSettingDef,
+  getPlatformSettings,
+  validateSetting,
+} from "../lib/platform-settings";
+import { DISCOUNT_TYPES, normalizeCode, type DiscountType } from "../lib/discounts";
 import {
   probeBunnyVideo,
   mapWithConcurrency,
@@ -2451,6 +2461,772 @@ router.post("/admin/ai-settings/test", async (req: AuthRequest, res) => {
     }
   } catch (err) {
     req.log.error({ err }, "AI test error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ── Discount codes ────────────────────────────────────────────────────────────
+
+// Parse + validate the editable fields shared by create and update. Returns the
+// column values to persist, or a Polish error message. `priceGrosz` is the
+// current course price used to cap fixed-amount discounts.
+function parseDiscountBody(
+  body: any,
+  priceGrosz: number,
+): { values: Record<string, unknown> } | { error: string } {
+  const type = body?.type;
+  if (!DISCOUNT_TYPES.includes(type as DiscountType)) {
+    return { error: "Typ rabatu musi być 'percent' lub 'amount'" };
+  }
+  const value = Math.round(Number(body?.value));
+  if (!Number.isFinite(value) || value <= 0) {
+    return { error: "Wartość rabatu musi być liczbą większą od zera" };
+  }
+  if (type === "percent" && value > 100) {
+    return { error: "Rabat procentowy nie może przekraczać 100%" };
+  }
+  if (type === "amount" && value > priceGrosz) {
+    return { error: "Rabat kwotowy nie może przekraczać ceny kursu" };
+  }
+
+  const parseDate = (v: unknown): Date | null => {
+    if (v === undefined || v === null || v === "") return null;
+    const d = new Date(String(v));
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+
+  const parseCap = (v: unknown): number | null => {
+    if (v === undefined || v === null || v === "") return null;
+    const n = Math.round(Number(v));
+    return Number.isFinite(n) && n > 0 ? n : null;
+  };
+
+  const validFrom = parseDate(body?.validFrom);
+  const validTo = parseDate(body?.validTo);
+  if (validFrom && validTo && validTo < validFrom) {
+    return { error: "Data zakończenia nie może być wcześniejsza niż data rozpoczęcia" };
+  }
+
+  return {
+    values: {
+      type,
+      value,
+      validFrom,
+      validTo,
+      maxUses: parseCap(body?.maxUses),
+      maxUsesPerUser: parseCap(body?.maxUsesPerUser),
+      isActive: body?.isActive != null ? Boolean(body.isActive) : true,
+    },
+  };
+}
+
+router.get("/admin/discounts", async (req: AuthRequest, res) => {
+  try {
+    const rows = await db
+      .select({
+        id: discountCodes.id,
+        code: discountCodes.code,
+        type: discountCodes.type,
+        value: discountCodes.value,
+        courseId: discountCodes.courseId,
+        courseTitle: courses.title,
+        validFrom: discountCodes.validFrom,
+        validTo: discountCodes.validTo,
+        maxUses: discountCodes.maxUses,
+        maxUsesPerUser: discountCodes.maxUsesPerUser,
+        usedCount: discountCodes.usedCount,
+        isActive: discountCodes.isActive,
+        createdAt: discountCodes.createdAt,
+      })
+      .from(discountCodes)
+      .leftJoin(courses, eq(discountCodes.courseId, courses.id))
+      .orderBy(desc(discountCodes.createdAt));
+    res.json(rows);
+  } catch (err) {
+    req.log.error({ err }, "List discounts error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.get("/admin/discounts/:id/uses", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [code] = await db.select().from(discountCodes).where(eq(discountCodes.id, id)).limit(1);
+    if (!code) { res.status(404).json({ error: "Kod rabatowy nie znaleziony" }); return; }
+    const uses = await db
+      .select({
+        id: discountCodeUses.id,
+        userId: discountCodeUses.userId,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        paymentId: discountCodeUses.paymentId,
+        courseId: discountCodeUses.courseId,
+        amountBeforeGrosz: discountCodeUses.amountBeforeGrosz,
+        discountGrosz: discountCodeUses.discountGrosz,
+        amountAfterGrosz: discountCodeUses.amountAfterGrosz,
+        createdAt: discountCodeUses.createdAt,
+      })
+      .from(discountCodeUses)
+      .leftJoin(users, eq(discountCodeUses.userId, users.id))
+      .where(eq(discountCodeUses.discountCodeId, id))
+      .orderBy(desc(discountCodeUses.createdAt));
+    res.json({ code, uses });
+  } catch (err) {
+    req.log.error({ err }, "Discount uses error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.post("/admin/discounts", async (req: AuthRequest, res) => {
+  try {
+    const code = normalizeCode(req.body?.code);
+    if (!code || code.length < 3) {
+      res.status(400).json({ error: "Kod musi mieć co najmniej 3 znaki" });
+      return;
+    }
+    if (!/^[A-Z0-9_-]+$/.test(code)) {
+      res.status(400).json({ error: "Kod może zawierać tylko litery, cyfry, '-' i '_'" });
+      return;
+    }
+
+    let courseId: number | null = null;
+    if (req.body?.courseId != null && req.body.courseId !== "") {
+      courseId = Number(req.body.courseId);
+      if (!Number.isInteger(courseId) || courseId <= 0) {
+        res.status(400).json({ error: "Nieprawidłowy identyfikator kursu" });
+        return;
+      }
+      const [course] = await db.select({ id: courses.id }).from(courses).where(eq(courses.id, courseId)).limit(1);
+      if (!course) { res.status(404).json({ error: "Kurs nie znaleziony" }); return; }
+    }
+
+    const { priceGrosz } = await getPricingSettings();
+    const parsed = parseDiscountBody(req.body, priceGrosz);
+    if ("error" in parsed) { res.status(400).json({ error: parsed.error }); return; }
+
+    const [existing] = await db.select({ id: discountCodes.id }).from(discountCodes).where(eq(discountCodes.code, code)).limit(1);
+    if (existing) { res.status(409).json({ error: "Kod rabatowy o tej nazwie już istnieje" }); return; }
+
+    const [row] = await db
+      .insert(discountCodes)
+      .values({ code, courseId, createdByAdminId: req.user!.id, ...(parsed.values as any) })
+      .returning();
+    await logAdminAction(req.user!.id, "create", "discount_code", row.id, { code });
+    res.status(201).json(row);
+  } catch (err) {
+    req.log.error({ err }, "Create discount error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.put("/admin/discounts/:id", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [code] = await db.select().from(discountCodes).where(eq(discountCodes.id, id)).limit(1);
+    if (!code) { res.status(404).json({ error: "Kod rabatowy nie znaleziony" }); return; }
+
+    let courseId: number | null = code.courseId;
+    if ("courseId" in (req.body ?? {})) {
+      if (req.body.courseId == null || req.body.courseId === "") {
+        courseId = null;
+      } else {
+        courseId = Number(req.body.courseId);
+        if (!Number.isInteger(courseId) || courseId <= 0) {
+          res.status(400).json({ error: "Nieprawidłowy identyfikator kursu" });
+          return;
+        }
+        const [course] = await db.select({ id: courses.id }).from(courses).where(eq(courses.id, courseId)).limit(1);
+        if (!course) { res.status(404).json({ error: "Kurs nie znaleziony" }); return; }
+      }
+    }
+
+    const { priceGrosz } = await getPricingSettings();
+    const parsed = parseDiscountBody(req.body, priceGrosz);
+    if ("error" in parsed) { res.status(400).json({ error: parsed.error }); return; }
+
+    const [row] = await db
+      .update(discountCodes)
+      .set({ courseId, updatedAt: new Date(), ...(parsed.values as any) })
+      .where(eq(discountCodes.id, id))
+      .returning();
+    await logAdminAction(req.user!.id, "update", "discount_code", id, { code: code.code });
+    res.json(row);
+  } catch (err) {
+    req.log.error({ err }, "Update discount error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.patch("/admin/discounts/:id/toggle", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [code] = await db.select().from(discountCodes).where(eq(discountCodes.id, id)).limit(1);
+    if (!code) { res.status(404).json({ error: "Kod rabatowy nie znaleziony" }); return; }
+    const [row] = await db
+      .update(discountCodes)
+      .set({ isActive: !code.isActive, updatedAt: new Date() })
+      .where(eq(discountCodes.id, id))
+      .returning();
+    await logAdminAction(req.user!.id, row.isActive ? "enable" : "disable", "discount_code", id, { code: code.code });
+    res.json(row);
+  } catch (err) {
+    req.log.error({ err }, "Toggle discount error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.delete("/admin/discounts/:id", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [code] = await db.select().from(discountCodes).where(eq(discountCodes.id, id)).limit(1);
+    if (!code) { res.status(404).json({ error: "Kod rabatowy nie znaleziony" }); return; }
+    if (code.usedCount > 0) {
+      res.status(409).json({ error: "Nie można usunąć kodu, który był już użyty. Wyłącz go zamiast usuwać." });
+      return;
+    }
+    await db.delete(discountCodes).where(eq(discountCodes.id, id));
+    await logAdminAction(req.user!.id, "delete", "discount_code", id, { code: code.code });
+    res.json({ message: "Kod rabatowy usunięty" });
+  } catch (err) {
+    req.log.error({ err }, "Delete discount error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ── Access (Dostępy) ──────────────────────────────────────────────────────────
+
+// Dedicated access management: every grant (manual or payment-sourced) joined
+// with its user, course and granting admin, with active/inactive filtering.
+router.get("/admin/access", async (req: AuthRequest, res) => {
+  try {
+    const { status, q } = req.query as { status?: string; q?: string };
+    const rows = await db
+      .select({
+        id: accessGrants.id,
+        userId: accessGrants.userId,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        courseId: accessGrants.courseId,
+        courseTitle: courses.title,
+        source: accessGrants.source,
+        paymentId: accessGrants.paymentId,
+        grantedByAdminId: accessGrants.grantedByAdminId,
+        status: accessGrants.status,
+        validFrom: accessGrants.validFrom,
+        validTo: accessGrants.validTo,
+        createdAt: accessGrants.createdAt,
+        updatedAt: accessGrants.updatedAt,
+      })
+      .from(accessGrants)
+      .leftJoin(users, eq(accessGrants.userId, users.id))
+      .leftJoin(courses, eq(accessGrants.courseId, courses.id))
+      .orderBy(desc(accessGrants.createdAt));
+
+    let filtered = rows;
+    if (status === "active") filtered = filtered.filter((r) => r.status === "active");
+    else if (status === "inactive") filtered = filtered.filter((r) => r.status !== "active");
+    if (q && q.trim()) {
+      const needle = q.trim().toLowerCase();
+      filtered = filtered.filter(
+        (r) =>
+          (r.email ?? "").toLowerCase().includes(needle) ||
+          (r.firstName ?? "").toLowerCase().includes(needle) ||
+          (r.lastName ?? "").toLowerCase().includes(needle) ||
+          (r.courseTitle ?? "").toLowerCase().includes(needle),
+      );
+    }
+    res.json(filtered);
+  } catch (err) {
+    req.log.error({ err }, "List access error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// History of access changes, sourced from the admin log (grant/revoke actions).
+router.get("/admin/access/history", async (req: AuthRequest, res) => {
+  try {
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 50));
+    const whereExpr = inArray(adminLogs.action, ["grant_access", "revoke_access"]);
+    const [{ total }] = await db.select({ total: count() }).from(adminLogs).where(whereExpr);
+    const logs = await db
+      .select({
+        id: adminLogs.id,
+        adminId: adminLogs.adminId,
+        adminEmail: users.email,
+        adminFirstName: users.firstName,
+        action: adminLogs.action,
+        entityType: adminLogs.entityType,
+        entityId: adminLogs.entityId,
+        metadata: adminLogs.metadata,
+        createdAt: adminLogs.createdAt,
+      })
+      .from(adminLogs)
+      .leftJoin(users, eq(adminLogs.adminId, users.id))
+      .where(whereExpr)
+      .orderBy(desc(adminLogs.createdAt))
+      .limit(limit)
+      .offset((page - 1) * limit);
+    res.json({ logs, total: Number(total), page, limit });
+  } catch (err) {
+    req.log.error({ err }, "Access history error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Grant access to a specific user+course with an optional expiry and note. The
+// note is recorded in the admin log so the history view can surface it.
+router.post("/admin/access", async (req: AuthRequest, res) => {
+  try {
+    const userId = Number(req.body?.userId);
+    const courseId = Number(req.body?.courseId);
+    const note = typeof req.body?.note === "string" ? req.body.note.slice(0, 500) : null;
+    if (!Number.isInteger(userId) || userId <= 0) {
+      res.status(400).json({ error: "Nieprawidłowy identyfikator użytkownika" });
+      return;
+    }
+    if (!Number.isInteger(courseId) || courseId <= 0) {
+      res.status(400).json({ error: "Nieprawidłowy identyfikator kursu" });
+      return;
+    }
+    const [user] = await db.select({ id: users.id }).from(users).where(eq(users.id, userId)).limit(1);
+    if (!user) { res.status(404).json({ error: "Użytkownik nie znaleziony" }); return; }
+    const [course] = await db.select({ id: courses.id }).from(courses).where(eq(courses.id, courseId)).limit(1);
+    if (!course) { res.status(404).json({ error: "Kurs nie znaleziony" }); return; }
+
+    const [existing] = await db
+      .select({ id: accessGrants.id })
+      .from(accessGrants)
+      .where(and(eq(accessGrants.userId, userId), eq(accessGrants.courseId, courseId), eq(accessGrants.status, "active")))
+      .limit(1);
+    if (existing) { res.status(409).json({ error: "Użytkownik już ma aktywny dostęp do tego kursu" }); return; }
+
+    const validTo = req.body?.validTo ? new Date(req.body.validTo) : null;
+    const [grant] = await db
+      .insert(accessGrants)
+      .values({
+        userId,
+        courseId,
+        source: "admin",
+        grantedByAdminId: req.user!.id,
+        status: "active",
+        validFrom: new Date(),
+        validTo: validTo && !Number.isNaN(validTo.getTime()) ? validTo : null,
+      })
+      .returning();
+    await logAdminAction(req.user!.id, "grant_access", "access_grant", grant.id, { userId, courseId, note });
+    res.status(201).json(grant);
+  } catch (err) {
+    req.log.error({ err }, "Grant access (access view) error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Revoke a single grant by id, with an optional note recorded in the log.
+router.delete("/admin/access/:id", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const note = typeof req.body?.note === "string" ? req.body.note.slice(0, 500) : null;
+    const [grant] = await db.select().from(accessGrants).where(eq(accessGrants.id, id)).limit(1);
+    if (!grant) { res.status(404).json({ error: "Dostęp nie znaleziony" }); return; }
+    if (grant.status !== "active") { res.status(400).json({ error: "Dostęp jest już nieaktywny" }); return; }
+    const [updated] = await db
+      .update(accessGrants)
+      .set({ status: "revoked", updatedAt: new Date() })
+      .where(eq(accessGrants.id, id))
+      .returning();
+    await logAdminAction(req.user!.id, "revoke_access", "access_grant", id, {
+      userId: grant.userId,
+      courseId: grant.courseId,
+      note,
+    });
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Revoke access (access view) error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ── Platform settings ─────────────────────────────────────────────────────────
+
+router.get("/admin/settings", async (req: AuthRequest, res) => {
+  try {
+    const settings = await getPlatformSettings();
+    res.json(settings);
+  } catch (err) {
+    req.log.error({ err }, "Get platform settings error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Bulk upsert of settings. Only keys present in the catalog are accepted; any
+// unknown key is rejected so the endpoint can never write arbitrary rows (and
+// SECRETS, which are not in the catalog, can never be stored here).
+router.put("/admin/settings", async (req: AuthRequest, res) => {
+  try {
+    const body = req.body ?? {};
+    const entries = Array.isArray(body.settings)
+      ? body.settings
+      : Object.entries(body).map(([key, value]) => ({ key, value }));
+
+    const toWrite: Array<{ key: string; value: string }> = [];
+    for (const entry of entries) {
+      const key = entry?.key;
+      const def = typeof key === "string" ? getSettingDef(key) : undefined;
+      if (!def) { res.status(400).json({ error: `Nieznane ustawienie: ${key}` }); return; }
+      const result = validateSetting(def, entry.value);
+      if (!result.ok) { res.status(400).json({ error: result.error }); return; }
+      toWrite.push({ key: def.key, value: result.stored });
+    }
+
+    await db.transaction(async (tx) => {
+      for (const w of toWrite) {
+        await tx
+          .insert(platformSettings)
+          .values({ key: w.key, value: w.value })
+          .onConflictDoUpdate({ target: platformSettings.key, set: { value: w.value, updatedAt: new Date() } });
+      }
+    });
+    await logAdminAction(req.user!.id, "update", "platform_settings", undefined, {
+      keys: toWrite.map((w) => w.key),
+    });
+    const settings = await getPlatformSettings();
+    res.json(settings);
+  } catch (err) {
+    req.log.error({ err }, "Update platform settings error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ── Import / Export ───────────────────────────────────────────────────────────
+
+// Quote a CSV cell per RFC 4180 (double quotes + escape embedded quotes) so
+// values containing commas, quotes or newlines stay intact in spreadsheets.
+function csvCell(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  const s = String(value);
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+function toCsv(headers: string[], rows: Array<Array<unknown>>): string {
+  const lines = [headers.map(csvCell).join(",")];
+  for (const row of rows) lines.push(row.map(csvCell).join(","));
+  // Prepend a UTF-8 BOM so Excel renders Polish characters correctly.
+  return "\ufeff" + lines.join("\r\n");
+}
+
+function sendCsv(res: any, filename: string, csv: string) {
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  res.send(csv);
+}
+
+// Export every lesson (topic) with its course/section context, as CSV or JSON.
+router.get("/admin/export/lessons", async (req: AuthRequest, res) => {
+  try {
+    const format = (req.query.format as string) === "json" ? "json" : "csv";
+    const rows = await db
+      .select({
+        id: topics.id,
+        title: topics.title,
+        slug: topics.slug,
+        status: topics.status,
+        accessType: topics.accessType,
+        difficulty: topics.difficulty,
+        durationMinutes: topics.durationMinutes,
+        sortOrder: topics.sortOrder,
+        sectionId: sections.id,
+        sectionTitle: sections.title,
+        courseId: courses.id,
+        courseTitle: courses.title,
+        createdAt: topics.createdAt,
+      })
+      .from(topics)
+      .leftJoin(sections, eq(topics.sectionId, sections.id))
+      .leftJoin(courses, eq(sections.courseId, courses.id))
+      .orderBy(asc(courses.id), asc(sections.sortOrder), asc(topics.sortOrder));
+
+    if (format === "json") {
+      res.setHeader("Content-Disposition", `attachment; filename="lekcje.json"`);
+      res.json(rows);
+      return;
+    }
+    const csv = toCsv(
+      ["id", "tytul", "slug", "status", "typ_dostepu", "trudnosc", "czas_min", "kolejnosc", "dzial_id", "dzial", "kurs_id", "kurs", "utworzono"],
+      rows.map((r) => [
+        r.id, r.title, r.slug, r.status, r.accessType, r.difficulty ?? "", r.durationMinutes ?? "",
+        r.sortOrder, r.sectionId ?? "", r.sectionTitle ?? "", r.courseId ?? "", r.courseTitle ?? "",
+        r.createdAt?.toISOString?.() ?? "",
+      ]),
+    );
+    sendCsv(res, "lekcje.csv", csv);
+  } catch (err) {
+    req.log.error({ err }, "Export lessons error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.get("/admin/export/users", async (req: AuthRequest, res) => {
+  try {
+    const rows = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        role: users.role,
+        isBanned: users.isBanned,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .orderBy(asc(users.id));
+    const csv = toCsv(
+      ["id", "email", "imie", "nazwisko", "rola", "zablokowany", "utworzono"],
+      rows.map((r) => [
+        r.id, r.email, r.firstName, r.lastName, r.role, r.isBanned ? "tak" : "nie",
+        r.createdAt?.toISOString?.() ?? "",
+      ]),
+    );
+    sendCsv(res, "uzytkownicy.csv", csv);
+  } catch (err) {
+    req.log.error({ err }, "Export users error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.get("/admin/export/payments", async (req: AuthRequest, res) => {
+  try {
+    const rows = await db
+      .select({
+        id: payments.id,
+        userId: payments.userId,
+        email: users.email,
+        provider: payments.provider,
+        amount: payments.amount,
+        discountGrosz: payments.discountGrosz,
+        currency: payments.currency,
+        status: payments.status,
+        courseId: payments.courseId,
+        createdAt: payments.createdAt,
+      })
+      .from(payments)
+      .leftJoin(users, eq(payments.userId, users.id))
+      .orderBy(desc(payments.createdAt));
+    const csv = toCsv(
+      ["id", "uzytkownik_id", "email", "operator", "kwota_grosz", "rabat_grosz", "waluta", "status", "kurs_id", "utworzono"],
+      rows.map((r) => [
+        r.id, r.userId, r.email ?? "", r.provider, r.amount, r.discountGrosz ?? 0, r.currency, r.status,
+        r.courseId ?? "", r.createdAt?.toISOString?.() ?? "",
+      ]),
+    );
+    sendCsv(res, "platnosci.csv", csv);
+  } catch (err) {
+    req.log.error({ err }, "Export payments error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Export a quiz (with questions + answers, including the correct flag) as a
+// portable JSON document that the import endpoint below can re-create.
+router.get("/admin/quizzes/:id/export", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [quiz] = await db.select().from(quizzes).where(eq(quizzes.id, id)).limit(1);
+    if (!quiz) { res.status(404).json({ error: "Quiz nie znaleziony" }); return; }
+    const questions = await db.select().from(quizQuestions).where(eq(quizQuestions.quizId, id)).orderBy(asc(quizQuestions.sortOrder));
+    const out = {
+      version: 1,
+      title: quiz.title,
+      passThreshold: quiz.passThreshold,
+      maxAttempts: quiz.maxAttempts,
+      timeLimitMinutes: quiz.timeLimitMinutes,
+      shuffleQuestions: quiz.shuffleQuestions,
+      shuffleAnswers: quiz.shuffleAnswers,
+      showScore: quiz.showScore,
+      showCorrectAnswers: quiz.showCorrectAnswers,
+      questions: await Promise.all(
+        questions.map(async (q) => {
+          const answers = await db.select().from(quizAnswers).where(eq(quizAnswers.questionId, q.id)).orderBy(asc(quizAnswers.sortOrder), asc(quizAnswers.answerLabel));
+          return {
+            questionText: q.questionText,
+            explanation: q.explanation,
+            points: q.points,
+            sortOrder: q.sortOrder,
+            answers: answers.map((a) => ({
+              answerLabel: a.answerLabel,
+              answerText: a.answerText,
+              isCorrect: a.isCorrect,
+              sortOrder: a.sortOrder,
+            })),
+          };
+        }),
+      ),
+    };
+    res.setHeader("Content-Disposition", `attachment; filename="quiz-${id}.json"`);
+    res.json(out);
+  } catch (err) {
+    req.log.error({ err }, "Export quiz error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Import a quiz JSON (as produced by the export above) into a topic. Creates the
+// quiz as a draft so a half-checked import never leaks to students.
+router.post("/admin/quizzes/import", async (req: AuthRequest, res) => {
+  try {
+    const topicId = Number(req.body?.topicId);
+    const data = req.body?.quiz;
+    if (!Number.isInteger(topicId) || topicId <= 0) {
+      res.status(400).json({ error: "Nieprawidłowy identyfikator tematu" });
+      return;
+    }
+    if (!data || typeof data !== "object" || !Array.isArray(data.questions)) {
+      res.status(400).json({ error: "Nieprawidłowy format quizu (brak listy pytań)" });
+      return;
+    }
+    const [topic] = await db.select({ id: topics.id }).from(topics).where(eq(topics.id, topicId)).limit(1);
+    if (!topic) { res.status(404).json({ error: "Temat nie znaleziony" }); return; }
+    const [existingQuiz] = await db.select({ id: quizzes.id }).from(quizzes).where(eq(quizzes.topicId, topicId)).limit(1);
+    if (existingQuiz) { res.status(409).json({ error: "Temat ma już przypisany quiz" }); return; }
+
+    // Validate every question shape up front so the import is all-or-nothing.
+    for (const [i, q] of data.questions.entries()) {
+      if (!q || typeof q.questionText !== "string" || !q.questionText.trim()) {
+        res.status(400).json({ error: `Pytanie ${i + 1}: brak treści` });
+        return;
+      }
+      if (!Array.isArray(q.answers) || q.answers.length < 2) {
+        res.status(400).json({ error: `Pytanie ${i + 1}: wymagane co najmniej dwie odpowiedzi` });
+        return;
+      }
+      const correct = q.answers.filter((a: any) => a?.isCorrect).length;
+      if (correct !== 1) {
+        res.status(400).json({ error: `Pytanie ${i + 1}: wymagana dokładnie jedna poprawna odpowiedź` });
+        return;
+      }
+    }
+
+    const created = await db.transaction(async (tx) => {
+      const [quiz] = await tx
+        .insert(quizzes)
+        .values({
+          topicId,
+          title: typeof data.title === "string" && data.title.trim() ? data.title.slice(0, 200) : "Zaimportowany quiz",
+          passThreshold: Number.isFinite(Number(data.passThreshold)) ? Math.min(100, Math.max(0, Math.round(Number(data.passThreshold)))) : 80,
+          maxAttempts: data.maxAttempts == null ? null : Math.max(1, Math.round(Number(data.maxAttempts))),
+          timeLimitMinutes: data.timeLimitMinutes == null ? null : Math.max(1, Math.round(Number(data.timeLimitMinutes))),
+          shuffleQuestions: Boolean(data.shuffleQuestions),
+          shuffleAnswers: Boolean(data.shuffleAnswers),
+          showScore: data.showScore == null ? true : Boolean(data.showScore),
+          showCorrectAnswers: data.showCorrectAnswers == null ? true : Boolean(data.showCorrectAnswers),
+          status: "draft",
+        })
+        .returning();
+
+      for (const [qi, q] of (data.questions as any[]).entries()) {
+        const [question] = await tx
+          .insert(quizQuestions)
+          .values({
+            quizId: quiz.id,
+            questionText: String(q.questionText).slice(0, 2000),
+            explanation: q.explanation ? String(q.explanation).slice(0, 2000) : null,
+            points: Number.isFinite(Number(q.points)) ? Math.max(1, Math.round(Number(q.points))) : 1,
+            sortOrder: Number.isFinite(Number(q.sortOrder)) ? Number(q.sortOrder) : qi,
+          })
+          .returning();
+        const labels = ["A", "B", "C", "D", "E", "F"];
+        for (const [ai, a] of (q.answers as any[]).entries()) {
+          await tx.insert(quizAnswers).values({
+            questionId: question.id,
+            answerLabel: typeof a.answerLabel === "string" && a.answerLabel ? String(a.answerLabel).slice(0, 4) : labels[ai] ?? String(ai + 1),
+            answerText: String(a.answerText ?? "").slice(0, 1000),
+            isCorrect: Boolean(a.isCorrect),
+            sortOrder: Number.isFinite(Number(a.sortOrder)) ? Number(a.sortOrder) : ai,
+          });
+        }
+      }
+      return quiz;
+    });
+
+    await logAdminAction(req.user!.id, "import", "quiz", created.id, { topicId, questions: data.questions.length });
+    res.status(201).json(created);
+  } catch (err) {
+    req.log.error({ err }, "Import quiz error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ── Pre-publish preview ("jak u ucznia") ──────────────────────────────────────
+
+// Student-shape quiz preview regardless of publish status. Answers omit the
+// correct flag (exactly as a student sees them), but the quiz settings and the
+// per-question explanation are included so the admin can review the full setup.
+router.get("/admin/quizzes/:id/preview", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [quiz] = await db.select().from(quizzes).where(eq(quizzes.id, id)).limit(1);
+    if (!quiz) { res.status(404).json({ error: "Quiz nie znaleziony" }); return; }
+    const qqs = await db.select().from(quizQuestions).where(eq(quizQuestions.quizId, id)).orderBy(asc(quizQuestions.sortOrder));
+    const questions = await Promise.all(
+      qqs.map(async (q) => {
+        const answers = await db
+          .select({
+            id: quizAnswers.id,
+            questionId: quizAnswers.questionId,
+            answerLabel: quizAnswers.answerLabel,
+            answerText: quizAnswers.answerText,
+          })
+          .from(quizAnswers)
+          .where(eq(quizAnswers.questionId, q.id))
+          .orderBy(asc(quizAnswers.sortOrder), asc(quizAnswers.answerLabel));
+        return { id: q.id, questionText: q.questionText, points: q.points, sortOrder: q.sortOrder, answers };
+      }),
+    );
+    res.json({ ...quiz, questions, preview: true });
+  } catch (err) {
+    req.log.error({ err }, "Preview quiz error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Landing-page + FAQ preview rendering ALL content (including disabled/hidden
+// rows) so the owner can review unpublished copy exactly as it would appear.
+router.get("/admin/preview/landing", async (req: AuthRequest, res) => {
+  try {
+    const sectionsRows = await db.select().from(landingSections).orderBy(asc(landingSections.sortOrder), asc(landingSections.id));
+    const faq = await db.select().from(faqItems).orderBy(asc(faqItems.sortOrder), asc(faqItems.id));
+    const pricing = await getPricingSettings();
+    const seo = await getSeoSettings();
+    res.json({ sections: sectionsRows, faq, pricing, seo, preview: true });
+  } catch (err) {
+    req.log.error({ err }, "Preview landing error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Course-card preview "as a student": the course with its sections and lesson
+// counts regardless of publish status, with hasAccess forced true.
+router.get("/admin/courses/:id/preview", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [course] = await db.select().from(courses).where(eq(courses.id, id)).limit(1);
+    if (!course) { res.status(404).json({ error: "Kurs nie znaleziony" }); return; }
+    const sectionRows = await db.select().from(sections).where(eq(sections.courseId, id)).orderBy(asc(sections.sortOrder), asc(sections.id));
+    const withTopics = await Promise.all(
+      sectionRows.map(async (s) => {
+        const topicRows = await db
+          .select({ id: topics.id, title: topics.title, slug: topics.slug, status: topics.status, accessType: topics.accessType, sortOrder: topics.sortOrder })
+          .from(topics)
+          .where(eq(topics.sectionId, s.id))
+          .orderBy(asc(topics.sortOrder), asc(topics.id));
+        return { ...s, topics: topicRows, topicCount: topicRows.length };
+      }),
+    );
+    res.json({ ...course, sections: withTopics, hasAccess: true, preview: true });
+  } catch (err) {
+    req.log.error({ err }, "Preview course error");
     res.status(500).json({ error: "Błąd serwera" });
   }
 });

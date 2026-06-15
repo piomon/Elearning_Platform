@@ -56,6 +56,18 @@ export const aiSettings = pgTable("ai_settings", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Owner-editable technical platform settings, stored as a flat key/value map.
+// The server defines the authoritative catalog of allowed keys (type, default,
+// validation) in lib/platform-settings.ts; this table only holds overrides.
+// SECRETS ARE NEVER STORED HERE — API keys/passwords live solely in the server
+// environment. Values are kept as text and coerced by the catalog on read.
+export const platformSettings = pgTable("platform_settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: text("value").notNull().default(""),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Singleton (id = 1). SINGLE SOURCE OF TRUTH for the course price: the public
 // price endpoint, the landing page, the promo banner and the amount charged by
 // Paynow all read from here. Amounts are stored in grosz (1/100 PLN).

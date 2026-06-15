@@ -6,9 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface PaymentInput {
-  courseId: number;
-  returnUrl?: string;
-  /** @nullable */
-  discountCode?: string | null;
-}
+export type ListAccessHistoryParams = {
+page?: number;
+limit?: number;
+};

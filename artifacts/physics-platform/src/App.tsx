@@ -27,6 +27,9 @@ import AdminLanding from "@/pages/admin/landing";
 import AdminPricing from "@/pages/admin/pricing";
 import AdminFaq from "@/pages/admin/faq";
 import AdminSeo from "@/pages/admin/seo";
+import AdminDiscounts from "@/pages/admin/discounts";
+import AdminAccess from "@/pages/admin/access";
+import AdminSettings from "@/pages/admin/settings";
 import PaymentSuccess from "@/pages/payment/success";
 import PaymentError from "@/pages/payment/error";
 import Regulamin from "@/pages/regulamin";
@@ -90,6 +93,15 @@ function Router() {
         </Route>
         <Route path="/admin/seo">
           {() => <AdminPage><AdminSeo /></AdminPage>}
+        </Route>
+        <Route path="/admin/discounts">
+          {() => <AdminPage><AdminDiscounts /></AdminPage>}
+        </Route>
+        <Route path="/admin/access">
+          {() => <AdminPage><AdminAccess /></AdminPage>}
+        </Route>
+        <Route path="/admin/settings">
+          {() => <AdminPage><AdminSettings /></AdminPage>}
         </Route>
         <Route path="/admin/contact">
           {() => <AdminPage><AdminContact /></AdminPage>}

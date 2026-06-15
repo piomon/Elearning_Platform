@@ -6,9 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface PaymentInput {
-  courseId: number;
-  returnUrl?: string;
+export interface AccessRevokeInput {
   /** @nullable */
-  discountCode?: string | null;
+  note?: string | null;
 }

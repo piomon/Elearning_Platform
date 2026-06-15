@@ -57,6 +57,20 @@
       "when": 1781560059363,
       "tag": "0007_nappy_sphinx",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1781560858752,
+      "tag": "0008_square_eternity",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1781563636932,
+      "tag": "0009_faithful_masked_marvel",
+      "breakpoints": true
     }
   ]
 }

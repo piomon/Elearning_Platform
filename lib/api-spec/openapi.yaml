@@ -432,6 +432,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaymentPrice"
 
+  /payments/validate-discount:
+    post:
+      operationId: validateDiscount
+      tags: [payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ValidateDiscountInput"
+      responses:
+        "200":
+          description: Discount applied preview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountPreview"
+
   /payments/create:
     post:
       operationId: createPayment
@@ -2077,6 +2095,365 @@ paths:
               schema:
                 $ref: "#/components/schemas/AiTestResult"
 
+  # ─── DISCOUNT CODES ────────────────────────────────────────────────────────
+  /admin/discounts:
+    get:
+      operationId: listDiscounts
+      tags: [admin]
+      responses:
+        "200":
+          description: Discount codes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DiscountCode"
+    post:
+      operationId: createDiscount
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscountInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountCode"
+
+  /admin/discounts/{id}:
+    put:
+      operationId: updateDiscount
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscountInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountCode"
+    delete:
+      operationId: deleteDiscount
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/discounts/{id}/toggle:
+    patch:
+      operationId: toggleDiscount
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Toggled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountCode"
+
+  /admin/discounts/{id}/uses:
+    get:
+      operationId: listDiscountUses
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Discount usage history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountUses"
+
+  # ─── ACCESS (DOSTĘPY) ──────────────────────────────────────────────────────
+  /admin/access:
+    get:
+      operationId: listAccess
+      tags: [admin]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive]
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Access grants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminAccessGrant"
+    post:
+      operationId: createAccess
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccessGrantInput"
+      responses:
+        "201":
+          description: Granted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminAccessGrant"
+
+  /admin/access/{id}:
+    delete:
+      operationId: revokeAccessGrant
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccessRevokeInput"
+      responses:
+        "200":
+          description: Revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminAccessGrant"
+
+  /admin/access/history:
+    get:
+      operationId: listAccessHistory
+      tags: [admin]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Access change history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessHistory"
+
+  # ─── PLATFORM SETTINGS ─────────────────────────────────────────────────────
+  /admin/settings:
+    get:
+      operationId: getPlatformSettings
+      tags: [admin]
+      responses:
+        "200":
+          description: Platform settings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlatformSetting"
+    put:
+      operationId: updatePlatformSettings
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlatformSettingsUpdate"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlatformSetting"
+
+  # ─── IMPORT / EXPORT ───────────────────────────────────────────────────────
+  /admin/export/lessons:
+    get:
+      operationId: exportLessons
+      tags: [admin]
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [csv, json]
+      responses:
+        "200":
+          description: Lessons export (CSV or JSON)
+          content:
+            text/csv:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /admin/export/users:
+    get:
+      operationId: exportUsers
+      tags: [admin]
+      responses:
+        "200":
+          description: Users CSV export
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  /admin/export/payments:
+    get:
+      operationId: exportPayments
+      tags: [admin]
+      responses:
+        "200":
+          description: Payments CSV export
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  /admin/quizzes/{id}/export:
+    get:
+      operationId: exportQuiz
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Quiz JSON export
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/quizzes/import:
+    post:
+      operationId: importQuiz
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizImportInput"
+      responses:
+        "201":
+          description: Imported quiz
+          content:
+            application/json:
+              schema:
+                type: object
+
+  # ─── PRE-PUBLISH PREVIEW ───────────────────────────────────────────────────
+  /admin/quizzes/{id}/preview:
+    get:
+      operationId: previewQuiz
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student-shape quiz preview
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/preview/landing:
+    get:
+      operationId: previewLanding
+      tags: [admin]
+      responses:
+        "200":
+          description: Landing + FAQ preview
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/courses/{id}/preview:
+    get:
+      operationId: previewCourse
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Course card preview
+          content:
+            application/json:
+              schema:
+                type: object
+
 components:
   schemas:
     HealthStatus:
@@ -2946,6 +3323,269 @@ components:
           type: integer
         returnUrl:
           type: string
+        discountCode:
+          type: ["string", "null"]
+
+    ValidateDiscountInput:
+      type: object
+      required: [courseId, code]
+      properties:
+        courseId:
+          type: integer
+        code:
+          type: string
+
+    DiscountPreview:
+      type: object
+      required: [code, type, value, amountBeforeGrosz, discountGrosz, amountAfterGrosz, currency]
+      properties:
+        code:
+          type: string
+        type:
+          type: string
+          enum: [percent, amount]
+        value:
+          type: integer
+        amountBeforeGrosz:
+          type: integer
+        discountGrosz:
+          type: integer
+        amountAfterGrosz:
+          type: integer
+        currency:
+          type: string
+
+    DiscountCode:
+      type: object
+      required: [id, code, type, value, usedCount, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        type:
+          type: string
+          enum: [percent, amount]
+        value:
+          type: integer
+        courseId:
+          type: ["integer", "null"]
+        courseTitle:
+          type: ["string", "null"]
+        validFrom:
+          type: ["string", "null"]
+        validTo:
+          type: ["string", "null"]
+        maxUses:
+          type: ["integer", "null"]
+        maxUsesPerUser:
+          type: ["integer", "null"]
+        usedCount:
+          type: integer
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    DiscountInput:
+      type: object
+      required: [code, type, value]
+      properties:
+        code:
+          type: string
+        type:
+          type: string
+          enum: [percent, amount]
+        value:
+          type: integer
+        courseId:
+          type: ["integer", "null"]
+        validFrom:
+          type: ["string", "null"]
+        validTo:
+          type: ["string", "null"]
+        maxUses:
+          type: ["integer", "null"]
+        maxUsesPerUser:
+          type: ["integer", "null"]
+        isActive:
+          type: boolean
+
+    DiscountUse:
+      type: object
+      required: [id, userId, amountBeforeGrosz, discountGrosz, amountAfterGrosz, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        email:
+          type: ["string", "null"]
+        firstName:
+          type: ["string", "null"]
+        lastName:
+          type: ["string", "null"]
+        paymentId:
+          type: ["integer", "null"]
+        courseId:
+          type: ["integer", "null"]
+        amountBeforeGrosz:
+          type: integer
+        discountGrosz:
+          type: integer
+        amountAfterGrosz:
+          type: integer
+        createdAt:
+          type: string
+
+    DiscountUses:
+      type: object
+      required: [code, uses]
+      properties:
+        code:
+          $ref: "#/components/schemas/DiscountCode"
+        uses:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiscountUse"
+
+    AdminAccessGrant:
+      type: object
+      required: [id, userId, courseId, source, status, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        email:
+          type: ["string", "null"]
+        firstName:
+          type: ["string", "null"]
+        lastName:
+          type: ["string", "null"]
+        courseId:
+          type: integer
+        courseTitle:
+          type: ["string", "null"]
+        source:
+          type: string
+        paymentId:
+          type: ["integer", "null"]
+        grantedByAdminId:
+          type: ["integer", "null"]
+        status:
+          type: string
+        validFrom:
+          type: ["string", "null"]
+        validTo:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: ["string", "null"]
+
+    AccessGrantInput:
+      type: object
+      required: [userId, courseId]
+      properties:
+        userId:
+          type: integer
+        courseId:
+          type: integer
+        validTo:
+          type: ["string", "null"]
+        note:
+          type: ["string", "null"]
+
+    AccessRevokeInput:
+      type: object
+      properties:
+        note:
+          type: ["string", "null"]
+
+    AccessHistoryEntry:
+      type: object
+      required: [id, adminId, action, createdAt]
+      properties:
+        id:
+          type: integer
+        adminId:
+          type: integer
+        adminEmail:
+          type: ["string", "null"]
+        adminFirstName:
+          type: ["string", "null"]
+        action:
+          type: string
+        entityType:
+          type: ["string", "null"]
+        entityId:
+          type: ["integer", "null"]
+        metadata:
+          type: ["object", "null"]
+          additionalProperties: true
+        createdAt:
+          type: string
+
+    AccessHistory:
+      type: object
+      required: [logs, total, page, limit]
+      properties:
+        logs:
+          type: array
+          items:
+            $ref: "#/components/schemas/AccessHistoryEntry"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    PlatformSetting:
+      type: object
+      required: [key, type, label, description, default, value]
+      properties:
+        key:
+          type: string
+        type:
+          type: string
+          enum: [boolean, number, string]
+        label:
+          type: string
+        description:
+          type: string
+        default: {}
+        value: {}
+        min:
+          type: number
+        max:
+          type: number
+        maxLength:
+          type: integer
+
+    PlatformSettingsUpdate:
+      type: object
+      properties:
+        settings:
+          type: array
+          items:
+            type: object
+            required: [key, value]
+            properties:
+              key:
+                type: string
+              value: {}
+      additionalProperties: true
+
+    QuizImportInput:
+      type: object
+      required: [topicId, quiz]
+      properties:
+        topicId:
+          type: integer
+        quiz:
+          type: object
 
     PaymentCreated:
       type: object

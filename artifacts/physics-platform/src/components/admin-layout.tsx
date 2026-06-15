@@ -68,16 +68,16 @@ const NAV: NavGroup[] = [
     heading: "Użytkownicy i sprzedaż",
     items: [
       { href: "/admin/users", label: "Użytkownicy", icon: <Users className="w-5 h-5" /> },
-      { href: "/admin/access", label: "Dostępy", icon: <KeyRound className="w-5 h-5" />, soon: true },
+      { href: "/admin/access", label: "Dostępy", icon: <KeyRound className="w-5 h-5" /> },
       { href: "/admin/payments", label: "Płatności", icon: <CreditCard className="w-5 h-5" />, soon: true },
-      { href: "/admin/discounts", label: "Kody rabatowe", icon: <Ticket className="w-5 h-5" />, soon: true },
+      { href: "/admin/discounts", label: "Kody rabatowe", icon: <Ticket className="w-5 h-5" /> },
     ],
   },
   {
     heading: "System",
     items: [
       { href: "/admin/contact", label: "Formularze", icon: <MessageSquare className="w-5 h-5" /> },
-      { href: "/admin/settings", label: "Ustawienia", icon: <Settings className="w-5 h-5" />, soon: true },
+      { href: "/admin/settings", label: "Ustawienia", icon: <Settings className="w-5 h-5" /> },
       { href: "/admin/logs", label: "Logi", icon: <ScrollText className="w-5 h-5" /> },
     ],
   },
