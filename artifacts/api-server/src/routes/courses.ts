@@ -7,6 +7,8 @@ import {
   requireCourseAccess,
   requireTopicAccessOrPreview,
   getCourseIdBySectionId,
+  isSectionPublished,
+  isTopicPublished,
 } from "../lib/access";
 import { buildVideoEmbedUrl } from "../lib/video";
 import type { Request, Response, NextFunction } from "express";
@@ -30,7 +32,7 @@ function requirePositiveIntParam(param: string) {
 
 router.get("/courses", async (req, res) => {
   try {
-    const all = await db.select().from(courses).where(eq(courses.isPublished, true));
+    const all = await db.select().from(courses).where(eq(courses.status, "published"));
     res.json(all);
   } catch (err) {
     req.log.error({ err }, "List courses error");
@@ -40,15 +42,26 @@ router.get("/courses", async (req, res) => {
 
 router.get("/courses/:slug", async (req, res) => {
   try {
-    const [course] = await db.select().from(courses).where(eq(courses.slug, req.params.slug)).limit(1);
+    const [course] = await db
+      .select()
+      .from(courses)
+      .where(and(eq(courses.slug, req.params.slug), eq(courses.status, "published")))
+      .limit(1);
     if (!course) {
       res.status(404).json({ error: "Kurs nie znaleziony" });
       return;
     }
-    const sectionList = await db.select().from(sections).where(eq(sections.courseId, course.id)).orderBy(asc(sections.sortOrder));
+    const sectionList = await db
+      .select()
+      .from(sections)
+      .where(and(eq(sections.courseId, course.id), eq(sections.status, "published")))
+      .orderBy(asc(sections.sortOrder));
     const topicCounts = await Promise.all(
       sectionList.map(async (s) => {
-        const ts = await db.select({ id: topics.id }).from(topics).where(eq(topics.sectionId, s.id));
+        const ts = await db
+          .select({ id: topics.id })
+          .from(topics)
+          .where(and(eq(topics.sectionId, s.id), eq(topics.status, "published")));
         return { sectionId: s.id, count: ts.length };
       })
     );
@@ -71,12 +84,23 @@ router.get(
   async (req: AuthRequest, res) => {
   try {
     const sectionId = Number(req.params.sectionId);
-    const topicList = await db.select().from(topics).where(eq(topics.sectionId, sectionId)).orderBy(asc(topics.sortOrder), asc(topics.id));
+    // A hidden/draft/archived section (or one under a non-published course) has
+    // no public outline — return an empty list, matching the non-existent-section
+    // behaviour rather than leaking lesson titles.
+    if (!(await isSectionPublished(sectionId))) {
+      res.json([]);
+      return;
+    }
+    const topicList = await db
+      .select()
+      .from(topics)
+      .where(and(eq(topics.sectionId, sectionId), eq(topics.status, "published")))
+      .orderBy(asc(topics.sortOrder), asc(topics.id));
 
     const enriched = await Promise.all(
       topicList.map(async (t) => {
         const [vid] = await db.select({ id: videos.id }).from(videos).where(eq(videos.topicId, t.id)).limit(1);
-        const [quiz] = await db.select({ id: quizzes.id }).from(quizzes).where(eq(quizzes.topicId, t.id)).limit(1);
+        const [quiz] = await db.select({ id: quizzes.id }).from(quizzes).where(and(eq(quizzes.topicId, t.id), eq(quizzes.status, "published"))).limit(1);
         const [task] = await db.select({ id: tasks.id }).from(tasks).where(eq(tasks.topicId, t.id)).limit(1);
         return {
           ...t,
@@ -103,7 +127,9 @@ router.get(
   try {
     const topicId = Number(req.params.topicId);
     const [topic] = await db.select().from(topics).where(eq(topics.id, topicId)).limit(1);
-    if (!topic) {
+    // Authoritative status cascade: the topic AND its section AND its course must
+    // all be published, otherwise the lesson is not student-visible.
+    if (!topic || !(await isTopicPublished(topicId))) {
       res.status(404).json({ error: "Temat nie znaleziony" });
       return;
     }
@@ -111,7 +137,11 @@ router.get(
     const videoList = await db.select().from(videos).where(eq(videos.topicId, topicId)).orderBy(asc(videos.sortOrder), asc(videos.id));
     const imageList = await db.select().from(lessonImages).where(eq(lessonImages.topicId, topicId)).orderBy(asc(lessonImages.sortOrder), asc(lessonImages.id));
     const video = videoList[0];
-    const [quizRow] = await db.select().from(quizzes).where(eq(quizzes.topicId, topicId)).limit(1);
+    const [quizRow] = await db
+      .select()
+      .from(quizzes)
+      .where(and(eq(quizzes.topicId, topicId), eq(quizzes.status, "published")))
+      .limit(1);
     const taskList = await db.select().from(tasks).where(eq(tasks.topicId, topicId));
 
     let quizWithQuestions = null;
@@ -150,7 +180,7 @@ router.get(
     const siblings = await db
       .select({ id: topics.id })
       .from(topics)
-      .where(eq(topics.sectionId, topic.sectionId))
+      .where(and(eq(topics.sectionId, topic.sectionId), eq(topics.status, "published")))
       .orderBy(asc(topics.sortOrder), asc(topics.id));
     const currentIndex = siblings.findIndex((s) => s.id === topic.id);
     const previousTopicId =

@@ -5,8 +5,10 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { QuizInputStatus } from './quizInputStatus';
 
 export interface QuizInput {
   topicId: number;
   title: string;
+  status?: QuizInputStatus;
 }

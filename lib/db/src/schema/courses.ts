@@ -1,11 +1,19 @@
-import { pgTable, serial, text, boolean, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, boolean, integer, timestamp, jsonb, pgEnum } from "drizzle-orm/pg-core";
 import { users } from "./users";
+
+// Publication lifecycle for educational content. `published` is the only state
+// the public/student side may see; `draft`/`hidden`/`archived` are admin-only.
+// Default is `published` so pre-existing rows stay visible after the migration.
+export const publishStatusEnum = pgEnum("publish_status", ["draft", "published", "hidden", "archived"]);
 
 export const courses = pgTable("courses", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   description: text("description").notNull().default(""),
+  // `status` is the authoritative visibility source. `isPublished` is kept in
+  // sync on writes (status === 'published') only for backward compatibility.
+  status: publishStatusEnum("status").notNull().default("published"),
   isPublished: boolean("is_published").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -18,6 +26,7 @@ export const sections = pgTable("sections", {
   slug: text("slug").notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
   bunnyCollectionId: text("bunny_collection_id"),
+  status: publishStatusEnum("status").notNull().default("published"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -32,6 +41,7 @@ export const topics = pgTable("topics", {
   // When true the lesson is a free preview accessible without a paid grant.
   // Access is still enforced server-side; this only widens what is allowed.
   isPreview: boolean("is_preview").notNull().default(false),
+  status: publishStatusEnum("status").notNull().default("published"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -66,6 +76,7 @@ export const quizzes = pgTable("quizzes", {
   id: serial("id").primaryKey(),
   topicId: integer("topic_id").notNull().references(() => topics.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
+  status: publishStatusEnum("status").notNull().default("published"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

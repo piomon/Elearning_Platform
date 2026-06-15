@@ -7,6 +7,7 @@ import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import { paymentLimiter } from "../middlewares/rate-limit";
 import { logger } from "../lib/logger";
 import { config, isPaynowConfigured } from "../config/env";
+import { getPricingSettings } from "../lib/settings";
 
 const router = Router();
 
@@ -57,10 +58,16 @@ async function grantCourseAccess(userId: number, courseId: number, paymentId: nu
 }
 
 router.get("/payments/price", async (_req, res) => {
+  const pricing = await getPricingSettings();
   res.json({
-    price: config.coursePriceGrosz,
-    currency: config.currency,
-    oldPrice: config.courseOldPriceGrosz,
+    price: pricing.priceGrosz,
+    currency: pricing.currency,
+    oldPrice: pricing.oldPriceGrosz,
+    promoEnabled: pricing.promoEnabled,
+    promoLabel: pricing.promoLabel,
+    promoStartsAt: pricing.promoStartsAt,
+    promoEndsAt: pricing.promoEndsAt,
+    ctaText: pricing.ctaText,
   });
 });
 
@@ -74,12 +81,15 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
     }
 
     const [course] = await db.select().from(courses).where(eq(courses.id, cId)).limit(1);
-    if (!course || !course.isPublished) {
+    if (!course || course.status !== "published") {
       res.status(404).json({ error: "Kurs nie znaleziony" });
       return;
     }
 
-    const amount = config.coursePriceGrosz;
+    // Amount is taken from the DB pricing singleton (single source of truth) so
+    // the charged price always matches what the page shows. Fixed server-side
+    // so the buyer can never tamper with it.
+    const { priceGrosz: amount, currency } = await getPricingSettings();
 
     const [payment] = await db
       .insert(payments)
@@ -87,7 +97,7 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
         userId: req.user!.id,
         provider: "paynow",
         amount,
-        currency: config.currency,
+        currency,
         status: "pending",
         courseId: cId,
       })
@@ -112,7 +122,7 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
     // server-side so the buyer can never tamper with the charged price.
     const paynowBody = JSON.stringify({
       amount,
-      currency: config.currency,
+      currency,
       externalId: String(payment.id),
       description: `Dostęp do kursu: ${course.title}`,
       continueUrl,

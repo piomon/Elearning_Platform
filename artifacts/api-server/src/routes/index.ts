@@ -7,6 +7,7 @@ import quizzesRouter from "./quizzes";
 import aiRouter from "./ai";
 import paymentsRouter from "./payments";
 import contactRouter from "./contact";
+import contentRouter from "./content";
 import adminRouter from "./admin";
 
 const router: IRouter = Router();
@@ -19,6 +20,7 @@ router.use(quizzesRouter);
 router.use(aiRouter);
 router.use(paymentsRouter);
 router.use(contactRouter);
+router.use(contentRouter);
 router.use(adminRouter);
 
 export default router;

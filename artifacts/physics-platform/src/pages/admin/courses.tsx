@@ -9,6 +9,8 @@ import {
   useCreateQuizQuestion, useUpdateQuizQuestion, useDeleteQuizQuestion,
   useCreateQuizAnswer, useUpdateQuizAnswer, useDeleteQuizAnswer,
   useCreateTask, useUpdateTask, useDeleteTask,
+  useSetCourseStatus, useSetSectionStatus, useSetTopicStatus, useSetQuizStatus,
+  StatusUpdateStatus,
 } from "@workspace/api-client-react";
 import type {
   AdminCourseTree, AdminSectionTree, AdminTopicTree, Quiz, Task, Video,
@@ -21,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -66,6 +69,36 @@ function ConfirmDelete({ trigger, title, description, onConfirm }: {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+  );
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  draft: "Szkic",
+  published: "Opublikowany",
+  hidden: "Ukryty",
+  archived: "Zarchiwizowany",
+};
+
+function statusBadgeVariant(status: string): "default" | "secondary" | "outline" {
+  if (status === "published") return "default";
+  if (status === "archived") return "outline";
+  return "secondary";
+}
+
+function StatusSelect({ value, onChange, disabled }: {
+  value: string; onChange: (status: StatusUpdateStatus) => void; disabled?: boolean;
+}) {
+  return (
+    <Select value={value} onValueChange={(v) => onChange(v as StatusUpdateStatus)} disabled={disabled}>
+      <SelectTrigger className="h-9 w-[150px] rounded-xl text-xs">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent className="rounded-xl">
+        {Object.values(StatusUpdateStatus).map((s) => (
+          <SelectItem key={s} value={s} className="text-xs">{STATUS_LABELS[s]}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -201,12 +234,17 @@ function CourseCard({ course, onChanged, toast }: { course: AdminCourseTree; onC
   const deleteCourse = useDeleteCourse();
   const createCourse = useCreateCourse();
   const createSection = useCreateSection();
+  const setCourseStatus = useSetCourseStatus();
 
   const togglePublish = (next: boolean) => {
     updateCourse.mutate(
       { id: course.id, data: { title: course.title, slug: course.slug, description: course.description, isPublished: next } },
       opts(onChanged, toast, next ? "Kurs opublikowany" : "Kurs ukryty"),
     );
+  };
+
+  const changeStatus = (status: StatusUpdateStatus) => {
+    setCourseStatus.mutate({ id: course.id, data: { status } }, opts(onChanged, toast, "Zmieniono status kursu"));
   };
 
   return (
@@ -221,6 +259,9 @@ function CourseCard({ course, onChanged, toast }: { course: AdminCourseTree; onC
                 <Badge variant={course.isPublished ? "default" : "secondary"} className="rounded-md">
                   {course.isPublished ? "Opublikowany" : "Szkic"}
                 </Badge>
+                <Badge variant={statusBadgeVariant(course.status)} className="rounded-md">
+                  {STATUS_LABELS[course.status] ?? course.status}
+                </Badge>
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-3xl">{course.description}</p>
               <div className="flex gap-3 mt-3 text-xs font-medium text-muted-foreground items-center">
@@ -230,7 +271,8 @@ function CourseCard({ course, onChanged, toast }: { course: AdminCourseTree; onC
             </div>
           </button>
 
-          <div className="flex flex-wrap gap-2 shrink-0">
+          <div className="flex flex-wrap gap-2 shrink-0 items-center">
+            <StatusSelect value={course.status} onChange={changeStatus} disabled={setCourseStatus.isPending} />
             <div className="flex items-center gap-2 mr-1 px-3 rounded-xl border border-border/60 h-9">
               <span className="text-xs text-muted-foreground">Publikuj</span>
               <Switch checked={course.isPublished} onCheckedChange={togglePublish} />
@@ -344,6 +386,11 @@ function SectionItem({ section, courseId, onChanged, toast }: { section: AdminSe
   const updateSection = useUpdateSection();
   const deleteSection = useDeleteSection();
   const createTopic = useCreateTopic();
+  const setSectionStatus = useSetSectionStatus();
+
+  const changeStatus = (status: StatusUpdateStatus) => {
+    setSectionStatus.mutate({ id: section.id, data: { status } }, opts(onChanged, toast, "Zmieniono status działu"));
+  };
 
   return (
     <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
@@ -352,8 +399,10 @@ function SectionItem({ section, courseId, onChanged, toast }: { section: AdminSe
           <span className="text-muted-foreground">{expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}</span>
           <span className="font-bold">{section.title}</span>
           <Badge variant="outline" className="rounded-md text-xs">{section.topics.length} tematów</Badge>
+          <Badge variant={statusBadgeVariant(section.status)} className="rounded-md text-xs">{STATUS_LABELS[section.status] ?? section.status}</Badge>
         </button>
-        <div className="flex gap-1.5 shrink-0">
+        <div className="flex gap-1.5 shrink-0 items-center">
+          <StatusSelect value={section.status} onChange={changeStatus} disabled={setSectionStatus.isPending} />
           <Button variant="ghost" size="sm" className="rounded-lg h-8 w-8 p-0" onClick={() => setEditOpen(true)}><Edit className="w-3.5 h-3.5" /></Button>
           <ConfirmDelete
             trigger={<Button variant="ghost" size="sm" className="rounded-lg h-8 w-8 p-0 text-destructive hover:bg-destructive/10"><Trash2 className="w-3.5 h-3.5" /></Button>}
@@ -414,6 +463,11 @@ function TopicItem({ topic, onChanged, toast }: { topic: AdminTopicTree; onChang
   const [editOpen, setEditOpen] = useState(false);
   const updateTopic = useUpdateTopic();
   const deleteTopic = useDeleteTopic();
+  const setTopicStatus = useSetTopicStatus();
+
+  const changeStatus = (status: StatusUpdateStatus) => {
+    setTopicStatus.mutate({ id: topic.id, data: { status } }, opts(onChanged, toast, "Zmieniono status tematu"));
+  };
 
   return (
     <div className="rounded-xl border border-border/60 bg-background overflow-hidden">
@@ -421,13 +475,15 @@ function TopicItem({ topic, onChanged, toast }: { topic: AdminTopicTree; onChang
         <button className="flex items-center gap-2 text-left flex-1" onClick={() => setExpanded((e) => !e)}>
           <span className="text-muted-foreground">{expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}</span>
           <span className="font-semibold text-sm">{topic.title}</span>
-          <div className="flex gap-1">
+          <div className="flex gap-1 flex-wrap">
+            <Badge variant={statusBadgeVariant(topic.status)} className="rounded text-[10px]">{STATUS_LABELS[topic.status] ?? topic.status}</Badge>
             {topic.video && <Badge variant="outline" className="rounded text-[10px] gap-1"><VideoIcon className="w-3 h-3" />Wideo</Badge>}
             {topic.quiz && <Badge variant="outline" className="rounded text-[10px] gap-1"><ListChecks className="w-3 h-3" />Quiz</Badge>}
             {topic.tasks.length > 0 && <Badge variant="outline" className="rounded text-[10px] gap-1"><ClipboardList className="w-3 h-3" />{topic.tasks.length}</Badge>}
           </div>
         </button>
-        <div className="flex gap-1.5 shrink-0">
+        <div className="flex gap-1.5 shrink-0 items-center">
+          <StatusSelect value={topic.status} onChange={changeStatus} disabled={setTopicStatus.isPending} />
           <Button variant="ghost" size="sm" className="rounded-lg h-8 w-8 p-0" onClick={() => setEditOpen(true)}><Edit className="w-3.5 h-3.5" /></Button>
           <ConfirmDelete
             trigger={<Button variant="ghost" size="sm" className="rounded-lg h-8 w-8 p-0 text-destructive hover:bg-destructive/10"><Trash2 className="w-3.5 h-3.5" /></Button>}
@@ -539,9 +595,15 @@ function QuizEditor({ topicId, quiz, onChanged, toast }: { topicId: number; quiz
   const createQuiz = useCreateQuiz();
   const deleteQuiz = useDeleteQuiz();
   const createQuestion = useCreateQuizQuestion();
+  const setQuizStatus = useSetQuizStatus();
   const [quizTitle, setQuizTitle] = useState("Quiz");
   const [preview, setPreview] = useState(false);
   const [questionOpen, setQuestionOpen] = useState(false);
+
+  const changeStatus = (status: StatusUpdateStatus) => {
+    if (!quiz) return;
+    setQuizStatus.mutate({ id: quiz.id, data: { status } }, opts(onChanged, toast, "Zmieniono status quizu"));
+  };
 
   if (!quiz) {
     return (
@@ -561,11 +623,13 @@ function QuizEditor({ topicId, quiz, onChanged, toast }: { topicId: number; quiz
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <h5 className="font-bold text-sm">{quiz.title}</h5>
           <Badge variant="outline" className="rounded">{quiz.questions.length} pytań</Badge>
+          <Badge variant={statusBadgeVariant(quiz.status ?? "draft")} className="rounded text-[10px]">{STATUS_LABELS[quiz.status ?? "draft"] ?? quiz.status}</Badge>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <StatusSelect value={quiz.status ?? "draft"} onChange={changeStatus} disabled={setQuizStatus.isPending} />
           <button className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground" onClick={() => setPreview((p) => !p)}>
             {preview ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
             {preview ? "Podgląd ucznia" : "Widok edycji"}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export interface Countdown {
   days: number;
@@ -34,20 +34,46 @@ function diffToCountdown(target: Date, now: number): Countdown {
   };
 }
 
+function parseEndsAt(endsAt?: string | null): Date | null {
+  if (!endsAt) return null;
+  const d = new Date(endsAt);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
 /**
- * Live, ticking countdown to the evergreen end-of-September deadline.
- * Re-targets the next year's deadline automatically once one passes.
+ * Live, ticking promo countdown.
+ *
+ * - When `endsAt` is a valid date, counts down to that fixed deadline and
+ *   clamps to zero once it passes (so callers can hide an expired promo).
+ * - When `endsAt` is omitted/empty/invalid, falls back to the evergreen
+ *   end-of-September deadline that re-targets next year automatically.
  */
-export function usePromoCountdown(): Countdown {
-  const [target, setTarget] = useState<Date>(() => getNextEndOfSeptember());
+export function usePromoCountdown(endsAt?: string | null): Countdown {
+  const fixedTarget = useMemo(() => parseEndsAt(endsAt), [endsAt]);
+
+  const [target, setTarget] = useState<Date>(
+    () => fixedTarget ?? getNextEndOfSeptember(),
+  );
   const [countdown, setCountdown] = useState<Countdown>(() =>
     diffToCountdown(target, Date.now()),
   );
+
+  // Re-target whenever the fixed deadline changes (e.g. admin updates pricing).
+  useEffect(() => {
+    const initial = fixedTarget ?? getNextEndOfSeptember();
+    setTarget(initial);
+    setCountdown(diffToCountdown(initial, Date.now()));
+  }, [fixedTarget]);
 
   useEffect(() => {
     const tick = () => {
       const now = Date.now();
       if (now > target.getTime()) {
+        if (fixedTarget) {
+          // Fixed promo has ended — clamp to zero and stop rolling forward.
+          setCountdown(diffToCountdown(target, target.getTime()));
+          return;
+        }
         const next = getNextEndOfSeptember(new Date(now));
         setTarget(next);
         setCountdown(diffToCountdown(next, now));
@@ -58,7 +84,7 @@ export function usePromoCountdown(): Countdown {
     tick();
     const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
-  }, [target]);
+  }, [target, fixedTarget]);
 
   return countdown;
 }

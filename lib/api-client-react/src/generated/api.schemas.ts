@@ -201,6 +201,26 @@ export interface TopicDetail {
   tasks: Task[];
 }
 
+export type AdminTopicTreeStatus = typeof AdminTopicTreeStatus[keyof typeof AdminTopicTreeStatus];
+
+
+export const AdminTopicTreeStatus = {
+  draft: 'draft',
+  published: 'published',
+  hidden: 'hidden',
+  archived: 'archived',
+} as const;
+
+export type QuizStatus = typeof QuizStatus[keyof typeof QuizStatus];
+
+
+export const QuizStatus = {
+  draft: 'draft',
+  published: 'published',
+  hidden: 'hidden',
+  archived: 'archived',
+} as const;
+
 export interface QuizAnswer {
   id: number;
   questionId: number;
@@ -221,6 +241,7 @@ export interface Quiz {
   id: number;
   topicId: number;
   title: string;
+  status?: QuizStatus;
   questions: QuizQuestion[];
 }
 
@@ -232,10 +253,21 @@ export interface AdminTopicTree {
   /** @nullable */
   description?: string | null;
   sortOrder: number;
+  status: AdminTopicTreeStatus;
   video?: Video | null;
   quiz?: Quiz | null;
   tasks: Task[];
 }
+
+export type AdminSectionTreeStatus = typeof AdminSectionTreeStatus[keyof typeof AdminSectionTreeStatus];
+
+
+export const AdminSectionTreeStatus = {
+  draft: 'draft',
+  published: 'published',
+  hidden: 'hidden',
+  archived: 'archived',
+} as const;
 
 export interface AdminSectionTree {
   id: number;
@@ -243,8 +275,19 @@ export interface AdminSectionTree {
   title: string;
   slug: string;
   sortOrder: number;
+  status: AdminSectionTreeStatus;
   topics: AdminTopicTree[];
 }
+
+export type AdminCourseTreeStatus = typeof AdminCourseTreeStatus[keyof typeof AdminCourseTreeStatus];
+
+
+export const AdminCourseTreeStatus = {
+  draft: 'draft',
+  published: 'published',
+  hidden: 'hidden',
+  archived: 'archived',
+} as const;
 
 export interface AdminCourseTree {
   id: number;
@@ -252,6 +295,7 @@ export interface AdminCourseTree {
   slug: string;
   description: string;
   isPublished: boolean;
+  status: AdminCourseTreeStatus;
   createdAt?: string;
   sections: AdminSectionTree[];
 }
@@ -444,6 +488,13 @@ export interface PaymentPrice {
   currency: string;
   /** Informational pre-promo price in grosz, shown struck-through. */
   oldPrice?: number;
+  promoEnabled?: boolean;
+  promoLabel?: string;
+  /** @nullable */
+  promoStartsAt?: string | null;
+  /** @nullable */
+  promoEndsAt?: string | null;
+  ctaText?: string;
 }
 
 export interface PaymentInput {
@@ -532,13 +583,183 @@ export interface RecentLogin {
   loginAt: string;
 }
 
+export interface RecentPayment {
+  id: number;
+  amount: number;
+  currency: string;
+  status: string;
+  createdAt: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface RecentUser {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  createdAt: string;
+}
+
+export interface RecentTopic {
+  id: number;
+  title: string;
+  status: string;
+  updatedAt?: string;
+  sectionTitle: string;
+}
+
 export interface AdminDashboard {
   totalUsers: number;
+  usersWithAccess: number;
+  usersWithoutAccess: number;
   activeAccess: number;
   totalPayments: number;
-  totalRevenue?: number;
+  completedPayments: number;
+  failedPayments: number;
+  totalRevenue: number;
+  revenue7d: number;
+  revenue30d: number;
+  totalTopics: number;
+  publishedTopics: number;
+  hiddenTopics: number;
+  draftTopics: number;
+  totalQuizzes: number;
+  totalMessages: number;
+  newMessages: number;
   recentLogins: RecentLogin[];
   recentMessages: ContactMessage[];
+  recentPayments: RecentPayment[];
+  recentUsers: RecentUser[];
+  recentTopics: RecentTopic[];
+}
+
+/**
+ * @nullable
+ */
+export type LandingSectionContent = { [key: string]: unknown } | null;
+
+export interface LandingSection {
+  id: number;
+  key: string;
+  title: string;
+  sortOrder: number;
+  isEnabled: boolean;
+  /** @nullable */
+  content?: LandingSectionContent;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * @nullable
+ */
+export type LandingSectionUpdateContent = { [key: string]: unknown } | null;
+
+export interface LandingSectionUpdate {
+  title?: string;
+  /** @nullable */
+  content?: LandingSectionUpdateContent;
+  isEnabled?: boolean;
+  sortOrder?: number;
+}
+
+export interface LandingToggleInput {
+  isEnabled?: boolean;
+}
+
+export interface ReorderInput {
+  ids: number[];
+}
+
+export interface FaqItem {
+  id: number;
+  question: string;
+  answer: string;
+  sortOrder: number;
+  isVisible: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FaqInput {
+  question: string;
+  answer: string;
+  sortOrder?: number;
+  isVisible?: boolean;
+}
+
+export interface FaqUpdate {
+  question?: string;
+  answer?: string;
+  sortOrder?: number;
+  isVisible?: boolean;
+}
+
+export interface FaqToggleInput {
+  isVisible?: boolean;
+}
+
+export interface SeoSettings {
+  metaTitle: string;
+  metaDescription: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
+  canonicalUrl: string;
+  robots: string;
+}
+
+export interface SeoUpdate {
+  metaTitle?: string;
+  metaDescription?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  canonicalUrl?: string;
+  robots?: string;
+}
+
+export interface PricingSettings {
+  priceGrosz: number;
+  oldPriceGrosz: number;
+  currency: string;
+  promoEnabled: boolean;
+  promoLabel: string;
+  /** @nullable */
+  promoStartsAt?: string | null;
+  /** @nullable */
+  promoEndsAt?: string | null;
+  ctaText: string;
+}
+
+export interface PricingUpdate {
+  priceGrosz: number;
+  oldPriceGrosz?: number;
+  currency?: string;
+  promoEnabled?: boolean;
+  promoLabel?: string;
+  /** @nullable */
+  promoStartsAt?: string | null;
+  /** @nullable */
+  promoEndsAt?: string | null;
+  ctaText?: string;
+}
+
+export type StatusUpdateStatus = typeof StatusUpdateStatus[keyof typeof StatusUpdateStatus];
+
+
+export const StatusUpdateStatus = {
+  draft: 'draft',
+  published: 'published',
+  hidden: 'hidden',
+  archived: 'archived',
+} as const;
+
+export interface StatusUpdate {
+  status: StatusUpdateStatus;
 }
 
 export interface AdminUserSummary {
@@ -698,19 +919,51 @@ export interface AdminLogList {
   limit: number;
 }
 
+export type CourseInputStatus = typeof CourseInputStatus[keyof typeof CourseInputStatus];
+
+
+export const CourseInputStatus = {
+  draft: 'draft',
+  published: 'published',
+  hidden: 'hidden',
+  archived: 'archived',
+} as const;
+
 export interface CourseInput {
   title: string;
   slug: string;
   description: string;
   isPublished?: boolean;
+  status?: CourseInputStatus;
 }
+
+export type SectionInputStatus = typeof SectionInputStatus[keyof typeof SectionInputStatus];
+
+
+export const SectionInputStatus = {
+  draft: 'draft',
+  published: 'published',
+  hidden: 'hidden',
+  archived: 'archived',
+} as const;
 
 export interface SectionInput {
   courseId: number;
   title: string;
   slug: string;
   sortOrder: number;
+  status?: SectionInputStatus;
 }
+
+export type TopicInputStatus = typeof TopicInputStatus[keyof typeof TopicInputStatus];
+
+
+export const TopicInputStatus = {
+  draft: 'draft',
+  published: 'published',
+  hidden: 'hidden',
+  archived: 'archived',
+} as const;
 
 export interface TopicInput {
   sectionId: number;
@@ -718,6 +971,7 @@ export interface TopicInput {
   slug: string;
   description?: string;
   sortOrder: number;
+  status?: TopicInputStatus;
 }
 
 export interface VideoInput {
@@ -728,9 +982,20 @@ export interface VideoInput {
   durationSeconds?: number;
 }
 
+export type QuizInputStatus = typeof QuizInputStatus[keyof typeof QuizInputStatus];
+
+
+export const QuizInputStatus = {
+  draft: 'draft',
+  published: 'published',
+  hidden: 'hidden',
+  archived: 'archived',
+} as const;
+
 export interface QuizInput {
   topicId: number;
   title: string;
+  status?: QuizInputStatus;
 }
 
 export interface QuizQuestionInput {

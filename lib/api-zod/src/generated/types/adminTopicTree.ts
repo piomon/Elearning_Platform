@@ -5,6 +5,7 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { AdminTopicTreeStatus } from './adminTopicTreeStatus';
 import type { Quiz } from './quiz';
 import type { Task } from './task';
 import type { Video } from './video';
@@ -17,6 +18,7 @@ export interface AdminTopicTree {
   /** @nullable */
   description?: string | null;
   sortOrder: number;
+  status: AdminTopicTreeStatus;
   video?: Video | null;
   quiz?: Quiz | null;
   tasks: Task[];

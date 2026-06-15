@@ -11,4 +11,11 @@ export interface PaymentPrice {
   currency: string;
   /** Informational pre-promo price in grosz, shown struck-through. */
   oldPrice?: number;
+  promoEnabled?: boolean;
+  promoLabel?: string;
+  /** @nullable */
+  promoStartsAt?: string | null;
+  /** @nullable */
+  promoEndsAt?: string | null;
+  ctaText?: string;
 }

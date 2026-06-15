@@ -5,10 +5,12 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { SectionInputStatus } from './sectionInputStatus';
 
 export interface SectionInput {
   courseId: number;
   title: string;
   slug: string;
   sortOrder: number;
+  status?: SectionInputStatus;
 }

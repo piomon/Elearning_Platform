@@ -17,8 +17,12 @@ import {
   contactMessages,
   adminLogs,
   learningProgress,
+  landingSections,
+  faqItems,
+  seoSettings,
+  pricingSettings,
 } from "@workspace/db";
-import { eq, ne, and, desc, asc, count, sum, ilike, or, sql } from "drizzle-orm";
+import { eq, ne, and, desc, asc, count, countDistinct, sum, gte, ilike, or, sql } from "drizzle-orm";
 import { requireAuth, requireAdmin, type AuthRequest } from "../middlewares/auth";
 import {
   probeBunnyVideo,
@@ -27,6 +31,7 @@ import {
 } from "../lib/bunny";
 import { isBunnyConfigured } from "../config/env";
 import { buildVideoEmbedUrl } from "../lib/video";
+import { getPricingSettings, getSeoSettings } from "../lib/settings";
 
 const router = Router();
 
@@ -48,17 +53,76 @@ async function logAdminAction(
   });
 }
 
+const PUBLISH_STATUSES = ["draft", "published", "hidden", "archived"] as const;
+type PublishStatus = (typeof PUBLISH_STATUSES)[number];
+
+// Returns the value only when it is a valid publish status, otherwise null so
+// callers can reject bad input or fall back to a sensible default.
+function parseStatus(value: unknown): PublishStatus | null {
+  return PUBLISH_STATUSES.includes(value as PublishStatus) ? (value as PublishStatus) : null;
+}
+
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 router.get("/admin/dashboard", async (req: AuthRequest, res) => {
   try {
+    const now = new Date();
+    const d7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const d30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
     const [{ totalUsers }] = await db.select({ totalUsers: count() }).from(users);
-    const [{ activeAccess }] = await db.select({ activeAccess: count() }).from(accessGrants).where(eq(accessGrants.status, "active"));
+    const [{ usersWithAccess }] = await db
+      .select({ usersWithAccess: countDistinct(accessGrants.userId) })
+      .from(accessGrants)
+      .where(eq(accessGrants.status, "active"));
+    const [{ activeAccess }] = await db
+      .select({ activeAccess: count() })
+      .from(accessGrants)
+      .where(eq(accessGrants.status, "active"));
+
     const [{ totalPayments }] = await db.select({ totalPayments: count() }).from(payments);
+    const [{ completedPayments }] = await db
+      .select({ completedPayments: count() })
+      .from(payments)
+      .where(eq(payments.status, "completed"));
+    const [{ failedPayments }] = await db
+      .select({ failedPayments: count() })
+      .from(payments)
+      .where(eq(payments.status, "failed"));
+
     const [{ revenue }] = await db
       .select({ revenue: sum(payments.amount) })
       .from(payments)
       .where(eq(payments.status, "completed"));
+    const [{ revenue7d }] = await db
+      .select({ revenue7d: sum(payments.amount) })
+      .from(payments)
+      .where(and(eq(payments.status, "completed"), gte(payments.createdAt, d7)));
+    const [{ revenue30d }] = await db
+      .select({ revenue30d: sum(payments.amount) })
+      .from(payments)
+      .where(and(eq(payments.status, "completed"), gte(payments.createdAt, d30)));
+
+    const [{ totalTopics }] = await db.select({ totalTopics: count() }).from(topics);
+    const [{ publishedTopics }] = await db
+      .select({ publishedTopics: count() })
+      .from(topics)
+      .where(eq(topics.status, "published"));
+    const [{ hiddenTopics }] = await db
+      .select({ hiddenTopics: count() })
+      .from(topics)
+      .where(eq(topics.status, "hidden"));
+    const [{ draftTopics }] = await db
+      .select({ draftTopics: count() })
+      .from(topics)
+      .where(eq(topics.status, "draft"));
+    const [{ totalQuizzes }] = await db.select({ totalQuizzes: count() }).from(quizzes);
+
+    const [{ totalMessages }] = await db.select({ totalMessages: count() }).from(contactMessages);
+    const [{ newMessages }] = await db
+      .select({ newMessages: count() })
+      .from(contactMessages)
+      .where(eq(contactMessages.status, "new"));
 
     const recentLoginsRaw = await db
       .select({
@@ -88,13 +152,88 @@ router.get("/admin/dashboard", async (req: AuthRequest, res) => {
       .orderBy(desc(contactMessages.createdAt))
       .limit(5);
 
+    const recentPaymentsRaw = await db
+      .select({
+        id: payments.id,
+        amount: payments.amount,
+        currency: payments.currency,
+        status: payments.status,
+        createdAt: payments.createdAt,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+      })
+      .from(payments)
+      .leftJoin(users, eq(payments.userId, users.id))
+      .orderBy(desc(payments.createdAt))
+      .limit(5);
+    const recentPayments = recentPaymentsRaw.map((p) => ({
+      id: p.id,
+      amount: p.amount,
+      currency: p.currency,
+      status: p.status,
+      createdAt: p.createdAt,
+      email: p.email ?? "",
+      firstName: p.firstName ?? "",
+      lastName: p.lastName ?? "",
+    }));
+
+    const recentUsers = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        role: users.role,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .orderBy(desc(users.createdAt))
+      .limit(5);
+
+    const recentTopicsRaw = await db
+      .select({
+        id: topics.id,
+        title: topics.title,
+        status: topics.status,
+        updatedAt: topics.updatedAt,
+        sectionTitle: sections.title,
+      })
+      .from(topics)
+      .leftJoin(sections, eq(topics.sectionId, sections.id))
+      .orderBy(desc(topics.updatedAt))
+      .limit(5);
+    const recentTopics = recentTopicsRaw.map((t) => ({
+      id: t.id,
+      title: t.title,
+      status: t.status,
+      updatedAt: t.updatedAt,
+      sectionTitle: t.sectionTitle ?? "",
+    }));
+
     res.json({
       totalUsers,
+      usersWithAccess,
+      usersWithoutAccess: Math.max(0, totalUsers - usersWithAccess),
       activeAccess,
       totalPayments,
+      completedPayments,
+      failedPayments,
       totalRevenue: Number(revenue ?? 0),
+      revenue7d: Number(revenue7d ?? 0),
+      revenue30d: Number(revenue30d ?? 0),
+      totalTopics,
+      publishedTopics,
+      hiddenTopics,
+      draftTopics,
+      totalQuizzes,
+      totalMessages,
+      newMessages,
       recentLogins,
       recentMessages,
+      recentPayments,
+      recentUsers,
+      recentTopics,
     });
   } catch (err) {
     req.log.error({ err }, "Admin dashboard error");
@@ -573,8 +712,9 @@ router.get("/admin/courses", async (req: AuthRequest, res) => {
 
 router.post("/admin/courses", async (req: AuthRequest, res) => {
   try {
-    const { title, slug, description, isPublished } = req.body;
-    const [course] = await db.insert(courses).values({ title, slug, description: description ?? "", isPublished: isPublished ?? false }).returning();
+    const { title, slug, description, status, isPublished } = req.body;
+    const st = parseStatus(status) ?? (isPublished ? "published" : "draft");
+    const [course] = await db.insert(courses).values({ title, slug, description: description ?? "", status: st, isPublished: st === "published" }).returning();
     await logAdminAction(req.user!.id, "create", "course", course.id, { title });
     res.status(201).json(course);
   } catch (err) {
@@ -586,8 +726,9 @@ router.post("/admin/courses", async (req: AuthRequest, res) => {
 router.put("/admin/courses/:id", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
-    const { title, slug, description, isPublished } = req.body;
-    const [updated] = await db.update(courses).set({ title, slug, description, isPublished, updatedAt: new Date() }).where(eq(courses.id, id)).returning();
+    const { title, slug, description, status, isPublished } = req.body;
+    const st = parseStatus(status) ?? (isPublished ? "published" : "draft");
+    const [updated] = await db.update(courses).set({ title, slug, description, status: st, isPublished: st === "published", updatedAt: new Date() }).where(eq(courses.id, id)).returning();
     if (!updated) { res.status(404).json({ error: "Kurs nie znaleziony" }); return; }
     await logAdminAction(req.user!.id, "update", "course", id, { title });
     res.json(updated);
@@ -1097,6 +1238,395 @@ router.get("/admin/video-health/:videoId", async (req: AuthRequest, res) => {
     });
   } catch (err) {
     req.log.error({ err }, "Video health detail error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ── Publish status toggles ────────────────────────────────────────────────────
+
+router.patch("/admin/courses/:id/status", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const status = parseStatus(req.body?.status);
+    if (!status) { res.status(400).json({ error: "Nieprawidłowy status" }); return; }
+    const [updated] = await db
+      .update(courses)
+      .set({ status, isPublished: status === "published", updatedAt: new Date() })
+      .where(eq(courses.id, id))
+      .returning();
+    if (!updated) { res.status(404).json({ error: "Kurs nie znaleziony" }); return; }
+    await logAdminAction(req.user!.id, "status", "course", id, { status });
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Course status error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.patch("/admin/sections/:id/status", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const status = parseStatus(req.body?.status);
+    if (!status) { res.status(400).json({ error: "Nieprawidłowy status" }); return; }
+    const [updated] = await db
+      .update(sections)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(sections.id, id))
+      .returning();
+    if (!updated) { res.status(404).json({ error: "Dział nie znaleziony" }); return; }
+    await logAdminAction(req.user!.id, "status", "section", id, { status });
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Section status error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.patch("/admin/topics/:id/status", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const status = parseStatus(req.body?.status);
+    if (!status) { res.status(400).json({ error: "Nieprawidłowy status" }); return; }
+    const [updated] = await db
+      .update(topics)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(topics.id, id))
+      .returning();
+    if (!updated) { res.status(404).json({ error: "Temat nie znaleziony" }); return; }
+    await logAdminAction(req.user!.id, "status", "topic", id, { status });
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Topic status error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.patch("/admin/quizzes/:id/status", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const status = parseStatus(req.body?.status);
+    if (!status) { res.status(400).json({ error: "Nieprawidłowy status" }); return; }
+    const [updated] = await db
+      .update(quizzes)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(quizzes.id, id))
+      .returning();
+    if (!updated) { res.status(404).json({ error: "Quiz nie znaleziony" }); return; }
+    await logAdminAction(req.user!.id, "status", "quiz", id, { status });
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Quiz status error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ── Landing page CMS ──────────────────────────────────────────────────────────
+
+router.get("/admin/landing", async (req: AuthRequest, res) => {
+  try {
+    const rows = await db
+      .select()
+      .from(landingSections)
+      .orderBy(asc(landingSections.sortOrder), asc(landingSections.id));
+    res.json(rows);
+  } catch (err) {
+    req.log.error({ err }, "Admin list landing error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.put("/admin/landing/:id", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { title, content, isEnabled, sortOrder } = req.body;
+    const setValues: Record<string, unknown> = { updatedAt: new Date() };
+    if (title !== undefined) setValues.title = String(title);
+    if (content !== undefined) setValues.content = content;
+    if (isEnabled !== undefined) setValues.isEnabled = Boolean(isEnabled);
+    if (sortOrder !== undefined) setValues.sortOrder = Number(sortOrder);
+    const [updated] = await db
+      .update(landingSections)
+      .set(setValues)
+      .where(eq(landingSections.id, id))
+      .returning();
+    if (!updated) { res.status(404).json({ error: "Sekcja nie znaleziona" }); return; }
+    await logAdminAction(req.user!.id, "update", "landing_section", id, { key: updated.key });
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Update landing error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.patch("/admin/landing/:id/toggle", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [row] = await db
+      .select()
+      .from(landingSections)
+      .where(eq(landingSections.id, id))
+      .limit(1);
+    if (!row) { res.status(404).json({ error: "Sekcja nie znaleziona" }); return; }
+    const isEnabled =
+      req.body?.isEnabled !== undefined ? Boolean(req.body.isEnabled) : !row.isEnabled;
+    const [updated] = await db
+      .update(landingSections)
+      .set({ isEnabled, updatedAt: new Date() })
+      .where(eq(landingSections.id, id))
+      .returning();
+    await logAdminAction(req.user!.id, "toggle", "landing_section", id, { isEnabled });
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Toggle landing error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.post("/admin/landing/reorder", async (req: AuthRequest, res) => {
+  try {
+    const ids: number[] = Array.isArray(req.body?.ids) ? req.body.ids.map(Number) : [];
+    if (ids.length === 0) { res.status(400).json({ error: "Brak kolejności" }); return; }
+    await Promise.all(
+      ids.map((id, index) =>
+        db
+          .update(landingSections)
+          .set({ sortOrder: index, updatedAt: new Date() })
+          .where(eq(landingSections.id, id)),
+      ),
+    );
+    await logAdminAction(req.user!.id, "reorder", "landing_section", undefined, { ids });
+    res.json({ message: "Kolejność zapisana" });
+  } catch (err) {
+    req.log.error({ err }, "Reorder landing error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ── FAQ CMS ───────────────────────────────────────────────────────────────────
+
+router.get("/admin/faq", async (req: AuthRequest, res) => {
+  try {
+    const rows = await db
+      .select()
+      .from(faqItems)
+      .orderBy(asc(faqItems.sortOrder), asc(faqItems.id));
+    res.json(rows);
+  } catch (err) {
+    req.log.error({ err }, "Admin list FAQ error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.post("/admin/faq", async (req: AuthRequest, res) => {
+  try {
+    const { question, answer, sortOrder, isVisible } = req.body;
+    if (!question || !answer) {
+      res.status(400).json({ error: "Pytanie i odpowiedź są wymagane" });
+      return;
+    }
+    const [row] = await db
+      .insert(faqItems)
+      .values({
+        question: String(question),
+        answer: String(answer),
+        sortOrder: sortOrder != null ? Number(sortOrder) : 0,
+        isVisible: isVisible != null ? Boolean(isVisible) : true,
+      })
+      .returning();
+    await logAdminAction(req.user!.id, "create", "faq_item", row.id);
+    res.status(201).json(row);
+  } catch (err) {
+    req.log.error({ err }, "Create FAQ error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.put("/admin/faq/:id", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { question, answer, sortOrder, isVisible } = req.body;
+    const setValues: Record<string, unknown> = { updatedAt: new Date() };
+    if (question !== undefined) setValues.question = String(question);
+    if (answer !== undefined) setValues.answer = String(answer);
+    if (sortOrder !== undefined) setValues.sortOrder = Number(sortOrder);
+    if (isVisible !== undefined) setValues.isVisible = Boolean(isVisible);
+    const [updated] = await db
+      .update(faqItems)
+      .set(setValues)
+      .where(eq(faqItems.id, id))
+      .returning();
+    if (!updated) { res.status(404).json({ error: "Pytanie nie znalezione" }); return; }
+    await logAdminAction(req.user!.id, "update", "faq_item", id);
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Update FAQ error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.patch("/admin/faq/:id/toggle", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [row] = await db.select().from(faqItems).where(eq(faqItems.id, id)).limit(1);
+    if (!row) { res.status(404).json({ error: "Pytanie nie znalezione" }); return; }
+    const isVisible =
+      req.body?.isVisible !== undefined ? Boolean(req.body.isVisible) : !row.isVisible;
+    const [updated] = await db
+      .update(faqItems)
+      .set({ isVisible, updatedAt: new Date() })
+      .where(eq(faqItems.id, id))
+      .returning();
+    await logAdminAction(req.user!.id, "toggle", "faq_item", id, { isVisible });
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Toggle FAQ error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.delete("/admin/faq/:id", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    await db.delete(faqItems).where(eq(faqItems.id, id));
+    await logAdminAction(req.user!.id, "delete", "faq_item", id);
+    res.json({ message: "Pytanie usunięte" });
+  } catch (err) {
+    req.log.error({ err }, "Delete FAQ error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.post("/admin/faq/reorder", async (req: AuthRequest, res) => {
+  try {
+    const ids: number[] = Array.isArray(req.body?.ids) ? req.body.ids.map(Number) : [];
+    if (ids.length === 0) { res.status(400).json({ error: "Brak kolejności" }); return; }
+    await Promise.all(
+      ids.map((id, index) =>
+        db
+          .update(faqItems)
+          .set({ sortOrder: index, updatedAt: new Date() })
+          .where(eq(faqItems.id, id)),
+      ),
+    );
+    await logAdminAction(req.user!.id, "reorder", "faq_item", undefined, { ids });
+    res.json({ message: "Kolejność zapisana" });
+  } catch (err) {
+    req.log.error({ err }, "Reorder FAQ error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ── SEO settings ──────────────────────────────────────────────────────────────
+
+router.get("/admin/seo", async (req: AuthRequest, res) => {
+  try {
+    const seo = await getSeoSettings();
+    res.json(seo);
+  } catch (err) {
+    req.log.error({ err }, "Admin get SEO error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.put("/admin/seo", async (req: AuthRequest, res) => {
+  try {
+    const { metaTitle, metaDescription, ogTitle, ogDescription, ogImage, canonicalUrl, robots } =
+      req.body;
+    const clamp = (v: unknown, max: number) => (v === null || v === undefined ? "" : String(v).slice(0, max));
+    const values = {
+      metaTitle: clamp(metaTitle, 300),
+      metaDescription: clamp(metaDescription, 600),
+      ogTitle: clamp(ogTitle, 300),
+      ogDescription: clamp(ogDescription, 600),
+      ogImage: clamp(ogImage, 1000),
+      canonicalUrl: clamp(canonicalUrl, 1000),
+      robots: robots ? String(robots).slice(0, 100) : "index, follow",
+      updatedAt: new Date(),
+    };
+    const [row] = await db
+      .insert(seoSettings)
+      .values({ id: 1, ...values })
+      .onConflictDoUpdate({ target: seoSettings.id, set: values })
+      .returning();
+    await logAdminAction(req.user!.id, "update", "seo_settings", 1);
+    res.json(row);
+  } catch (err) {
+    req.log.error({ err }, "Update SEO error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ── Pricing settings ──────────────────────────────────────────────────────────
+
+router.get("/admin/pricing", async (req: AuthRequest, res) => {
+  try {
+    const pricing = await getPricingSettings();
+    res.json(pricing);
+  } catch (err) {
+    req.log.error({ err }, "Admin get pricing error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.put("/admin/pricing", async (req: AuthRequest, res) => {
+  try {
+    const {
+      priceGrosz,
+      oldPriceGrosz,
+      currency,
+      promoEnabled,
+      promoLabel,
+      promoStartsAt,
+      promoEndsAt,
+      ctaText,
+    } = req.body;
+
+    const price = Number(priceGrosz);
+    if (!Number.isInteger(price) || price <= 0) {
+      res.status(400).json({ error: "Cena musi być liczbą całkowitą większą od zera (w groszach)" });
+      return;
+    }
+    // "Price before promo" is optional: when omitted it equals the current
+    // price (no strikethrough). The column is NOT NULL, so we never store null.
+    let oldPrice = price;
+    if (oldPriceGrosz !== undefined && oldPriceGrosz !== null && oldPriceGrosz !== "") {
+      oldPrice = Number(oldPriceGrosz);
+      if (!Number.isInteger(oldPrice) || oldPrice < price) {
+        res.status(400).json({ error: "Cena przed promocją musi być liczbą całkowitą nie mniejszą niż cena aktualna" });
+        return;
+      }
+    }
+    const cur = currency ? String(currency).toUpperCase().slice(0, 3) : "PLN";
+
+    const parseDate = (v: unknown): Date | null => {
+      if (v === undefined || v === null || v === "") return null;
+      const d = new Date(String(v));
+      return Number.isNaN(d.getTime()) ? null : d;
+    };
+
+    const values = {
+      priceGrosz: price,
+      oldPriceGrosz: oldPrice,
+      currency: cur,
+      promoEnabled: promoEnabled != null ? Boolean(promoEnabled) : false,
+      promoLabel: promoLabel != null ? String(promoLabel).slice(0, 200) : "",
+      promoStartsAt: parseDate(promoStartsAt),
+      promoEndsAt: parseDate(promoEndsAt),
+      ctaText: ctaText != null ? String(ctaText).slice(0, 200) : "",
+      updatedAt: new Date(),
+    };
+    const [row] = await db
+      .insert(pricingSettings)
+      .values({ id: 1, ...values })
+      .onConflictDoUpdate({ target: pricingSettings.id, set: values })
+      .returning();
+    await logAdminAction(req.user!.id, "update", "pricing_settings", 1, {
+      priceGrosz: price,
+      currency: cur,
+    });
+    res.json(row);
+  } catch (err) {
+    req.log.error({ err }, "Update pricing error");
     res.status(500).json({ error: "Błąd serwera" });
   }
 });

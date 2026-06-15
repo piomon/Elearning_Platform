@@ -10,6 +10,7 @@ import {
   requireTopicAccessOrPreview,
   getCourseIdByTaskId,
   getTopicLocation,
+  isTopicPublished,
 } from "../lib/access";
 import { config, isGeminiConfigured } from "../config/env";
 
@@ -126,6 +127,12 @@ router.post(
 
       const [task] = await db.select().from(tasks).where(eq(tasks.id, taskId)).limit(1);
       if (!task) {
+        res.status(404).json({ error: "Zadanie nie znalezione" });
+        return;
+      }
+      // Tasks carry no status of their own; a task is student-visible only when
+      // its topic/section/course chain is published.
+      if (!(await isTopicPublished(task.topicId))) {
         res.status(404).json({ error: "Zadanie nie znalezione" });
         return;
       }
@@ -298,7 +305,9 @@ router.post(
         .from(topics)
         .where(eq(topics.id, topicId))
         .limit(1);
-      if (!topic) {
+      // A draft/hidden/archived lesson (or one under a non-published parent) has
+      // no AI tutor — even for a user who has access to the course.
+      if (!topic || !(await isTopicPublished(topicId))) {
         res.status(404).json({ error: "Temat nie znaleziony" });
         return;
       }

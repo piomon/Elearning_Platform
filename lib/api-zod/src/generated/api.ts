@@ -354,7 +354,12 @@ export const LessonChatResponse = zod.object({
 export const GetCoursePriceResponse = zod.object({
   "price": zod.number(),
   "currency": zod.string(),
-  "oldPrice": zod.number().optional().describe('Informational pre-promo price in grosz, shown struck-through.')
+  "oldPrice": zod.number().optional().describe('Informational pre-promo price in grosz, shown struck-through.'),
+  "promoEnabled": zod.boolean().optional(),
+  "promoLabel": zod.string().optional(),
+  "promoStartsAt": zod.string().nullish(),
+  "promoEndsAt": zod.string().nullish(),
+  "ctaText": zod.string().optional()
 })
 
 
@@ -424,9 +429,22 @@ export const SubmitContactBody = zod.object({
 
 export const GetAdminDashboardResponse = zod.object({
   "totalUsers": zod.number(),
+  "usersWithAccess": zod.number(),
+  "usersWithoutAccess": zod.number(),
   "activeAccess": zod.number(),
   "totalPayments": zod.number(),
-  "totalRevenue": zod.number().optional(),
+  "completedPayments": zod.number(),
+  "failedPayments": zod.number(),
+  "totalRevenue": zod.number(),
+  "revenue7d": zod.number(),
+  "revenue30d": zod.number(),
+  "totalTopics": zod.number(),
+  "publishedTopics": zod.number(),
+  "hiddenTopics": zod.number(),
+  "draftTopics": zod.number(),
+  "totalQuizzes": zod.number(),
+  "totalMessages": zod.number(),
+  "newMessages": zod.number(),
   "recentLogins": zod.array(zod.object({
   "userId": zod.number(),
   "email": zod.string(),
@@ -442,6 +460,31 @@ export const GetAdminDashboardResponse = zod.object({
   "message": zod.string(),
   "status": zod.enum(['new', 'read', 'replied', 'closed']),
   "createdAt": zod.string()
+})),
+  "recentPayments": zod.array(zod.object({
+  "id": zod.number(),
+  "amount": zod.number(),
+  "currency": zod.string(),
+  "status": zod.string(),
+  "createdAt": zod.string(),
+  "email": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string()
+})),
+  "recentUsers": zod.array(zod.object({
+  "id": zod.number(),
+  "email": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "role": zod.string(),
+  "createdAt": zod.string()
+})),
+  "recentTopics": zod.array(zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "status": zod.string(),
+  "updatedAt": zod.string().optional(),
+  "sectionTitle": zod.string()
 }))
 })
 
@@ -699,6 +742,7 @@ export const ListAdminCoursesResponseItem = zod.object({
   "slug": zod.string(),
   "description": zod.string(),
   "isPublished": zod.boolean(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']),
   "createdAt": zod.string().optional(),
   "sections": zod.array(zod.object({
   "id": zod.number(),
@@ -706,6 +750,7 @@ export const ListAdminCoursesResponseItem = zod.object({
   "title": zod.string(),
   "slug": zod.string(),
   "sortOrder": zod.number(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']),
   "topics": zod.array(zod.object({
   "id": zod.number(),
   "sectionId": zod.number(),
@@ -713,6 +758,7 @@ export const ListAdminCoursesResponseItem = zod.object({
   "slug": zod.string(),
   "description": zod.string().nullish(),
   "sortOrder": zod.number(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']),
   "video": zod.union([zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
@@ -728,6 +774,7 @@ export const ListAdminCoursesResponseItem = zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
   "title": zod.string(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional(),
   "questions": zod.array(zod.object({
   "id": zod.number(),
   "quizId": zod.number(),
@@ -763,7 +810,8 @@ export const CreateCourseBody = zod.object({
   "title": zod.string(),
   "slug": zod.string(),
   "description": zod.string(),
-  "isPublished": zod.boolean().optional()
+  "isPublished": zod.boolean().optional(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
 })
 
 
@@ -775,7 +823,8 @@ export const UpdateCourseBody = zod.object({
   "title": zod.string(),
   "slug": zod.string(),
   "description": zod.string(),
-  "isPublished": zod.boolean().optional()
+  "isPublished": zod.boolean().optional(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
 })
 
 export const UpdateCourseResponse = zod.object({
@@ -801,7 +850,8 @@ export const CreateSectionBody = zod.object({
   "courseId": zod.number(),
   "title": zod.string(),
   "slug": zod.string(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
 })
 
 
@@ -813,7 +863,8 @@ export const UpdateSectionBody = zod.object({
   "courseId": zod.number(),
   "title": zod.string(),
   "slug": zod.string(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
 })
 
 export const UpdateSectionResponse = zod.object({
@@ -841,7 +892,8 @@ export const CreateTopicBody = zod.object({
   "title": zod.string(),
   "slug": zod.string(),
   "description": zod.string().optional(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
 })
 
 
@@ -854,7 +906,8 @@ export const UpdateTopicBody = zod.object({
   "title": zod.string(),
   "slug": zod.string(),
   "description": zod.string().optional(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
 })
 
 export const UpdateTopicResponse = zod.object({
@@ -926,7 +979,8 @@ export const DeleteVideoResponse = zod.object({
 
 export const CreateQuizBody = zod.object({
   "topicId": zod.number(),
-  "title": zod.string()
+  "title": zod.string(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
 })
 
 
@@ -936,13 +990,15 @@ export const UpdateQuizParams = zod.object({
 
 export const UpdateQuizBody = zod.object({
   "topicId": zod.number(),
-  "title": zod.string()
+  "title": zod.string(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
 })
 
 export const UpdateQuizResponse = zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
   "title": zod.string(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional(),
   "questions": zod.array(zod.object({
   "id": zod.number(),
   "quizId": zod.number(),
@@ -1135,6 +1191,342 @@ export const GetVideoHealthDetailResponse = zod.object({
   "health": zod.object({
 
 }).passthrough().nullish()
+})
+
+
+export const GetLandingContentResponseItem = zod.object({
+  "id": zod.number(),
+  "key": zod.string(),
+  "title": zod.string(),
+  "sortOrder": zod.number(),
+  "isEnabled": zod.boolean(),
+  "content": zod.record(zod.string(), zod.unknown()).nullish(),
+  "createdAt": zod.string().optional(),
+  "updatedAt": zod.string().optional()
+})
+export const GetLandingContentResponse = zod.array(GetLandingContentResponseItem)
+
+
+export const GetFaqContentResponseItem = zod.object({
+  "id": zod.number(),
+  "question": zod.string(),
+  "answer": zod.string(),
+  "sortOrder": zod.number(),
+  "isVisible": zod.boolean(),
+  "createdAt": zod.string().optional(),
+  "updatedAt": zod.string().optional()
+})
+export const GetFaqContentResponse = zod.array(GetFaqContentResponseItem)
+
+
+export const GetSeoContentResponse = zod.object({
+  "metaTitle": zod.string(),
+  "metaDescription": zod.string(),
+  "ogTitle": zod.string(),
+  "ogDescription": zod.string(),
+  "ogImage": zod.string(),
+  "canonicalUrl": zod.string(),
+  "robots": zod.string()
+})
+
+
+export const SetCourseStatusParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const SetCourseStatusBody = zod.object({
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived'])
+})
+
+export const SetCourseStatusResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string(),
+  "isPublished": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+export const SetSectionStatusParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const SetSectionStatusBody = zod.object({
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived'])
+})
+
+export const SetSectionStatusResponse = zod.object({
+  "id": zod.number(),
+  "courseId": zod.number(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "sortOrder": zod.number(),
+  "topicCount": zod.number().optional(),
+  "createdAt": zod.string()
+})
+
+
+export const SetTopicStatusParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const SetTopicStatusBody = zod.object({
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived'])
+})
+
+export const SetTopicStatusResponse = zod.object({
+  "id": zod.number(),
+  "sectionId": zod.number(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string().nullish(),
+  "sortOrder": zod.number(),
+  "isPreview": zod.boolean().optional(),
+  "hasVideo": zod.boolean().optional(),
+  "hasQuiz": zod.boolean().optional(),
+  "hasTasks": zod.boolean().optional(),
+  "createdAt": zod.string()
+})
+
+
+export const SetQuizStatusParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const SetQuizStatusBody = zod.object({
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived'])
+})
+
+export const SetQuizStatusResponse = zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "title": zod.string(),
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional(),
+  "questions": zod.array(zod.object({
+  "id": zod.number(),
+  "quizId": zod.number(),
+  "questionText": zod.string(),
+  "sortOrder": zod.number(),
+  "answers": zod.array(zod.object({
+  "id": zod.number(),
+  "questionId": zod.number(),
+  "answerLabel": zod.string(),
+  "answerText": zod.string(),
+  "isCorrect": zod.boolean()
+}))
+}))
+})
+
+
+export const ListLandingSectionsResponseItem = zod.object({
+  "id": zod.number(),
+  "key": zod.string(),
+  "title": zod.string(),
+  "sortOrder": zod.number(),
+  "isEnabled": zod.boolean(),
+  "content": zod.record(zod.string(), zod.unknown()).nullish(),
+  "createdAt": zod.string().optional(),
+  "updatedAt": zod.string().optional()
+})
+export const ListLandingSectionsResponse = zod.array(ListLandingSectionsResponseItem)
+
+
+export const ReorderLandingSectionsBody = zod.object({
+  "ids": zod.array(zod.number())
+})
+
+export const ReorderLandingSectionsResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const UpdateLandingSectionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateLandingSectionBody = zod.object({
+  "title": zod.string().optional(),
+  "content": zod.record(zod.string(), zod.unknown()).nullish(),
+  "isEnabled": zod.boolean().optional(),
+  "sortOrder": zod.number().optional()
+})
+
+export const UpdateLandingSectionResponse = zod.object({
+  "id": zod.number(),
+  "key": zod.string(),
+  "title": zod.string(),
+  "sortOrder": zod.number(),
+  "isEnabled": zod.boolean(),
+  "content": zod.record(zod.string(), zod.unknown()).nullish(),
+  "createdAt": zod.string().optional(),
+  "updatedAt": zod.string().optional()
+})
+
+
+export const ToggleLandingSectionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ToggleLandingSectionBody = zod.object({
+  "isEnabled": zod.boolean().optional()
+})
+
+export const ToggleLandingSectionResponse = zod.object({
+  "id": zod.number(),
+  "key": zod.string(),
+  "title": zod.string(),
+  "sortOrder": zod.number(),
+  "isEnabled": zod.boolean(),
+  "content": zod.record(zod.string(), zod.unknown()).nullish(),
+  "createdAt": zod.string().optional(),
+  "updatedAt": zod.string().optional()
+})
+
+
+export const ListFaqItemsResponseItem = zod.object({
+  "id": zod.number(),
+  "question": zod.string(),
+  "answer": zod.string(),
+  "sortOrder": zod.number(),
+  "isVisible": zod.boolean(),
+  "createdAt": zod.string().optional(),
+  "updatedAt": zod.string().optional()
+})
+export const ListFaqItemsResponse = zod.array(ListFaqItemsResponseItem)
+
+
+export const CreateFaqItemBody = zod.object({
+  "question": zod.string(),
+  "answer": zod.string(),
+  "sortOrder": zod.number().optional(),
+  "isVisible": zod.boolean().optional()
+})
+
+
+export const ReorderFaqItemsBody = zod.object({
+  "ids": zod.array(zod.number())
+})
+
+export const ReorderFaqItemsResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const UpdateFaqItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateFaqItemBody = zod.object({
+  "question": zod.string().optional(),
+  "answer": zod.string().optional(),
+  "sortOrder": zod.number().optional(),
+  "isVisible": zod.boolean().optional()
+})
+
+export const UpdateFaqItemResponse = zod.object({
+  "id": zod.number(),
+  "question": zod.string(),
+  "answer": zod.string(),
+  "sortOrder": zod.number(),
+  "isVisible": zod.boolean(),
+  "createdAt": zod.string().optional(),
+  "updatedAt": zod.string().optional()
+})
+
+
+export const DeleteFaqItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteFaqItemResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const ToggleFaqItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ToggleFaqItemBody = zod.object({
+  "isVisible": zod.boolean().optional()
+})
+
+export const ToggleFaqItemResponse = zod.object({
+  "id": zod.number(),
+  "question": zod.string(),
+  "answer": zod.string(),
+  "sortOrder": zod.number(),
+  "isVisible": zod.boolean(),
+  "createdAt": zod.string().optional(),
+  "updatedAt": zod.string().optional()
+})
+
+
+export const GetAdminSeoResponse = zod.object({
+  "metaTitle": zod.string(),
+  "metaDescription": zod.string(),
+  "ogTitle": zod.string(),
+  "ogDescription": zod.string(),
+  "ogImage": zod.string(),
+  "canonicalUrl": zod.string(),
+  "robots": zod.string()
+})
+
+
+export const UpdateSeoBody = zod.object({
+  "metaTitle": zod.string().optional(),
+  "metaDescription": zod.string().optional(),
+  "ogTitle": zod.string().optional(),
+  "ogDescription": zod.string().optional(),
+  "ogImage": zod.string().optional(),
+  "canonicalUrl": zod.string().optional(),
+  "robots": zod.string().optional()
+})
+
+export const UpdateSeoResponse = zod.object({
+  "metaTitle": zod.string(),
+  "metaDescription": zod.string(),
+  "ogTitle": zod.string(),
+  "ogDescription": zod.string(),
+  "ogImage": zod.string(),
+  "canonicalUrl": zod.string(),
+  "robots": zod.string()
+})
+
+
+export const GetAdminPricingResponse = zod.object({
+  "priceGrosz": zod.number(),
+  "oldPriceGrosz": zod.number(),
+  "currency": zod.string(),
+  "promoEnabled": zod.boolean(),
+  "promoLabel": zod.string(),
+  "promoStartsAt": zod.string().nullish(),
+  "promoEndsAt": zod.string().nullish(),
+  "ctaText": zod.string()
+})
+
+
+export const UpdatePricingBody = zod.object({
+  "priceGrosz": zod.number(),
+  "oldPriceGrosz": zod.number().optional(),
+  "currency": zod.string().optional(),
+  "promoEnabled": zod.boolean().optional(),
+  "promoLabel": zod.string().optional(),
+  "promoStartsAt": zod.string().nullish(),
+  "promoEndsAt": zod.string().nullish(),
+  "ctaText": zod.string().optional()
+})
+
+export const UpdatePricingResponse = zod.object({
+  "priceGrosz": zod.number(),
+  "oldPriceGrosz": zod.number(),
+  "currency": zod.string(),
+  "promoEnabled": zod.boolean(),
+  "promoLabel": zod.string(),
+  "promoStartsAt": zod.string().nullish(),
+  "promoEndsAt": zod.string().nullish(),
+  "ctaText": zod.string()
 })
 
 

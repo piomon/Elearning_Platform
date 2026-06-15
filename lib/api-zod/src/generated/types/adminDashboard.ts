@@ -7,12 +7,31 @@
  */
 import type { ContactMessage } from './contactMessage';
 import type { RecentLogin } from './recentLogin';
+import type { RecentPayment } from './recentPayment';
+import type { RecentTopic } from './recentTopic';
+import type { RecentUser } from './recentUser';
 
 export interface AdminDashboard {
   totalUsers: number;
+  usersWithAccess: number;
+  usersWithoutAccess: number;
   activeAccess: number;
   totalPayments: number;
-  totalRevenue?: number;
+  completedPayments: number;
+  failedPayments: number;
+  totalRevenue: number;
+  revenue7d: number;
+  revenue30d: number;
+  totalTopics: number;
+  publishedTopics: number;
+  hiddenTopics: number;
+  draftTopics: number;
+  totalQuizzes: number;
+  totalMessages: number;
+  newMessages: number;
   recentLogins: RecentLogin[];
   recentMessages: ContactMessage[];
+  recentPayments: RecentPayment[];
+  recentUsers: RecentUser[];
+  recentTopics: RecentTopic[];
 }

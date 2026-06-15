@@ -1318,6 +1318,396 @@ paths:
               schema:
                 $ref: "#/components/schemas/VideoHealthDetail"
 
+  # ─── PUBLIC CONTENT ──────────────────────────────────────────────────────────
+  /content/landing:
+    get:
+      operationId: getLandingContent
+      tags: [content]
+      responses:
+        "200":
+          description: Enabled landing-page sections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LandingSection"
+
+  /content/faq:
+    get:
+      operationId: getFaqContent
+      tags: [content]
+      responses:
+        "200":
+          description: Visible FAQ items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FaqItem"
+
+  /content/seo:
+    get:
+      operationId: getSeoContent
+      tags: [content]
+      responses:
+        "200":
+          description: SEO settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeoSettings"
+
+  # ─── ADMIN: PUBLISH STATUS ───────────────────────────────────────────────────
+  /admin/courses/{id}/status:
+    patch:
+      operationId: setCourseStatus
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+
+  /admin/sections/{id}/status:
+    patch:
+      operationId: setSectionStatus
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Section"
+
+  /admin/topics/{id}/status:
+    patch:
+      operationId: setTopicStatus
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Topic"
+
+  /admin/quizzes/{id}/status:
+    patch:
+      operationId: setQuizStatus
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+
+  # ─── ADMIN: LANDING CMS ──────────────────────────────────────────────────────
+  /admin/landing:
+    get:
+      operationId: listLandingSections
+      tags: [admin]
+      responses:
+        "200":
+          description: All landing sections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LandingSection"
+
+  /admin/landing/reorder:
+    post:
+      operationId: reorderLandingSections
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReorderInput"
+      responses:
+        "200":
+          description: Reordered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/landing/{id}:
+    put:
+      operationId: updateLandingSection
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LandingSectionUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LandingSection"
+
+  /admin/landing/{id}/toggle:
+    patch:
+      operationId: toggleLandingSection
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LandingToggleInput"
+      responses:
+        "200":
+          description: Toggled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LandingSection"
+
+  # ─── ADMIN: FAQ CMS ──────────────────────────────────────────────────────────
+  /admin/faq:
+    get:
+      operationId: listFaqItems
+      tags: [admin]
+      responses:
+        "200":
+          description: All FAQ items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FaqItem"
+    post:
+      operationId: createFaqItem
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FaqInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FaqItem"
+
+  /admin/faq/reorder:
+    post:
+      operationId: reorderFaqItems
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReorderInput"
+      responses:
+        "200":
+          description: Reordered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/faq/{id}:
+    put:
+      operationId: updateFaqItem
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FaqUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FaqItem"
+    delete:
+      operationId: deleteFaqItem
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/faq/{id}/toggle:
+    patch:
+      operationId: toggleFaqItem
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FaqToggleInput"
+      responses:
+        "200":
+          description: Toggled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FaqItem"
+
+  # ─── ADMIN: SEO ──────────────────────────────────────────────────────────────
+  /admin/seo:
+    get:
+      operationId: getAdminSeo
+      tags: [admin]
+      responses:
+        "200":
+          description: SEO settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeoSettings"
+    put:
+      operationId: updateSeo
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeoUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeoSettings"
+
+  # ─── ADMIN: PRICING ──────────────────────────────────────────────────────────
+  /admin/pricing:
+    get:
+      operationId: getAdminPricing
+      tags: [admin]
+      responses:
+        "200":
+          description: Pricing settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricingSettings"
+    put:
+      operationId: updatePricing
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PricingUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricingSettings"
+
 components:
   schemas:
     HealthStatus:
@@ -1611,7 +2001,7 @@ components:
 
     AdminTopicTree:
       type: object
-      required: [id, sectionId, title, slug, sortOrder, tasks]
+      required: [id, sectionId, title, slug, sortOrder, status, tasks]
       properties:
         id:
           type: integer
@@ -1625,6 +2015,9 @@ components:
           type: ["string", "null"]
         sortOrder:
           type: integer
+        status:
+          type: string
+          enum: [draft, published, hidden, archived]
         video:
           oneOf:
             - $ref: "#/components/schemas/Video"
@@ -1640,7 +2033,7 @@ components:
 
     AdminSectionTree:
       type: object
-      required: [id, courseId, title, slug, sortOrder, topics]
+      required: [id, courseId, title, slug, sortOrder, status, topics]
       properties:
         id:
           type: integer
@@ -1652,6 +2045,9 @@ components:
           type: string
         sortOrder:
           type: integer
+        status:
+          type: string
+          enum: [draft, published, hidden, archived]
         topics:
           type: array
           items:
@@ -1659,7 +2055,7 @@ components:
 
     AdminCourseTree:
       type: object
-      required: [id, title, slug, description, isPublished, sections]
+      required: [id, title, slug, description, isPublished, status, sections]
       properties:
         id:
           type: integer
@@ -1671,6 +2067,9 @@ components:
           type: string
         isPublished:
           type: boolean
+        status:
+          type: string
+          enum: [draft, published, hidden, archived]
         createdAt:
           type: string
         sections:
@@ -1721,6 +2120,9 @@ components:
           type: integer
         title:
           type: string
+        status:
+          type: string
+          enum: [draft, published, hidden, archived]
         questions:
           type: array
           items:
@@ -2061,6 +2463,16 @@ components:
         oldPrice:
           type: integer
           description: Informational pre-promo price in grosz, shown struck-through.
+        promoEnabled:
+          type: boolean
+        promoLabel:
+          type: string
+        promoStartsAt:
+          type: ["string", "null"]
+        promoEndsAt:
+          type: ["string", "null"]
+        ctaText:
+          type: string
 
     PaymentInput:
       type: object
@@ -2166,15 +2578,65 @@ components:
     # ─── ADMIN SCHEMAS ────────────────────────────────────────────────────────
     AdminDashboard:
       type: object
-      required: [totalUsers, activeAccess, totalPayments, recentLogins, recentMessages]
+      required:
+        [
+          totalUsers,
+          usersWithAccess,
+          usersWithoutAccess,
+          activeAccess,
+          totalPayments,
+          completedPayments,
+          failedPayments,
+          totalRevenue,
+          revenue7d,
+          revenue30d,
+          totalTopics,
+          publishedTopics,
+          hiddenTopics,
+          draftTopics,
+          totalQuizzes,
+          totalMessages,
+          newMessages,
+          recentLogins,
+          recentMessages,
+          recentPayments,
+          recentUsers,
+          recentTopics,
+        ]
       properties:
         totalUsers:
+          type: integer
+        usersWithAccess:
+          type: integer
+        usersWithoutAccess:
           type: integer
         activeAccess:
           type: integer
         totalPayments:
           type: integer
+        completedPayments:
+          type: integer
+        failedPayments:
+          type: integer
         totalRevenue:
+          type: integer
+        revenue7d:
+          type: integer
+        revenue30d:
+          type: integer
+        totalTopics:
+          type: integer
+        publishedTopics:
+          type: integer
+        hiddenTopics:
+          type: integer
+        draftTopics:
+          type: integer
+        totalQuizzes:
+          type: integer
+        totalMessages:
+          type: integer
+        newMessages:
           type: integer
         recentLogins:
           type: array
@@ -2184,6 +2646,18 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ContactMessage"
+        recentPayments:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecentPayment"
+        recentUsers:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecentUser"
+        recentTopics:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecentTopic"
 
     RecentLogin:
       type: object
@@ -2199,6 +2673,248 @@ components:
           type: string
         loginAt:
           type: string
+
+    RecentPayment:
+      type: object
+      required: [id, amount, currency, status, createdAt, email, firstName, lastName]
+      properties:
+        id:
+          type: integer
+        amount:
+          type: integer
+        currency:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+
+    RecentUser:
+      type: object
+      required: [id, email, firstName, lastName, role, createdAt]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+        createdAt:
+          type: string
+
+    RecentTopic:
+      type: object
+      required: [id, title, status, sectionTitle]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        status:
+          type: string
+        updatedAt:
+          type: string
+        sectionTitle:
+          type: string
+
+    # ─── CONTENT / CMS SCHEMAS ────────────────────────────────────────────────
+    LandingSection:
+      type: object
+      required: [id, key, title, sortOrder, isEnabled]
+      properties:
+        id:
+          type: integer
+        key:
+          type: string
+        title:
+          type: string
+        sortOrder:
+          type: integer
+        isEnabled:
+          type: boolean
+        content:
+          type: ["object", "null"]
+          additionalProperties: true
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    LandingSectionUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: ["object", "null"]
+          additionalProperties: true
+        isEnabled:
+          type: boolean
+        sortOrder:
+          type: integer
+
+    LandingToggleInput:
+      type: object
+      properties:
+        isEnabled:
+          type: boolean
+
+    ReorderInput:
+      type: object
+      required: [ids]
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+
+    FaqItem:
+      type: object
+      required: [id, question, answer, sortOrder, isVisible]
+      properties:
+        id:
+          type: integer
+        question:
+          type: string
+        answer:
+          type: string
+        sortOrder:
+          type: integer
+        isVisible:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    FaqInput:
+      type: object
+      required: [question, answer]
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+        sortOrder:
+          type: integer
+        isVisible:
+          type: boolean
+
+    FaqUpdate:
+      type: object
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+        sortOrder:
+          type: integer
+        isVisible:
+          type: boolean
+
+    FaqToggleInput:
+      type: object
+      properties:
+        isVisible:
+          type: boolean
+
+    SeoSettings:
+      type: object
+      required:
+        [metaTitle, metaDescription, ogTitle, ogDescription, ogImage, canonicalUrl, robots]
+      properties:
+        metaTitle:
+          type: string
+        metaDescription:
+          type: string
+        ogTitle:
+          type: string
+        ogDescription:
+          type: string
+        ogImage:
+          type: string
+        canonicalUrl:
+          type: string
+        robots:
+          type: string
+
+    SeoUpdate:
+      type: object
+      properties:
+        metaTitle:
+          type: string
+        metaDescription:
+          type: string
+        ogTitle:
+          type: string
+        ogDescription:
+          type: string
+        ogImage:
+          type: string
+        canonicalUrl:
+          type: string
+        robots:
+          type: string
+
+    PricingSettings:
+      type: object
+      required: [priceGrosz, oldPriceGrosz, currency, promoEnabled, promoLabel, ctaText]
+      properties:
+        priceGrosz:
+          type: integer
+        oldPriceGrosz:
+          type: integer
+        currency:
+          type: string
+        promoEnabled:
+          type: boolean
+        promoLabel:
+          type: string
+        promoStartsAt:
+          type: ["string", "null"]
+        promoEndsAt:
+          type: ["string", "null"]
+        ctaText:
+          type: string
+
+    PricingUpdate:
+      type: object
+      required: [priceGrosz]
+      properties:
+        priceGrosz:
+          type: integer
+        oldPriceGrosz:
+          type: integer
+        currency:
+          type: string
+        promoEnabled:
+          type: boolean
+        promoLabel:
+          type: string
+        promoStartsAt:
+          type: ["string", "null"]
+        promoEndsAt:
+          type: ["string", "null"]
+        ctaText:
+          type: string
+
+    StatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [draft, published, hidden, archived]
 
     AdminUserList:
       type: object
@@ -2452,6 +3168,9 @@ components:
           type: string
         isPublished:
           type: boolean
+        status:
+          type: string
+          enum: [draft, published, hidden, archived]
 
     SectionInput:
       type: object
@@ -2465,6 +3184,9 @@ components:
           type: string
         sortOrder:
           type: integer
+        status:
+          type: string
+          enum: [draft, published, hidden, archived]
 
     TopicInput:
       type: object
@@ -2480,6 +3202,9 @@ components:
           type: string
         sortOrder:
           type: integer
+        status:
+          type: string
+          enum: [draft, published, hidden, archived]
 
     VideoInput:
       type: object
@@ -2504,6 +3229,9 @@ components:
           type: integer
         title:
           type: string
+        status:
+          type: string
+          enum: [draft, published, hidden, archived]
 
     QuizQuestionInput:
       type: object

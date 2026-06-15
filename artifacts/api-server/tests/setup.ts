@@ -4,6 +4,10 @@ import { pool } from "@workspace/db";
 // Every table, listed so the truncate is explicit. RESTART IDENTITY keeps
 // serial ids deterministic per test; CASCADE covers FK dependencies.
 const TABLES = [
+  "landing_sections",
+  "faq_items",
+  "seo_settings",
+  "pricing_settings",
   "ai_checks",
   "quiz_attempt_answers",
   "quiz_attempts",

@@ -1,6 +1,6 @@
 import type { Response, NextFunction } from "express";
 import { db } from "@workspace/db";
-import { topics, sections, quizzes, tasks, accessGrants } from "@workspace/db";
+import { topics, sections, quizzes, tasks, accessGrants, courses } from "@workspace/db";
 import { and, eq, or, gt, lte, isNull } from "drizzle-orm";
 import type { AuthRequest } from "../middlewares/auth";
 
@@ -84,6 +84,69 @@ export async function getCourseIdByTaskId(
     .where(eq(tasks.id, taskId))
     .limit(1);
   return row?.courseId ?? null;
+}
+
+// Student-facing visibility cascade: an entity is visible only when it AND its
+// whole ancestor chain are "published". GET /courses/:slug already filters the
+// tree by status; these mirror that rule on direct-by-id reads so draft/hidden/
+// archived content — or content under a hidden parent — is never served through
+// the student endpoints (admins manage drafts via the /admin routes instead).
+export async function isTopicPublished(topicId: number): Promise<boolean> {
+  if (!Number.isFinite(topicId)) return false;
+  const [row] = await db
+    .select({
+      topic: topics.status,
+      section: sections.status,
+      course: courses.status,
+    })
+    .from(topics)
+    .innerJoin(sections, eq(topics.sectionId, sections.id))
+    .innerJoin(courses, eq(sections.courseId, courses.id))
+    .where(eq(topics.id, topicId))
+    .limit(1);
+  return Boolean(
+    row &&
+      row.topic === "published" &&
+      row.section === "published" &&
+      row.course === "published",
+  );
+}
+
+export async function isSectionPublished(sectionId: number): Promise<boolean> {
+  if (!Number.isFinite(sectionId)) return false;
+  const [row] = await db
+    .select({ section: sections.status, course: courses.status })
+    .from(sections)
+    .innerJoin(courses, eq(sections.courseId, courses.id))
+    .where(eq(sections.id, sectionId))
+    .limit(1);
+  return Boolean(
+    row && row.section === "published" && row.course === "published",
+  );
+}
+
+export async function isQuizPublished(quizId: number): Promise<boolean> {
+  if (!Number.isFinite(quizId)) return false;
+  const [row] = await db
+    .select({
+      quiz: quizzes.status,
+      topic: topics.status,
+      section: sections.status,
+      course: courses.status,
+    })
+    .from(quizzes)
+    .innerJoin(topics, eq(quizzes.topicId, topics.id))
+    .innerJoin(sections, eq(topics.sectionId, sections.id))
+    .innerJoin(courses, eq(sections.courseId, courses.id))
+    .where(eq(quizzes.id, quizId))
+    .limit(1);
+  return Boolean(
+    row &&
+      row.quiz === "published" &&
+      row.topic === "published" &&
+      row.section === "published" &&
+      row.course === "published",
+  );
 }
 
 function activeGrantConditions(userId: number, courseId?: number) {

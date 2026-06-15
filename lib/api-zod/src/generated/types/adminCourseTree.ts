@@ -5,6 +5,7 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { AdminCourseTreeStatus } from './adminCourseTreeStatus';
 import type { AdminSectionTree } from './adminSectionTree';
 
 export interface AdminCourseTree {
@@ -13,6 +14,7 @@ export interface AdminCourseTree {
   slug: string;
   description: string;
   isPublished: boolean;
+  status: AdminCourseTreeStatus;
   createdAt?: string;
   sections: AdminSectionTree[];
 }

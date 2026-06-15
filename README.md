@@ -246,6 +246,25 @@ Konta demonstracyjne tworzone przez seeder:
 
 > Zmień te hasła po pierwszym logowaniu w środowisku produkcyjnym.
 
+### Panel administratora
+
+Po zalogowaniu jako administrator (`/admin`) dostępny jest panel z wbudowanym menu:
+
+- **Pulpit** (`/admin`) — podsumowanie (liczba kursów, uczniów, przychód, ostatnie płatności).
+- **Kursy** (`/admin/courses`) — przełączanie statusu publikacji kursów, działów, lekcji i quizów
+  (`draft` / `published` / `hidden` / `archived`). Status jest **autorytatywny**: tylko treści ze
+  statusem `published` są widoczne publicznie i możliwe do kupienia.
+- **Strona główna** (`/admin/landing`) — edycja sekcji landing page (treść, włączanie/wyłączanie,
+  kolejność) bez zmian w kodzie.
+- **Cennik** (`/admin/pricing`) — cena kursu, stara cena (przekreślona), promocja i tekst CTA.
+  Cennik jest **jedynym źródłem prawdy o cenie**: ta sama wartość zasila stronę, baner promocyjny
+  **oraz kwotę pobieraną przez Paynow** (cena widoczna = kwota płatności, zawsze).
+- **FAQ** (`/admin/faq`) — pytania i odpowiedzi (dodawanie, edycja, widoczność, kolejność).
+- **SEO** (`/admin/seo`) — meta title/description, Open Graph, canonical i `robots`.
+
+Wszystkie zmiany przechodzą przez endpointy `*/api/admin/*` chronione `requireAuth + requireAdmin`
+i są zapisywane w dzienniku administratora.
+
 ### Diagnostyka materiałów wideo
 
 Po zalogowaniu jako administrator dostępna jest strona **`/admin/course-debug`**, która

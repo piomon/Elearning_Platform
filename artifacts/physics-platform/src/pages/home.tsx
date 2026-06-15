@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Link } from "wouter";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,7 +6,10 @@ import * as z from "zod";
 import {
   useListCourses,
   useGetCoursePrice,
+  useGetLandingContent,
+  useGetFaqContent,
   useSubmitContact,
+  type LandingSection,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { usePurchase } from "@/hooks/use-purchase";
@@ -29,7 +32,7 @@ import {
 import {
   PlayCircle, CheckCircle2, Zap, Brain, Target, ArrowRight, BookOpen,
   ShieldCheck, HeartHandshake, Sparkles,
-  PencilRuler, Send, Star, Trophy, LineChart,
+  PencilRuler, Send, Star, LineChart,
   User, Mail, Tag, MessageSquare, MessageCircle, Flame
 } from "lucide-react";
 
@@ -41,6 +44,7 @@ import { ProgressRing } from "@/components/progress-ring";
 import { StatCard } from "@/components/stat-card";
 import { FeatureCard } from "@/components/feature-card";
 import { CourseModuleCard } from "@/components/course-module-card";
+import { SeoHead } from "@/components/seo-head";
 
 const contactSchema = z.object({
   name: z.string().min(1, { message: "Imię i nazwisko są wymagane" }),
@@ -220,13 +224,222 @@ function CountdownBox({ value, label }: { value: number | string; label: string 
   );
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Landing content: typed fallbacks (mirror the seeded copy) + helpers.
+   The home page is data-driven from the landing CMS but always degrades to the
+   copy below when a field/section is missing, so the page never renders empty.
+   ────────────────────────────────────────────────────────────────────────── */
+
+interface HeroContent {
+  badges: string[];
+  titleLine1: string;
+  titleLine2: string;
+  paragraph1: string;
+  paragraph2: string;
+  ctaPrimary: string;
+  ctaSecondary: string;
+  ratingText: string;
+}
+interface BenefitsContent {
+  items: { title: string; desc: string }[];
+}
+interface MethodologyContent {
+  eyebrow: string;
+  heading: string;
+  subheading: string;
+  steps: { title: string; description: string }[];
+}
+interface ModulesContent {
+  heading: string;
+  subheading: string;
+  ctaText: string;
+}
+interface AiContent {
+  eyebrow: string;
+  heading: string;
+  paragraph: string;
+  card1Title: string;
+  card1Desc: string;
+  card2Title: string;
+  card2Desc: string;
+}
+interface ParentsContent {
+  heading: string;
+  subheading: string;
+}
+interface PricingContent {
+  heading: string;
+  subheading: string;
+  features: string[];
+  note: string;
+}
+interface FaqContent {
+  heading: string;
+  subheading: string;
+}
+interface ContactContent {
+  heading: string;
+  paragraph: string;
+  quickContactLabel: string;
+  quickContactValue: string;
+}
+
+const HERO_FALLBACK: HeroContent = {
+  badges: ["AI sprawdza zadania", "Quizy po każdej lekcji", "Interaktywna tablica"],
+  titleLine1: "Fizyka w 7 klasie",
+  titleLine2: "zrozumiała jak nigdy.",
+  paragraph1:
+    "Fizyka w 7 klasie to nowość i spore wyzwanie. Chcesz, żeby Twoje dziecko od razu polubiło ten przedmiot, zamiast stresować się na pierwszych lekcjach? Wybierzcie innowacyjny kurs na start!",
+  paragraph2:
+    "Zamieniliśmy nudny podręcznik w niezwykłą przygodę. Nowoczesna platforma edukacyjna, która uczy fizyki przez interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.",
+  ctaPrimary: "Kup dostęp",
+  ctaSecondary: "Zobacz jak działa",
+  ratingText: "Zaufali nam rodzice i uczniowie",
+};
+
+const BENEFITS_FALLBACK: BenefitsContent = {
+  items: [
+    { title: "Program dla klasy 7", desc: "Materiały wspierają naukę fizyki w klasie 7." },
+    { title: "Prosty cel", desc: "Krok po kroku do lepszych ocen." },
+    { title: "Mądre powtórki", desc: "Utrwalanie zamiast wkuwania." },
+    { title: "Spokojna nauka", desc: "Bez stresu i presji czasu." },
+  ],
+};
+
+const METHODOLOGY_FALLBACK: MethodologyContent = {
+  eyebrow: "Sprawdzona metoda",
+  heading: "Jak działa nauka?",
+  subheading:
+    "Zaprojektowaliśmy cykl lekcji tak, aby budował pewność siebie i gwarantował zrozumienie każdego tematu.",
+  steps: [
+    { title: "1. Obejrzyj lekcję", description: "Krótkie, angażujące materiały wideo wyjaśniające zjawiska fizyczne na prostych, życiowych przykładach." },
+    { title: "2. Rozwiąż quiz", description: "Błyskawiczny test utrwalający najważniejsze pojęcia i wzory natychmiast po obejrzeniu wideo." },
+    { title: "3. Zadanie na tablicy", description: "Samodzielne rozwiązywanie zadań obliczeniowych na interaktywnej tablicy, zupełnie jak w zeszycie." },
+    { title: "4. AI sprawdzi i podpowie", description: "Sztuczna inteligencja analizuje rozwiązanie i udziela wskazówek, nie wyręczając ucznia z myślenia." },
+    { title: "5. Następna lekcja", description: "Gdy materiał jest opanowany, uczeń płynnie przechodzi do kolejnego zagadnienia." },
+  ],
+};
+
+const MODULES_FALLBACK: ModulesContent = {
+  heading: "Program nauczania",
+  subheading:
+    "Kompleksowy kurs podzielony na przystępne moduły. Każdy dział to krok do pełnego zrozumienia fizyki.",
+  ctaText: "Zobacz pełny program po zalogowaniu",
+};
+
+const AI_FALLBACK: AiContent = {
+  eyebrow: "Nowość na platformie",
+  heading: "Prywatny korepetytor dostępny 24/7",
+  paragraph:
+    "Koniec z frustracją przy zadaniach domowych. Nasza sztuczna inteligencja na bieżąco analizuje tok myślenia ucznia i naprowadza go na właściwe tory.",
+  card1Title: "Uczy, nie wyręcza",
+  card1Desc: "Podaje wskazówki i tłumaczy błędy, zamiast dawać gotowy wynik.",
+  card2Title: "Śledzi postępy",
+  card2Desc: "Analizuje, z czym uczeń ma problem i dostosowuje porady.",
+};
+
+const PARENTS_FALLBACK: ParentsContent = {
+  heading: "Spokój ducha dla rodzica",
+  subheading:
+    "Nie musisz być ekspertem z fizyki, aby wspierać swoje dziecko. Nasza platforma zadba o jakość i systematyczność edukacji.",
+};
+
+const PRICING_FALLBACK: PricingContent = {
+  heading: "Pełny Dostęp",
+  subheading: "Wszystko, czego potrzebuje uczeń klasy 7.",
+  features: [
+    "Pełny dostęp do kursu fizyki klasy 7",
+    "Wszystkie moduły i lekcje wideo",
+    "Interaktywne quizy sprawdzające",
+    "Zadania z asystentem AI",
+    "Dostęp na komputerze i tablecie",
+    "Brak ukrytych opłat",
+  ],
+  note: "Płatność przez BLIK / Paynow. Po potwierdzeniu płatności dostęp zostanie odblokowany automatycznie.",
+};
+
+const FAQ_SECTION_FALLBACK: FaqContent = {
+  heading: "Często zadawane pytania",
+  subheading: "Masz wątpliwości? Oto odpowiedzi na najpopularniejsze pytania.",
+};
+
+const CONTACT_FALLBACK: ContactContent = {
+  heading: "Zostały pytania?",
+  paragraph:
+    "Jesteśmy tu, aby pomóc. Napisz do nas, jeśli potrzebujesz wsparcia technicznego lub masz pytania dotyczące zawartości kursu.",
+  quickContactLabel: "Szybki kontakt",
+  quickContactValue: "Odpowiadamy w ciągu 24h",
+};
+
+const FAQ_ITEMS_FALLBACK = [
+  {
+    q: "Dla kogo jest ta platforma?",
+    a: "Dla uczniów klasy 7 szkoły podstawowej oraz ich rodziców, którzy chcą spokojnie i skutecznie ogarnąć fizykę.",
+  },
+  {
+    q: "Jak działa sprawdzanie zadań przez AI?",
+    a: "Uczeń rozwiązuje zadanie na wirtualnej tablicy, a sztuczna inteligencja analizuje tok rozumowania i wskazuje, co jest poprawne, a nad czym warto jeszcze popracować.",
+  },
+  {
+    q: "Jak uzyskuję dostęp po zakupie?",
+    a: "Po potwierdzeniu płatności dostęp do wszystkich materiałów kursu odblokowuje się automatycznie — uczysz się we własnym tempie.",
+  },
+  {
+    q: "Czy potrzebuję specjalnego sprzętu?",
+    a: "Do wygodnej nauki rekomendujemy komputer lub tablet. Tablica i zadania działają najlepiej na większym ekranie.",
+  },
+];
+
+const DEFAULT_SECTION_ORDER = [
+  "hero", "benefits", "methodology", "modules", "ai", "parents", "pricing", "faq", "contact",
+] as const;
+
+/** Merge a section's stored content over the typed fallback (shallow). */
+function pickContent<T extends object>(
+  section: LandingSection | undefined,
+  fallback: T,
+): T {
+  const c = section?.content;
+  if (c && typeof c === "object" && !Array.isArray(c)) {
+    return { ...fallback, ...(c as Partial<T>) } as T;
+  }
+  return fallback;
+}
+
+const HERO_BADGE_STYLES = [
+  { icon: Sparkles, cls: "text-primary border-primary/20" },
+  { icon: Brain, cls: "text-violet-600 border-violet-500/20" },
+  { icon: PencilRuler, cls: "text-amber-600 border-amber-500/20" },
+];
+
+const BENEFIT_STYLES = [
+  { icon: ShieldCheck, cls: "text-emerald-500" },
+  { icon: Target, cls: "text-primary" },
+  { icon: Brain, cls: "text-violet-500" },
+  { icon: HeartHandshake, cls: "text-amber-500" },
+];
+
+const STEP_STYLES = [
+  { icon: PlayCircle, color: "bg-blue-500 text-white shadow-blue-500/20" },
+  { icon: Brain, color: "bg-violet-500 text-white shadow-violet-500/20" },
+  { icon: PencilRuler, color: "bg-amber-500 text-white shadow-amber-500/20" },
+  { icon: Sparkles, color: "bg-primary text-white shadow-primary/20" },
+  { icon: ArrowRight, color: "bg-emerald-500 text-white shadow-emerald-500/20" },
+];
+
 export default function Home() {
   const { data: courses } = useListCourses();
   const { data: priceData } = useGetCoursePrice();
+  const { data: landingData } = useGetLandingContent();
+  const { data: faqData } = useGetFaqContent();
   const { user } = useAuth();
   const { startPurchase, isPending } = usePurchase();
 
-  const countdown = usePromoCountdown();
+  // Promo is driven by the pricing singleton (single source of truth). When no
+  // explicit end date is set, the countdown falls back to the evergreen one.
+  const promoActive = priceData?.promoEnabled !== false;
+  const promoLabel = priceData?.promoLabel || "Promocja na start";
+  const countdown = usePromoCountdown(priceData?.promoEndsAt);
 
   const primaryCourseId = courses && courses.length > 0 ? courses[0].id : null;
   const priceLabel = priceData ? formatPln(priceData.price, priceData.currency) : null;
@@ -240,68 +453,94 @@ export default function Home() {
       ? discountPercent(priceData.oldPrice!, priceData.price)
       : 0;
 
+  const showOldPrice = promoActive && hasOldPrice;
+  const showDiscount = promoActive && discount > 0;
+  const showCountdown = promoActive && countdown.total > 0;
+  const ctaText = priceData?.ctaText || "Kup dostęp i zacznij naukę";
+  const promoEndsLabel = priceData?.promoEndsAt
+    ? `Promocja kończy się: ${new Date(priceData.promoEndsAt).toLocaleDateString("pl-PL", { day: "numeric", month: "long" })}`
+    : "Promocja kończy się z końcem września";
+
   const handleBuy = () => {
     if (primaryCourseId != null) {
       void startPurchase(primaryCourseId);
     }
   };
 
-  const faqs = [
-    {
-      q: "Dla kogo jest ta platforma?",
-      a: "Dla uczniów klasy 7 szkoły podstawowej oraz ich rodziców, którzy chcą spokojnie i skutecznie ogarnąć fizykę.",
-    },
-    {
-      q: "Jak działa sprawdzanie zadań przez AI?",
-      a: "Uczeń rozwiązuje zadanie na wirtualnej tablicy, a sztuczna inteligencja analizuje tok rozumowania i wskazuje, co jest poprawne, a nad czym warto jeszcze popracować.",
-    },
-    {
-      q: "Jak uzyskuję dostęp po zakupie?",
-      a: "Po potwierdzeniu płatności dostęp do wszystkich materiałów kursu odblokowuje się automatycznie — uczysz się we własnym tempie.",
-    },
-    {
-      q: "Czy potrzebuję specjalnego sprzętu?",
-      a: "Do wygodnej nauki rekomendujemy komputer lub tablet. Tablica i zadania działają najlepiej na większym ekranie.",
-    },
-  ];
+  // Index landing sections by key + compute render order honoring sortOrder /
+  // isEnabled. While loading (no data), render every section in the default
+  // order so the page looks identical to the static version.
+  const byKey = useMemo(
+    () => new Map((landingData ?? []).map((s) => [s.key, s])),
+    [landingData],
+  );
 
-  return (
-    <div className={`flex flex-col w-full overflow-hidden ${user ? "" : "pb-24 sm:pb-0"}`}>
-      {/* ── HERO ── */}
-      <section className="relative min-h-[95vh] flex items-center pt-24 pb-16 md:pt-32 overflow-hidden">
+  const ordered = useMemo(() => {
+    const known = new Set<string>(DEFAULT_SECTION_ORDER);
+    if (!landingData || landingData.length === 0) {
+      return DEFAULT_SECTION_ORDER.map((key) => ({ key, isEnabled: true }));
+    }
+    const fromDb = landingData
+      .filter((s) => known.has(s.key))
+      .slice()
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((s) => ({ key: s.key, isEnabled: s.isEnabled }));
+    const present = new Set(fromDb.map((s) => s.key));
+    const missing = DEFAULT_SECTION_ORDER.filter((k) => !present.has(k)).map(
+      (key) => ({ key, isEnabled: true }),
+    );
+    return [...fromDb, ...missing];
+  }, [landingData]);
+
+  const hero = pickContent(byKey.get("hero"), HERO_FALLBACK);
+  const benefits = pickContent(byKey.get("benefits"), BENEFITS_FALLBACK);
+  const methodology = pickContent(byKey.get("methodology"), METHODOLOGY_FALLBACK);
+  const modules = pickContent(byKey.get("modules"), MODULES_FALLBACK);
+  const ai = pickContent(byKey.get("ai"), AI_FALLBACK);
+  const parents = pickContent(byKey.get("parents"), PARENTS_FALLBACK);
+  const pricing = pickContent(byKey.get("pricing"), PRICING_FALLBACK);
+  const faqSection = pickContent(byKey.get("faq"), FAQ_SECTION_FALLBACK);
+  const contact = pickContent(byKey.get("contact"), CONTACT_FALLBACK);
+
+  const faqItems =
+    faqData && faqData.length > 0
+      ? faqData.map((f) => ({ q: f.question, a: f.answer }))
+      : FAQ_ITEMS_FALLBACK;
+
+  const renderers: Record<string, () => ReactNode> = {
+    hero: () => (
+      <section key="hero" className="relative min-h-[95vh] flex items-center pt-24 pb-16 md:pt-32 overflow-hidden">
         <BlobBackground variant="blue" className="opacity-80" />
 
         <div className="container mx-auto max-w-7xl px-4 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-12 items-center">
-            
+
             <AnimatedWrapper direction="right" delay={0.1}>
               <div className="space-y-8 text-center lg:text-left">
                 <div className="inline-flex flex-wrap items-center justify-center lg:justify-start gap-3">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-background/80 backdrop-blur-md text-primary border border-primary/20 shadow-sm">
-                    <Sparkles className="w-4 h-4" />
-                    AI sprawdza zadania
-                  </div>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-background/80 backdrop-blur-md text-violet-600 border border-violet-500/20 shadow-sm">
-                    <Brain className="w-4 h-4" />
-                    Quizy po każdej lekcji
-                  </div>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-background/80 backdrop-blur-md text-amber-600 border border-amber-500/20 shadow-sm">
-                    <PencilRuler className="w-4 h-4" />
-                    Interaktywna tablica
-                  </div>
+                  {hero.badges.map((badge, i) => {
+                    const st = HERO_BADGE_STYLES[i % HERO_BADGE_STYLES.length];
+                    const Icon = st.icon;
+                    return (
+                      <div key={i} className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-background/80 backdrop-blur-md border shadow-sm ${st.cls}`}>
+                        <Icon className="w-4 h-4" />
+                        {badge}
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <h1 className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.1] text-foreground">
-                  Fizyka w 7 klasie <br className="hidden sm:block"/>
-                  <span className="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary to-cyan-400">zrozumiała jak nigdy.</span>
+                  {hero.titleLine1} <br className="hidden sm:block"/>
+                  <span className="text-primary bg-clip-text text-transparent bg-gradient-to-r from-primary to-cyan-400">{hero.titleLine2}</span>
                 </h1>
 
                 <div className="space-y-4 max-w-2xl mx-auto lg:mx-0">
                   <p className="text-xl text-muted-foreground leading-relaxed">
-                    Fizyka w 7 klasie to nowość i spore wyzwanie. Chcesz, żeby Twoje dziecko od razu polubiło ten przedmiot, zamiast stresować się na pierwszych lekcjach? Wybierzcie innowacyjny kurs na start!
+                    {hero.paragraph1}
                   </p>
                   <p className="text-xl text-muted-foreground leading-relaxed">
-                    Zamieniliśmy nudny podręcznik w niezwykłą przygodę. Nowoczesna platforma edukacyjna, która uczy fizyki przez interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.
+                    {hero.paragraph2}
                   </p>
                 </div>
 
@@ -319,16 +558,16 @@ export default function Home() {
                       disabled={isPending || primaryCourseId == null}
                       className="w-full sm:w-auto text-lg h-16 px-10 font-bold shadow-xl shadow-primary/30 rounded-full hover-lift"
                     >
-                      {isPending ? "Przetwarzanie..." : "Kup dostęp"} <ArrowRight className="w-5 h-5 ml-2" />
+                      {isPending ? "Przetwarzanie..." : hero.ctaPrimary} <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
                   )}
                   <a href="#metoda" className="w-full sm:w-auto">
                     <Button size="lg" variant="outline" className="w-full text-lg h-16 px-10 font-bold rounded-full border-2 border-border/80 bg-background/50 backdrop-blur-md hover:bg-background/80 transition-all">
-                      Zobacz jak działa
+                      {hero.ctaSecondary}
                     </Button>
                   </a>
                 </div>
-                
+
                 <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-6 text-sm font-medium text-muted-foreground/80">
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
@@ -337,7 +576,7 @@ export default function Home() {
                     <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                     <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                   </div>
-                  <span>Zaufali nam rodzice i uczniowie</span>
+                  <span>{hero.ratingText}</span>
                 </div>
               </div>
             </AnimatedWrapper>
@@ -349,104 +588,76 @@ export default function Home() {
           </div>
         </div>
       </section>
+    ),
 
-      {/* ── BENEFITS / TRUST STRIP ── */}
-      <section className="py-12 border-y border-border bg-card/50 backdrop-blur-sm relative z-20">
+    benefits: () => (
+      <section key="benefits" className="py-12 border-y border-border bg-card/50 backdrop-blur-sm relative z-20">
         <div className="container mx-auto max-w-6xl px-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            { icon: <ShieldCheck className="w-8 h-8 text-emerald-500" />, title: "Program dla klasy 7", desc: "Materiały wspierają naukę fizyki w klasie 7." },
-            { icon: <Target className="w-8 h-8 text-primary" />, title: "Prosty cel", desc: "Krok po kroku do lepszych ocen." },
-            { icon: <Brain className="w-8 h-8 text-violet-500" />, title: "Mądre powtórki", desc: "Utrwalanie zamiast wkuwania." },
-            { icon: <HeartHandshake className="w-8 h-8 text-amber-500" />, title: "Spokojna nauka", desc: "Bez stresu i presji czasu." },
-          ].map((item, i) => (
-            <AnimatedWrapper key={i} direction="up" delay={i * 0.1} className="flex items-start gap-4">
-              <div className="shrink-0">{item.icon}</div>
-              <div>
-                <h3 className="font-bold text-lg leading-tight mb-1">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-              </div>
-            </AnimatedWrapper>
-          ))}
+          {benefits.items.map((item, i) => {
+            const st = BENEFIT_STYLES[i % BENEFIT_STYLES.length];
+            const Icon = st.icon;
+            return (
+              <AnimatedWrapper key={i} direction="up" delay={i * 0.1} className="flex items-start gap-4">
+                <div className="shrink-0"><Icon className={`w-8 h-8 ${st.cls}`} /></div>
+                <div>
+                  <h3 className="font-bold text-lg leading-tight mb-1">{item.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+                </div>
+              </AnimatedWrapper>
+            );
+          })}
         </div>
       </section>
+    ),
 
-      {/* ── METHODOLOGY / HOW IT WORKS ── */}
-      <section id="metoda" className="py-24 px-4 relative scroll-mt-20 overflow-hidden bg-muted/20">
+    methodology: () => (
+      <section key="methodology" id="metoda" className="py-24 px-4 relative scroll-mt-20 overflow-hidden bg-muted/20">
         <BlobBackground variant="mixed" className="opacity-40" />
-        
+
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="text-center mb-16 space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-bold bg-primary/10 text-primary mb-2">
-              Sprawdzona metoda
+              {methodology.eyebrow}
             </div>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">Jak działa nauka?</h2>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">{methodology.heading}</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-              Zaprojektowaliśmy cykl lekcji tak, aby budował pewność siebie i gwarantował zrozumienie każdego tematu.
+              {methodology.subheading}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            <AnimatedWrapper direction="up" delay={0.1}>
-              <FeatureCard 
-                icon={<PlayCircle className="w-6 h-6" />}
-                title="1. Obejrzyj lekcję"
-                description="Krótkie, angażujące materiały wideo wyjaśniające zjawiska fizyczne na prostych, życiowych przykładach."
-                colorClass="bg-blue-500 text-white shadow-blue-500/20"
-              />
-            </AnimatedWrapper>
-            
-            <AnimatedWrapper direction="up" delay={0.2}>
-              <FeatureCard 
-                icon={<Brain className="w-6 h-6" />}
-                title="2. Rozwiąż quiz"
-                description="Błyskawiczny test utrwalający najważniejsze pojęcia i wzory natychmiast po obejrzeniu wideo."
-                colorClass="bg-violet-500 text-white shadow-violet-500/20"
-              />
-            </AnimatedWrapper>
-            
-            <AnimatedWrapper direction="up" delay={0.3}>
-              <FeatureCard 
-                icon={<PencilRuler className="w-6 h-6" />}
-                title="3. Zadanie na tablicy"
-                description="Samodzielne rozwiązywanie zadań obliczeniowych na interaktywnej tablicy, zupełnie jak w zeszycie."
-                colorClass="bg-amber-500 text-white shadow-amber-500/20"
-              />
-            </AnimatedWrapper>
-
-            <AnimatedWrapper direction="up" delay={0.4} className="lg:col-start-2">
-              <FeatureCard 
-                icon={<Sparkles className="w-6 h-6" />}
-                title="4. AI sprawdzi i podpowie"
-                description="Sztuczna inteligencja analizuje rozwiązanie i udziela wskazówek, nie wyręczając ucznia z myślenia."
-                colorClass="bg-primary text-white shadow-primary/20"
-              />
-            </AnimatedWrapper>
-
-            <AnimatedWrapper direction="up" delay={0.5}>
-              <FeatureCard 
-                icon={<ArrowRight className="w-6 h-6" />}
-                title="5. Następna lekcja"
-                description="Gdy materiał jest opanowany, uczeń płynnie przechodzi do kolejnego zagadnienia."
-                colorClass="bg-emerald-500 text-white shadow-emerald-500/20"
-              />
-            </AnimatedWrapper>
+            {methodology.steps.map((step, i) => {
+              const st = STEP_STYLES[i % STEP_STYLES.length];
+              const Icon = st.icon;
+              return (
+                <AnimatedWrapper key={i} direction="up" delay={(i + 1) * 0.1} className={i === 3 ? "lg:col-start-2" : undefined}>
+                  <FeatureCard
+                    icon={<Icon className="w-6 h-6" />}
+                    title={step.title}
+                    description={step.description}
+                    colorClass={st.color}
+                  />
+                </AnimatedWrapper>
+              );
+            })}
           </div>
         </div>
       </section>
+    ),
 
-      {/* ── COURSE MODULES ── */}
-      <section className="py-24 px-4 border-y border-border bg-background">
+    modules: () => (
+      <section key="modules" className="py-24 px-4 border-y border-border bg-background">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">Program nauczania</h2>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">{modules.heading}</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Kompleksowy kurs podzielony na przystępne moduły. Każdy dział to krok do pełnego zrozumienia fizyki.
+              {modules.subheading}
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-6">
             <AnimatedWrapper direction="left" delay={0.1}>
-              <CourseModuleCard 
+              <CourseModuleCard
                 title="Kinematyka"
                 description="Ruch prostoliniowy, prędkość, przyspieszenie. Naucz się opisywać ruch otaczających Cię ciał bez gubienia się w gąszczu wzorów."
                 lessonCount={12}
@@ -456,7 +667,7 @@ export default function Home() {
             </AnimatedWrapper>
 
             <AnimatedWrapper direction="left" delay={0.2}>
-              <CourseModuleCard 
+              <CourseModuleCard
                 title="Dynamika"
                 description="Zasady dynamiki Newtona, siły w przyrodzie, pęd. Dowiedz się, dlaczego ciała się poruszają i co sprawia, że się zatrzymują."
                 lessonCount={15}
@@ -465,39 +676,40 @@ export default function Home() {
               />
             </AnimatedWrapper>
           </div>
-          
+
           <div className="mt-12 text-center">
             <Button size="lg" variant="outline" className="rounded-full font-bold h-14 px-8 border-2" onClick={handleBuy} disabled={isPending || primaryCourseId == null}>
-              Zobacz pełny program po zalogowaniu
+              {modules.ctaText}
             </Button>
           </div>
         </div>
       </section>
+    ),
 
-      {/* ── AI EXPLAINER ── */}
-      <section className="py-24 px-4 bg-primary/5 relative overflow-hidden">
+    ai: () => (
+      <section key="ai" className="py-24 px-4 bg-primary/5 relative overflow-hidden">
         <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
-        
+
         <div className="container mx-auto max-w-6xl grid lg:grid-cols-2 gap-16 items-center relative z-10">
           <div className="space-y-8 order-2 lg:order-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-bold bg-primary/20 text-primary">
-              <Sparkles className="w-4 h-4" /> Nowość na platformie
+              <Sparkles className="w-4 h-4" /> {ai.eyebrow}
             </div>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">Prywatny korepetytor dostępny 24/7</h2>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">{ai.heading}</h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Koniec z frustracją przy zadaniach domowych. Nasza sztuczna inteligencja na bieżąco analizuje tok myślenia ucznia i naprowadza go na właściwe tory.
+              {ai.paragraph}
             </p>
-            
+
             <div className="grid sm:grid-cols-2 gap-6 pt-4">
               <div className="bg-card rounded-2xl p-6 border border-border shadow-sm">
                 <CheckCircle2 className="w-8 h-8 text-success mb-4" />
-                <h4 className="font-bold mb-2">Uczy, nie wyręcza</h4>
-                <p className="text-sm text-muted-foreground">Podaje wskazówki i tłumaczy błędy, zamiast dawać gotowy wynik.</p>
+                <h4 className="font-bold mb-2">{ai.card1Title}</h4>
+                <p className="text-sm text-muted-foreground">{ai.card1Desc}</p>
               </div>
               <div className="bg-card rounded-2xl p-6 border border-border shadow-sm">
                 <LineChart className="w-8 h-8 text-primary mb-4" />
-                <h4 className="font-bold mb-2">Śledzi postępy</h4>
-                <p className="text-sm text-muted-foreground">Analizuje, z czym uczeń ma problem i dostosowuje porady.</p>
+                <h4 className="font-bold mb-2">{ai.card2Title}</h4>
+                <p className="text-sm text-muted-foreground">{ai.card2Desc}</p>
               </div>
             </div>
           </div>
@@ -516,7 +728,7 @@ export default function Home() {
                     </div>
                     <span className="inline-flex items-center rounded-full bg-secondary px-4 py-1.5 text-sm font-medium text-secondary-foreground" aria-hidden="true">Zakończ</span>
                   </div>
-                  
+
                   {/* Fake Whiteboard */}
                   <div className="aspect-[4/3] sm:aspect-video rounded-xl border-2 border-dashed border-border bg-muted/20 relative flex items-center justify-center font-display text-2xl font-medium p-6">
                     <div className="opacity-60 space-y-4 w-full">
@@ -564,42 +776,43 @@ export default function Home() {
           </div>
         </div>
       </section>
+    ),
 
-      {/* ── FOR PARENTS ── */}
-      <section className="py-24 px-4 bg-background">
+    parents: () => (
+      <section key="parents" className="py-24 px-4 bg-background">
         <div className="container mx-auto max-w-5xl text-center space-y-16">
           <div className="space-y-6">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">Spokój ducha dla rodzica</h2>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">{parents.heading}</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Nie musisz być ekspertem z fizyki, aby wspierać swoje dziecko. Nasza platforma zadba o jakość i systematyczność edukacji.
+              {parents.subheading}
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard 
+            <StatCard
               title="Bezpieczne płatności"
               value="BLIK"
               description="Szybka płatność BLIK / Paynow"
               icon={<ShieldCheck className="w-6 h-6" />}
               colorClass="bg-emerald-500/10 text-emerald-600"
             />
-            <StatCard 
+            <StatCard
               title="Program dla klasy 7"
               value="Fizyka"
               description="Materiały do nauki w klasie 7"
               icon={<BookOpen className="w-6 h-6" />}
               colorClass="bg-blue-500/10 text-blue-600"
             />
-            <StatCard 
+            <StatCard
               title="Jasne postępy"
               value="Panel"
               description="Dostęp do statystyk i wyników"
               icon={<LineChart className="w-6 h-6" />}
               colorClass="bg-violet-500/10 text-violet-600"
             />
-            <StatCard 
+            <StatCard
               title="Cena miesięczna"
-              value="35 zł"
+              value={priceLabel ?? "35 zł"}
               description="Bez ukrytych opłat"
               icon={<Tag className="w-6 h-6" />}
               colorClass="bg-amber-500/10 text-amber-600"
@@ -607,25 +820,28 @@ export default function Home() {
           </div>
         </div>
       </section>
+    ),
 
-      {/* ── PRICING ── */}
-      <section className="py-24 px-4 bg-muted/30 border-y border-border">
+    pricing: () => (
+      <section key="pricing" className="py-24 px-4 bg-muted/30 border-y border-border">
         <div className="container mx-auto max-w-xl text-center">
           <AnimatedWrapper direction="up">
             <div className="bg-card rounded-[3rem] border border-border shadow-2xl p-8 md:p-12 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-violet-500 to-cyan-500" />
-              
+
               <div className="mb-8">
-                <h2 className="text-3xl font-black mb-2">Pełny Dostęp</h2>
-                <p className="text-muted-foreground">Wszystko, czego potrzebuje uczeń klasy 7.</p>
+                <h2 className="text-3xl font-black mb-2">{pricing.heading}</h2>
+                <p className="text-muted-foreground">{pricing.subheading}</p>
               </div>
 
               <div className="flex flex-col items-center gap-3 mb-8">
                 <div className="flex flex-wrap items-center justify-center gap-2">
-                  <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-4 py-1.5 text-sm font-bold">
-                    Promocja na start
-                  </span>
-                  {discount > 0 && (
+                  {promoActive && (
+                    <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-4 py-1.5 text-sm font-bold">
+                      {promoLabel}
+                    </span>
+                  )}
+                  {showDiscount && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary via-violet-600 to-cyan-500 text-white px-4 py-1.5 text-sm font-black shadow-sm">
                       <Flame className="w-3.5 h-3.5" /> -{discount}%
                     </span>
@@ -634,7 +850,7 @@ export default function Home() {
                 <div className="flex justify-center items-baseline gap-3">
                   {priceLabel ? (
                     <>
-                      {oldPriceLabel && (
+                      {showOldPrice && oldPriceLabel && (
                         <span className="text-2xl md:text-3xl font-bold text-muted-foreground/70 line-through decoration-2">
                           {oldPriceLabel}
                         </span>
@@ -649,31 +865,26 @@ export default function Home() {
                   <span className="text-xl text-muted-foreground font-medium">/ mies.</span>
                 </div>
 
-                <div className="mt-2 w-full max-w-sm rounded-2xl border border-border bg-muted/40 px-4 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                    Promocja kończy się z końcem września
-                  </p>
-                  <div className="flex items-center justify-center gap-2 font-mono tabular-nums">
-                    <CountdownBox value={countdown.days} label="dni" />
-                    <span className="text-2xl font-black text-muted-foreground/50">:</span>
-                    <CountdownBox value={String(countdown.hours).padStart(2, "0")} label="godz" />
-                    <span className="text-2xl font-black text-muted-foreground/50">:</span>
-                    <CountdownBox value={String(countdown.minutes).padStart(2, "0")} label="min" />
-                    <span className="text-2xl font-black text-muted-foreground/50">:</span>
-                    <CountdownBox value={String(countdown.seconds).padStart(2, "0")} label="sek" />
+                {showCountdown && (
+                  <div className="mt-2 w-full max-w-sm rounded-2xl border border-border bg-muted/40 px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                      {promoEndsLabel}
+                    </p>
+                    <div className="flex items-center justify-center gap-2 font-mono tabular-nums">
+                      <CountdownBox value={countdown.days} label="dni" />
+                      <span className="text-2xl font-black text-muted-foreground/50">:</span>
+                      <CountdownBox value={String(countdown.hours).padStart(2, "0")} label="godz" />
+                      <span className="text-2xl font-black text-muted-foreground/50">:</span>
+                      <CountdownBox value={String(countdown.minutes).padStart(2, "0")} label="min" />
+                      <span className="text-2xl font-black text-muted-foreground/50">:</span>
+                      <CountdownBox value={String(countdown.seconds).padStart(2, "0")} label="sek" />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <ul className="space-y-4 mb-10 text-left max-w-sm mx-auto">
-                {[
-                  "Pełny dostęp do kursu fizyki klasy 7",
-                  "Wszystkie moduły i lekcje wideo",
-                  "Interaktywne quizy sprawdzające",
-                  "Zadania z asystentem AI",
-                  "Dostęp na komputerze i tablecie",
-                  "Brak ukrytych opłat",
-                ].map((feature, i) => (
+                {pricing.features.map((feature, i) => (
                   <li key={i} className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
                     <span className="font-medium text-foreground/90">{feature}</span>
@@ -681,30 +892,31 @@ export default function Home() {
                 ))}
               </ul>
 
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 onClick={handleBuy}
                 disabled={isPending || primaryCourseId == null}
                 className="w-full text-lg h-16 rounded-full font-bold shadow-xl shadow-primary/20 hover-lift"
               >
-                {isPending ? "Przetwarzanie..." : "Kup dostęp i zacznij naukę"} <ArrowRight className="w-5 h-5 ml-2" />
+                {isPending ? "Przetwarzanie..." : ctaText} <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <p className="text-sm text-muted-foreground mt-4">Płatność przez BLIK / Paynow. Po potwierdzeniu płatności dostęp zostanie odblokowany automatycznie.</p>
+              <p className="text-sm text-muted-foreground mt-4">{pricing.note}</p>
             </div>
           </AnimatedWrapper>
         </div>
       </section>
+    ),
 
-      {/* ── FAQ ── */}
-      <section className="py-24 px-4 bg-background">
+    faq: () => (
+      <section key="faq" className="py-24 px-4 bg-background">
         <div className="container mx-auto max-w-3xl">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">Często zadawane pytania</h2>
-            <p className="text-muted-foreground text-lg">Masz wątpliwości? Oto odpowiedzi na najpopularniejsze pytania.</p>
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">{faqSection.heading}</h2>
+            <p className="text-muted-foreground text-lg">{faqSection.subheading}</p>
           </div>
 
           <Accordion type="single" collapsible className="w-full space-y-4">
-            {faqs.map((faq, i) => (
+            {faqItems.map((faq, i) => (
               <AccordionItem key={i} value={`item-${i}`} className="bg-card border border-border rounded-2xl px-6">
                 <AccordionTrigger className="text-left font-bold text-lg hover:text-primary hover:no-underline py-6">
                   {faq.q}
@@ -717,15 +929,16 @@ export default function Home() {
           </Accordion>
         </div>
       </section>
+    ),
 
-      {/* ── CONTACT ── */}
-      <section id="kontakt" className="scroll-mt-20 py-24 px-4 bg-muted/30 border-t border-border">
+    contact: () => (
+      <section key="contact" id="kontakt" className="scroll-mt-20 py-24 px-4 bg-muted/30 border-t border-border">
         <div className="container mx-auto max-w-5xl">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-6">
-              <h2 className="text-4xl font-black tracking-tight">Zostały pytania?</h2>
+              <h2 className="text-4xl font-black tracking-tight">{contact.heading}</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Jesteśmy tu, aby pomóc. Napisz do nas, jeśli potrzebujesz wsparcia technicznego lub masz pytania dotyczące zawartości kursu.
+                {contact.paragraph}
               </p>
               <div className="space-y-4 pt-4">
                 <div className="flex items-center gap-4 bg-card p-4 rounded-2xl border border-border shadow-sm">
@@ -733,8 +946,8 @@ export default function Home() {
                     <Send className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground font-medium">Szybki kontakt</p>
-                    <p className="font-bold">Odpowiadamy w ciągu 24h</p>
+                    <p className="text-sm text-muted-foreground font-medium">{contact.quickContactLabel}</p>
+                    <p className="font-bold">{contact.quickContactValue}</p>
                   </div>
                 </div>
               </div>
@@ -745,6 +958,18 @@ export default function Home() {
           </div>
         </div>
       </section>
+    ),
+  };
+
+  return (
+    <div className={`flex flex-col w-full overflow-hidden ${user ? "" : "pb-24 sm:pb-0"}`}>
+      <SeoHead />
+
+      {ordered.map(({ key, isEnabled }) => {
+        if (!isEnabled) return null;
+        const render = renderers[key];
+        return render ? render() : null;
+      })}
 
       {/* ── MOBILE APP-STYLE STICKY CTA ── */}
       {!user && (
@@ -754,21 +979,23 @@ export default function Home() {
               {priceLabel ? (
                 <>
                   <span className="flex items-baseline gap-1.5">
-                    {oldPriceLabel && (
+                    {showOldPrice && oldPriceLabel && (
                       <span className="text-xs font-bold text-muted-foreground/70 line-through">{oldPriceLabel}</span>
                     )}
                     <span className="text-lg font-black tracking-tight">
                       {priceLabel}<span className="text-xs font-bold text-muted-foreground"> / mies.</span>
                     </span>
-                    {discount > 0 && (
+                    {showDiscount && (
                       <span className="inline-flex items-center rounded-full bg-gradient-to-r from-primary via-violet-600 to-cyan-500 text-white px-1.5 py-0.5 text-[10px] font-black">
                         -{discount}%
                       </span>
                     )}
                   </span>
-                  <span className="text-[11px] text-muted-foreground font-medium tabular-nums">
-                    Promo do końca września: {countdown.days}d {String(countdown.hours).padStart(2, "0")}:{String(countdown.minutes).padStart(2, "0")}:{String(countdown.seconds).padStart(2, "0")}
-                  </span>
+                  {showCountdown && (
+                    <span className="text-[11px] text-muted-foreground font-medium tabular-nums">
+                      Promo: {countdown.days}d {String(countdown.hours).padStart(2, "0")}:{String(countdown.minutes).padStart(2, "0")}:{String(countdown.seconds).padStart(2, "0")}
+                    </span>
+                  )}
                 </>
               ) : (
                 <>

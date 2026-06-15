@@ -10,7 +10,12 @@ import {
 } from "@workspace/db";
 import { eq, and, asc, inArray, sql } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
-import { requireCourseAccess, getCourseIdByQuizId, getTopicLocation } from "../lib/access";
+import {
+  requireCourseAccess,
+  getCourseIdByQuizId,
+  getTopicLocation,
+  isQuizPublished,
+} from "../lib/access";
 
 const router = Router();
 
@@ -26,7 +31,9 @@ router.get(
     try {
       const quizId = Number(req.params.quizId);
       const [quiz] = await db.select().from(quizzes).where(eq(quizzes.id, quizId)).limit(1);
-      if (!quiz) {
+      // Status cascade: a draft/hidden/archived quiz (or one under a non-published
+      // topic/section/course) is not student-visible even to users with access.
+      if (!quiz || !(await isQuizPublished(quizId))) {
         res.status(404).json({ error: "Quiz nie znaleziony" });
         return;
       }
@@ -79,7 +86,9 @@ router.post(
       }
 
       const [quiz] = await db.select().from(quizzes).where(eq(quizzes.id, quizId)).limit(1);
-      if (!quiz) {
+      // A draft/hidden/archived quiz cannot be attempted, even by a user with
+      // course access — submissions to non-published quizzes are rejected.
+      if (!quiz || !(await isQuizPublished(quizId))) {
         res.status(404).json({ error: "Quiz nie znaleziony" });
         return;
       }

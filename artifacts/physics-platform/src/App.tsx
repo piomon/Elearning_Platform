@@ -2,8 +2,9 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, ProtectedRoute, AccessRoute, AdminRoute } from "@/hooks/use-auth";
+import { AuthProvider, ProtectedRoute, AccessRoute } from "@/hooks/use-auth";
 import { Layout } from "@/components/layout";
+import { AdminPage } from "@/components/admin-layout";
 import { ThemeProvider } from "@/components/theme-provider";
 
 import Home from "@/pages/home";
@@ -20,6 +21,10 @@ import AdminCourses from "@/pages/admin/courses";
 import AdminContact from "@/pages/admin/contact";
 import AdminLogs from "@/pages/admin/logs";
 import AdminCourseDebug from "@/pages/admin/course-debug";
+import AdminLanding from "@/pages/admin/landing";
+import AdminPricing from "@/pages/admin/pricing";
+import AdminFaq from "@/pages/admin/faq";
+import AdminSeo from "@/pages/admin/seo";
 import PaymentSuccess from "@/pages/payment/success";
 import PaymentError from "@/pages/payment/error";
 import Regulamin from "@/pages/regulamin";
@@ -55,25 +60,37 @@ function Router() {
         </Route>
 
         <Route path="/admin">
-          {() => <AdminRoute><AdminDashboard /></AdminRoute>}
+          {() => <AdminPage><AdminDashboard /></AdminPage>}
         </Route>
         <Route path="/admin/users">
-          {() => <AdminRoute><AdminUsers /></AdminRoute>}
+          {() => <AdminPage><AdminUsers /></AdminPage>}
         </Route>
         <Route path="/admin/users/:id">
-          {() => <AdminRoute><AdminUserDetail /></AdminRoute>}
+          {() => <AdminPage><AdminUserDetail /></AdminPage>}
         </Route>
         <Route path="/admin/course">
-          {() => <AdminRoute><AdminCourses /></AdminRoute>}
+          {() => <AdminPage><AdminCourses /></AdminPage>}
+        </Route>
+        <Route path="/admin/landing">
+          {() => <AdminPage><AdminLanding /></AdminPage>}
+        </Route>
+        <Route path="/admin/pricing">
+          {() => <AdminPage><AdminPricing /></AdminPage>}
+        </Route>
+        <Route path="/admin/faq">
+          {() => <AdminPage><AdminFaq /></AdminPage>}
+        </Route>
+        <Route path="/admin/seo">
+          {() => <AdminPage><AdminSeo /></AdminPage>}
         </Route>
         <Route path="/admin/contact">
-          {() => <AdminRoute><AdminContact /></AdminRoute>}
+          {() => <AdminPage><AdminContact /></AdminPage>}
         </Route>
         <Route path="/admin/logs">
-          {() => <AdminRoute><AdminLogs /></AdminRoute>}
+          {() => <AdminPage><AdminLogs /></AdminPage>}
         </Route>
         <Route path="/admin/course-debug">
-          {() => <AdminRoute><AdminCourseDebug /></AdminRoute>}
+          {() => <AdminPage><AdminCourseDebug /></AdminPage>}
         </Route>
 
         <Route component={NotFound} />

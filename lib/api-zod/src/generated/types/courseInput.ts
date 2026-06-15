@@ -5,10 +5,12 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { CourseInputStatus } from './courseInputStatus';
 
 export interface CourseInput {
   title: string;
   slug: string;
   description: string;
   isPublished?: boolean;
+  status?: CourseInputStatus;
 }

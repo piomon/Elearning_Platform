@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { learningProgress, topics, sections, videos, videoProgress } from "@workspace/db";
+import { learningProgress, topics, sections, videos, videoProgress, courses } from "@workspace/db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { z } from "zod/v4";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
-import { userHasCourseAccess } from "../lib/access";
+import { userHasCourseAccess, isTopicPublished } from "../lib/access";
 
 const router = Router();
 
@@ -76,10 +76,29 @@ router.get("/progress/summary", requireAuth as any, async (req: AuthRequest, res
 
 router.get("/progress/continue", requireAuth as any, async (req: AuthRequest, res) => {
   try {
+    // Only resume into content that is still student-visible: skip any in-progress
+    // topic whose topic/section/course chain is no longer published.
     const [latest] = await db
-      .select()
+      .select({
+        topicId: learningProgress.topicId,
+        sectionId: learningProgress.sectionId,
+        courseId: learningProgress.courseId,
+        currentElementType: learningProgress.currentElementType,
+        topicTitle: topics.title,
+        sectionTitle: sections.title,
+      })
       .from(learningProgress)
-      .where(eq(learningProgress.userId, req.user!.id))
+      .innerJoin(topics, eq(learningProgress.topicId, topics.id))
+      .innerJoin(sections, eq(topics.sectionId, sections.id))
+      .innerJoin(courses, eq(sections.courseId, courses.id))
+      .where(
+        and(
+          eq(learningProgress.userId, req.user!.id),
+          eq(topics.status, "published"),
+          eq(sections.status, "published"),
+          eq(courses.status, "published"),
+        ),
+      )
       .orderBy(desc(learningProgress.updatedAt))
       .limit(1);
 
@@ -95,27 +114,12 @@ router.get("/progress/continue", requireAuth as any, async (req: AuthRequest, re
       return;
     }
 
-    const [topic] = await db
-      .select({ id: topics.id, title: topics.title })
-      .from(topics)
-      .where(eq(topics.id, latest.topicId))
-      .limit(1);
-    let sectionTitle: string | null = null;
-    if (latest.sectionId) {
-      const [section] = await db
-        .select({ title: sections.title })
-        .from(sections)
-        .where(eq(sections.id, latest.sectionId))
-        .limit(1);
-      sectionTitle = section?.title ?? null;
-    }
-
     res.json({
       topicId: latest.topicId,
       sectionId: latest.sectionId,
       courseId: latest.courseId,
-      topicTitle: topic?.title ?? null,
-      sectionTitle,
+      topicTitle: latest.topicTitle,
+      sectionTitle: latest.sectionTitle,
       currentElementType: latest.currentElementType,
     });
   } catch (err) {
@@ -142,6 +146,13 @@ router.post("/progress", requireAuth as any, async (req: AuthRequest, res) => {
       .limit(1);
 
     if (!topicRow) {
+      res.status(404).json({ error: "Temat nie znaleziony" });
+      return;
+    }
+
+    // Never record progress against draft/hidden/archived content (or content
+    // under a non-published parent) — it isn't student-visible.
+    if (!(await isTopicPublished(topicId))) {
       res.status(404).json({ error: "Temat nie znaleziony" });
       return;
     }
@@ -222,6 +233,12 @@ router.post("/progress/video", requireAuth as any, async (req: AuthRequest, res)
       .limit(1);
 
     if (!row) {
+      res.status(404).json({ error: "Wideo nie znalezione" });
+      return;
+    }
+
+    // A video under a non-published lesson/section/course is not student-visible.
+    if (!(await isTopicPublished(row.topicId))) {
       res.status(404).json({ error: "Wideo nie znalezione" });
       return;
     }

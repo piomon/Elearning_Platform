@@ -5,6 +5,7 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { TopicInputStatus } from './topicInputStatus';
 
 export interface TopicInput {
   sectionId: number;
@@ -12,4 +13,5 @@ export interface TopicInput {
   slug: string;
   description?: string;
   sortOrder: number;
+  status?: TopicInputStatus;
 }

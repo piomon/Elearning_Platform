@@ -31,6 +31,10 @@ const {
   aiChecks,
   tasks,
   accessGrants,
+  landingSections,
+  faqItems,
+  seoSettings,
+  pricingSettings,
 } = schema;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -129,6 +133,222 @@ async function wipeCourseData() {
   await db.delete(sections);
   await db.delete(accessGrants);
   await db.delete(courses);
+}
+
+// ─── CMS / SETTINGS DEFAULTS ────────────────────────────────────────────────
+// Landing-page sections mirror the exact copy currently rendered by the public
+// home page. `content` is a flexible JSON blob the owner can edit from the admin
+// panel; the public page falls back to its baked-in copy when a key is missing,
+// so editing here never breaks the layout.
+const LANDING_SECTIONS: {
+  key: string;
+  title: string;
+  sortOrder: number;
+  content: Record<string, unknown>;
+}[] = [
+  {
+    key: "hero",
+    title: "Sekcja powitalna (Hero)",
+    sortOrder: 1,
+    content: {
+      badges: ["AI sprawdza zadania", "Quizy po każdej lekcji", "Interaktywna tablica"],
+      titleLine1: "Fizyka w 7 klasie",
+      titleLine2: "zrozumiała jak nigdy.",
+      paragraph1:
+        "Fizyka w 7 klasie to nowość i spore wyzwanie. Chcesz, żeby Twoje dziecko od razu polubiło ten przedmiot, zamiast stresować się na pierwszych lekcjach? Wybierzcie innowacyjny kurs na start!",
+      paragraph2:
+        "Zamieniliśmy nudny podręcznik w niezwykłą przygodę. Nowoczesna platforma edukacyjna, która uczy fizyki przez interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.",
+      ctaPrimary: "Kup dostęp",
+      ctaSecondary: "Zobacz jak działa",
+      ratingText: "Zaufali nam rodzice i uczniowie",
+    },
+  },
+  {
+    key: "benefits",
+    title: "Pasek korzyści",
+    sortOrder: 2,
+    content: {
+      items: [
+        { title: "Program dla klasy 7", desc: "Materiały wspierają naukę fizyki w klasie 7." },
+        { title: "Prosty cel", desc: "Krok po kroku do lepszych ocen." },
+        { title: "Mądre powtórki", desc: "Utrwalanie zamiast wkuwania." },
+        { title: "Spokojna nauka", desc: "Bez stresu i presji czasu." },
+      ],
+    },
+  },
+  {
+    key: "methodology",
+    title: "Jak działa nauka (metoda)",
+    sortOrder: 3,
+    content: {
+      eyebrow: "Sprawdzona metoda",
+      heading: "Jak działa nauka?",
+      subheading:
+        "Zaprojektowaliśmy cykl lekcji tak, aby budował pewność siebie i gwarantował zrozumienie każdego tematu.",
+      steps: [
+        { title: "1. Obejrzyj lekcję", description: "Krótkie, angażujące materiały wideo wyjaśniające zjawiska fizyczne na prostych, życiowych przykładach." },
+        { title: "2. Rozwiąż quiz", description: "Błyskawiczny test utrwalający najważniejsze pojęcia i wzory natychmiast po obejrzeniu wideo." },
+        { title: "3. Zadanie na tablicy", description: "Samodzielne rozwiązywanie zadań obliczeniowych na interaktywnej tablicy, zupełnie jak w zeszycie." },
+        { title: "4. AI sprawdzi i podpowie", description: "Sztuczna inteligencja analizuje rozwiązanie i udziela wskazówek, nie wyręczając ucznia z myślenia." },
+        { title: "5. Następna lekcja", description: "Gdy materiał jest opanowany, uczeń płynnie przechodzi do kolejnego zagadnienia." },
+      ],
+    },
+  },
+  {
+    key: "modules",
+    title: "Program nauczania (moduły)",
+    sortOrder: 4,
+    content: {
+      heading: "Program nauczania",
+      subheading:
+        "Kompleksowy kurs podzielony na przystępne moduły. Każdy dział to krok do pełnego zrozumienia fizyki.",
+      ctaText: "Zobacz pełny program po zalogowaniu",
+    },
+  },
+  {
+    key: "ai",
+    title: "Asystent AI",
+    sortOrder: 5,
+    content: {
+      eyebrow: "Nowość na platformie",
+      heading: "Prywatny korepetytor dostępny 24/7",
+      paragraph:
+        "Koniec z frustracją przy zadaniach domowych. Nasza sztuczna inteligencja na bieżąco analizuje tok myślenia ucznia i naprowadza go na właściwe tory.",
+      card1Title: "Uczy, nie wyręcza",
+      card1Desc: "Podaje wskazówki i tłumaczy błędy, zamiast dawać gotowy wynik.",
+      card2Title: "Śledzi postępy",
+      card2Desc: "Analizuje, z czym uczeń ma problem i dostosowuje porady.",
+    },
+  },
+  {
+    key: "parents",
+    title: "Sekcja dla rodziców",
+    sortOrder: 6,
+    content: {
+      heading: "Spokój ducha dla rodzica",
+      subheading:
+        "Nie musisz być ekspertem z fizyki, aby wspierać swoje dziecko. Nasza platforma zadba o jakość i systematyczność edukacji.",
+    },
+  },
+  {
+    key: "pricing",
+    title: "Cennik",
+    sortOrder: 7,
+    content: {
+      heading: "Pełny Dostęp",
+      subheading: "Wszystko, czego potrzebuje uczeń klasy 7.",
+      features: [
+        "Pełny dostęp do kursu fizyki klasy 7",
+        "Wszystkie moduły i lekcje wideo",
+        "Interaktywne quizy sprawdzające",
+        "Zadania z asystentem AI",
+        "Dostęp na komputerze i tablecie",
+        "Brak ukrytych opłat",
+      ],
+      note: "Płatność przez BLIK / Paynow. Po potwierdzeniu płatności dostęp zostanie odblokowany automatycznie.",
+    },
+  },
+  {
+    key: "faq",
+    title: "Najczęściej zadawane pytania",
+    sortOrder: 8,
+    content: {
+      heading: "Często zadawane pytania",
+      subheading: "Masz wątpliwości? Oto odpowiedzi na najpopularniejsze pytania.",
+    },
+  },
+  {
+    key: "contact",
+    title: "Kontakt",
+    sortOrder: 9,
+    content: {
+      heading: "Zostały pytania?",
+      paragraph:
+        "Jesteśmy tu, aby pomóc. Napisz do nas, jeśli potrzebujesz wsparcia technicznego lub masz pytania dotyczące zawartości kursu.",
+      quickContactLabel: "Szybki kontakt",
+      quickContactValue: "Odpowiadamy w ciągu 24h",
+    },
+  },
+];
+
+// FAQ items mirror the current home-page FAQ. The "Czy płatność jest bezpieczna?"
+// item is intentionally omitted.
+const FAQ_ITEMS: { question: string; answer: string }[] = [
+  {
+    question: "Dla kogo jest ta platforma?",
+    answer:
+      "Dla uczniów klasy 7 szkoły podstawowej oraz ich rodziców, którzy chcą spokojnie i skutecznie ogarnąć fizykę.",
+  },
+  {
+    question: "Jak działa sprawdzanie zadań przez AI?",
+    answer:
+      "Uczeń rozwiązuje zadanie na wirtualnej tablicy, a sztuczna inteligencja analizuje tok rozumowania i wskazuje, co jest poprawne, a nad czym warto jeszcze popracować.",
+  },
+  {
+    question: "Jak uzyskuję dostęp po zakupie?",
+    answer:
+      "Po potwierdzeniu płatności dostęp do wszystkich materiałów kursu odblokowuje się automatycznie — uczysz się we własnym tempie.",
+  },
+  {
+    question: "Czy potrzebuję specjalnego sprzętu?",
+    answer:
+      "Do wygodnej nauki rekomendujemy komputer lub tablet. Tablica i zadania działają najlepiej na większym ekranie.",
+  },
+];
+
+async function seedContent() {
+  // Landing sections: keyed upsert that never clobbers owner edits on re-run.
+  for (const s of LANDING_SECTIONS) {
+    await db
+      .insert(landingSections)
+      .values({ key: s.key, title: s.title, sortOrder: s.sortOrder, isEnabled: true, content: s.content })
+      .onConflictDoNothing({ target: landingSections.key });
+  }
+
+  // FAQ has no natural key — only seed when the table is empty so re-runs never
+  // duplicate rows or overwrite owner-managed entries.
+  const existingFaq = await db.select({ id: faqItems.id }).from(faqItems).limit(1);
+  if (existingFaq.length === 0) {
+    await db.insert(faqItems).values(
+      FAQ_ITEMS.map((f, i) => ({ question: f.question, answer: f.answer, sortOrder: i + 1, isVisible: true })),
+    );
+  }
+
+  // Singletons (id = 1): insert defaults once; never overwrite admin changes.
+  await db
+    .insert(seoSettings)
+    .values({
+      id: 1,
+      metaTitle: "fizyka7 — kurs fizyki dla klasy 7",
+      metaDescription:
+        "fizyka7 — nowoczesny kurs fizyki dla klasy 7: interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.",
+      ogTitle: "fizyka7 — kurs fizyki dla klasy 7",
+      ogDescription:
+        "fizyka7 — nowoczesny kurs fizyki dla klasy 7: interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.",
+      ogImage: "",
+      canonicalUrl: "",
+      robots: "index, follow",
+    })
+    .onConflictDoNothing({ target: seoSettings.id });
+
+  await db
+    .insert(pricingSettings)
+    .values({
+      id: 1,
+      priceGrosz: 3500,
+      oldPriceGrosz: 19900,
+      currency: "PLN",
+      promoEnabled: true,
+      promoLabel: "Promocja na start",
+      promoStartsAt: null,
+      promoEndsAt: null,
+      ctaText: "Kup dostęp i zacznij naukę",
+    })
+    .onConflictDoNothing({ target: pricingSettings.id });
+
+  console.log(
+    `Content seeded: ${LANDING_SECTIONS.length} landing sections, ${existingFaq.length === 0 ? FAQ_ITEMS.length : 0} new FAQ items, SEO + pricing singletons.`,
+  );
 }
 
 async function seed() {
@@ -255,6 +475,8 @@ async function seed() {
       .onConflictDoNothing();
     console.log("Granted demo student full course access.");
   }
+
+  await seedContent();
 
   console.log("\nSeed complete.");
   console.log("Login credentials:");

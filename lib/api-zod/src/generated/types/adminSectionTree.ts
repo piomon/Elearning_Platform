@@ -5,6 +5,7 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { AdminSectionTreeStatus } from './adminSectionTreeStatus';
 import type { AdminTopicTree } from './adminTopicTree';
 
 export interface AdminSectionTree {
@@ -13,5 +14,6 @@ export interface AdminSectionTree {
   title: string;
   slug: string;
   sortOrder: number;
+  status: AdminSectionTreeStatus;
   topics: AdminTopicTree[];
 }

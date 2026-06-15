@@ -76,16 +76,26 @@ export async function grantAccess(
   return grant;
 }
 
+type PublishStatus = "draft" | "published" | "hidden" | "archived";
+
 // Builds a complete, published course graph: course -> section -> topic with a
 // video, a 2-question quiz (answer "A" correct in each) and a task.
-export async function seedCourse(opts: { published?: boolean } = {}) {
+// `status` is the authoritative visibility flag; `published` maps to it for
+// back-compat (true -> "published", false -> "draft") and keeps isPublished in
+// sync, mirroring the derived-on-write behaviour in the admin routes.
+export async function seedCourse(
+  opts: { published?: boolean; status?: PublishStatus } = {},
+) {
+  const published = opts.published ?? true;
+  const status: PublishStatus = opts.status ?? (published ? "published" : "draft");
   const [course] = await db
     .insert(courses)
     .values({
       title: "Kurs testowy",
       slug: uniq("kurs"),
       description: "Opis kursu testowego",
-      isPublished: opts.published ?? true,
+      isPublished: status === "published",
+      status,
     })
     .returning();
 
