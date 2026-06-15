@@ -68,7 +68,7 @@ function Router() {
         <Route path="/admin/users/:id">
           {() => <AdminPage><AdminUserDetail /></AdminPage>}
         </Route>
-        <Route path="/admin/course">
+        <Route path="/admin/courses">
           {() => <AdminPage><AdminCourses /></AdminPage>}
         </Route>
         <Route path="/admin/landing">

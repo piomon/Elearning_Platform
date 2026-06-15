@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useListLandingSections,
   useUpdateLandingSection,
@@ -15,7 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
-  LayoutTemplate, Save, Plus, Trash2, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Code,
+  LayoutTemplate, Save, Plus, Trash2, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Code, AlertTriangle,
 } from "lucide-react";
 
 type Toast = ReturnType<typeof useToast>["toast"];
@@ -96,6 +96,37 @@ const FIELD_CONFIG: Record<string, FieldDef[]> = {
   ],
 };
 
+// Non-blocking legal-risk detection for landing copy. These phrases can create
+// legal exposure (claims of MEN compliance, fixed access duration, guarantees,
+// refunds, certificates) and the owner should consciously confirm them — but we
+// never block saving.
+type LegalRiskRule = { pattern: RegExp; label: string };
+
+const LEGAL_RISK_RULES: LegalRiskRule[] = [
+  { pattern: /\bMEN\b/, label: "„MEN” — deklaracja zgodności z Ministerstwem Edukacji; upewnij się, że jest prawdziwa." },
+  { pattern: /podstaw\w*\s+programow\w*/i, label: "„podstawa programowa” — odwołanie wymaga potwierdzenia zgodności." },
+  { pattern: /zgodn\w*\s+z\s+(ministerstw|men|kuratorium)/i, label: "Deklaracja zgodności z MEN / ministerstwem." },
+  { pattern: /(dostęp|dostępu)\s+(na|przez)\s+(rok|cały\s+rok|12\s+mies)/i, label: "„dostęp na rok” — czas dostępu musi zgadzać się z regulaminem." },
+  { pattern: /roczn\w*\s+dostęp|dostęp\s+roczn\w*/i, label: "Deklaracja rocznego dostępu — musi zgadzać się z regulaminem." },
+  { pattern: /gwarancj\w*|gwarantuj\w*/i, label: "„gwarancja” — może rodzić zobowiązania prawne." },
+  { pattern: /zwrot\w*\s+(pieniędzy|kosztów|wpłaty)/i, label: "Obietnica zwrotu pieniędzy — musi zgadzać się z regulaminem." },
+  { pattern: /certyfikat\w*/i, label: "„certyfikat” — upewnij się, że jest realny i zgodny z prawem." },
+];
+
+function collectStrings(value: unknown): string[] {
+  if (typeof value === "string") return [value];
+  if (Array.isArray(value)) return value.flatMap(collectStrings);
+  if (value && typeof value === "object") {
+    return Object.values(value as Record<string, unknown>).flatMap(collectStrings);
+  }
+  return [];
+}
+
+function findLegalRisks(...texts: unknown[]): string[] {
+  const haystack = texts.flatMap(collectStrings).join("\n");
+  return LEGAL_RISK_RULES.filter((rule) => rule.pattern.test(haystack)).map((rule) => rule.label);
+}
+
 export default function AdminLanding() {
   const { data, isLoading, refetch } = useListLandingSections();
   const { toast } = useToast();
@@ -103,6 +134,10 @@ export default function AdminLanding() {
   const reorder = useReorderLandingSections();
 
   const sections = (data ?? []).slice().sort((a, b) => a.sortOrder - b.sortOrder);
+
+  const riskySections = sections
+    .map((s) => ({ title: s.title, risks: findLegalRisks(s.title, s.content) }))
+    .filter((s) => s.risks.length > 0);
 
   const move = (index: number, dir: -1 | 1) => {
     const next = index + dir;
@@ -130,6 +165,21 @@ export default function AdminLanding() {
           <p className="text-muted-foreground mt-1">Edytor sekcji treści strony głównej</p>
         </div>
       </div>
+
+      {riskySections.length > 0 && (
+        <div className="rounded-2xl border border-amber-400/50 bg-amber-50 dark:bg-amber-950/20 p-4 flex gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-bold text-amber-700 dark:text-amber-400">
+              Wykryto ryzykowne treści prawne w {riskySections.length}{" "}
+              {riskySections.length === 1 ? "sekcji" : "sekcjach"}
+            </p>
+            <p className="text-amber-700/90 dark:text-amber-300/90 mt-0.5">
+              Sprawdź: {riskySections.map((s) => s.title).join(", ")}. Rozwiń sekcję, aby zobaczyć szczegóły. Ostrzeżenia nie blokują zapisu.
+            </p>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="space-y-4">
@@ -173,6 +223,19 @@ function SectionCard({ section, index, total, onChanged, toast, onMove }: {
 
   const fields = FIELD_CONFIG[section.key];
   const isKnown = !!fields;
+
+  const risks = useMemo(() => {
+    const extra = isKnown
+      ? content
+      : (() => {
+          try {
+            return JSON.parse(jsonText || "{}");
+          } catch {
+            return {};
+          }
+        })();
+    return findLegalRisks(title, extra);
+  }, [title, content, jsonText, isKnown]);
 
   useEffect(() => {
     setTitle(section.title);
@@ -259,6 +322,21 @@ function SectionCard({ section, index, total, onChanged, toast, onMove }: {
               <div className="space-y-2">
                 <Label className="text-xs">Treść (JSON)</Label>
                 <Textarea value={jsonText} onChange={(e) => setJsonText(e.target.value)} rows={10} className="rounded-xl font-mono text-xs" />
+              </div>
+            )}
+
+            {risks.length > 0 && (
+              <div className="rounded-xl border border-amber-400/50 bg-amber-50 dark:bg-amber-950/20 p-3 space-y-1.5">
+                <div className="flex items-center gap-2 text-sm font-bold text-amber-700 dark:text-amber-400">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  Ryzykowne treści prawne
+                </div>
+                <ul className="list-disc pl-5 text-xs text-amber-700/90 dark:text-amber-300/90 space-y-0.5">
+                  {risks.map((r, i) => <li key={i}>{r}</li>)}
+                </ul>
+                <p className="text-[11px] text-amber-600/80 dark:text-amber-400/70">
+                  To ostrzeżenie nie blokuje zapisu.
+                </p>
               </div>
             )}
 

@@ -14,21 +14,33 @@ import {
   ArrowLeft,
   Zap,
   ChevronRight,
+  Layers,
+  GraduationCap,
+  Video,
+  ListChecks,
+  ClipboardList,
+  Sparkles,
+  KeyRound,
+  CreditCard,
+  Ticket,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { AdminRoute } from "@/hooks/use-auth";
 
-type NavItem = { href: string; label: string; icon: ReactNode };
+type NavItem = { href: string; label: string; icon: ReactNode; soon?: boolean };
 type NavGroup = { heading: string; items: NavItem[] };
 
+// Full panel skeleton: every section the admin panel will host. Modules slated
+// for later phases (deep editors, video, quizzes, tasks, AI, access, payments,
+// discount codes, settings) are listed as disabled "Wkrótce" placeholders so the
+// information architecture is complete from day one.
 const NAV: NavGroup[] = [
   {
     heading: "Główne",
     items: [
       { href: "/admin", label: "Kokpit", icon: <LayoutDashboard className="w-5 h-5" /> },
-      { href: "/admin/users", label: "Użytkownicy", icon: <Users className="w-5 h-5" /> },
-      { href: "/admin/course", label: "Kursy", icon: <BookOpen className="w-5 h-5" /> },
     ],
   },
   {
@@ -41,9 +53,31 @@ const NAV: NavGroup[] = [
     ],
   },
   {
+    heading: "Edukacja",
+    items: [
+      { href: "/admin/courses", label: "Kursy", icon: <BookOpen className="w-5 h-5" /> },
+      { href: "/admin/sections", label: "Działy", icon: <Layers className="w-5 h-5" />, soon: true },
+      { href: "/admin/lessons", label: "Lekcje", icon: <GraduationCap className="w-5 h-5" />, soon: true },
+      { href: "/admin/videos", label: "Wideo", icon: <Video className="w-5 h-5" />, soon: true },
+      { href: "/admin/quizzes", label: "Quizy", icon: <ListChecks className="w-5 h-5" />, soon: true },
+      { href: "/admin/tasks", label: "Zadania", icon: <ClipboardList className="w-5 h-5" />, soon: true },
+      { href: "/admin/ai", label: "AI", icon: <Sparkles className="w-5 h-5" />, soon: true },
+    ],
+  },
+  {
+    heading: "Użytkownicy i sprzedaż",
+    items: [
+      { href: "/admin/users", label: "Użytkownicy", icon: <Users className="w-5 h-5" /> },
+      { href: "/admin/access", label: "Dostępy", icon: <KeyRound className="w-5 h-5" />, soon: true },
+      { href: "/admin/payments", label: "Płatności", icon: <CreditCard className="w-5 h-5" />, soon: true },
+      { href: "/admin/discounts", label: "Kody rabatowe", icon: <Ticket className="w-5 h-5" />, soon: true },
+    ],
+  },
+  {
     heading: "System",
     items: [
-      { href: "/admin/contact", label: "Wiadomości", icon: <MessageSquare className="w-5 h-5" /> },
+      { href: "/admin/contact", label: "Formularze", icon: <MessageSquare className="w-5 h-5" /> },
+      { href: "/admin/settings", label: "Ustawienia", icon: <Settings className="w-5 h-5" />, soon: true },
       { href: "/admin/logs", label: "Logi", icon: <ScrollText className="w-5 h-5" /> },
     ],
   },
@@ -60,7 +94,7 @@ const DEEP_CRUMBS: { match: (path: string) => boolean; parent: NavItem; label: s
   },
   {
     match: (p) => p === "/admin/course-debug",
-    parent: FLAT_NAV.find((n) => n.href === "/admin/course")!,
+    parent: FLAT_NAV.find((n) => n.href === "/admin/courses")!,
     label: "Diagnostyka kursu",
   },
 ];
@@ -97,6 +131,22 @@ function SidebarNav({ location, onNavigate }: { location: string; onNavigate?: (
             {group.heading}
           </p>
           {group.items.map((item) => {
+            if (item.soon) {
+              return (
+                <div
+                  key={item.href}
+                  aria-disabled="true"
+                  title="Wkrótce dostępne"
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-muted-foreground/40 cursor-not-allowed select-none"
+                >
+                  <span className="shrink-0">{item.icon}</span>
+                  <span className="truncate">{item.label}</span>
+                  <span className="ml-auto shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-muted-foreground/70">
+                    Wkrótce
+                  </span>
+                </div>
+              );
+            }
             const active = isActive(item.href, location);
             return (
               <Link
