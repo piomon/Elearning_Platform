@@ -60,6 +60,17 @@ function LessonVideoPlayer({
   const [loaded, setLoaded] = useState(false);
   const lastSentRef = useRef(0);
   const latestRef = useRef({ seconds: 0, duration: 0 });
+  const onReportRef = useRef(onReport);
+
+  // Keep the latest onReport in a ref so the message-listener effect below can
+  // stay subscribed across renders without depending on onReport's identity.
+  // onReport changes on every render (it closes over a TanStack Query mutation
+  // object that is recreated each render); if the effect depended on it, every
+  // render would re-run the effect and fire its cleanup report, looping until
+  // React's max update depth is exceeded.
+  useEffect(() => {
+    onReportRef.current = onReport;
+  });
 
   useEffect(() => {
     setLoaded(false);
@@ -102,14 +113,14 @@ function LessonVideoPlayer({
         const now = Date.now();
         if (now - lastSentRef.current > 15000 && seconds > 0) {
           lastSentRef.current = now;
-          onReport({
+          onReportRef.current({
             videoId: video.id,
             watchedSeconds: seconds,
           });
         }
       } else if (msg.event === "ended") {
         const { seconds, duration } = latestRef.current;
-        onReport({
+        onReportRef.current({
           videoId: video.id,
           watchedSeconds: duration || seconds,
         });
@@ -121,13 +132,13 @@ function LessonVideoPlayer({
       window.removeEventListener("message", onMessage);
       const { seconds } = latestRef.current;
       if (seconds > 0) {
-        onReport({
+        onReportRef.current({
           videoId: video.id,
           watchedSeconds: seconds,
         });
       }
     };
-  }, [video.id, onReport]);
+  }, [video.id]);
 
   if (!video.embedUrl) {
     return (
