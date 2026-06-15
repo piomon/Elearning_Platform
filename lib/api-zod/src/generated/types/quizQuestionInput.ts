@@ -8,5 +8,8 @@
 
 export interface QuizQuestionInput {
   questionText: string;
+  /** @nullable */
+  explanation?: string | null;
+  points?: number;
   sortOrder: number;
 }

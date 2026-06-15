@@ -8,10 +8,15 @@
 import type { QuizAttemptAnswerResult } from './quizAttemptAnswerResult';
 
 export interface QuizAttemptResult {
-  score: number;
-  totalQuestions: number;
-  percentage: number;
+  /** Omitted when the quiz hides the score (showScore=false). */
+  score?: number;
+  /** Omitted when the quiz hides the score (showScore=false). */
+  totalQuestions?: number;
+  /** Omitted when the quiz hides the score (showScore=false). */
+  percentage?: number;
   passed: boolean;
   passThreshold: number;
+  showScore?: boolean;
+  showCorrectAnswers?: boolean;
   answers: QuizAttemptAnswerResult[];
 }

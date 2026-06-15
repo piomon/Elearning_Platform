@@ -125,6 +125,15 @@ export const ListTopicsParams = zod.object({
 })
 
 export const ListTopicsResponseItem = zod.object({
+  "objectives": zod.string().nullish(),
+  "durationMinutes": zod.number().nullish(),
+  "difficulty": zod.string().nullish(),
+  "accessType": zod.enum(['free', 'paid', 'admin']).optional(),
+  "thumbnailUrl": zod.string().nullish(),
+  "metaTitle": zod.string().nullish(),
+  "metaDescription": zod.string().nullish(),
+  "aiEnabled": zod.boolean().optional()
+}).and(zod.object({
   "id": zod.number(),
   "sectionId": zod.number(),
   "title": zod.string(),
@@ -136,7 +145,7 @@ export const ListTopicsResponseItem = zod.object({
   "hasQuiz": zod.boolean().optional(),
   "hasTasks": zod.boolean().optional(),
   "createdAt": zod.string()
-})
+}))
 export const ListTopicsResponse = zod.array(ListTopicsResponseItem)
 
 
@@ -145,6 +154,15 @@ export const GetTopicParams = zod.object({
 })
 
 export const GetTopicResponse = zod.object({
+  "objectives": zod.string().nullish(),
+  "durationMinutes": zod.number().nullish(),
+  "difficulty": zod.string().nullish(),
+  "accessType": zod.enum(['free', 'paid', 'admin']).optional(),
+  "thumbnailUrl": zod.string().nullish(),
+  "metaTitle": zod.string().nullish(),
+  "metaDescription": zod.string().nullish(),
+  "aiEnabled": zod.boolean().optional()
+}).and(zod.object({
   "id": zod.number(),
   "sectionId": zod.number(),
   "courseId": zod.number().nullish(),
@@ -185,6 +203,14 @@ export const GetTopicResponse = zod.object({
   "sortOrder": zod.number()
 })),
   "quiz": zod.union([zod.object({
+  "passThreshold": zod.number().optional(),
+  "maxAttempts": zod.number().nullish(),
+  "timeLimitMinutes": zod.number().nullish(),
+  "shuffleQuestions": zod.boolean().optional(),
+  "shuffleAnswers": zod.boolean().optional(),
+  "showScore": zod.boolean().optional(),
+  "showCorrectAnswers": zod.boolean().optional()
+}).and(zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
   "title": zod.string(),
@@ -192,6 +218,7 @@ export const GetTopicResponse = zod.object({
   "id": zod.number(),
   "quizId": zod.number(),
   "questionText": zod.string(),
+  "points": zod.number().optional(),
   "sortOrder": zod.number(),
   "answers": zod.array(zod.object({
   "id": zod.number(),
@@ -199,8 +226,10 @@ export const GetTopicResponse = zod.object({
   "answerLabel": zod.string(),
   "answerText": zod.string()
 }))
-}))
-}),zod.null()]).optional(),
+})),
+  "attemptsUsed": zod.number().optional().describe('Number of attempts the current user has already made.'),
+  "attemptsRemaining": zod.number().nullish().describe('Attempts left for the current user, or null when unlimited.')
+})),zod.null()]).optional(),
   "tasks": zod.array(zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
@@ -212,7 +241,7 @@ export const GetTopicResponse = zod.object({
 }).passthrough().nullish(),
   "createdAt": zod.string()
 }))
-})
+}))
 
 
 export const GetMyProgressResponseItem = zod.object({
@@ -296,6 +325,14 @@ export const GetQuizParams = zod.object({
 })
 
 export const GetQuizResponse = zod.object({
+  "passThreshold": zod.number().optional(),
+  "maxAttempts": zod.number().nullish(),
+  "timeLimitMinutes": zod.number().nullish(),
+  "shuffleQuestions": zod.boolean().optional(),
+  "shuffleAnswers": zod.boolean().optional(),
+  "showScore": zod.boolean().optional(),
+  "showCorrectAnswers": zod.boolean().optional()
+}).and(zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
   "title": zod.string(),
@@ -303,6 +340,7 @@ export const GetQuizResponse = zod.object({
   "id": zod.number(),
   "quizId": zod.number(),
   "questionText": zod.string(),
+  "points": zod.number().optional(),
   "sortOrder": zod.number(),
   "answers": zod.array(zod.object({
   "id": zod.number(),
@@ -310,7 +348,14 @@ export const GetQuizResponse = zod.object({
   "answerLabel": zod.string(),
   "answerText": zod.string()
 }))
+})),
+  "attemptsUsed": zod.number().optional().describe('Number of attempts the current user has already made.'),
+  "attemptsRemaining": zod.number().nullish().describe('Attempts left for the current user, or null when unlimited.')
 }))
+
+
+export const StartQuizAttemptParams = zod.object({
+  "quizId": zod.coerce.number()
 })
 
 
@@ -322,7 +367,8 @@ export const SubmitQuizAttemptBody = zod.object({
   "answers": zod.array(zod.object({
   "questionId": zod.number(),
   "selectedAnswerId": zod.number()
-}))
+})),
+  "startToken": zod.string().optional().describe('Start ticket from \/attempts\/start; required for timed quizzes.')
 })
 
 
@@ -752,13 +798,30 @@ export const ListAdminCoursesResponseItem = zod.object({
   "sortOrder": zod.number(),
   "status": zod.enum(['draft', 'published', 'hidden', 'archived']),
   "topics": zod.array(zod.object({
+  "objectives": zod.string().nullish(),
+  "durationMinutes": zod.number().nullish(),
+  "difficulty": zod.string().nullish(),
+  "accessType": zod.enum(['free', 'paid', 'admin']).optional(),
+  "thumbnailUrl": zod.string().nullish(),
+  "metaTitle": zod.string().nullish(),
+  "metaDescription": zod.string().nullish(),
+  "aiEnabled": zod.boolean().optional()
+}).and(zod.object({
   "id": zod.number(),
   "sectionId": zod.number(),
   "title": zod.string(),
   "slug": zod.string(),
   "description": zod.string().nullish(),
   "sortOrder": zod.number(),
+  "isPreview": zod.boolean().optional(),
   "status": zod.enum(['draft', 'published', 'hidden', 'archived']),
+  "images": zod.array(zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "imageUrl": zod.string(),
+  "alt": zod.string().nullish(),
+  "sortOrder": zod.number()
+})).optional(),
   "video": zod.union([zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
@@ -771,6 +834,14 @@ export const ListAdminCoursesResponseItem = zod.object({
   "createdAt": zod.string()
 }),zod.null()]).optional(),
   "quiz": zod.union([zod.object({
+  "passThreshold": zod.number().optional(),
+  "maxAttempts": zod.number().nullish(),
+  "timeLimitMinutes": zod.number().nullish(),
+  "shuffleQuestions": zod.boolean().optional(),
+  "shuffleAnswers": zod.boolean().optional(),
+  "showScore": zod.boolean().optional(),
+  "showCorrectAnswers": zod.boolean().optional()
+}).and(zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
   "title": zod.string(),
@@ -779,6 +850,8 @@ export const ListAdminCoursesResponseItem = zod.object({
   "id": zod.number(),
   "quizId": zod.number(),
   "questionText": zod.string(),
+  "explanation": zod.string().nullish(),
+  "points": zod.number().optional(),
   "sortOrder": zod.number(),
   "answers": zod.array(zod.object({
   "id": zod.number(),
@@ -788,7 +861,7 @@ export const ListAdminCoursesResponseItem = zod.object({
   "isCorrect": zod.boolean()
 }))
 }))
-}),zod.null()]).optional(),
+})),zod.null()]).optional(),
   "tasks": zod.array(zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
@@ -800,7 +873,7 @@ export const ListAdminCoursesResponseItem = zod.object({
 }).passthrough().nullish(),
   "createdAt": zod.string()
 }))
-}))
+})))
 }))
 })
 export const ListAdminCoursesResponse = zod.array(ListAdminCoursesResponseItem)
@@ -893,7 +966,16 @@ export const CreateTopicBody = zod.object({
   "slug": zod.string(),
   "description": zod.string().optional(),
   "sortOrder": zod.number(),
-  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional(),
+  "objectives": zod.string().nullish(),
+  "durationMinutes": zod.number().nullish(),
+  "difficulty": zod.union([zod.literal('easy'),zod.literal('medium'),zod.literal('hard'),zod.literal(null)]).nullish(),
+  "accessType": zod.enum(['free', 'paid', 'admin']).optional(),
+  "thumbnailUrl": zod.string().nullish(),
+  "metaTitle": zod.string().nullish(),
+  "metaDescription": zod.string().nullish(),
+  "aiEnabled": zod.boolean().optional(),
+  "isPreview": zod.boolean().optional()
 })
 
 
@@ -907,10 +989,28 @@ export const UpdateTopicBody = zod.object({
   "slug": zod.string(),
   "description": zod.string().optional(),
   "sortOrder": zod.number(),
-  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
+  "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional(),
+  "objectives": zod.string().nullish(),
+  "durationMinutes": zod.number().nullish(),
+  "difficulty": zod.union([zod.literal('easy'),zod.literal('medium'),zod.literal('hard'),zod.literal(null)]).nullish(),
+  "accessType": zod.enum(['free', 'paid', 'admin']).optional(),
+  "thumbnailUrl": zod.string().nullish(),
+  "metaTitle": zod.string().nullish(),
+  "metaDescription": zod.string().nullish(),
+  "aiEnabled": zod.boolean().optional(),
+  "isPreview": zod.boolean().optional()
 })
 
 export const UpdateTopicResponse = zod.object({
+  "objectives": zod.string().nullish(),
+  "durationMinutes": zod.number().nullish(),
+  "difficulty": zod.string().nullish(),
+  "accessType": zod.enum(['free', 'paid', 'admin']).optional(),
+  "thumbnailUrl": zod.string().nullish(),
+  "metaTitle": zod.string().nullish(),
+  "metaDescription": zod.string().nullish(),
+  "aiEnabled": zod.boolean().optional()
+}).and(zod.object({
   "id": zod.number(),
   "sectionId": zod.number(),
   "title": zod.string(),
@@ -922,7 +1022,7 @@ export const UpdateTopicResponse = zod.object({
   "hasQuiz": zod.boolean().optional(),
   "hasTasks": zod.boolean().optional(),
   "createdAt": zod.string()
-})
+}))
 
 
 export const DeleteTopicParams = zod.object({
@@ -978,10 +1078,18 @@ export const DeleteVideoResponse = zod.object({
 
 
 export const CreateQuizBody = zod.object({
+  "passThreshold": zod.number().optional(),
+  "maxAttempts": zod.number().nullish(),
+  "timeLimitMinutes": zod.number().nullish(),
+  "shuffleQuestions": zod.boolean().optional(),
+  "shuffleAnswers": zod.boolean().optional(),
+  "showScore": zod.boolean().optional(),
+  "showCorrectAnswers": zod.boolean().optional()
+}).and(zod.object({
   "topicId": zod.number(),
   "title": zod.string(),
   "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
-})
+}))
 
 
 export const UpdateQuizParams = zod.object({
@@ -989,12 +1097,28 @@ export const UpdateQuizParams = zod.object({
 })
 
 export const UpdateQuizBody = zod.object({
+  "passThreshold": zod.number().optional(),
+  "maxAttempts": zod.number().nullish(),
+  "timeLimitMinutes": zod.number().nullish(),
+  "shuffleQuestions": zod.boolean().optional(),
+  "shuffleAnswers": zod.boolean().optional(),
+  "showScore": zod.boolean().optional(),
+  "showCorrectAnswers": zod.boolean().optional()
+}).and(zod.object({
   "topicId": zod.number(),
   "title": zod.string(),
   "status": zod.enum(['draft', 'published', 'hidden', 'archived']).optional()
-})
+}))
 
 export const UpdateQuizResponse = zod.object({
+  "passThreshold": zod.number().optional(),
+  "maxAttempts": zod.number().nullish(),
+  "timeLimitMinutes": zod.number().nullish(),
+  "shuffleQuestions": zod.boolean().optional(),
+  "shuffleAnswers": zod.boolean().optional(),
+  "showScore": zod.boolean().optional(),
+  "showCorrectAnswers": zod.boolean().optional()
+}).and(zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
   "title": zod.string(),
@@ -1003,6 +1127,8 @@ export const UpdateQuizResponse = zod.object({
   "id": zod.number(),
   "quizId": zod.number(),
   "questionText": zod.string(),
+  "explanation": zod.string().nullish(),
+  "points": zod.number().optional(),
   "sortOrder": zod.number(),
   "answers": zod.array(zod.object({
   "id": zod.number(),
@@ -1012,7 +1138,7 @@ export const UpdateQuizResponse = zod.object({
   "isCorrect": zod.boolean()
 }))
 }))
-})
+}))
 
 
 export const DeleteQuizParams = zod.object({
@@ -1030,6 +1156,8 @@ export const CreateQuizQuestionParams = zod.object({
 
 export const CreateQuizQuestionBody = zod.object({
   "questionText": zod.string(),
+  "explanation": zod.string().nullish(),
+  "points": zod.number().optional(),
   "sortOrder": zod.number()
 })
 
@@ -1040,6 +1168,8 @@ export const UpdateQuizQuestionParams = zod.object({
 
 export const UpdateQuizQuestionBody = zod.object({
   "questionText": zod.string(),
+  "explanation": zod.string().nullish(),
+  "points": zod.number().optional(),
   "sortOrder": zod.number()
 })
 
@@ -1047,6 +1177,8 @@ export const UpdateQuizQuestionResponse = zod.object({
   "id": zod.number(),
   "quizId": zod.number(),
   "questionText": zod.string(),
+  "explanation": zod.string().nullish(),
+  "points": zod.number().optional(),
   "sortOrder": zod.number(),
   "answers": zod.array(zod.object({
   "id": zod.number(),
@@ -1276,6 +1408,15 @@ export const SetTopicStatusBody = zod.object({
 })
 
 export const SetTopicStatusResponse = zod.object({
+  "objectives": zod.string().nullish(),
+  "durationMinutes": zod.number().nullish(),
+  "difficulty": zod.string().nullish(),
+  "accessType": zod.enum(['free', 'paid', 'admin']).optional(),
+  "thumbnailUrl": zod.string().nullish(),
+  "metaTitle": zod.string().nullish(),
+  "metaDescription": zod.string().nullish(),
+  "aiEnabled": zod.boolean().optional()
+}).and(zod.object({
   "id": zod.number(),
   "sectionId": zod.number(),
   "title": zod.string(),
@@ -1287,7 +1428,7 @@ export const SetTopicStatusResponse = zod.object({
   "hasQuiz": zod.boolean().optional(),
   "hasTasks": zod.boolean().optional(),
   "createdAt": zod.string()
-})
+}))
 
 
 export const SetQuizStatusParams = zod.object({
@@ -1299,6 +1440,14 @@ export const SetQuizStatusBody = zod.object({
 })
 
 export const SetQuizStatusResponse = zod.object({
+  "passThreshold": zod.number().optional(),
+  "maxAttempts": zod.number().nullish(),
+  "timeLimitMinutes": zod.number().nullish(),
+  "shuffleQuestions": zod.boolean().optional(),
+  "shuffleAnswers": zod.boolean().optional(),
+  "showScore": zod.boolean().optional(),
+  "showCorrectAnswers": zod.boolean().optional()
+}).and(zod.object({
   "id": zod.number(),
   "topicId": zod.number(),
   "title": zod.string(),
@@ -1307,6 +1456,8 @@ export const SetQuizStatusResponse = zod.object({
   "id": zod.number(),
   "quizId": zod.number(),
   "questionText": zod.string(),
+  "explanation": zod.string().nullish(),
+  "points": zod.number().optional(),
   "sortOrder": zod.number(),
   "answers": zod.array(zod.object({
   "id": zod.number(),
@@ -1316,7 +1467,7 @@ export const SetQuizStatusResponse = zod.object({
   "isCorrect": zod.boolean()
 }))
 }))
-})
+}))
 
 
 export const ListLandingSectionsResponseItem = zod.object({
@@ -1527,6 +1678,320 @@ export const UpdatePricingResponse = zod.object({
   "promoStartsAt": zod.string().nullish(),
   "promoEndsAt": zod.string().nullish(),
   "ctaText": zod.string()
+})
+
+
+export const DuplicateTopicParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+export const ReorderTopicsBody = zod.object({
+  "sectionId": zod.number(),
+  "ids": zod.array(zod.number())
+})
+
+export const ReorderTopicsResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const PreviewTopicParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const PreviewTopicResponse = zod.object({
+  "objectives": zod.string().nullish(),
+  "durationMinutes": zod.number().nullish(),
+  "difficulty": zod.string().nullish(),
+  "accessType": zod.enum(['free', 'paid', 'admin']).optional(),
+  "thumbnailUrl": zod.string().nullish(),
+  "metaTitle": zod.string().nullish(),
+  "metaDescription": zod.string().nullish(),
+  "aiEnabled": zod.boolean().optional()
+}).and(zod.object({
+  "id": zod.number(),
+  "sectionId": zod.number(),
+  "courseId": zod.number().nullish(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string().nullish(),
+  "sortOrder": zod.number(),
+  "isPreview": zod.boolean().optional(),
+  "previousTopicId": zod.number().nullish(),
+  "nextTopicId": zod.number().nullish(),
+  "video": zod.union([zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "bunnyVideoId": zod.string().nullish(),
+  "videoUrl": zod.string().nullish(),
+  "embedUrl": zod.string().nullish(),
+  "title": zod.string(),
+  "durationSeconds": zod.number().nullish(),
+  "sortOrder": zod.number().optional(),
+  "createdAt": zod.string()
+}),zod.null()]).optional(),
+  "videos": zod.array(zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "bunnyVideoId": zod.string().nullish(),
+  "videoUrl": zod.string().nullish(),
+  "embedUrl": zod.string().nullish(),
+  "title": zod.string(),
+  "durationSeconds": zod.number().nullish(),
+  "sortOrder": zod.number().optional(),
+  "createdAt": zod.string()
+})),
+  "images": zod.array(zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "imageUrl": zod.string(),
+  "alt": zod.string().nullish(),
+  "sortOrder": zod.number()
+})),
+  "quiz": zod.union([zod.object({
+  "passThreshold": zod.number().optional(),
+  "maxAttempts": zod.number().nullish(),
+  "timeLimitMinutes": zod.number().nullish(),
+  "shuffleQuestions": zod.boolean().optional(),
+  "shuffleAnswers": zod.boolean().optional(),
+  "showScore": zod.boolean().optional(),
+  "showCorrectAnswers": zod.boolean().optional()
+}).and(zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "title": zod.string(),
+  "questions": zod.array(zod.object({
+  "id": zod.number(),
+  "quizId": zod.number(),
+  "questionText": zod.string(),
+  "points": zod.number().optional(),
+  "sortOrder": zod.number(),
+  "answers": zod.array(zod.object({
+  "id": zod.number(),
+  "questionId": zod.number(),
+  "answerLabel": zod.string(),
+  "answerText": zod.string()
+}))
+})),
+  "attemptsUsed": zod.number().optional().describe('Number of attempts the current user has already made.'),
+  "attemptsRemaining": zod.number().nullish().describe('Attempts left for the current user, or null when unlimited.')
+})),zod.null()]).optional(),
+  "tasks": zod.array(zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "initialImageUrl": zod.string().nullish(),
+  "aiPromptConfig": zod.object({
+
+}).passthrough().nullish(),
+  "createdAt": zod.string()
+}))
+}))
+
+
+export const DuplicateQuizParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+export const ReorderQuizQuestionsParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ReorderQuizQuestionsBody = zod.object({
+  "ids": zod.array(zod.number())
+})
+
+export const ReorderQuizQuestionsResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const DuplicateQuizQuestionParams = zod.object({
+  "questionId": zod.coerce.number()
+})
+
+
+export const ReorderQuizAnswersParams = zod.object({
+  "questionId": zod.coerce.number()
+})
+
+export const ReorderQuizAnswersBody = zod.object({
+  "ids": zod.array(zod.number())
+})
+
+export const ReorderQuizAnswersResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const ListLessonImagesParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ListLessonImagesResponseItem = zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "imageUrl": zod.string(),
+  "alt": zod.string().nullish(),
+  "sortOrder": zod.number()
+})
+export const ListLessonImagesResponse = zod.array(ListLessonImagesResponseItem)
+
+
+export const CreateLessonImageBody = zod.object({
+  "topicId": zod.number(),
+  "imageUrl": zod.string(),
+  "alt": zod.string().nullish(),
+  "sortOrder": zod.number().optional()
+})
+
+
+export const ReorderLessonImagesBody = zod.object({
+  "ids": zod.array(zod.number())
+})
+
+export const ReorderLessonImagesResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const UpdateLessonImageParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateLessonImageBody = zod.object({
+  "imageUrl": zod.string().optional(),
+  "alt": zod.string().nullish(),
+  "sortOrder": zod.number().optional()
+})
+
+export const UpdateLessonImageResponse = zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "imageUrl": zod.string(),
+  "alt": zod.string().nullish(),
+  "sortOrder": zod.number()
+})
+
+
+export const DeleteLessonImageParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteLessonImageResponse = zod.object({
+  "message": zod.string()
+})
+
+
+export const ListBunnyLibraryResponse = zod.object({
+  "configured": zod.boolean(),
+  "items": zod.array(zod.object({
+  "guid": zod.string(),
+  "title": zod.string(),
+  "status": zod.number(),
+  "statusLabel": zod.string(),
+  "lengthSeconds": zod.number().nullish(),
+  "available": zod.boolean().optional(),
+  "thumbnailUrl": zod.string().nullish(),
+  "assignedTopicId": zod.number().nullish(),
+  "assignedTopicTitle": zod.string().nullish()
+}))
+})
+
+
+export const BunnyDiagnosticsResponse = zod.object({
+  "configured": zod.boolean(),
+  "orphanVideos": zod.array(zod.object({
+  "guid": zod.string(),
+  "title": zod.string(),
+  "status": zod.number(),
+  "statusLabel": zod.string(),
+  "lengthSeconds": zod.number().nullish(),
+  "available": zod.boolean().optional(),
+  "thumbnailUrl": zod.string().nullish(),
+  "assignedTopicId": zod.number().nullish(),
+  "assignedTopicTitle": zod.string().nullish()
+})),
+  "lessonsWithoutVideo": zod.array(zod.object({
+  "topicId": zod.number(),
+  "topicTitle": zod.string(),
+  "sectionTitle": zod.string().nullish()
+}))
+})
+
+
+export const AssignBunnyVideoBody = zod.object({
+  "topicId": zod.number(),
+  "source": zod.string(),
+  "title": zod.string().optional()
+})
+
+export const AssignBunnyVideoResponse = zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "bunnyVideoId": zod.string().nullish(),
+  "videoUrl": zod.string().nullish(),
+  "embedUrl": zod.string().nullish(),
+  "title": zod.string(),
+  "durationSeconds": zod.number().nullish(),
+  "sortOrder": zod.number().optional(),
+  "createdAt": zod.string()
+})
+
+
+export const SyncBunnyVideosResponse = zod.object({
+  "updated": zod.number()
+})
+
+
+export const GetAiSettingsResponse = zod.object({
+  "enabled": zod.boolean(),
+  "model": zod.string(),
+  "systemPrompt": zod.string(),
+  "evalInstruction": zod.string(),
+  "tone": zod.string(),
+  "maxResponseLength": zod.number(),
+  "errorMessage": zod.string(),
+  "keyConfigured": zod.boolean(),
+  "envModel": zod.string()
+})
+
+
+export const UpdateAiSettingsBody = zod.object({
+  "enabled": zod.boolean().optional(),
+  "model": zod.string().optional(),
+  "systemPrompt": zod.string().optional(),
+  "evalInstruction": zod.string().optional(),
+  "tone": zod.string().optional(),
+  "maxResponseLength": zod.number().optional(),
+  "errorMessage": zod.string().optional()
+})
+
+export const UpdateAiSettingsResponse = zod.object({
+  "enabled": zod.boolean(),
+  "model": zod.string(),
+  "systemPrompt": zod.string(),
+  "evalInstruction": zod.string(),
+  "tone": zod.string(),
+  "maxResponseLength": zod.number(),
+  "errorMessage": zod.string(),
+  "keyConfigured": zod.boolean(),
+  "envModel": zod.string()
+})
+
+
+export const TestAiPromptBody = zod.object({
+  "prompt": zod.string(),
+  "systemPrompt": zod.string().optional()
+})
+
+export const TestAiPromptResponse = zod.object({
+  "reply": zod.string(),
+  "model": zod.string(),
+  "demo": zod.boolean()
 })
 
 

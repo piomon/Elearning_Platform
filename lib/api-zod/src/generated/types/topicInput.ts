@@ -5,6 +5,8 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { TopicInputAccessType } from './topicInputAccessType';
+import type { TopicInputDifficulty } from './topicInputDifficulty';
 import type { TopicInputStatus } from './topicInputStatus';
 
 export interface TopicInput {
@@ -14,4 +16,19 @@ export interface TopicInput {
   description?: string;
   sortOrder: number;
   status?: TopicInputStatus;
+  /** @nullable */
+  objectives?: string | null;
+  /** @nullable */
+  durationMinutes?: number | null;
+  /** @nullable */
+  difficulty?: TopicInputDifficulty;
+  accessType?: TopicInputAccessType;
+  /** @nullable */
+  thumbnailUrl?: string | null;
+  /** @nullable */
+  metaTitle?: string | null;
+  /** @nullable */
+  metaDescription?: string | null;
+  aiEnabled?: boolean;
+  isPreview?: boolean;
 }

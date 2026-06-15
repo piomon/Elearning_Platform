@@ -99,7 +99,33 @@ export interface CourseWithSections {
   sections: Section[];
 }
 
-export interface Topic {
+export type LessonMetaAccessType = typeof LessonMetaAccessType[keyof typeof LessonMetaAccessType];
+
+
+export const LessonMetaAccessType = {
+  free: 'free',
+  paid: 'paid',
+  admin: 'admin',
+} as const;
+
+export interface LessonMeta {
+  /** @nullable */
+  objectives?: string | null;
+  /** @nullable */
+  durationMinutes?: number | null;
+  /** @nullable */
+  difficulty?: string | null;
+  accessType?: LessonMetaAccessType;
+  /** @nullable */
+  thumbnailUrl?: string | null;
+  /** @nullable */
+  metaTitle?: string | null;
+  /** @nullable */
+  metaDescription?: string | null;
+  aiEnabled?: boolean;
+}
+
+export type Topic = LessonMeta & ({
   id: number;
   sectionId: number;
   title: string;
@@ -112,7 +138,7 @@ export interface Topic {
   hasQuiz?: boolean;
   hasTasks?: boolean;
   createdAt: string;
-}
+});
 
 export interface Video {
   id: number;
@@ -157,6 +183,18 @@ export interface Task {
   createdAt: string;
 }
 
+export interface QuizSettings {
+  passThreshold?: number;
+  /** @nullable */
+  maxAttempts?: number | null;
+  /** @nullable */
+  timeLimitMinutes?: number | null;
+  shuffleQuestions?: boolean;
+  shuffleAnswers?: boolean;
+  showScore?: boolean;
+  showCorrectAnswers?: boolean;
+}
+
 export interface QuizAnswerPublic {
   id: number;
   questionId: number;
@@ -168,18 +206,26 @@ export interface QuizQuestionPublic {
   id: number;
   quizId: number;
   questionText: string;
+  points?: number;
   sortOrder: number;
   answers: QuizAnswerPublic[];
 }
 
-export interface QuizPublic {
+export type QuizPublic = QuizSettings & ({
   id: number;
   topicId: number;
   title: string;
   questions: QuizQuestionPublic[];
-}
+  /** Number of attempts the current user has already made. */
+  attemptsUsed?: number;
+  /**
+     * Attempts left for the current user, or null when unlimited.
+     * @nullable
+     */
+  attemptsRemaining?: number | null;
+});
 
-export interface TopicDetail {
+export type TopicDetail = LessonMeta & ({
   id: number;
   sectionId: number;
   /** @nullable */
@@ -199,7 +245,7 @@ export interface TopicDetail {
   images: LessonImage[];
   quiz?: QuizPublic | null;
   tasks: Task[];
-}
+});
 
 export type AdminTopicTreeStatus = typeof AdminTopicTreeStatus[keyof typeof AdminTopicTreeStatus];
 
@@ -233,19 +279,22 @@ export interface QuizQuestion {
   id: number;
   quizId: number;
   questionText: string;
+  /** @nullable */
+  explanation?: string | null;
+  points?: number;
   sortOrder: number;
   answers: QuizAnswer[];
 }
 
-export interface Quiz {
+export type Quiz = QuizSettings & {
   id: number;
   topicId: number;
   title: string;
   status?: QuizStatus;
   questions: QuizQuestion[];
-}
+};
 
-export interface AdminTopicTree {
+export type AdminTopicTree = LessonMeta & ({
   id: number;
   sectionId: number;
   title: string;
@@ -253,11 +302,13 @@ export interface AdminTopicTree {
   /** @nullable */
   description?: string | null;
   sortOrder: number;
+  isPreview?: boolean;
   status: AdminTopicTreeStatus;
+  images?: LessonImage[];
   video?: Video | null;
   quiz?: Quiz | null;
   tasks: Task[];
-}
+});
 
 export type AdminSectionTreeStatus = typeof AdminSectionTreeStatus[keyof typeof AdminSectionTreeStatus];
 
@@ -305,23 +356,45 @@ export interface QuizAttemptAnswerInput {
   selectedAnswerId: number;
 }
 
+export interface QuizAttemptStart {
+  /** Signed ticket to echo back on submission for timed quizzes. */
+  startToken: string;
+  /** Epoch milliseconds when the attempt window opened. */
+  startedAt: number;
+  /** @nullable */
+  timeLimitMinutes?: number | null;
+}
+
 export interface QuizAttemptInput {
   answers: QuizAttemptAnswerInput[];
+  /** Start ticket from /attempts/start; required for timed quizzes. */
+  startToken?: string;
 }
 
 export interface QuizAttemptAnswerResult {
   questionId: number;
-  selectedAnswerId: number;
-  isCorrect: boolean;
-  correctAnswerId: number;
+  /** @nullable */
+  selectedAnswerId: number | null;
+  /** Omitted when the quiz hides correct answers (showCorrectAnswers=false). */
+  isCorrect?: boolean;
+  /**
+     * Omitted when the quiz hides correct answers (showCorrectAnswers=false).
+     * @nullable
+     */
+  correctAnswerId?: number | null;
 }
 
 export interface QuizAttemptResult {
-  score: number;
-  totalQuestions: number;
-  percentage: number;
+  /** Omitted when the quiz hides the score (showScore=false). */
+  score?: number;
+  /** Omitted when the quiz hides the score (showScore=false). */
+  totalQuestions?: number;
+  /** Omitted when the quiz hides the score (showScore=false). */
+  percentage?: number;
   passed: boolean;
   passThreshold: number;
+  showScore?: boolean;
+  showCorrectAnswers?: boolean;
   answers: QuizAttemptAnswerResult[];
 }
 
@@ -965,6 +1038,27 @@ export const TopicInputStatus = {
   archived: 'archived',
 } as const;
 
+/**
+ * @nullable
+ */
+export type TopicInputDifficulty = typeof TopicInputDifficulty[keyof typeof TopicInputDifficulty] | null;
+
+
+export const TopicInputDifficulty = {
+  easy: 'easy',
+  medium: 'medium',
+  hard: 'hard',
+} as const;
+
+export type TopicInputAccessType = typeof TopicInputAccessType[keyof typeof TopicInputAccessType];
+
+
+export const TopicInputAccessType = {
+  free: 'free',
+  paid: 'paid',
+  admin: 'admin',
+} as const;
+
 export interface TopicInput {
   sectionId: number;
   title: string;
@@ -972,6 +1066,21 @@ export interface TopicInput {
   description?: string;
   sortOrder: number;
   status?: TopicInputStatus;
+  /** @nullable */
+  objectives?: string | null;
+  /** @nullable */
+  durationMinutes?: number | null;
+  /** @nullable */
+  difficulty?: TopicInputDifficulty;
+  accessType?: TopicInputAccessType;
+  /** @nullable */
+  thumbnailUrl?: string | null;
+  /** @nullable */
+  metaTitle?: string | null;
+  /** @nullable */
+  metaDescription?: string | null;
+  aiEnabled?: boolean;
+  isPreview?: boolean;
 }
 
 export interface VideoInput {
@@ -992,15 +1101,115 @@ export const QuizInputStatus = {
   archived: 'archived',
 } as const;
 
-export interface QuizInput {
+export type QuizInput = QuizSettings & {
   topicId: number;
   title: string;
   status?: QuizInputStatus;
-}
+};
 
 export interface QuizQuestionInput {
   questionText: string;
+  /** @nullable */
+  explanation?: string | null;
+  points?: number;
   sortOrder: number;
+}
+
+export interface TopicReorderInput {
+  sectionId: number;
+  ids: number[];
+}
+
+export interface AiSettings {
+  enabled: boolean;
+  model: string;
+  systemPrompt: string;
+  evalInstruction: string;
+  tone: string;
+  maxResponseLength: number;
+  errorMessage: string;
+  keyConfigured: boolean;
+  envModel: string;
+}
+
+export interface AiSettingsInput {
+  enabled?: boolean;
+  model?: string;
+  systemPrompt?: string;
+  evalInstruction?: string;
+  tone?: string;
+  maxResponseLength?: number;
+  errorMessage?: string;
+}
+
+export interface AiTestInput {
+  prompt: string;
+  systemPrompt?: string;
+}
+
+export interface AiTestResult {
+  reply: string;
+  model: string;
+  demo: boolean;
+}
+
+export interface LessonImageInput {
+  topicId: number;
+  imageUrl: string;
+  /** @nullable */
+  alt?: string | null;
+  sortOrder?: number;
+}
+
+export interface LessonImageUpdate {
+  imageUrl?: string;
+  /** @nullable */
+  alt?: string | null;
+  sortOrder?: number;
+}
+
+export interface BunnyLibraryVideo {
+  guid: string;
+  title: string;
+  status: number;
+  statusLabel: string;
+  /** @nullable */
+  lengthSeconds?: number | null;
+  available?: boolean;
+  /** @nullable */
+  thumbnailUrl?: string | null;
+  /** @nullable */
+  assignedTopicId?: number | null;
+  /** @nullable */
+  assignedTopicTitle?: string | null;
+}
+
+export interface BunnyLibrary {
+  configured: boolean;
+  items: BunnyLibraryVideo[];
+}
+
+export interface BunnyLessonWithoutVideo {
+  topicId: number;
+  topicTitle: string;
+  /** @nullable */
+  sectionTitle?: string | null;
+}
+
+export interface BunnyDiagnostics {
+  configured: boolean;
+  orphanVideos: BunnyLibraryVideo[];
+  lessonsWithoutVideo: BunnyLessonWithoutVideo[];
+}
+
+export interface BunnyAssignInput {
+  topicId: number;
+  source: string;
+  title?: string;
+}
+
+export interface BunnySyncResult {
+  updated: number;
 }
 
 export interface QuizAnswerInput {

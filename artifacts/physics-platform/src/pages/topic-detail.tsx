@@ -6,6 +6,7 @@ import {
   useGetMyProgress,
   useUpsertVideoProgress,
   useSubmitQuizAttempt,
+  useStartQuizAttempt,
   useLessonChat,
   useListTopics,
 } from "@workspace/api-client-react";
@@ -30,9 +31,17 @@ import {
   ImageIcon,
   Lock,
   RotateCcw,
+  Clock,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+
+function formatRemaining(ms: number): string {
+  const total = Math.max(0, Math.ceil(ms / 1000));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
 
 function prefersReducedMotion(): boolean {
   return (
@@ -197,6 +206,14 @@ export default function TopicDetail() {
   const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [quizResult, setQuizResult] = useState<any>(null);
+  // Timed-quiz state. startToken is the server-issued ticket echoed back on
+  // submit; deadline is the local epoch-ms cutoff; remainingMs drives the
+  // countdown; timeExpired locks the UI once the window closes.
+  const [startToken, setStartToken] = useState<string | null>(null);
+  const [deadline, setDeadline] = useState<number | null>(null);
+  const [remainingMs, setRemainingMs] = useState<number | null>(null);
+  const [timeExpired, setTimeExpired] = useState(false);
+  const startQuizMutation = useStartQuizAttempt();
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [notes, setNotes] = useState("");
@@ -205,6 +222,9 @@ export default function TopicDetail() {
 
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const notesTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Holds the latest auto-submit callback so the countdown interval can fire it
+  // without re-subscribing on every render (avoids effect/mutation loops).
+  const autoSubmitRef = useRef<() => void>(() => {});
 
   const currentProgress = allProgress?.find((p) => p.topicId === topicId);
   const notesKey = user ? `notes:${user.id}:${topicId}` : null;
@@ -214,6 +234,10 @@ export default function TopicDetail() {
     setActiveVideoId(null);
     setSelectedAnswers({});
     setQuizResult(null);
+    setStartToken(null);
+    setDeadline(null);
+    setRemainingMs(null);
+    setTimeExpired(false);
     setChatMessages([]);
     setChatInput("");
   }, [topicId]);
@@ -244,6 +268,29 @@ export default function TopicDetail() {
     };
   }, []);
 
+  // Keep the auto-submit callback fresh without re-running the timer effect.
+  autoSubmitRef.current = () => {
+    if (!quizResult && !submitQuizMutation.isPending) handleQuizSubmit(true);
+  };
+
+  // Countdown for timed quizzes. Ticks once per second off the server-derived
+  // deadline; on reaching zero it locks the quiz and auto-submits current
+  // answers. Server-side enforcement is the source of truth — this is UX.
+  useEffect(() => {
+    if (deadline == null || quizResult) return;
+    const tick = () => {
+      const left = deadline - Date.now();
+      setRemainingMs(Math.max(0, left));
+      if (left <= 0) {
+        setTimeExpired(true);
+        autoSubmitRef.current();
+      }
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [deadline, quizResult]);
+
   const handleVideoReport = useCallback(
     (report: ProgressReport) => {
       videoProgressMutation.mutate(
@@ -266,17 +313,54 @@ export default function TopicDetail() {
     }, 800);
   };
 
-  const handleQuizSubmit = () => {
+  const handleQuizStart = () => {
     if (!topic?.quiz) return;
-    const answers = Object.entries(selectedAnswers).map(([questionId, answerId]) => ({
+    startQuizMutation.mutate(
+      { quizId: topic.quiz.id },
+      {
+        onSuccess: (data) => {
+          setStartToken(data.startToken);
+          setTimeExpired(false);
+          if (data.timeLimitMinutes != null) {
+            const end = data.startedAt + data.timeLimitMinutes * 60_000;
+            setDeadline(end);
+            setRemainingMs(Math.max(0, end - Date.now()));
+          }
+        },
+        onError: () => {
+          toast({
+            title: "Nie można rozpocząć quizu",
+            description: "Spróbuj ponownie za chwilę.",
+            variant: "destructive",
+          });
+        },
+      },
+    );
+  };
+
+  const handleQuizSubmit = (auto = false) => {
+    if (!topic?.quiz) return;
+    // On a timed auto-submit, fill any unanswered question with its first
+    // option so the (complete-submission) contract still holds; the student
+    // simply runs out of time on those.
+    const effective: Record<number, number> = { ...selectedAnswers };
+    if (auto) {
+      for (const q of topic.quiz.questions) {
+        if (effective[q.id] == null && q.answers[0]) {
+          effective[q.id] = q.answers[0].id;
+        }
+      }
+    }
+    const answers = Object.entries(effective).map(([questionId, answerId]) => ({
       questionId: parseInt(questionId, 10),
       selectedAnswerId: answerId,
     }));
     submitQuizMutation.mutate(
-      { quizId: topic.quiz.id, data: { answers } },
+      { quizId: topic.quiz.id, data: { answers, ...(startToken ? { startToken } : {}) } },
       {
         onSuccess: (result) => {
           setQuizResult(result);
+          setDeadline(null);
           refetchProgress();
           if (result.passed && !prefersReducedMotion()) {
             confetti({
@@ -705,7 +789,11 @@ export default function TopicDetail() {
                     </div>
                     <div>
                       <p className="text-xl font-bold">
-                        {quizResult.percentage}% ({quizResult.score}/{quizResult.totalQuestions})
+                        {(quizResult.showScore ?? quizResult.percentage != null)
+                          ? `${quizResult.percentage}% (${quizResult.score}/${quizResult.totalQuestions})`
+                          : quizResult.passed
+                            ? "Zaliczony"
+                            : "Niezaliczony"}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {quizResult.passed
@@ -717,10 +805,58 @@ export default function TopicDetail() {
                 </div>
               )}
 
+              {/* Countdown banner for timed quizzes in progress */}
+              {topic.quiz.timeLimitMinutes != null &&
+                startToken !== null &&
+                !quizResult &&
+                remainingMs != null && (
+                  <div
+                    className={`flex items-center gap-2 rounded-2xl px-5 py-4 font-semibold ${
+                      remainingMs <= 30_000
+                        ? "bg-destructive/10 text-destructive"
+                        : "bg-primary/10 text-primary"
+                    }`}
+                  >
+                    <Clock className="w-5 h-5" />
+                    {timeExpired ? (
+                      <span>Czas minął — odpowiedzi zostały wysłane.</span>
+                    ) : (
+                      <span>Pozostały czas: {formatRemaining(remainingMs)}</span>
+                    )}
+                  </div>
+                )}
+
+              {/* Start gate: timed quizzes must be started explicitly */}
+              {topic.quiz.timeLimitMinutes != null && startToken === null && !quizResult ? (
+                <div className="rounded-3xl border-2 border-dashed border-border bg-card p-8 text-center space-y-4">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-primary font-semibold">
+                    <Clock className="w-4 h-4" /> Limit czasu: {topic.quiz.timeLimitMinutes} min
+                  </div>
+                  <p className="text-muted-foreground">
+                    Ten quiz ma ograniczenie czasowe. Po rozpoczęciu odliczanie nie
+                    zatrzyma się — po upływie czasu odpowiedzi zostaną wysłane automatycznie.
+                  </p>
+                  <Button
+                    size="lg"
+                    className="h-14 px-8 rounded-full font-bold"
+                    disabled={startQuizMutation.isPending}
+                    onClick={handleQuizStart}
+                  >
+                    {startQuizMutation.isPending ? (
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    ) : null}
+                    Rozpocznij quiz
+                  </Button>
+                </div>
+              ) : (
               <div className="space-y-8">
                 {topic.quiz.questions.map((q, idx) => {
                   const resultForQ = quizResult?.answers.find((a: any) => a.questionId === q.id);
                   const showFeedback = quizResult !== null;
+                  // Only reveal per-answer right/wrong colouring when the quiz
+                  // is configured to show correct answers; otherwise the server
+                  // omits correctAnswerId/isCorrect and we must stay neutral.
+                  const revealAnswers = showFeedback && quizResult?.showCorrectAnswers !== false;
                   return (
                     <div key={q.id} className="space-y-4">
                       <h3 className="font-bold text-lg flex gap-3">
@@ -731,15 +867,17 @@ export default function TopicDetail() {
                         {q.answers.map((a) => {
                           const isSelected = selectedAnswers[q.id] === a.id;
                           const isActuallyCorrect =
-                            showFeedback && resultForQ?.correctAnswerId === a.id;
+                            revealAnswers && resultForQ?.correctAnswerId === a.id;
                           const isWrongSelected =
-                            showFeedback && isSelected && !resultForQ?.isCorrect;
+                            revealAnswers && isSelected && resultForQ?.isCorrect === false;
                           let cls =
                             "justify-start h-auto py-4 px-5 rounded-2xl border-2 transition-all font-medium text-left flex items-start gap-3 text-sm";
                           if (showFeedback) {
                             if (isActuallyCorrect) cls += " border-success bg-success/10 text-foreground";
                             else if (isWrongSelected)
                               cls += " border-destructive bg-destructive/10 text-foreground";
+                            else if (isSelected)
+                              cls += " border-primary bg-primary/5 text-foreground";
                             else cls += " border-border bg-card text-muted-foreground";
                           } else if (isSelected) {
                             cls += " border-primary bg-primary/5 text-foreground";
@@ -750,7 +888,7 @@ export default function TopicDetail() {
                             <button
                               key={a.id}
                               type="button"
-                              disabled={showFeedback}
+                              disabled={showFeedback || timeExpired}
                               onClick={() =>
                                 setSelectedAnswers((prev) => ({ ...prev, [q.id]: a.id }))
                               }
@@ -768,37 +906,46 @@ export default function TopicDetail() {
                   );
                 })}
               </div>
+              )}
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                {!quizResult ? (
-                  <Button
-                    size="lg"
-                    className="h-14 px-8 rounded-full font-bold w-full sm:w-auto"
-                    disabled={
-                      Object.keys(selectedAnswers).length < topic.quiz.questions.length ||
-                      submitQuizMutation.isPending
-                    }
-                    onClick={handleQuizSubmit}
-                  >
-                    {submitQuizMutation.isPending ? (
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    ) : null}
-                    Sprawdź odpowiedzi
-                  </Button>
-                ) : (
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="h-14 px-8 rounded-full font-bold w-full sm:w-auto"
-                    onClick={() => {
-                      setQuizResult(null);
-                      setSelectedAnswers({});
-                    }}
-                  >
-                    <RotateCcw className="w-5 h-5 mr-2" /> Rozwiąż ponownie
-                  </Button>
-                )}
-              </div>
+              {/* Submit / retry — hidden while a timed quiz is unstarted */}
+              {!(topic.quiz.timeLimitMinutes != null && startToken === null && !quizResult) && (
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  {!quizResult ? (
+                    <Button
+                      size="lg"
+                      className="h-14 px-8 rounded-full font-bold w-full sm:w-auto"
+                      disabled={
+                        Object.keys(selectedAnswers).length < topic.quiz.questions.length ||
+                        submitQuizMutation.isPending ||
+                        timeExpired
+                      }
+                      onClick={() => handleQuizSubmit()}
+                    >
+                      {submitQuizMutation.isPending ? (
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      ) : null}
+                      Sprawdź odpowiedzi
+                    </Button>
+                  ) : (
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="h-14 px-8 rounded-full font-bold w-full sm:w-auto"
+                      onClick={() => {
+                        setQuizResult(null);
+                        setSelectedAnswers({});
+                        setStartToken(null);
+                        setDeadline(null);
+                        setRemainingMs(null);
+                        setTimeExpired(false);
+                      }}
+                    >
+                      <RotateCcw className="w-5 h-5 mr-2" /> Rozwiąż ponownie
+                    </Button>
+                  )}
+                </div>
+              )}
             </section>
           )}
 

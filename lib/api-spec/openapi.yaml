@@ -316,6 +316,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /quizzes/{quizId}/attempts/start:
+    post:
+      operationId: startQuizAttempt
+      tags: [quizzes]
+      parameters:
+        - name: quizId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: Attempt window opened
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizAttemptStart"
+        "403":
+          description: Attempt limit reached
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /quizzes/{quizId}/attempts:
     post:
       operationId: submitQuizAttempt
@@ -1708,6 +1738,345 @@ paths:
               schema:
                 $ref: "#/components/schemas/PricingSettings"
 
+  # ─── ADMIN: LESSON OPERATIONS ────────────────────────────────────────────────
+  /admin/topics/{id}/duplicate:
+    post:
+      operationId: duplicateTopic
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: Duplicated lesson
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Topic"
+
+  /admin/topics/reorder:
+    post:
+      operationId: reorderTopics
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TopicReorderInput"
+      responses:
+        "200":
+          description: Reordered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/topics/{id}/preview:
+    get:
+      operationId: previewTopic
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student-style preview of the lesson
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TopicDetail"
+
+  # ─── ADMIN: QUIZ OPERATIONS ──────────────────────────────────────────────────
+  /admin/quizzes/{id}/duplicate:
+    post:
+      operationId: duplicateQuiz
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: Duplicated quiz
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+
+  /admin/quizzes/{id}/questions/reorder:
+    post:
+      operationId: reorderQuizQuestions
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReorderInput"
+      responses:
+        "200":
+          description: Reordered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/questions/{questionId}/duplicate:
+    post:
+      operationId: duplicateQuizQuestion
+      tags: [admin]
+      parameters:
+        - name: questionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: Duplicated question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizQuestion"
+
+  /admin/questions/{questionId}/answers/reorder:
+    post:
+      operationId: reorderQuizAnswers
+      tags: [admin]
+      parameters:
+        - name: questionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReorderInput"
+      responses:
+        "200":
+          description: Reordered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── ADMIN: LESSON IMAGES / MATERIALS ────────────────────────────────────────
+  /admin/topics/{id}/images:
+    get:
+      operationId: listLessonImages
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Images for a lesson
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LessonImage"
+
+  /admin/images:
+    post:
+      operationId: createLessonImage
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LessonImageInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LessonImage"
+
+  /admin/images/reorder:
+    post:
+      operationId: reorderLessonImages
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReorderInput"
+      responses:
+        "200":
+          description: Reordered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/images/{id}:
+    put:
+      operationId: updateLessonImage
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LessonImageUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LessonImage"
+    delete:
+      operationId: deleteLessonImage
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ─── ADMIN: BUNNY VIDEO MODULE ───────────────────────────────────────────────
+  /admin/bunny/library:
+    get:
+      operationId: listBunnyLibrary
+      tags: [admin]
+      responses:
+        "200":
+          description: Videos in the Bunny library
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BunnyLibrary"
+
+  /admin/bunny/diagnostics:
+    get:
+      operationId: bunnyDiagnostics
+      tags: [admin]
+      responses:
+        "200":
+          description: Orphan videos and lessons without video
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BunnyDiagnostics"
+
+  /admin/bunny/assign:
+    post:
+      operationId: assignBunnyVideo
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BunnyAssignInput"
+      responses:
+        "200":
+          description: Video assigned to lesson
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /admin/bunny/sync:
+    post:
+      operationId: syncBunnyVideos
+      tags: [admin]
+      responses:
+        "200":
+          description: Synced metadata from Bunny
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BunnySyncResult"
+
+  # ─── ADMIN: AI / GEMINI SETTINGS ─────────────────────────────────────────────
+  /admin/ai-settings:
+    get:
+      operationId: getAiSettings
+      tags: [admin]
+      responses:
+        "200":
+          description: Current AI settings (never includes the API key)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiSettings"
+    put:
+      operationId: updateAiSettings
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiSettingsInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiSettings"
+
+  /admin/ai-settings/test:
+    post:
+      operationId: testAiPrompt
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiTestInput"
+      responses:
+        "200":
+          description: Test reply
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiTestResult"
+
 components:
   schemas:
     HealthStatus:
@@ -1870,32 +2239,56 @@ components:
           items:
             $ref: "#/components/schemas/Section"
 
-    Topic:
+    # Reusable lesson metadata mixed into every topic/lesson schema.
+    LessonMeta:
       type: object
-      required: [id, sectionId, title, slug, sortOrder, createdAt]
       properties:
-        id:
-          type: integer
-        sectionId:
-          type: integer
-        title:
-          type: string
-        slug:
-          type: string
-        description:
+        objectives:
           type: ["string", "null"]
-        sortOrder:
-          type: integer
-        isPreview:
-          type: boolean
-        hasVideo:
-          type: boolean
-        hasQuiz:
-          type: boolean
-        hasTasks:
-          type: boolean
-        createdAt:
+        durationMinutes:
+          type: ["integer", "null"]
+        difficulty:
+          type: ["string", "null"]
+        accessType:
           type: string
+          enum: [free, paid, admin]
+        thumbnailUrl:
+          type: ["string", "null"]
+        metaTitle:
+          type: ["string", "null"]
+        metaDescription:
+          type: ["string", "null"]
+        aiEnabled:
+          type: boolean
+
+    Topic:
+      allOf:
+        - $ref: "#/components/schemas/LessonMeta"
+        - type: object
+          required: [id, sectionId, title, slug, sortOrder, createdAt]
+          properties:
+            id:
+              type: integer
+            sectionId:
+              type: integer
+            title:
+              type: string
+            slug:
+              type: string
+            description:
+              type: ["string", "null"]
+            sortOrder:
+              type: integer
+            isPreview:
+              type: boolean
+            hasVideo:
+              type: boolean
+            hasQuiz:
+              type: boolean
+            hasTasks:
+              type: boolean
+            createdAt:
+              type: string
 
     Video:
       type: object
@@ -1955,81 +2348,91 @@ components:
           type: string
 
     TopicDetail:
-      type: object
-      required: [id, sectionId, title, slug, sortOrder, videos, images, tasks]
-      properties:
-        id:
-          type: integer
-        sectionId:
-          type: integer
-        courseId:
-          type: ["integer", "null"]
-        title:
-          type: string
-        slug:
-          type: string
-        description:
-          type: ["string", "null"]
-        sortOrder:
-          type: integer
-        isPreview:
-          type: boolean
-        previousTopicId:
-          type: ["integer", "null"]
-        nextTopicId:
-          type: ["integer", "null"]
-        video:
-          oneOf:
-            - $ref: "#/components/schemas/Video"
-            - type: "null"
-        videos:
-          type: array
-          items:
-            $ref: "#/components/schemas/Video"
-        images:
-          type: array
-          items:
-            $ref: "#/components/schemas/LessonImage"
-        quiz:
-          oneOf:
-            - $ref: "#/components/schemas/QuizPublic"
-            - type: "null"
-        tasks:
-          type: array
-          items:
-            $ref: "#/components/schemas/Task"
+      allOf:
+        - $ref: "#/components/schemas/LessonMeta"
+        - type: object
+          required: [id, sectionId, title, slug, sortOrder, videos, images, tasks]
+          properties:
+            id:
+              type: integer
+            sectionId:
+              type: integer
+            courseId:
+              type: ["integer", "null"]
+            title:
+              type: string
+            slug:
+              type: string
+            description:
+              type: ["string", "null"]
+            sortOrder:
+              type: integer
+            isPreview:
+              type: boolean
+            previousTopicId:
+              type: ["integer", "null"]
+            nextTopicId:
+              type: ["integer", "null"]
+            video:
+              oneOf:
+                - $ref: "#/components/schemas/Video"
+                - type: "null"
+            videos:
+              type: array
+              items:
+                $ref: "#/components/schemas/Video"
+            images:
+              type: array
+              items:
+                $ref: "#/components/schemas/LessonImage"
+            quiz:
+              oneOf:
+                - $ref: "#/components/schemas/QuizPublic"
+                - type: "null"
+            tasks:
+              type: array
+              items:
+                $ref: "#/components/schemas/Task"
 
     AdminTopicTree:
-      type: object
-      required: [id, sectionId, title, slug, sortOrder, status, tasks]
-      properties:
-        id:
-          type: integer
-        sectionId:
-          type: integer
-        title:
-          type: string
-        slug:
-          type: string
-        description:
-          type: ["string", "null"]
-        sortOrder:
-          type: integer
-        status:
-          type: string
-          enum: [draft, published, hidden, archived]
-        video:
-          oneOf:
-            - $ref: "#/components/schemas/Video"
-            - type: "null"
-        quiz:
-          oneOf:
-            - $ref: "#/components/schemas/Quiz"
-            - type: "null"
-        tasks:
-          type: array
-          items:
-            $ref: "#/components/schemas/Task"
+      allOf:
+        - $ref: "#/components/schemas/LessonMeta"
+        - type: object
+          required: [id, sectionId, title, slug, sortOrder, status, tasks]
+          properties:
+            id:
+              type: integer
+            sectionId:
+              type: integer
+            title:
+              type: string
+            slug:
+              type: string
+            description:
+              type: ["string", "null"]
+            sortOrder:
+              type: integer
+            isPreview:
+              type: boolean
+            status:
+              type: string
+              enum: [draft, published, hidden, archived]
+            images:
+              type: array
+              items:
+                $ref: "#/components/schemas/LessonImage"
+            video:
+              oneOf:
+                - $ref: "#/components/schemas/Video"
+                - type: "null"
+            quiz:
+              oneOf:
+                - $ref: "#/components/schemas/Quiz"
+                - type: "null"
+            tasks:
+              type: array
+              items:
+                $ref: "#/components/schemas/Task"
 
     AdminSectionTree:
       type: object
@@ -2078,6 +2481,25 @@ components:
             $ref: "#/components/schemas/AdminSectionTree"
 
     # ─── QUIZ SCHEMAS ─────────────────────────────────────────────────────────
+    # Reusable quiz behaviour settings mixed into Quiz, QuizPublic and QuizInput.
+    QuizSettings:
+      type: object
+      properties:
+        passThreshold:
+          type: integer
+        maxAttempts:
+          type: ["integer", "null"]
+        timeLimitMinutes:
+          type: ["integer", "null"]
+        shuffleQuestions:
+          type: boolean
+        shuffleAnswers:
+          type: boolean
+        showScore:
+          type: boolean
+        showCorrectAnswers:
+          type: boolean
+
     QuizAnswer:
       type: object
       required: [id, questionId, answerLabel, answerText, isCorrect]
@@ -2103,6 +2525,10 @@ components:
           type: integer
         questionText:
           type: string
+        explanation:
+          type: ["string", "null"]
+        points:
+          type: integer
         sortOrder:
           type: integer
         answers:
@@ -2111,22 +2537,24 @@ components:
             $ref: "#/components/schemas/QuizAnswer"
 
     Quiz:
-      type: object
-      required: [id, topicId, title, questions]
-      properties:
-        id:
-          type: integer
-        topicId:
-          type: integer
-        title:
-          type: string
-        status:
-          type: string
-          enum: [draft, published, hidden, archived]
-        questions:
-          type: array
-          items:
-            $ref: "#/components/schemas/QuizQuestion"
+      allOf:
+        - $ref: "#/components/schemas/QuizSettings"
+        - type: object
+          required: [id, topicId, title, questions]
+          properties:
+            id:
+              type: integer
+            topicId:
+              type: integer
+            title:
+              type: string
+            status:
+              type: string
+              enum: [draft, published, hidden, archived]
+            questions:
+              type: array
+              items:
+                $ref: "#/components/schemas/QuizQuestion"
 
     QuizAnswerPublic:
       type: object
@@ -2151,6 +2579,8 @@ components:
           type: integer
         questionText:
           type: string
+        points:
+          type: integer
         sortOrder:
           type: integer
         answers:
@@ -2159,19 +2589,27 @@ components:
             $ref: "#/components/schemas/QuizAnswerPublic"
 
     QuizPublic:
-      type: object
-      required: [id, topicId, title, questions]
-      properties:
-        id:
-          type: integer
-        topicId:
-          type: integer
-        title:
-          type: string
-        questions:
-          type: array
-          items:
-            $ref: "#/components/schemas/QuizQuestionPublic"
+      allOf:
+        - $ref: "#/components/schemas/QuizSettings"
+        - type: object
+          required: [id, topicId, title, questions]
+          properties:
+            id:
+              type: integer
+            topicId:
+              type: integer
+            title:
+              type: string
+            questions:
+              type: array
+              items:
+                $ref: "#/components/schemas/QuizQuestionPublic"
+            attemptsUsed:
+              type: integer
+              description: Number of attempts the current user has already made.
+            attemptsRemaining:
+              type: ["integer", "null"]
+              description: Attempts left for the current user, or null when unlimited.
 
     QuizAttemptAnswerInput:
       type: object
@@ -2182,6 +2620,20 @@ components:
         selectedAnswerId:
           type: integer
 
+    QuizAttemptStart:
+      type: object
+      required: [startToken, startedAt]
+      properties:
+        startToken:
+          type: string
+          description: Signed ticket to echo back on submission for timed quizzes.
+        startedAt:
+          type: integer
+          format: int64
+          description: Epoch milliseconds when the attempt window opened.
+        timeLimitMinutes:
+          type: ["integer", "null"]
+
     QuizAttemptInput:
       type: object
       required: [answers]
@@ -2190,34 +2642,46 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/QuizAttemptAnswerInput"
+        startToken:
+          type: string
+          description: Start ticket from /attempts/start; required for timed quizzes.
 
     QuizAttemptAnswerResult:
       type: object
-      required: [questionId, selectedAnswerId, isCorrect, correctAnswerId]
+      required: [questionId, selectedAnswerId]
       properties:
         questionId:
           type: integer
         selectedAnswerId:
-          type: integer
+          type: ["integer", "null"]
         isCorrect:
           type: boolean
+          description: Omitted when the quiz hides correct answers (showCorrectAnswers=false).
         correctAnswerId:
-          type: integer
+          type: ["integer", "null"]
+          description: Omitted when the quiz hides correct answers (showCorrectAnswers=false).
 
     QuizAttemptResult:
       type: object
-      required: [score, totalQuestions, percentage, passed, passThreshold, answers]
+      required: [passed, passThreshold, answers]
       properties:
         score:
           type: integer
+          description: Omitted when the quiz hides the score (showScore=false).
         totalQuestions:
           type: integer
+          description: Omitted when the quiz hides the score (showScore=false).
         percentage:
           type: integer
+          description: Omitted when the quiz hides the score (showScore=false).
         passed:
           type: boolean
         passThreshold:
           type: integer
+        showScore:
+          type: boolean
+        showCorrectAnswers:
+          type: boolean
         answers:
           type: array
           items:
@@ -3205,6 +3669,26 @@ components:
         status:
           type: string
           enum: [draft, published, hidden, archived]
+        objectives:
+          type: ["string", "null"]
+        durationMinutes:
+          type: ["integer", "null"]
+        difficulty:
+          type: ["string", "null"]
+          enum: [easy, medium, hard, null]
+        accessType:
+          type: string
+          enum: [free, paid, admin]
+        thumbnailUrl:
+          type: ["string", "null"]
+        metaTitle:
+          type: ["string", "null"]
+        metaDescription:
+          type: ["string", "null"]
+        aiEnabled:
+          type: boolean
+        isPreview:
+          type: boolean
 
     VideoInput:
       type: object
@@ -3222,16 +3706,18 @@ components:
           type: integer
 
     QuizInput:
-      type: object
-      required: [topicId, title]
-      properties:
-        topicId:
-          type: integer
-        title:
-          type: string
-        status:
-          type: string
-          enum: [draft, published, hidden, archived]
+      allOf:
+        - $ref: "#/components/schemas/QuizSettings"
+        - type: object
+          required: [topicId, title]
+          properties:
+            topicId:
+              type: integer
+            title:
+              type: string
+            status:
+              type: string
+              enum: [draft, published, hidden, archived]
 
     QuizQuestionInput:
       type: object
@@ -3239,7 +3725,184 @@ components:
       properties:
         questionText:
           type: string
+        explanation:
+          type: ["string", "null"]
+        points:
+          type: integer
         sortOrder:
+          type: integer
+
+    TopicReorderInput:
+      type: object
+      required: [sectionId, ids]
+      properties:
+        sectionId:
+          type: integer
+        ids:
+          type: array
+          items:
+            type: integer
+
+    AiSettings:
+      type: object
+      required: [enabled, model, systemPrompt, evalInstruction, tone, maxResponseLength, errorMessage, keyConfigured, envModel]
+      properties:
+        enabled:
+          type: boolean
+        model:
+          type: string
+        systemPrompt:
+          type: string
+        evalInstruction:
+          type: string
+        tone:
+          type: string
+        maxResponseLength:
+          type: integer
+        errorMessage:
+          type: string
+        keyConfigured:
+          type: boolean
+        envModel:
+          type: string
+
+    AiSettingsInput:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        model:
+          type: string
+        systemPrompt:
+          type: string
+        evalInstruction:
+          type: string
+        tone:
+          type: string
+        maxResponseLength:
+          type: integer
+        errorMessage:
+          type: string
+
+    AiTestInput:
+      type: object
+      required: [prompt]
+      properties:
+        prompt:
+          type: string
+        systemPrompt:
+          type: string
+
+    AiTestResult:
+      type: object
+      required: [reply, model, demo]
+      properties:
+        reply:
+          type: string
+        model:
+          type: string
+        demo:
+          type: boolean
+
+    LessonImageInput:
+      type: object
+      required: [topicId, imageUrl]
+      properties:
+        topicId:
+          type: integer
+        imageUrl:
+          type: string
+        alt:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+
+    LessonImageUpdate:
+      type: object
+      properties:
+        imageUrl:
+          type: string
+        alt:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+
+    BunnyLibraryVideo:
+      type: object
+      required: [guid, title, status, statusLabel]
+      properties:
+        guid:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        statusLabel:
+          type: string
+        lengthSeconds:
+          type: ["integer", "null"]
+        available:
+          type: boolean
+        thumbnailUrl:
+          type: ["string", "null"]
+        assignedTopicId:
+          type: ["integer", "null"]
+        assignedTopicTitle:
+          type: ["string", "null"]
+
+    BunnyLibrary:
+      type: object
+      required: [configured, items]
+      properties:
+        configured:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/BunnyLibraryVideo"
+
+    BunnyLessonWithoutVideo:
+      type: object
+      required: [topicId, topicTitle]
+      properties:
+        topicId:
+          type: integer
+        topicTitle:
+          type: string
+        sectionTitle:
+          type: ["string", "null"]
+
+    BunnyDiagnostics:
+      type: object
+      required: [configured, orphanVideos, lessonsWithoutVideo]
+      properties:
+        configured:
+          type: boolean
+        orphanVideos:
+          type: array
+          items:
+            $ref: "#/components/schemas/BunnyLibraryVideo"
+        lessonsWithoutVideo:
+          type: array
+          items:
+            $ref: "#/components/schemas/BunnyLessonWithoutVideo"
+
+    BunnyAssignInput:
+      type: object
+      required: [topicId, source]
+      properties:
+        topicId:
+          type: integer
+        source:
+          type: string
+        title:
+          type: string
+
+    BunnySyncResult:
+      type: object
+      required: [updated]
+      properties:
+        updated:
           type: integer
 
     QuizAnswerInput:

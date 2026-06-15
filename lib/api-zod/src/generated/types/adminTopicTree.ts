@@ -6,11 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { AdminTopicTreeStatus } from './adminTopicTreeStatus';
+import type { LessonImage } from './lessonImage';
+import type { LessonMeta } from './lessonMeta';
 import type { Quiz } from './quiz';
 import type { Task } from './task';
 import type { Video } from './video';
 
-export interface AdminTopicTree {
+export type AdminTopicTree = LessonMeta & ({
   id: number;
   sectionId: number;
   title: string;
@@ -18,8 +20,10 @@ export interface AdminTopicTree {
   /** @nullable */
   description?: string | null;
   sortOrder: number;
+  isPreview?: boolean;
   status: AdminTopicTreeStatus;
+  images?: LessonImage[];
   video?: Video | null;
   quiz?: Quiz | null;
   tasks: Task[];
-}
+});

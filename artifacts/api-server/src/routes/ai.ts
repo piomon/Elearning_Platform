@@ -13,6 +13,7 @@ import {
   isTopicPublished,
 } from "../lib/access";
 import { config, isGeminiConfigured } from "../config/env";
+import { getAiSettings, resolveAiModel } from "../lib/ai-settings";
 
 const router = Router();
 
@@ -84,10 +85,11 @@ async function checkWithGemini(
   mimeType: string,
   taskDescription: string,
   systemPrompt: string,
+  modelName: string,
 ): Promise<string> {
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const genAI = new GoogleGenerativeAI(config.gemini.apiKey as string);
-  const model = genAI.getGenerativeModel({ model: config.gemini.model });
+  const model = genAI.getGenerativeModel({ model: modelName });
 
   const result = await model.generateContent([
     systemPrompt,
@@ -137,6 +139,20 @@ router.post(
         return;
       }
 
+      // AI must be enabled both globally (aiSettings) and for this lesson.
+      const aiCfg = await getAiSettings();
+      const [topicRow] = await db
+        .select({ aiEnabled: topics.aiEnabled })
+        .from(topics)
+        .where(eq(topics.id, task.topicId))
+        .limit(1);
+      if (!aiCfg.enabled || !(topicRow?.aiEnabled ?? true)) {
+        res.status(403).json({
+          error: aiCfg.errorMessage || "Sprawdzanie AI jest wyłączone dla tej lekcji.",
+        });
+        return;
+      }
+
       // Per-user daily limit (independent of the IP burst limiter).
       const startOfDay = new Date();
       startOfDay.setHours(0, 0, 0, 0);
@@ -156,7 +172,20 @@ router.post(
         return;
       }
 
-      const model = isGeminiConfigured() ? config.gemini.model : "demo";
+      const model = isGeminiConfigured() ? resolveAiModel(aiCfg) : "demo";
+
+      // Layer the global admin-configured guidance (extra system prompt, eval
+      // instruction, tone) on top of the per-task prompt. All stays server-side.
+      const globalExtras = [
+        aiCfg.systemPrompt.trim(),
+        aiCfg.evalInstruction.trim(),
+        aiCfg.tone.trim() ? `Ton wypowiedzi: ${aiCfg.tone.trim()}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+      const composedPrompt = globalExtras
+        ? `${buildSystemPrompt(task.aiPromptConfig)}\n\n${globalExtras}`
+        : buildSystemPrompt(task.aiPromptConfig);
 
       const logCheck = async (
         status: "completed" | "failed",
@@ -194,7 +223,8 @@ router.post(
             image.data,
             image.mimeType,
             task.description ?? task.title,
-            buildSystemPrompt(task.aiPromptConfig),
+            composedPrompt,
+            model,
           );
         } catch (aiErr) {
           req.log.error({ err: aiErr }, "Gemini check failed");
@@ -268,11 +298,12 @@ async function chatWithGemini(
   systemPrompt: string,
   history: Array<{ role: "user" | "assistant"; content: string }>,
   message: string,
+  modelName: string,
 ): Promise<string> {
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const genAI = new GoogleGenerativeAI(config.gemini.apiKey as string);
   const model = genAI.getGenerativeModel({
-    model: config.gemini.model,
+    model: modelName,
     systemInstruction: systemPrompt,
   });
 
@@ -301,7 +332,7 @@ router.post(
       const { topicId, message, history } = parsed.data;
 
       const [topic] = await db
-        .select({ title: topics.title, description: topics.description })
+        .select({ title: topics.title, description: topics.description, aiEnabled: topics.aiEnabled })
         .from(topics)
         .where(eq(topics.id, topicId))
         .limit(1);
@@ -309,6 +340,15 @@ router.post(
       // no AI tutor — even for a user who has access to the course.
       if (!topic || !(await isTopicPublished(topicId))) {
         res.status(404).json({ error: "Temat nie znaleziony" });
+        return;
+      }
+
+      // AI must be enabled both globally and for this specific lesson.
+      const aiCfg = await getAiSettings();
+      if (!aiCfg.enabled || !(topic.aiEnabled ?? true)) {
+        res.status(403).json({
+          error: aiCfg.errorMessage || "Asystent AI jest wyłączony dla tej lekcji.",
+        });
         return;
       }
 
@@ -331,7 +371,12 @@ router.post(
       }`;
 
       try {
-        const reply = await chatWithGemini(contextPrompt, history ?? [], message);
+        const reply = await chatWithGemini(
+          contextPrompt,
+          history ?? [],
+          message,
+          resolveAiModel(aiCfg),
+        );
         res.json({ reply });
       } catch (aiErr) {
         req.log.error({ err: aiErr }, "Gemini lesson chat failed");

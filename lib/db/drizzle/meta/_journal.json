@@ -43,6 +43,20 @@
       "when": 1781549979983,
       "tag": "0005_supreme_dormammu",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781555923076,
+      "tag": "0006_flawless_odin",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1781560059363,
+      "tag": "0007_nappy_sphinx",
+      "breakpoints": true
     }
   ]
 }

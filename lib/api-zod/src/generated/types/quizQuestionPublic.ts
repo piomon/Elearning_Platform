@@ -11,6 +11,7 @@ export interface QuizQuestionPublic {
   id: number;
   quizId: number;
   questionText: string;
+  points?: number;
   sortOrder: number;
   answers: QuizAnswerPublic[];
 }

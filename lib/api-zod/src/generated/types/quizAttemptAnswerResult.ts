@@ -8,7 +8,13 @@
 
 export interface QuizAttemptAnswerResult {
   questionId: number;
-  selectedAnswerId: number;
-  isCorrect: boolean;
-  correctAnswerId: number;
+  /** @nullable */
+  selectedAnswerId: number | null;
+  /** Omitted when the quiz hides correct answers (showCorrectAnswers=false). */
+  isCorrect?: boolean;
+  /**
+     * Omitted when the quiz hides correct answers (showCorrectAnswers=false).
+     * @nullable
+     */
+  correctAnswerId?: number | null;
 }

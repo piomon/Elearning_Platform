@@ -16,12 +16,24 @@ import {
   getTopicLocation,
   isQuizPublished,
 } from "../lib/access";
+import { signQuizStart, verifyQuizStart, isWithinTimeLimit } from "../lib/quiz-timer";
 
 const router = Router();
 
 const quizAccess = requireCourseAccess((req) =>
   getCourseIdByQuizId(Number(req.params.quizId)),
 );
+
+// Fisher–Yates shuffle returning a new array (does not mutate the input). Used
+// to honour the per-quiz shuffleQuestions / shuffleAnswers settings.
+function shuffled<T>(items: T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
 
 router.get(
   "/quizzes/:quizId",
@@ -44,6 +56,15 @@ router.get(
         .where(eq(quizQuestions.quizId, quizId))
         .orderBy(asc(quizQuestions.sortOrder));
 
+      // Respect the per-quiz attempt limit: a student who has used all attempts
+      // can no longer load a fresh quiz to attempt.
+      const [{ value: attemptsUsed }] = await db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(quizAttempts)
+        .where(and(eq(quizAttempts.quizId, quizId), eq(quizAttempts.userId, req.user!.id)));
+      const attemptsRemaining =
+        quiz.maxAttempts == null ? null : Math.max(0, quiz.maxAttempts - attemptsUsed);
+
       const questionsWithAnswers = await Promise.all(
         questionList.map(async (q) => {
           // Student-facing DTO must not leak which answer is correct.
@@ -56,14 +77,61 @@ router.get(
             })
             .from(quizAnswers)
             .where(eq(quizAnswers.questionId, q.id))
-            .orderBy(asc(quizAnswers.answerLabel));
-          return { ...q, answers };
+            .orderBy(asc(quizAnswers.sortOrder), asc(quizAnswers.answerLabel));
+          // Honour the shuffleAnswers setting; otherwise keep stable A–D order.
+          return { ...q, answers: quiz.shuffleAnswers ? shuffled(answers) : answers };
         }),
       );
 
-      res.json({ ...quiz, questions: questionsWithAnswers });
+      // Honour the shuffleQuestions setting; otherwise keep authored sortOrder.
+      const questions = quiz.shuffleQuestions
+        ? shuffled(questionsWithAnswers)
+        : questionsWithAnswers;
+
+      res.json({ ...quiz, questions, attemptsUsed, attemptsRemaining });
     } catch (err) {
       req.log.error({ err }, "Get quiz error");
+      res.status(500).json({ error: "Błąd serwera" });
+    }
+  },
+);
+
+// Opens an attempt window. For timed quizzes the returned startToken must be
+// echoed back on submission so the server can authoritatively reject late
+// submissions. Also re-checks publication and the attempt limit so a student
+// can't start a quiz they're no longer allowed to attempt.
+router.post(
+  "/quizzes/:quizId/attempts/start",
+  requireAuth as any,
+  quizAccess as any,
+  async (req: AuthRequest, res) => {
+    try {
+      const quizId = Number(req.params.quizId);
+      const [quiz] = await db.select().from(quizzes).where(eq(quizzes.id, quizId)).limit(1);
+      if (!quiz || !(await isQuizPublished(quizId))) {
+        res.status(404).json({ error: "Quiz nie znaleziony" });
+        return;
+      }
+
+      if (quiz.maxAttempts != null) {
+        const [{ value: attemptsUsed }] = await db
+          .select({ value: sql<number>`count(*)::int` })
+          .from(quizAttempts)
+          .where(and(eq(quizAttempts.quizId, quizId), eq(quizAttempts.userId, req.user!.id)));
+        if (attemptsUsed >= quiz.maxAttempts) {
+          res.status(403).json({ error: "Wykorzystano limit prób dla tego quizu" });
+          return;
+        }
+      }
+
+      const startToken = signQuizStart(quizId, req.user!.id);
+      res.status(201).json({
+        startToken,
+        startedAt: Date.now(),
+        timeLimitMinutes: quiz.timeLimitMinutes ?? null,
+      });
+    } catch (err) {
+      req.log.error({ err }, "Start quiz attempt error");
       res.status(500).json({ error: "Błąd serwera" });
     }
   },
@@ -76,8 +144,9 @@ router.post(
   async (req: AuthRequest, res) => {
     try {
       const quizId = Number(req.params.quizId);
-      const { answers } = req.body as {
+      const { answers, startToken } = req.body as {
         answers?: Array<{ questionId: number; selectedAnswerId: number }>;
+        startToken?: string;
       };
 
       if (!answers || !Array.isArray(answers) || answers.length === 0) {
@@ -91,6 +160,34 @@ router.post(
       if (!quiz || !(await isQuizPublished(quizId))) {
         res.status(404).json({ error: "Quiz nie znaleziony" });
         return;
+      }
+
+      // Enforce the per-quiz attempt limit (null = unlimited). Counted before
+      // the new attempt is recorded.
+      if (quiz.maxAttempts != null) {
+        const [{ value: attemptsUsed }] = await db
+          .select({ value: sql<number>`count(*)::int` })
+          .from(quizAttempts)
+          .where(and(eq(quizAttempts.quizId, quizId), eq(quizAttempts.userId, req.user!.id)));
+        if (attemptsUsed >= quiz.maxAttempts) {
+          res.status(403).json({ error: "Wykorzystano limit prób dla tego quizu" });
+          return;
+        }
+      }
+
+      // Server-authoritative time limit. A timed quiz requires a valid start
+      // ticket (issued by POST /attempts/start) and rejects the submission once
+      // the configured window has elapsed.
+      if (quiz.timeLimitMinutes != null) {
+        const claims = startToken ? verifyQuizStart(startToken) : null;
+        if (!claims) {
+          res.status(400).json({ error: "Brak ważnego tokenu rozpoczęcia quizu" });
+          return;
+        }
+        if (!isWithinTimeLimit(claims, quizId, req.user!.id, quiz.timeLimitMinutes)) {
+          res.status(403).json({ error: "Czas na rozwiązanie quizu minął" });
+          return;
+        }
       }
 
       // All questions that belong to this quiz.
@@ -172,7 +269,9 @@ router.post(
 
       const percentage =
         totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
-      const PASS_THRESHOLD = 80;
+      // Per-quiz threshold (defaults to 80 at the column level, preserving the
+      // previous hardcoded behaviour for quizzes created before this field).
+      const PASS_THRESHOLD = quiz.passThreshold ?? 80;
       const passed = percentage >= PASS_THRESHOLD;
 
       const location = await getTopicLocation(quiz.topicId);
@@ -227,13 +326,25 @@ router.post(
           });
       });
 
+      // Honour the per-quiz result-visibility settings. showScore hides the
+      // numeric score/percentage; showCorrectAnswers hides which option was
+      // correct (and the per-answer correctness flags) so the student only
+      // learns pass/fail. These default to true at the column level.
+      const showScore = quiz.showScore ?? true;
+      const showCorrectAnswers = quiz.showCorrectAnswers ?? true;
+      const visibleAnswers = answerResults.map((r) =>
+        showCorrectAnswers
+          ? r
+          : { questionId: r.questionId, selectedAnswerId: r.selectedAnswerId },
+      );
+
       res.status(201).json({
-        score,
-        totalQuestions,
-        percentage,
+        ...(showScore ? { score, totalQuestions, percentage } : {}),
         passed,
         passThreshold: PASS_THRESHOLD,
-        answers: answerResults,
+        showScore,
+        showCorrectAnswers,
+        answers: visibleAnswers,
       });
     } catch (err) {
       req.log.error({ err }, "Submit quiz attempt error");

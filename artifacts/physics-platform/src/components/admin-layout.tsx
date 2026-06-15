@@ -58,10 +58,10 @@ const NAV: NavGroup[] = [
       { href: "/admin/courses", label: "Kursy", icon: <BookOpen className="w-5 h-5" /> },
       { href: "/admin/sections", label: "Działy", icon: <Layers className="w-5 h-5" />, soon: true },
       { href: "/admin/lessons", label: "Lekcje", icon: <GraduationCap className="w-5 h-5" />, soon: true },
-      { href: "/admin/videos", label: "Wideo", icon: <Video className="w-5 h-5" />, soon: true },
+      { href: "/admin/videos", label: "Wideo", icon: <Video className="w-5 h-5" /> },
       { href: "/admin/quizzes", label: "Quizy", icon: <ListChecks className="w-5 h-5" />, soon: true },
       { href: "/admin/tasks", label: "Zadania", icon: <ClipboardList className="w-5 h-5" />, soon: true },
-      { href: "/admin/ai", label: "AI", icon: <Sparkles className="w-5 h-5" />, soon: true },
+      { href: "/admin/ai", label: "AI", icon: <Sparkles className="w-5 h-5" /> },
     ],
   },
   {

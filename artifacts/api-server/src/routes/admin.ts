@@ -21,17 +21,22 @@ import {
   faqItems,
   seoSettings,
   pricingSettings,
+  lessonImages,
+  aiSettings,
 } from "@workspace/db";
-import { eq, ne, and, desc, asc, count, countDistinct, sum, gte, ilike, or, sql } from "drizzle-orm";
+import { eq, ne, and, desc, asc, count, countDistinct, sum, gte, ilike, or, sql, inArray } from "drizzle-orm";
 import { requireAuth, requireAdmin, type AuthRequest } from "../middlewares/auth";
 import {
   probeBunnyVideo,
   mapWithConcurrency,
+  listBunnyLibrary,
+  extractBunnyGuid,
   type BunnyVideoHealth,
 } from "../lib/bunny";
-import { isBunnyConfigured } from "../config/env";
+import { isBunnyConfigured, isGeminiConfigured, config } from "../config/env";
 import { buildVideoEmbedUrl } from "../lib/video";
 import { getPricingSettings, getSeoSettings } from "../lib/settings";
+import { getAiSettings, resolveAiModel, DEFAULT_AI_SETTINGS } from "../lib/ai-settings";
 
 const router = Router();
 
@@ -60,6 +65,138 @@ type PublishStatus = (typeof PUBLISH_STATUSES)[number];
 // callers can reject bad input or fall back to a sensible default.
 function parseStatus(value: unknown): PublishStatus | null {
   return PUBLISH_STATUSES.includes(value as PublishStatus) ? (value as PublishStatus) : null;
+}
+
+const LESSON_DIFFICULTIES = ["easy", "medium", "hard"] as const;
+type LessonDifficulty = (typeof LESSON_DIFFICULTIES)[number];
+const ACCESS_TYPES = ["free", "paid", "admin"] as const;
+type AccessType = (typeof ACCESS_TYPES)[number];
+
+// Pull the optional lesson-meta fields out of a request body into a partial set
+// of column values. Only keys explicitly present in the body are included, so
+// the same helper works for both create (defaults apply) and update (untouched
+// columns are left alone). `accessType` is mirrored into `isPreview` so the
+// existing access checks (which read isPreview) stay correct: free => preview.
+function parseLessonMeta(body: any): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  if ("objectives" in body) out.objectives = body.objectives ?? null;
+  if ("durationMinutes" in body)
+    out.durationMinutes =
+      body.durationMinutes === null || body.durationMinutes === undefined
+        ? null
+        : Number(body.durationMinutes);
+  if ("difficulty" in body) {
+    out.difficulty = LESSON_DIFFICULTIES.includes(body.difficulty as LessonDifficulty)
+      ? body.difficulty
+      : null;
+  }
+  if ("accessType" in body && ACCESS_TYPES.includes(body.accessType as AccessType)) {
+    out.accessType = body.accessType;
+    out.isPreview = body.accessType === "free";
+  } else if ("isPreview" in body) {
+    out.isPreview = Boolean(body.isPreview);
+  }
+  if ("thumbnailUrl" in body) out.thumbnailUrl = body.thumbnailUrl ?? null;
+  if ("metaTitle" in body) out.metaTitle = body.metaTitle ?? null;
+  if ("metaDescription" in body) out.metaDescription = body.metaDescription ?? null;
+  if ("aiEnabled" in body) out.aiEnabled = Boolean(body.aiEnabled);
+  return out;
+}
+
+// Extract the optional quiz settings columns from a request body. Booleans are
+// only set when present; numerics are coerced and nullable where the schema
+// allows unlimited (maxAttempts / timeLimitMinutes).
+function parseQuizSettings(body: any): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  if ("passThreshold" in body && body.passThreshold !== null && body.passThreshold !== undefined) {
+    const v = Math.round(Number(body.passThreshold));
+    if (Number.isFinite(v)) out.passThreshold = Math.min(100, Math.max(0, v));
+  }
+  if ("maxAttempts" in body)
+    out.maxAttempts =
+      body.maxAttempts === null || body.maxAttempts === undefined
+        ? null
+        : Math.max(1, Math.round(Number(body.maxAttempts)));
+  if ("timeLimitMinutes" in body)
+    out.timeLimitMinutes =
+      body.timeLimitMinutes === null || body.timeLimitMinutes === undefined
+        ? null
+        : Math.max(1, Math.round(Number(body.timeLimitMinutes)));
+  if ("shuffleQuestions" in body) out.shuffleQuestions = Boolean(body.shuffleQuestions);
+  if ("shuffleAnswers" in body) out.shuffleAnswers = Boolean(body.shuffleAnswers);
+  if ("showScore" in body) out.showScore = Boolean(body.showScore);
+  if ("showCorrectAnswers" in body) out.showCorrectAnswers = Boolean(body.showCorrectAnswers);
+  return out;
+}
+
+// A quiz may only be published when it is genuinely answerable: at least one
+// question, every question with at least two answers, and exactly one correct
+// answer per question. Returns a Polish error message when not publishable, or
+// null when the quiz passes validation.
+async function quizPublishBlocker(quizId: number): Promise<string | null> {
+  const questions = await db
+    .select({ id: quizQuestions.id })
+    .from(quizQuestions)
+    .where(eq(quizQuestions.quizId, quizId));
+  if (questions.length === 0) {
+    return "Nie można opublikować pustego quizu — dodaj co najmniej jedno pytanie";
+  }
+
+  const questionIds = questions.map((q) => q.id);
+  const answers = await db
+    .select({
+      questionId: quizAnswers.questionId,
+      isCorrect: quizAnswers.isCorrect,
+    })
+    .from(quizAnswers)
+    .where(inArray(quizAnswers.questionId, questionIds));
+
+  const countByQuestion = new Map<number, number>();
+  const correctByQuestion = new Map<number, number>();
+  for (const a of answers) {
+    countByQuestion.set(a.questionId, (countByQuestion.get(a.questionId) ?? 0) + 1);
+    if (a.isCorrect) {
+      correctByQuestion.set(a.questionId, (correctByQuestion.get(a.questionId) ?? 0) + 1);
+    }
+  }
+
+  for (const qId of questionIds) {
+    if ((countByQuestion.get(qId) ?? 0) < 2) {
+      return "Każde pytanie musi mieć co najmniej dwie odpowiedzi";
+    }
+    if ((correctByQuestion.get(qId) ?? 0) !== 1) {
+      return "Każde pytanie musi mieć dokładnie jedną poprawną odpowiedź";
+    }
+  }
+
+  return null;
+}
+
+// Apply a client-supplied ordering of ids to a set of rows by writing the array
+// index into each row's sortOrder. Generic over any table that has id +
+// sortOrder. Runs in a single transaction so the reorder is atomic. When a
+// `scope` is supplied (a parent column + value) every update is additionally
+// constrained to that parent, so a malformed payload can never reorder rows
+// belonging to a different parent entity.
+async function applyReorder(
+  table: any,
+  ids: unknown,
+  scope?: { column: any; value: number },
+): Promise<{ ok: boolean }> {
+  if (!Array.isArray(ids) || ids.some((n) => !Number.isInteger(Number(n)))) {
+    return { ok: false };
+  }
+  const numeric = ids.map((n) => Number(n));
+  await db.transaction(async (tx) => {
+    for (let i = 0; i < numeric.length; i++) {
+      const idMatch = eq(table.id, numeric[i]);
+      await tx
+        .update(table)
+        .set({ sortOrder: i, updatedAt: new Date() })
+        .where(scope ? and(idMatch, eq(scope.column, scope.value)) : idMatch);
+    }
+  });
+  return { ok: true };
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -683,6 +820,7 @@ router.get("/admin/courses", async (req: AuthRequest, res) => {
                 const [vid] = await db.select().from(videos).where(eq(videos.topicId, t.id)).limit(1);
                 const [quiz] = await db.select().from(quizzes).where(eq(quizzes.topicId, t.id)).limit(1);
                 const taskList = await db.select().from(tasks).where(eq(tasks.topicId, t.id));
+                const imageList = await db.select().from(lessonImages).where(eq(lessonImages.topicId, t.id)).orderBy(asc(lessonImages.sortOrder));
                 let quizDetail = null;
                 if (quiz) {
                   const qqs = await db.select().from(quizQuestions).where(eq(quizQuestions.quizId, quiz.id)).orderBy(asc(quizQuestions.sortOrder));
@@ -694,7 +832,7 @@ router.get("/admin/courses", async (req: AuthRequest, res) => {
                   );
                   quizDetail = { ...quiz, questions: qqsWithAnswers };
                 }
-                return { ...t, video: vid ?? null, quiz: quizDetail, tasks: taskList };
+                return { ...t, video: vid ?? null, quiz: quizDetail, tasks: taskList, images: imageList };
               })
             );
             return { ...s, topics: topicsEnriched };
@@ -792,8 +930,20 @@ router.delete("/admin/sections/:id", async (req: AuthRequest, res) => {
 // Topics
 router.post("/admin/topics", async (req: AuthRequest, res) => {
   try {
-    const { sectionId, title, slug, description, sortOrder } = req.body;
-    const [t] = await db.insert(topics).values({ sectionId, title, slug, description, sortOrder: sortOrder ?? 0 }).returning();
+    const { sectionId, title, slug, description, sortOrder, status } = req.body;
+    const st = parseStatus(status);
+    const [t] = await db
+      .insert(topics)
+      .values({
+        sectionId,
+        title,
+        slug,
+        description,
+        sortOrder: sortOrder ?? 0,
+        ...(st ? { status: st } : {}),
+        ...parseLessonMeta(req.body),
+      })
+      .returning();
     await logAdminAction(req.user!.id, "create", "topic", t.id, { title, sectionId });
     res.status(201).json(t);
   } catch (err) {
@@ -805,8 +955,21 @@ router.post("/admin/topics", async (req: AuthRequest, res) => {
 router.put("/admin/topics/:id", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
-    const { title, slug, description, sortOrder } = req.body;
-    const [updated] = await db.update(topics).set({ title, slug, description, sortOrder, updatedAt: new Date() }).where(eq(topics.id, id)).returning();
+    const { title, slug, description, sortOrder, status } = req.body;
+    const st = parseStatus(status);
+    const [updated] = await db
+      .update(topics)
+      .set({
+        title,
+        slug,
+        description,
+        sortOrder,
+        ...(st ? { status: st } : {}),
+        ...parseLessonMeta(req.body),
+        updatedAt: new Date(),
+      })
+      .where(eq(topics.id, id))
+      .returning();
     if (!updated) { res.status(404).json({ error: "Temat nie znaleziony" }); return; }
     await logAdminAction(req.user!.id, "update", "topic", id);
     res.json(updated);
@@ -869,8 +1032,12 @@ router.delete("/admin/videos/:id", async (req: AuthRequest, res) => {
 // Quizzes
 router.post("/admin/quizzes", async (req: AuthRequest, res) => {
   try {
-    const { topicId, title } = req.body;
-    const [q] = await db.insert(quizzes).values({ topicId, title }).returning();
+    const { topicId, title, status } = req.body;
+    const st = parseStatus(status);
+    const [q] = await db
+      .insert(quizzes)
+      .values({ topicId, title, ...(st ? { status: st } : {}), ...parseQuizSettings(req.body) })
+      .returning();
     await logAdminAction(req.user!.id, "create", "quiz", q.id, { topicId, title });
     res.status(201).json(q);
   } catch (err) {
@@ -882,8 +1049,17 @@ router.post("/admin/quizzes", async (req: AuthRequest, res) => {
 router.put("/admin/quizzes/:id", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
-    const { title } = req.body;
-    const [updated] = await db.update(quizzes).set({ title, updatedAt: new Date() }).where(eq(quizzes.id, id)).returning();
+    const { title, status } = req.body;
+    const st = parseStatus(status);
+    if (st === "published") {
+      const blocker = await quizPublishBlocker(id);
+      if (blocker) { res.status(400).json({ error: blocker }); return; }
+    }
+    const [updated] = await db
+      .update(quizzes)
+      .set({ title, ...(st ? { status: st } : {}), ...parseQuizSettings(req.body), updatedAt: new Date() })
+      .where(eq(quizzes.id, id))
+      .returning();
     if (!updated) { res.status(404).json({ error: "Quiz nie znaleziony" }); return; }
     res.json(updated);
   } catch (err) {
@@ -908,8 +1084,19 @@ router.delete("/admin/quizzes/:id", async (req: AuthRequest, res) => {
 router.post("/admin/quizzes/:id/questions", async (req: AuthRequest, res) => {
   try {
     const quizId = Number(req.params.id);
-    const { questionText, sortOrder } = req.body;
-    const [q] = await db.insert(quizQuestions).values({ quizId, questionText, sortOrder: sortOrder ?? 0 }).returning();
+    const { questionText, sortOrder, explanation, points } = req.body;
+    const [q] = await db
+      .insert(quizQuestions)
+      .values({
+        quizId,
+        questionText,
+        sortOrder: sortOrder ?? 0,
+        ...("explanation" in req.body ? { explanation: explanation ?? null } : {}),
+        ...(points !== undefined && points !== null
+          ? { points: Math.max(1, Math.round(Number(points))) }
+          : {}),
+      })
+      .returning();
     res.status(201).json(q);
   } catch (err) {
     req.log.error({ err }, "Create question error");
@@ -920,8 +1107,20 @@ router.post("/admin/quizzes/:id/questions", async (req: AuthRequest, res) => {
 router.put("/admin/questions/:questionId", async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.questionId);
-    const { questionText, sortOrder } = req.body;
-    const [updated] = await db.update(quizQuestions).set({ questionText, sortOrder, updatedAt: new Date() }).where(eq(quizQuestions.id, id)).returning();
+    const { questionText, sortOrder, explanation, points } = req.body;
+    const [updated] = await db
+      .update(quizQuestions)
+      .set({
+        questionText,
+        sortOrder,
+        ...("explanation" in req.body ? { explanation: explanation ?? null } : {}),
+        ...(points !== undefined && points !== null
+          ? { points: Math.max(1, Math.round(Number(points))) }
+          : {}),
+        updatedAt: new Date(),
+      })
+      .where(eq(quizQuestions.id, id))
+      .returning();
     if (!updated) { res.status(404).json({ error: "Pytanie nie znalezione" }); return; }
     res.json(updated);
   } catch (err) {
@@ -970,7 +1169,7 @@ router.post("/admin/questions/:questionId/answers", async (req: AuthRequest, res
 
       const [created] = await tx
         .insert(quizAnswers)
-        .values({ questionId, answerLabel, answerText, isCorrect: isCorrect ?? false })
+        .values({ questionId, answerLabel, answerText, isCorrect: isCorrect ?? false, sortOrder: siblings.length })
         .returning();
       // Enforce exactly one correct answer per question.
       if (isCorrect) {
@@ -1306,6 +1505,10 @@ router.patch("/admin/quizzes/:id/status", async (req: AuthRequest, res) => {
     const id = Number(req.params.id);
     const status = parseStatus(req.body?.status);
     if (!status) { res.status(400).json({ error: "Nieprawidłowy status" }); return; }
+    if (status === "published") {
+      const blocker = await quizPublishBlocker(id);
+      if (blocker) { res.status(400).json({ error: blocker }); return; }
+    }
     const [updated] = await db
       .update(quizzes)
       .set({ status, updatedAt: new Date() })
@@ -1627,6 +1830,627 @@ router.put("/admin/pricing", async (req: AuthRequest, res) => {
     res.json(row);
   } catch (err) {
     req.log.error({ err }, "Update pricing error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ─── LESSON OPERATIONS: duplicate / reorder / preview ─────────────────────────
+
+// Deep-clone a lesson within its section: the topic row plus its video, quiz
+// (with questions + answers), tasks and images. The clone is forced to draft so
+// a half-built copy never leaks to students.
+router.post("/admin/topics/:id/duplicate", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [src] = await db.select().from(topics).where(eq(topics.id, id)).limit(1);
+    if (!src) { res.status(404).json({ error: "Temat nie znaleziony" }); return; }
+
+    const clone = await db.transaction(async (tx) => {
+      const { id: _id, createdAt: _c, updatedAt: _u, ...rest } = src;
+      const [newTopic] = await tx
+        .insert(topics)
+        .values({
+          ...rest,
+          title: `${src.title} (kopia)`,
+          slug: `${src.slug}-kopia-${Date.now().toString(36)}`,
+          status: "draft",
+          sortOrder: src.sortOrder + 1,
+        })
+        .returning();
+
+      const [srcVideo] = await tx.select().from(videos).where(eq(videos.topicId, id)).limit(1);
+      if (srcVideo) {
+        const { id: _vid, createdAt, updatedAt, topicId, ...vrest } = srcVideo;
+        await tx.insert(videos).values({ ...vrest, topicId: newTopic.id });
+      }
+
+      const srcImages = await tx.select().from(lessonImages).where(eq(lessonImages.topicId, id));
+      for (const img of srcImages) {
+        const { id: _iid, createdAt, updatedAt, topicId, ...irest } = img;
+        await tx.insert(lessonImages).values({ ...irest, topicId: newTopic.id });
+      }
+
+      const srcTasks = await tx.select().from(tasks).where(eq(tasks.topicId, id));
+      for (const tk of srcTasks) {
+        const { id: _tid, createdAt, updatedAt, topicId, ...trest } = tk;
+        await tx.insert(tasks).values({ ...trest, topicId: newTopic.id });
+      }
+
+      const [srcQuiz] = await tx.select().from(quizzes).where(eq(quizzes.topicId, id)).limit(1);
+      if (srcQuiz) {
+        const { id: _qid, createdAt, updatedAt, topicId, ...qrest } = srcQuiz;
+        const [newQuiz] = await tx
+          .insert(quizzes)
+          .values({ ...qrest, topicId: newTopic.id, status: "draft" })
+          .returning();
+        const srcQuestions = await tx.select().from(quizQuestions).where(eq(quizQuestions.quizId, srcQuiz.id));
+        for (const q of srcQuestions) {
+          const { id: _qqid, createdAt: qc, updatedAt: qu, quizId, ...qqrest } = q;
+          const [newQ] = await tx
+            .insert(quizQuestions)
+            .values({ ...qqrest, quizId: newQuiz.id })
+            .returning();
+          const srcAnswers = await tx.select().from(quizAnswers).where(eq(quizAnswers.questionId, q.id));
+          for (const a of srcAnswers) {
+            const { id: _aid, createdAt: ac, updatedAt: au, questionId, ...arest } = a;
+            await tx.insert(quizAnswers).values({ ...arest, questionId: newQ.id });
+          }
+        }
+      }
+
+      return newTopic;
+    });
+
+    await logAdminAction(req.user!.id, "duplicate", "topic", clone.id, { sourceId: id });
+    res.status(201).json(clone);
+  } catch (err) {
+    req.log.error({ err }, "Duplicate topic error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.post("/admin/topics/reorder", async (req: AuthRequest, res) => {
+  try {
+    const { sectionId, ids } = req.body ?? {};
+    if (!Number.isInteger(Number(sectionId))) {
+      res.status(400).json({ error: "sectionId jest wymagane" });
+      return;
+    }
+    const result = await applyReorder(topics, ids);
+    if (!result.ok) { res.status(400).json({ error: "Nieprawidłowa lista ids" }); return; }
+    await logAdminAction(req.user!.id, "reorder", "topic", Number(sectionId));
+    res.json({ message: "Kolejność zaktualizowana" });
+  } catch (err) {
+    req.log.error({ err }, "Reorder topics error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Student-style preview of a lesson regardless of publish status, so an admin
+// can see exactly what a learner would (video embed, materials, quiz, tasks)
+// before publishing. Mirrors the public TopicDetail shape.
+router.get("/admin/topics/:id/preview", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [topic] = await db.select().from(topics).where(eq(topics.id, id)).limit(1);
+    if (!topic) { res.status(404).json({ error: "Temat nie znaleziony" }); return; }
+
+    const [video] = await db.select().from(videos).where(eq(videos.topicId, id)).limit(1);
+    const images = await db.select().from(lessonImages).where(eq(lessonImages.topicId, id)).orderBy(asc(lessonImages.sortOrder));
+    const taskList = await db.select().from(tasks).where(eq(tasks.topicId, id));
+    const [quiz] = await db.select().from(quizzes).where(eq(quizzes.topicId, id)).limit(1);
+
+    let quizDetail: any = null;
+    if (quiz) {
+      const qqs = await db.select().from(quizQuestions).where(eq(quizQuestions.quizId, quiz.id)).orderBy(asc(quizQuestions.sortOrder));
+      const questions = await Promise.all(
+        qqs.map(async (q) => {
+          const answers = await db
+            .select({
+              id: quizAnswers.id,
+              questionId: quizAnswers.questionId,
+              answerLabel: quizAnswers.answerLabel,
+              answerText: quizAnswers.answerText,
+            })
+            .from(quizAnswers)
+            .where(eq(quizAnswers.questionId, q.id))
+            .orderBy(asc(quizAnswers.sortOrder), asc(quizAnswers.answerLabel));
+          return { ...q, answers };
+        }),
+      );
+      quizDetail = { ...quiz, questions };
+    }
+
+    res.json({
+      ...topic,
+      video: video ? { ...video, embedUrl: buildVideoEmbedUrl(video) } : null,
+      images,
+      tasks: taskList,
+      quiz: quizDetail,
+      hasAccess: true,
+      preview: true,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Preview topic error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Set/replace a lesson's main thumbnail image.
+router.put("/admin/topics/:id/thumbnail", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const thumbnailUrl = typeof req.body?.thumbnailUrl === "string" ? req.body.thumbnailUrl : null;
+    const [updated] = await db
+      .update(topics)
+      .set({ thumbnailUrl, updatedAt: new Date() })
+      .where(eq(topics.id, id))
+      .returning();
+    if (!updated) { res.status(404).json({ error: "Temat nie znaleziony" }); return; }
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Set thumbnail error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ─── QUIZ OPERATIONS: duplicate / reorder ─────────────────────────────────────
+
+router.post("/admin/quizzes/:id/duplicate", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [src] = await db.select().from(quizzes).where(eq(quizzes.id, id)).limit(1);
+    if (!src) { res.status(404).json({ error: "Quiz nie znaleziony" }); return; }
+
+    const clone = await db.transaction(async (tx) => {
+      const { id: _id, createdAt, updatedAt, ...rest } = src;
+      const [newQuiz] = await tx
+        .insert(quizzes)
+        .values({ ...rest, title: `${src.title} (kopia)`, status: "draft" })
+        .returning();
+      const srcQuestions = await tx.select().from(quizQuestions).where(eq(quizQuestions.quizId, id));
+      for (const q of srcQuestions) {
+        const { id: _qid, createdAt: qc, updatedAt: qu, quizId, ...qrest } = q;
+        const [newQ] = await tx.insert(quizQuestions).values({ ...qrest, quizId: newQuiz.id }).returning();
+        const srcAnswers = await tx.select().from(quizAnswers).where(eq(quizAnswers.questionId, q.id));
+        for (const a of srcAnswers) {
+          const { id: _aid, createdAt: ac, updatedAt: au, questionId, ...arest } = a;
+          await tx.insert(quizAnswers).values({ ...arest, questionId: newQ.id });
+        }
+      }
+      return newQuiz;
+    });
+
+    await logAdminAction(req.user!.id, "duplicate", "quiz", clone.id, { sourceId: id });
+    res.status(201).json(clone);
+  } catch (err) {
+    req.log.error({ err }, "Duplicate quiz error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.post("/admin/quizzes/:id/questions/reorder", async (req: AuthRequest, res) => {
+  try {
+    const result = await applyReorder(quizQuestions, req.body?.ids, {
+      column: quizQuestions.quizId,
+      value: Number(req.params.id),
+    });
+    if (!result.ok) { res.status(400).json({ error: "Nieprawidłowa lista ids" }); return; }
+    res.json({ message: "Kolejność zaktualizowana" });
+  } catch (err) {
+    req.log.error({ err }, "Reorder questions error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.post("/admin/questions/:questionId/duplicate", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.questionId);
+    const [src] = await db.select().from(quizQuestions).where(eq(quizQuestions.id, id)).limit(1);
+    if (!src) { res.status(404).json({ error: "Pytanie nie znalezione" }); return; }
+    const clone = await db.transaction(async (tx) => {
+      const { id: _id, createdAt, updatedAt, ...rest } = src;
+      const [newQ] = await tx
+        .insert(quizQuestions)
+        .values({ ...rest, questionText: `${src.questionText} (kopia)`, sortOrder: src.sortOrder + 1 })
+        .returning();
+      const srcAnswers = await tx.select().from(quizAnswers).where(eq(quizAnswers.questionId, id));
+      for (const a of srcAnswers) {
+        const { id: _aid, createdAt: ac, updatedAt: au, questionId, ...arest } = a;
+        await tx.insert(quizAnswers).values({ ...arest, questionId: newQ.id });
+      }
+      return newQ;
+    });
+    res.status(201).json(clone);
+  } catch (err) {
+    req.log.error({ err }, "Duplicate question error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.post("/admin/questions/:questionId/answers/reorder", async (req: AuthRequest, res) => {
+  try {
+    const result = await applyReorder(quizAnswers, req.body?.ids, {
+      column: quizAnswers.questionId,
+      value: Number(req.params.questionId),
+    });
+    if (!result.ok) { res.status(400).json({ error: "Nieprawidłowa lista ids" }); return; }
+    res.json({ message: "Kolejność zaktualizowana" });
+  } catch (err) {
+    req.log.error({ err }, "Reorder answers error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ─── LESSON IMAGES / MATERIALS ────────────────────────────────────────────────
+
+// Cap an inline data-URL image so the DB does not balloon. Real CDN/URL refs
+// are unaffected (they are short). ~3 MB decoded ⇒ ~4 MB base64.
+const MAX_IMAGE_URL_LEN = 4 * 1024 * 1024;
+
+router.get("/admin/topics/:id/images", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const rows = await db
+      .select()
+      .from(lessonImages)
+      .where(eq(lessonImages.topicId, id))
+      .orderBy(asc(lessonImages.sortOrder));
+    res.json(rows);
+  } catch (err) {
+    req.log.error({ err }, "List lesson images error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.post("/admin/images", async (req: AuthRequest, res) => {
+  try {
+    const { topicId, imageUrl, alt, sortOrder } = req.body ?? {};
+    if (!Number.isInteger(Number(topicId))) {
+      res.status(400).json({ error: "topicId jest wymagane" });
+      return;
+    }
+    if (typeof imageUrl !== "string" || imageUrl.trim() === "") {
+      res.status(400).json({ error: "imageUrl jest wymagane" });
+      return;
+    }
+    if (imageUrl.length > MAX_IMAGE_URL_LEN) {
+      res.status(413).json({ error: "Obraz jest zbyt duży (maks. ~3 MB)" });
+      return;
+    }
+    const [created] = await db
+      .insert(lessonImages)
+      .values({
+        topicId: Number(topicId),
+        imageUrl: imageUrl.trim(),
+        alt: typeof alt === "string" ? alt : null,
+        sortOrder: Number.isInteger(Number(sortOrder)) ? Number(sortOrder) : 0,
+      })
+      .returning();
+    await logAdminAction(req.user!.id, "create", "lesson_image", created.id, { topicId: Number(topicId) });
+    res.status(201).json(created);
+  } catch (err) {
+    req.log.error({ err }, "Create lesson image error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.post("/admin/images/reorder", async (req: AuthRequest, res) => {
+  try {
+    const topicId = req.body?.topicId;
+    const result = await applyReorder(
+      lessonImages,
+      req.body?.ids,
+      Number.isInteger(Number(topicId))
+        ? { column: lessonImages.topicId, value: Number(topicId) }
+        : undefined,
+    );
+    if (!result.ok) { res.status(400).json({ error: "Nieprawidłowa lista ids" }); return; }
+    res.json({ message: "Kolejność zaktualizowana" });
+  } catch (err) {
+    req.log.error({ err }, "Reorder images error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.put("/admin/images/:id", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const set: Record<string, unknown> = { updatedAt: new Date() };
+    if ("imageUrl" in req.body) {
+      if (typeof req.body.imageUrl !== "string" || req.body.imageUrl.trim() === "") {
+        res.status(400).json({ error: "imageUrl nie może być puste" });
+        return;
+      }
+      if (req.body.imageUrl.length > MAX_IMAGE_URL_LEN) {
+        res.status(413).json({ error: "Obraz jest zbyt duży (maks. ~3 MB)" });
+        return;
+      }
+      set.imageUrl = req.body.imageUrl.trim();
+    }
+    if ("alt" in req.body) set.alt = typeof req.body.alt === "string" ? req.body.alt : null;
+    if ("sortOrder" in req.body && Number.isInteger(Number(req.body.sortOrder))) {
+      set.sortOrder = Number(req.body.sortOrder);
+    }
+    const [updated] = await db.update(lessonImages).set(set).where(eq(lessonImages.id, id)).returning();
+    if (!updated) { res.status(404).json({ error: "Obraz nie znaleziony" }); return; }
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Update lesson image error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.delete("/admin/images/:id", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    await db.delete(lessonImages).where(eq(lessonImages.id, id));
+    await logAdminAction(req.user!.id, "delete", "lesson_image", id);
+    res.json({ message: "Obraz usunięty" });
+  } catch (err) {
+    req.log.error({ err }, "Delete lesson image error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ─── BUNNY VIDEO MODULE ───────────────────────────────────────────────────────
+
+// List every video in the Bunny library, annotated with which lesson (if any)
+// it is already assigned to so the admin can spot unused/orphaned videos.
+router.get("/admin/bunny/library", async (req: AuthRequest, res) => {
+  try {
+    if (!isBunnyConfigured()) {
+      res.json({ configured: false, items: [] });
+      return;
+    }
+    const result = await listBunnyLibrary();
+    if (!result.ok) {
+      res.json({ configured: true, items: [] });
+      return;
+    }
+    const assignedRows = await db
+      .select({ guid: videos.bunnyVideoId, topicId: videos.topicId, topicTitle: topics.title })
+      .from(videos)
+      .innerJoin(topics, eq(videos.topicId, topics.id));
+    const assignedByGuid = new Map(
+      assignedRows.filter((r) => r.guid).map((r) => [r.guid as string, r]),
+    );
+    const items = result.items.map((v) => {
+      const a = assignedByGuid.get(v.guid);
+      return {
+        ...v,
+        assignedTopicId: a?.topicId ?? null,
+        assignedTopicTitle: a?.topicTitle ?? null,
+      };
+    });
+    res.json({ configured: true, items });
+  } catch (err) {
+    req.log.error({ err }, "Bunny library error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Cross-reference the Bunny library with the catalogue: videos present in Bunny
+// but not assigned to any lesson (orphans), and lessons that have no video yet.
+router.get("/admin/bunny/diagnostics", async (req: AuthRequest, res) => {
+  try {
+    const lessonsWithoutVideoRows = await db
+      .select({ topicId: topics.id, topicTitle: topics.title, sectionTitle: sections.title })
+      .from(topics)
+      .innerJoin(sections, eq(topics.sectionId, sections.id))
+      .leftJoin(videos, eq(videos.topicId, topics.id))
+      .where(sql`${videos.id} IS NULL`)
+      .orderBy(asc(sections.sortOrder), asc(topics.sortOrder));
+
+    if (!isBunnyConfigured()) {
+      res.json({
+        configured: false,
+        orphanVideos: [],
+        lessonsWithoutVideo: lessonsWithoutVideoRows,
+      });
+      return;
+    }
+
+    const library = await listBunnyLibrary();
+    let orphanVideos: any[] = [];
+    if (library.ok) {
+      const assigned = await db
+        .select({ guid: videos.bunnyVideoId })
+        .from(videos)
+        .where(sql`${videos.bunnyVideoId} IS NOT NULL`);
+      const assignedSet = new Set(assigned.map((a) => a.guid as string));
+      orphanVideos = library.items.filter((v) => !assignedSet.has(v.guid));
+    }
+
+    res.json({
+      configured: true,
+      orphanVideos,
+      lessonsWithoutVideo: lessonsWithoutVideoRows,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Bunny diagnostics error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Assign a Bunny video to a lesson from a raw GUID, embed URL, or iframe snippet.
+// Replaces any existing video on that lesson (one video per lesson).
+router.post("/admin/bunny/assign", async (req: AuthRequest, res) => {
+  try {
+    const { topicId, source, title } = req.body ?? {};
+    if (!Number.isInteger(Number(topicId))) {
+      res.status(400).json({ error: "topicId jest wymagane" });
+      return;
+    }
+    if (typeof source !== "string" || source.trim() === "") {
+      res.status(400).json({ error: "source jest wymagane" });
+      return;
+    }
+    const guid = extractBunnyGuid(source);
+    if (!guid) {
+      res.status(400).json({ error: "Nie rozpoznano identyfikatora wideo Bunny (GUID)" });
+      return;
+    }
+    const [topic] = await db.select({ id: topics.id, title: topics.title }).from(topics).where(eq(topics.id, Number(topicId))).limit(1);
+    if (!topic) { res.status(404).json({ error: "Temat nie znaleziony" }); return; }
+
+    // Pull live metadata when Bunny is reachable so title/duration are accurate.
+    let resolvedTitle = typeof title === "string" && title.trim() ? title.trim() : topic.title;
+    let durationSeconds: number | null = null;
+    if (isBunnyConfigured()) {
+      const health = await probeBunnyVideo(guid);
+      if (health.ok) {
+        if (health.title) resolvedTitle = (typeof title === "string" && title.trim()) ? title.trim() : health.title;
+        durationSeconds = health.lengthSeconds;
+      }
+    }
+
+    const result = await db.transaction(async (tx) => {
+      const [existing] = await tx.select().from(videos).where(eq(videos.topicId, Number(topicId))).limit(1);
+      if (existing) {
+        const [updated] = await tx
+          .update(videos)
+          .set({ bunnyVideoId: guid, title: resolvedTitle, durationSeconds, videoUrl: null, updatedAt: new Date() })
+          .where(eq(videos.id, existing.id))
+          .returning();
+        return updated;
+      }
+      const [created] = await tx
+        .insert(videos)
+        .values({ topicId: Number(topicId), bunnyVideoId: guid, title: resolvedTitle, durationSeconds })
+        .returning();
+      return created;
+    });
+
+    await logAdminAction(req.user!.id, "assign", "video", result.id, { topicId: Number(topicId), guid });
+    res.json(result);
+  } catch (err) {
+    req.log.error({ err }, "Bunny assign error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Refresh stored title/duration for every assigned Bunny video from the live
+// library. Returns how many rows were updated.
+router.post("/admin/bunny/sync", async (req: AuthRequest, res) => {
+  try {
+    if (!isBunnyConfigured()) {
+      res.json({ updated: 0 });
+      return;
+    }
+    const library = await listBunnyLibrary();
+    if (!library.ok) {
+      res.json({ updated: 0 });
+      return;
+    }
+    const byGuid = new Map(library.items.map((v) => [v.guid, v]));
+    const rows = await db
+      .select()
+      .from(videos)
+      .where(sql`${videos.bunnyVideoId} IS NOT NULL`);
+    let updated = 0;
+    for (const row of rows) {
+      const live = byGuid.get(row.bunnyVideoId as string);
+      if (!live) continue;
+      await db
+        .update(videos)
+        .set({
+          title: live.title || row.title,
+          durationSeconds: live.lengthSeconds ?? row.durationSeconds,
+          updatedAt: new Date(),
+        })
+        .where(eq(videos.id, row.id));
+      updated++;
+    }
+    await logAdminAction(req.user!.id, "sync", "video", undefined, { updated });
+    res.json({ updated });
+  } catch (err) {
+    req.log.error({ err }, "Bunny sync error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// ─── AI / GEMINI SETTINGS ─────────────────────────────────────────────────────
+
+// Returns the editable AI configuration. The Gemini API key is NEVER included;
+// `keyConfigured` only signals presence so the admin UI can show status. The
+// `envModel` is the default model when no override is set.
+router.get("/admin/ai-settings", async (req: AuthRequest, res) => {
+  try {
+    const s = await getAiSettings();
+    res.json({
+      ...s,
+      keyConfigured: isGeminiConfigured(),
+      envModel: config.gemini.model,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Get AI settings error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+router.put("/admin/ai-settings", async (req: AuthRequest, res) => {
+  try {
+    const b = req.body ?? {};
+    const values: Record<string, unknown> = { id: 1, updatedAt: new Date() };
+    if ("enabled" in b) values.enabled = Boolean(b.enabled);
+    if ("model" in b) values.model = typeof b.model === "string" ? b.model.slice(0, 100) : "";
+    if ("systemPrompt" in b) values.systemPrompt = typeof b.systemPrompt === "string" ? b.systemPrompt.slice(0, 5000) : "";
+    if ("evalInstruction" in b) values.evalInstruction = typeof b.evalInstruction === "string" ? b.evalInstruction.slice(0, 5000) : "";
+    if ("tone" in b) values.tone = typeof b.tone === "string" ? b.tone.slice(0, 200) : "";
+    if ("maxResponseLength" in b) values.maxResponseLength = Math.max(0, Math.round(Number(b.maxResponseLength) || 0));
+    if ("errorMessage" in b) values.errorMessage = typeof b.errorMessage === "string" ? b.errorMessage.slice(0, 500) : "";
+
+    const { id: _drop, ...setValues } = values;
+    const [row] = await db
+      .insert(aiSettings)
+      .values(values as any)
+      .onConflictDoUpdate({ target: aiSettings.id, set: setValues })
+      .returning();
+    await logAdminAction(req.user!.id, "update", "ai_settings", 1);
+    res.json({ ...row, keyConfigured: isGeminiConfigured(), envModel: config.gemini.model });
+  } catch (err) {
+    req.log.error({ err }, "Update AI settings error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Test the current/draft prompt against Gemini (text-only). Falls back to a demo
+// reply when Gemini is not configured so the admin UI is never dead.
+router.post("/admin/ai-settings/test", async (req: AuthRequest, res) => {
+  try {
+    const prompt = typeof req.body?.prompt === "string" ? req.body.prompt.trim() : "";
+    if (!prompt) { res.status(400).json({ error: "prompt jest wymagany" }); return; }
+    const systemPrompt = typeof req.body?.systemPrompt === "string" ? req.body.systemPrompt : "";
+
+    const settings = await getAiSettings();
+    const model = resolveAiModel(settings);
+
+    if (!isGeminiConfigured()) {
+      res.json({
+        reply:
+          "Tryb demonstracyjny: skonfiguruj GEMINI_API_KEY, aby przetestować prawdziwą odpowiedź AI. To jest przykładowa odpowiedź na Twój prompt.",
+        model: "demo",
+        demo: true,
+      });
+      return;
+    }
+
+    try {
+      const { GoogleGenerativeAI } = await import("@google/generative-ai");
+      const genAI = new GoogleGenerativeAI(config.gemini.apiKey as string);
+      const gModel = genAI.getGenerativeModel({
+        model,
+        ...(systemPrompt.trim() ? { systemInstruction: systemPrompt } : {}),
+      });
+      const result = await gModel.generateContent(prompt);
+      res.json({ reply: result.response.text(), model, demo: false });
+    } catch (aiErr) {
+      req.log.error({ err: aiErr }, "AI test failed");
+      res.status(502).json({ error: "Błąd podczas testu AI. Sprawdź konfigurację i spróbuj ponownie." });
+    }
+  } catch (err) {
+    req.log.error({ err }, "AI test error");
     res.status(500).json({ error: "Błąd serwera" });
   }
 });

@@ -18,6 +18,8 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import AdminUsers from "@/pages/admin/users";
 import AdminUserDetail from "@/pages/admin/user-detail";
 import AdminCourses from "@/pages/admin/courses";
+import AdminAiSettings from "@/pages/admin/ai-settings";
+import AdminVideos from "@/pages/admin/videos";
 import AdminContact from "@/pages/admin/contact";
 import AdminLogs from "@/pages/admin/logs";
 import AdminCourseDebug from "@/pages/admin/course-debug";
@@ -70,6 +72,12 @@ function Router() {
         </Route>
         <Route path="/admin/courses">
           {() => <AdminPage><AdminCourses /></AdminPage>}
+        </Route>
+        <Route path="/admin/videos">
+          {() => <AdminPage><AdminVideos /></AdminPage>}
+        </Route>
+        <Route path="/admin/ai">
+          {() => <AdminPage><AdminAiSettings /></AdminPage>}
         </Route>
         <Route path="/admin/landing">
           {() => <AdminPage><AdminLanding /></AdminPage>}

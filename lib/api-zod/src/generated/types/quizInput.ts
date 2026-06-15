@@ -6,9 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { QuizInputStatus } from './quizInputStatus';
+import type { QuizSettings } from './quizSettings';
 
-export interface QuizInput {
+export type QuizInput = QuizSettings & {
   topicId: number;
   title: string;
   status?: QuizInputStatus;
-}
+};

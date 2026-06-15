@@ -40,6 +40,22 @@ export const seoSettings = pgTable("seo_settings", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Singleton (id = 1). Owner-editable AI behaviour. The Gemini API key is NEVER
+// stored here — it lives only in the server env. This row holds the model name,
+// prompts and tuning that the admin can change without code edits. `enabled` is
+// the global AI kill switch combined with per-lesson topics.aiEnabled.
+export const aiSettings = pgTable("ai_settings", {
+  id: integer("id").primaryKey().default(1),
+  enabled: boolean("enabled").notNull().default(true),
+  model: text("model").notNull().default("gemini-1.5-flash"),
+  systemPrompt: text("system_prompt").notNull().default(""),
+  evalInstruction: text("eval_instruction").notNull().default(""),
+  tone: text("tone").notNull().default(""),
+  maxResponseLength: integer("max_response_length").notNull().default(0),
+  errorMessage: text("error_message").notNull().default(""),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Singleton (id = 1). SINGLE SOURCE OF TRUTH for the course price: the public
 // price endpoint, the landing page, the promo banner and the amount charged by
 // Paynow all read from here. Amounts are stored in grosz (1/100 PLN).

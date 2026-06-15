@@ -6,10 +6,18 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { QuizQuestionPublic } from './quizQuestionPublic';
+import type { QuizSettings } from './quizSettings';
 
-export interface QuizPublic {
+export type QuizPublic = QuizSettings & ({
   id: number;
   topicId: number;
   title: string;
   questions: QuizQuestionPublic[];
-}
+  /** Number of attempts the current user has already made. */
+  attemptsUsed?: number;
+  /**
+     * Attempts left for the current user, or null when unlimited.
+     * @nullable
+     */
+  attemptsRemaining?: number | null;
+});

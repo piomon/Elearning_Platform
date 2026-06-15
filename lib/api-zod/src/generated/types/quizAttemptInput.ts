@@ -9,4 +9,6 @@ import type { QuizAttemptAnswerInput } from './quizAttemptAnswerInput';
 
 export interface QuizAttemptInput {
   answers: QuizAttemptAnswerInput[];
+  /** Start ticket from /attempts/start; required for timed quizzes. */
+  startToken?: string;
 }

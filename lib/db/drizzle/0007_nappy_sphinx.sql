@@ -1,0 +1,1 @@
+ALTER TABLE "quiz_answers" ADD COLUMN "sort_order" integer DEFAULT 0 NOT NULL;

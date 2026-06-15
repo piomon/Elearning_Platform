@@ -6,6 +6,14 @@ import { users } from "./users";
 // Default is `published` so pre-existing rows stay visible after the migration.
 export const publishStatusEnum = pgEnum("publish_status", ["draft", "published", "hidden", "archived"]);
 
+// Lesson difficulty shown in the editor and (optionally) to students.
+export const lessonDifficultyEnum = pgEnum("lesson_difficulty", ["easy", "medium", "hard"]);
+
+// Who may access a lesson: a free preview, the paid course, or admin-only
+// (work in progress). `isPreview` is kept in sync (free => preview) so the
+// existing server-side access checks keep working unchanged.
+export const lessonAccessTypeEnum = pgEnum("lesson_access_type", ["free", "paid", "admin"]);
+
 export const courses = pgTable("courses", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
@@ -37,6 +45,19 @@ export const topics = pgTable("topics", {
   title: text("title").notNull(),
   slug: text("slug").notNull(),
   description: text("description"),
+  // Longer, structured learning objectives shown in the lesson editor.
+  objectives: text("objectives"),
+  durationMinutes: integer("duration_minutes"),
+  difficulty: lessonDifficultyEnum("difficulty"),
+  // Authoritative access intent picked in the editor. `isPreview` below is kept
+  // in sync (free => preview) so existing access checks need no changes.
+  accessType: lessonAccessTypeEnum("access_type").notNull().default("paid"),
+  thumbnailUrl: text("thumbnail_url"),
+  // Per-lesson SEO overrides (lesson tab "SEO").
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  // Per-lesson AI kill switch; combined with the global aiSettings.enabled flag.
+  aiEnabled: boolean("ai_enabled").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   // When true the lesson is a free preview accessible without a paid grant.
   // Access is still enforced server-side; this only widens what is allowed.
@@ -76,6 +97,17 @@ export const quizzes = pgTable("quizzes", {
   id: serial("id").primaryKey(),
   topicId: integer("topic_id").notNull().references(() => topics.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
+  // Percentage (0–100) required to pass. Default 80 matches the previous
+  // hardcoded threshold so existing quizzes behave identically.
+  passThreshold: integer("pass_threshold").notNull().default(80),
+  // null = unlimited attempts.
+  maxAttempts: integer("max_attempts"),
+  // null = no time limit.
+  timeLimitMinutes: integer("time_limit_minutes"),
+  shuffleQuestions: boolean("shuffle_questions").notNull().default(false),
+  shuffleAnswers: boolean("shuffle_answers").notNull().default(false),
+  showScore: boolean("show_score").notNull().default(true),
+  showCorrectAnswers: boolean("show_correct_answers").notNull().default(true),
   status: publishStatusEnum("status").notNull().default("published"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -85,6 +117,9 @@ export const quizQuestions = pgTable("quiz_questions", {
   id: serial("id").primaryKey(),
   quizId: integer("quiz_id").notNull().references(() => quizzes.id, { onDelete: "cascade" }),
   questionText: text("question_text").notNull(),
+  // Optional explanation revealed after answering (when the quiz allows it).
+  explanation: text("explanation"),
+  points: integer("points").notNull().default(1),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -96,6 +131,7 @@ export const quizAnswers = pgTable("quiz_answers", {
   answerLabel: text("answer_label").notNull(),
   answerText: text("answer_text").notNull(),
   isCorrect: boolean("is_correct").notNull().default(false),
+  sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

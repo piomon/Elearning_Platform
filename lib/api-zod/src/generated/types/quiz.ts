@@ -6,12 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { QuizQuestion } from './quizQuestion';
+import type { QuizSettings } from './quizSettings';
 import type { QuizStatus } from './quizStatus';
 
-export interface Quiz {
+export type Quiz = QuizSettings & {
   id: number;
   topicId: number;
   title: string;
   status?: QuizStatus;
   questions: QuizQuestion[];
-}
+};

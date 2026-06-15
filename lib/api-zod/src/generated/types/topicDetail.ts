@@ -6,11 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { LessonImage } from './lessonImage';
+import type { LessonMeta } from './lessonMeta';
 import type { QuizPublic } from './quizPublic';
 import type { Task } from './task';
 import type { Video } from './video';
 
-export interface TopicDetail {
+export type TopicDetail = LessonMeta & ({
   id: number;
   sectionId: number;
   /** @nullable */
@@ -30,4 +31,4 @@ export interface TopicDetail {
   images: LessonImage[];
   quiz?: QuizPublic | null;
   tasks: Task[];
-}
+});

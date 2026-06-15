@@ -6,3 +6,4 @@
 - [Production env contract](production-env-contract.md) — api-server crash-loops the deploy health check if required prod env vars missing; Gemini/P24/Bunny/SMTP are optional-at-boot and gated by isXConfigured guards.
 - [Status filtering scope](status-filtering-scope.md) — publish-status gating must cover AI/progress/metadata routes, not just GET content; reuse access.ts chain helpers; tasks inherit topic visibility.
 - [React effect/mutation loops](react-effect-mutation-loops.md) — never put a TanStack Query mutation result (or a callback closing over it) in effect/callback deps; use mutate/refetch (stable) or a ref, or you get infinite render loops.
+- [Quiz time-limit](quiz-time-limit.md) — timed quizzes use a signed start-ticket; server rejects late/forged submissions, client countdown is UX only.

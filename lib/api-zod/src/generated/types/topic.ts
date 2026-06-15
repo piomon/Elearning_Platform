@@ -5,8 +5,9 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { LessonMeta } from './lessonMeta';
 
-export interface Topic {
+export type Topic = LessonMeta & ({
   id: number;
   sectionId: number;
   title: string;
@@ -19,4 +20,4 @@ export interface Topic {
   hasQuiz?: boolean;
   hasTasks?: boolean;
   createdAt: string;
-}
+});
