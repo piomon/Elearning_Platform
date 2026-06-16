@@ -36,7 +36,7 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 8080
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: ${DATABASE_URL:-postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}}
       JWT_SECRET: ${JWT_SECRET}
       SESSION_SECRET: ${SESSION_SECRET}
       APP_URL: ${APP_URL:-}
@@ -52,6 +52,11 @@ services:
       PAYNOW_NOTIFICATION_URL: ${PAYNOW_NOTIFICATION_URL:-}
       BUNNY_LIBRARY_ID: ${BUNNY_LIBRARY_ID:-}
       BUNNY_CDN_HOSTNAME: ${BUNNY_CDN_HOSTNAME:-}
+      BUNNY_STREAM_API_KEY: ${BUNNY_STREAM_API_KEY:-}
+      BUNNY_STREAM_READONLY_API_KEY: ${BUNNY_STREAM_READONLY_API_KEY:-}
+      BUNNY_COLLECTION_DZIAL_1: ${BUNNY_COLLECTION_DZIAL_1:-}
+      BUNNY_COLLECTION_DZIAL_2: ${BUNNY_COLLECTION_DZIAL_2:-}
+      BUNNY_COLLECTION_DZIAL_3: ${BUNNY_COLLECTION_DZIAL_3:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-1.5-flash}
       CONTACT_EMAIL: ${CONTACT_EMAIL:-}
@@ -76,7 +81,7 @@ services:
       - "127.0.0.1:${WEB_PORT:-8080}:80"
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
     networks:
       - app_net
 

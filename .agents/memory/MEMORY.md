@@ -8,3 +8,5 @@
 - [React effect/mutation loops](react-effect-mutation-loops.md) — never put a TanStack Query mutation result (or a callback closing over it) in effect/callback deps; use mutate/refetch (stable) or a ref, or you get infinite render loops.
 - [Quiz time-limit](quiz-time-limit.md) — timed quizzes use a signed start-ticket; server rejects late/forged submissions, client countdown is UX only.
 - [Discount redemption idempotency](discount-redemption-idempotency.md) — use a PLAIN unique index + ON CONFLICT for "record once" guards; partial indexes break ON CONFLICT and this drizzle version drops targetWhere.
+- [PWA setup](pwa-setup.md) — vite-plugin-pwa (Workbox); devOptions.enabled MUST be false (SW would break Replit dev preview); plugin owns manifest, no static one.
+- [Docker / VPS self-host deploy](docker-vps-deploy.md) — compose+Traefik one-command deploy; migrations auto-run but seed.ts is destructive (manual only); workspace dep changes need a fresh frozen lockfile.
