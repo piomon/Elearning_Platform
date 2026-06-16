@@ -5,14 +5,21 @@ description: Steps to get the app running locally (env, schema, seed) and seeded
 
 # Getting the app running in the Replit dev environment
 
-The three artifact workflows (api-server, physics-platform web, mockup-sandbox) are
-registered. The API server fails to boot until these are done:
+From a fresh snapshot, workflows may NOT exist yet even though `artifact.toml` files are
+committed — `listWorkflows()`/`listArtifacts()` return empty. Re-register each app artifact
+(api-server, physics-platform) by replacing its `artifact.toml` with byte-identical content
+via `verifyAndReplaceArtifactToml`; that materializes the workflows so they can be started.
 
-1. **JWT_SECRET** must exist (min 32 chars) — required even in dev by `env.ts`. It's an
-   app-internal signing key, not a third-party credential, so generate one and set it as
-   a `development` env var (don't pester the user). `DATABASE_URL` is already provided.
-2. **Push schema**: `pnpm --filter @workspace/db run push` (the dev Postgres starts empty).
-3. **Seed**: `pnpm --filter @workspace/scripts run seed`.
+The API server fails to boot / seed+auth fail until these are done:
+
+1. `pnpm install`, then **`pnpm rebuild bcrypt`** — bcrypt's native build script is in
+   pnpm's ignored-build-scripts list, so a plain install leaves it unbuilt and any
+   `require('bcrypt')` (seed script, login/register) throws at runtime. Rebuild it once.
+2. **JWT_SECRET** must exist (min 32 chars) — required even in dev by `env.ts`. App-internal
+   signing key, not a third-party credential, so generate one and set as a `development`
+   env var (don't pester the user). `DATABASE_URL` is already provided.
+3. **Push schema**: `pnpm --filter @workspace/db run push` (the dev Postgres starts empty).
+4. **Seed**: `pnpm --filter @workspace/scripts run seed`.
 
 After that, `/api/healthz` → 200 and `/api/courses` returns the seeded course.
 
