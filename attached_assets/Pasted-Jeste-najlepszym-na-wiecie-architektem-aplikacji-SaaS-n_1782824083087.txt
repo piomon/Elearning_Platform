@@ -1,0 +1,1115 @@
+Jesteś najlepszym na świecie architektem aplikacji SaaS, najlepszym backend developerem Node.js + Express, najlepszym frontend developerem React + TypeScript, najlepszym DevOps engineerem od Docker/VPS, najlepszym specjalistą od bezpieczeństwa aplikacji webowych, najlepszym specjalistą od Clerk Auth oraz najlepszym projektantem komercyjnych platform edukacyjnych.
+
+Pracujesz na istniejącym projekcie platformy edukacyjnej. Strona i podstawowa aplikacja już istnieją. Twoim zadaniem nie jest stworzenie całej aplikacji od zera, tylko profesjonalne uporządkowanie i wdrożenie dwóch dużych obszarów:
+
+Pierwszy obszar: całkowite przełączenie logowania, rejestracji, sesji, ochrony tras i uprawnień na Clerk.
+
+Drugi obszar: przygotowanie całego projektu do produkcyjnego uruchomienia na lokalnym VPS przez Docker, migracje, zmienne środowiskowe, backupy i skrypt instalacyjno-uruchomieniowy.
+
+Masz działać jak senior developer, architekt i DevOps. Nie rób prowizorki. Nie zostawiaj starego logowania obok nowego. Nie twórz dwóch równoległych systemów autoryzacji. Nie zostawiaj martwego kodu. Nie zostawiaj sekretów w repozytorium. Nie rób makiety. Całość ma być przygotowana komercyjnie, profesjonalnie i tak, aby projekt można było realnie wdrożyć na VPS.
+
+1. Kontekst projektu
+
+Projekt to platforma edukacyjna online z kursem, lekcjami, wideo, zadaniami, quizami, tablicą interaktywną i modułem AI.
+
+Uczeń może założyć konto.
+
+Uczeń bez zakupu ma mieć ograniczony dostęp.
+
+Uczeń może wejść do platformy, zobaczyć wybrane informacje i przetestować jedną darmową lekcję.
+
+Uczeń nie może mieć pełnego dostępu do kursu, dopóki nie wykupi dostępu albo administrator nie nada mu dostępu ręcznie.
+
+Po zakupie, pozytywnej płatności albo ręcznym nadaniu dostępu uczeń uzyskuje dostęp do pełnej części kursu zgodnie z rekordem w bazie danych.
+
+Administrator ma mieć możliwość zarządzania dostępem użytkowników zgodnie z istniejącym zakresem panelu.
+
+Projekt zakłada stack:
+
+Frontend: React + TypeScript.
+
+Backend: Node.js + Express.
+
+Baza danych: PostgreSQL.
+
+Auth: Clerk.
+
+Wdrożenie: Docker / Docker Compose na VPS.
+
+Projekt ma być gotowy do pracy lokalnie, na Replit oraz do przeniesienia na VPS.
+
+2. Najważniejsze zasady
+
+Nie twórz aplikacji od nowa.
+
+Nie zmieniaj całej architektury bez potrzeby.
+
+Nie usuwaj funkcji kursu, lekcji, panelu ucznia, panelu admina, płatności ani innych istniejących modułów.
+
+Najpierw przeanalizuj obecny kod.
+
+Zidentyfikuj aktualne stare logowanie, stare formularze rejestracji, stare sesje, stare middleware, stare tokeny, stare hashe haseł, stare tabele i stare endpointy auth.
+
+Następnie zaprojektuj migrację na Clerk.
+
+Usuń albo odłącz stare logowanie w sposób bezpieczny.
+
+Nowy system logowania ma działać wyłącznie przez Clerk.
+
+W bazie aplikacji nie przechowuj haseł użytkowników.
+
+W bazie aplikacji trzymaj tylko dane potrzebne biznesowo, na przykład identyfikator użytkownika z Clerk, e-mail, rola, status dostępu, powiązania z płatnościami, postęp kursu i dane aplikacyjne.
+
+3. Docelowy model logowania
+
+Docelowo Clerk odpowiada za:
+
+rejestrację,
+
+logowanie,
+
+wylogowanie,
+
+reset hasła,
+
+sesję użytkownika,
+
+logowanie social, jeżeli będzie skonfigurowane,
+
+ochronę tras po stronie frontendu,
+
+weryfikację tożsamości użytkownika po stronie backendu.
+
+Aplikacja odpowiada za:
+
+role użytkowników,
+
+dostęp do kursu,
+
+dostęp do darmowej lekcji,
+
+powiązanie użytkownika Clerk z lokalnym rekordem w PostgreSQL,
+
+postęp ucznia,
+
+wyniki quizów,
+
+status płatności,
+
+ręczne nadanie lub odebranie dostępu przez administratora,
+
+ochronę endpointów biznesowych.
+
+4. Role i uprawnienia
+
+Wprowadź profesjonalny model ról i dostępu.
+
+Minimum role:
+
+student
+
+admin
+
+Opcjonalnie, jeśli projekt już to przewiduje:
+
+teacher
+
+support
+
+Każdy użytkownik po rejestracji domyślnie dostaje rolę student.
+
+Administrator może mieć rolę admin.
+
+Uczeń bez zakupu może:
+
+założyć konto,
+
+zalogować się,
+
+zobaczyć pulpit ucznia w wersji ograniczonej,
+
+zobaczyć informację o kursie,
+
+wejść do jednej darmowej lekcji testowej,
+
+przetestować ograniczony fragment kursu,
+
+zobaczyć komunikat zachęcający do zakupu pełnego dostępu.
+
+Uczeń bez zakupu nie może:
+
+otwierać płatnych lekcji,
+
+oglądać płatnych materiałów wideo,
+
+rozwiązywać płatnych quizów,
+
+korzystać z płatnych zadań,
+
+korzystać z płatnych modułów AI, jeśli są przypisane do płatnych lekcji,
+
+pobierać ukrytych danych kursu przez API,
+
+omijać blokady przez ręczne wpisanie URL.
+
+Uczeń po zakupie albo po ręcznym nadaniu dostępu może:
+
+korzystać z pełnych lekcji przypisanych do zakupionego kursu,
+
+oglądać materiały wideo,
+
+korzystać z tablicy interaktywnej,
+
+sprawdzać zadania przez AI, jeśli dana lekcja to przewiduje,
+
+rozwiązywać quizy,
+
+zapisywać postęp.
+
+Administrator może:
+
+wejść do panelu administratora,
+
+zarządzać użytkownikami,
+
+sprawdzać statusy dostępów,
+
+nadawać dostęp ręcznie,
+
+odbierać dostęp,
+
+zarządzać kursami, działami, lekcjami i quizami w istniejącym zakresie projektu.
+
+5. Dostęp darmowy — jedna lekcja testowa
+
+Wprowadź mechanizm darmowej lekcji.
+
+W bazie danych albo konfiguracji musi istnieć sposób oznaczenia lekcji jako darmowej.
+
+Przykładowe pole:
+
+is_free_preview
+
+albo
+
+access_level = free | paid
+
+Uczeń zalogowany, ale bez pełnego dostępu, może otworzyć tylko lekcje oznaczone jako darmowe.
+
+Jeżeli uczeń próbuje wejść do płatnej lekcji bez dostępu, pokaż profesjonalny ekran blokady.
+
+Ekran blokady powinien zawierać:
+
+informację, że lekcja jest częścią pełnego kursu,
+
+krótkie wyjaśnienie, że dostęp jest aktywowany po zakupie,
+
+przycisk przejścia do zakupu,
+
+przycisk powrotu do programu kursu,
+
+opcjonalnie informację, że jedna lekcja testowa jest dostępna za darmo.
+
+Nie pokazuj technicznego błędu.
+
+Nie pokazuj pustej strony.
+
+Nie pozwalaj pobierać danych płatnej lekcji przez API, nawet jeśli frontend blokuje widok.
+
+Blokada musi być zarówno na frontendzie, jak i na backendzie.
+
+6. Model danych w PostgreSQL
+
+Zaprojektuj lub uporządkuj tabele tak, aby Clerk był źródłem logowania, ale PostgreSQL był źródłem praw biznesowych.
+
+Przykładowy minimalny model:
+
+users
+- id
+- clerk_user_id
+- email
+- first_name
+- last_name
+- role
+- created_at
+- updated_at
+
+courses
+- id
+- title
+- slug
+- description
+- is_active
+- created_at
+- updated_at
+
+lessons
+- id
+- course_id
+- title
+- slug
+- description
+- video_id
+- order_index
+- is_free_preview
+- is_published
+- created_at
+- updated_at
+
+course_access
+- id
+- user_id
+- course_id
+- status
+- source
+- payment_id
+- granted_by_admin_id
+- starts_at
+- expires_at
+- created_at
+- updated_at
+
+payments
+- id
+- user_id
+- course_id
+- provider
+- provider_payment_id
+- amount
+- currency
+- status
+- raw_payload
+- created_at
+- updated_at
+
+Status dostępu może mieć wartości:
+
+active
+inactive
+revoked
+expired
+pending
+
+Source może mieć wartości:
+
+payment
+admin
+promo
+manual
+test
+
+Jeżeli projekt ma już inne tabele, nie niszcz ich bez potrzeby. Dopasuj się do istniejącej struktury, ale uporządkuj ją tak, aby była spójna i produkcyjna.
+
+7. Synchronizacja użytkownika Clerk z bazą
+
+Po pierwszym zalogowaniu użytkownika przez Clerk aplikacja musi utworzyć albo zaktualizować lokalny rekord w tabeli users.
+
+W bazie aplikacji musi istnieć rekord użytkownika powiązany z:
+
+clerk_user_id
+
+email
+
+role
+
+created_at
+
+updated_at
+
+Jeżeli użytkownik już istnieje, nie twórz duplikatu.
+
+Wymagane zachowanie:
+
+po rejestracji w Clerk powstaje konto w Clerk,
+
+po wejściu do aplikacji backend lub frontend inicjuje synchronizację użytkownika,
+
+backend sprawdza clerk_user_id,
+
+jeśli nie ma użytkownika lokalnego, tworzy go z rolą student,
+
+jeśli użytkownik istnieje, aktualizuje podstawowe dane, na przykład email lub imię,
+
+dostęp do kursu jest sprawdzany w tabeli course_access.
+
+Możesz użyć webhooków Clerk, jeśli pasują do obecnego projektu, ale nie opieraj całej logiki wyłącznie na webhookach, jeśli prostsze i bezpieczniejsze będzie tworzenie lokalnego użytkownika przy pierwszym wejściu do aplikacji.
+
+8. Usunięcie starego logowania
+
+Znajdź i usuń albo wyłącz stare elementy auth.
+
+Do sprawdzenia:
+
+stare formularze logowania,
+
+stare formularze rejestracji,
+
+stare endpointy /login, /register, /logout, jeśli były własne,
+
+stare hashowanie haseł,
+
+stare JWT generowane lokalnie,
+
+stare middleware auth,
+
+stare cookies sesyjne,
+
+stare tabele z hasłami,
+
+stare komponenty chroniące trasy,
+
+stare helpery typu useAuth, jeśli nie są już zgodne z Clerk,
+
+stare mocki użytkownika,
+
+stare warunki typu localStorage.user,
+
+stare tokeny trzymane w localStorage,
+
+stare dane testowe pozwalające ominąć logowanie.
+
+Nie zostawiaj dwóch systemów logowania.
+
+Jeżeli musisz zostawić część starego kodu tymczasowo, oznacz ją jako deprecated i nie używaj jej w produkcyjnej ścieżce.
+
+Docelowo ścieżka produkcyjna ma korzystać wyłącznie z Clerk.
+
+9. Frontend — Clerk
+
+Na frontendzie wdroż Clerk zgodnie z aktualną dokumentacją.
+
+Wymagania:
+
+konfiguracja providerów Clerk,
+
+widok logowania,
+
+widok rejestracji,
+
+widok profilu użytkownika, jeśli potrzebny,
+
+przycisk wylogowania,
+
+ochrona tras ucznia,
+
+ochrona tras admina,
+
+widok dla użytkownika niezalogowanego,
+
+widok dla użytkownika zalogowanego bez dostępu,
+
+widok dla użytkownika z pełnym dostępem,
+
+widok dla admina.
+
+Przykładowe zachowania:
+
+użytkownik niezalogowany próbujący wejść do panelu ucznia trafia na logowanie,
+
+użytkownik zalogowany bez dostępu trafia do ograniczonego panelu,
+
+użytkownik zalogowany bez dostępu może wejść do darmowej lekcji,
+
+użytkownik zalogowany z dostępem widzi pełny kurs,
+
+admin widzi panel admina,
+
+student nie może wejść do panelu admina.
+
+Nie polegaj wyłącznie na frontendzie. Frontend ma poprawić UX, ale backend musi być prawdziwą ochroną.
+
+10. Backend — Clerk
+
+Na backendzie wdroż weryfikację użytkownika przez Clerk.
+
+Każdy chroniony endpoint musi weryfikować tożsamość użytkownika.
+
+Backend ma pobierać clerk_user_id z poprawnie zweryfikowanej sesji/tokena.
+
+Następnie backend ma znaleźć lokalnego użytkownika w PostgreSQL.
+
+Następnie backend ma sprawdzić rolę i dostęp.
+
+Przykładowe middleware:
+
+requireAuth
+
+requireAdmin
+
+requireCourseAccess
+
+allowFreePreviewLesson
+
+Endpointy lekcji muszą sprawdzać:
+
+czy lekcja istnieje,
+
+czy lekcja jest opublikowana,
+
+czy lekcja jest darmowa,
+
+czy użytkownik ma aktywny dostęp do kursu,
+
+czy użytkownik jest adminem.
+
+Nie wolno zwracać pełnych danych płatnej lekcji użytkownikowi bez dostępu.
+
+11. Logika dostępu do lekcji
+
+Zaimplementuj logiczną funkcję, np.:
+
+canAccessLesson(user, lesson)
+
+Zasady:
+
+admin ma dostęp do wszystkiego,
+
+uczeń z aktywnym dostępem do kursu ma dostęp do lekcji tego kursu,
+
+uczeń bez aktywnego dostępu ma dostęp tylko do lekcji oznaczonych jako darmowe,
+
+niezalogowany użytkownik nie ma dostępu do panelu ucznia, chyba że projekt przewiduje publiczny podgląd opisu kursu,
+
+lekcja nieopublikowana jest niewidoczna dla ucznia,
+
+lekcja nieopublikowana może być widoczna dla admina.
+
+Zastosuj tę logikę zarówno w backendzie, jak i w frontendzie, ale źródłem prawdy ma być backend.
+
+12. Płatność i aktywacja dostępu
+
+Jeżeli projekt ma już integrację płatności, dopasuj ją do nowego modelu dostępu.
+
+Po pozytywnej płatności aplikacja powinna utworzyć albo zaktualizować rekord w course_access.
+
+Dostęp powinien mieć status active.
+
+Dostęp powinien być powiązany z:
+
+użytkownikiem,
+
+kursem,
+
+płatnością,
+
+źródłem payment.
+
+Jeżeli płatności nie są jeszcze w pełni gotowe, przygotuj bezpieczne miejsce na integrację, ale nie udawaj, że płatności działają, jeśli nie działają.
+
+Administrator powinien móc nadać dostęp ręcznie, aby można było testować kurs i obsługiwać przypadki indywidualne.
+
+13. Panel administratora — dostęp użytkowników
+
+W istniejącym panelu administratora dodaj albo uporządkuj obsługę dostępów.
+
+Administrator powinien widzieć:
+
+listę użytkowników,
+
+email użytkownika,
+
+rolę,
+
+status dostępu do kursu,
+
+datę utworzenia konta,
+
+źródło dostępu,
+
+czy dostęp jest aktywny.
+
+Administrator powinien móc:
+
+nadać dostęp do kursu,
+
+odebrać dostęp,
+
+zmienić rolę użytkownika tylko jeśli jest to bezpieczne,
+
+sprawdzić podstawowe informacje o użytkowniku.
+
+Nie rób przesadnie rozbudowanego CRM. Ma być praktycznie i komercyjnie.
+
+14. Bezpieczeństwo
+
+Zadbaj o bezpieczeństwo na poziomie produkcyjnym.
+
+Wymagania:
+
+żadne hasła nie są przechowywane w lokalnej bazie,
+
+sekrety Clerk są wyłącznie w zmiennych środowiskowych,
+
+sekrety produkcyjne nie są commitowane do repozytorium,
+
+backend weryfikuje sesję/token Clerk,
+
+backend sprawdza role i dostęp,
+
+endpointy admina wymagają roli admin,
+
+endpointy lekcji wymagają dostępu albo darmowej lekcji,
+
+frontend nie może być jedyną ochroną,
+
+nie używaj localStorage jako źródła prawdy o użytkowniku,
+
+nie ufaj danym z frontendu,
+
+dodaj rate limiting tam, gdzie ma sens,
+
+dodaj walidację danych wejściowych,
+
+nie wyświetlaj stack trace użytkownikowi,
+
+obsłuż błędy w sposób czytelny.
+
+15. Zmienne środowiskowe
+
+Przygotuj komplet zmiennych środowiskowych.
+
+W repozytorium ma być plik:
+
+.env.example
+
+Nie wolno commitować prawdziwego .env.
+
+Przykładowe zmienne:
+
+NODE_ENV=production
+
+DATABASE_URL=postgresql://app_user:strong_password@db:5432/app_db
+
+CLERK_SECRET_KEY=
+CLERK_PUBLISHABLE_KEY=
+CLERK_WEBHOOK_SECRET=
+
+FRONTEND_URL=https://twoja-domena.pl
+BACKEND_URL=https://api.twoja-domena.pl
+
+COOKIE_DOMAIN=twoja-domena.pl
+
+GEMINI_API_KEY=
+BUNNY_API_KEY=
+BUNNY_LIBRARY_ID=
+
+PAYMENT_PROVIDER=
+PRZELEWY24_MERCHANT_ID=
+PRZELEWY24_POS_ID=
+PRZELEWY24_CRC=
+PRZELEWY24_API_KEY=
+
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASSWORD=
+SMTP_FROM=
+
+POSTGRES_DB=app_db
+POSTGRES_USER=app_user
+POSTGRES_PASSWORD=change_me
+
+BACKUP_DIR=/backups
+
+Dostosuj listę do faktycznego projektu.
+
+16. Migracje bazy danych
+
+Projekt ma mieć profesjonalny system migracji.
+
+Sprawdź, czego używa obecny projekt.
+
+Jeżeli używa Prisma, przygotuj Prisma migrations.
+
+Jeżeli używa Knex, przygotuj Knex migrations.
+
+Jeżeli używa Drizzle, przygotuj Drizzle migrations.
+
+Jeżeli nie ma żadnego systemu migracji, zaproponuj i wdroż jeden spójny sposób.
+
+Migracje muszą obejmować:
+
+użytkowników powiązanych z Clerk,
+
+role,
+
+dostępy do kursu,
+
+darmową lekcję testową,
+
+płatności, jeśli istnieją,
+
+potrzebne indeksy,
+
+unikalność clerk_user_id,
+
+unikalność dostępu użytkownika do kursu, jeśli ma sens.
+
+Nie twórz migracji niszczących dane bez ostrzeżenia.
+
+Przygotuj seed / skrypt startowy do utworzenia konta admina lub instrukcję nadania roli admin dla konkretnego clerk_user_id.
+
+17. Przygotowanie projektu na Replit
+
+Projekt na Replit ma być uporządkowany tak, aby dało się go rozwijać, testować i przygotować do wdrożenia.
+
+Wymagania:
+
+aplikacja uruchamia się lokalnie na Replit,
+
+frontend i backend mają jasne komendy startowe,
+
+zmienne środowiskowe są opisane,
+
+nie ma sekretów w kodzie,
+
+build produkcyjny działa,
+
+migracje da się uruchomić komendą,
+
+seed admina jest opisany,
+
+stare logowanie nie jest aktywne,
+
+Clerk działa w środowisku development,
+
+API działa z Clerk,
+
+baza działa z migracjami.
+
+Przygotuj plik README.md albo sekcję dokumentacji z instrukcją:
+
+jak uruchomić projekt lokalnie,
+
+jak skonfigurować Clerk,
+
+jak dodać klucze,
+
+jak wykonać migracje,
+
+jak nadać admina,
+
+jak przetestować darmową lekcję,
+
+jak przetestować dostęp płatny/manualny,
+
+jak przygotować build produkcyjny.
+
+18. Przygotowanie projektu pod VPS
+
+Po zakończeniu prac projekt ma być gotowy do wrzucenia na lokalny VPS.
+
+Przygotuj pełną konfigurację produkcyjną.
+
+Wymagane pliki:
+
+Dockerfile dla frontendu, jeśli frontend jest osobną aplikacją,
+
+Dockerfile dla backendu,
+
+docker-compose.yml,
+
+docker-compose.prod.yml, jeśli potrzebne,
+
+.env.example,
+
+README_DEPLOY.md,
+
+deploy.sh,
+
+backup.sh,
+
+restore.sh,
+
+migrate.sh,
+
+opcjonalnie nginx.conf albo Caddyfile, zależnie od wybranej architektury,
+
+opcjonalnie systemd service albo instrukcja autostartu po restarcie VPS.
+
+Wdrożenie powinno obejmować:
+
+frontend,
+
+backend,
+
+PostgreSQL,
+
+reverse proxy,
+
+HTTPS,
+
+migracje,
+
+backup bazy,
+
+logi,
+
+restart kontenerów,
+
+healthchecki.
+
+19. Docker
+
+Przygotuj Docker w sposób produkcyjny.
+
+Wymagania:
+
+kontenery mają mieć czytelne nazwy,
+
+backend ma działać jako osobny serwis,
+
+frontend ma działać jako osobny serwis albo jako build serwowany przez reverse proxy,
+
+PostgreSQL ma działać jako osobny serwis,
+
+dane PostgreSQL mają być w volume,
+
+backupy mają trafiać do osobnego katalogu albo volume,
+
+aplikacja ma mieć healthchecki,
+
+kontenery mają restartować się automatycznie po restarcie VPS,
+
+sekrety mają pochodzić z .env.
+
+Przykładowe serwisy:
+
+frontend
+backend
+db
+reverse-proxy
+
+Nie trzymaj bazy w kontenerze bez volume.
+
+Nie kasuj danych przy redeployu.
+
+Nie buduj wszystkiego ręcznie bez dokumentacji.
+
+20. Backupy
+
+Przygotuj prosty, praktyczny system backupów PostgreSQL.
+
+Wymagania:
+
+skrypt backup.sh wykonuje backup bazy,
+
+backup ma nazwę z datą i godziną,
+
+backup trafia do katalogu /opt/app/backups albo podobnego,
+
+backup używa pg_dump,
+
+skrypt ma czytelne komunikaty,
+
+skrypt nie zapisuje haseł na sztywno,
+
+przygotuj instrukcję przywracania backupu,
+
+przygotuj restore.sh z parametrem ścieżki do pliku backupu.
+
+Opcjonalnie dodaj instrukcję crona, na przykład codzienny backup o 3:00.
+
+21. Skrypt instalacyjny na VPS
+
+Przygotuj jeden główny skrypt, który maksymalnie automatyzuje uruchomienie projektu na świeżym VPS.
+
+Nazwa:
+
+deploy.sh
+
+Skrypt ma:
+
+sprawdzić system,
+
+zainstalować Docker, jeśli go nie ma,
+
+zainstalować Docker Compose, jeśli go nie ma,
+
+utworzyć katalog aplikacji, np. /opt/platforma-edukacyjna,
+
+sklonować repozytorium albo przyjąć, że kod już jest w katalogu,
+
+sprawdzić plik .env,
+
+zatrzymać stare kontenery,
+
+zbudować obrazy,
+
+uruchomić bazę,
+
+poczekać na bazę,
+
+uruchomić migracje,
+
+uruchomić backend,
+
+uruchomić frontend,
+
+uruchomić reverse proxy,
+
+pokazać status kontenerów,
+
+pokazać logi w razie błędu,
+
+wyświetlić końcową informację, pod jakim adresem działa aplikacja.
+
+Skrypt ma być idempotentny, czyli ponowne uruchomienie nie powinno niszczyć danych.
+
+22. Komendy dla VPS
+
+Na końcu przygotuj gotowy zestaw komend dla użytkownika, który ma świeży VPS z Ubuntu.
+
+Komendy mają być proste do wklejenia.
+
+Przykład docelowego stylu komend:
+
+sudo apt update && sudo apt upgrade -y
+
+sudo apt install -y git curl ca-certificates ufw
+
+git clone ADRES_REPOZYTORIUM /opt/platforma-edukacyjna
+
+cd /opt/platforma-edukacyjna
+
+cp .env.example .env
+
+nano .env
+
+chmod +x deploy.sh backup.sh restore.sh migrate.sh
+
+sudo ./deploy.sh
+
+Jeżeli skrypt sam instaluje Dockera, napisz to jasno.
+
+Jeżeli wymagane jest wcześniejsze ustawienie DNS domeny, napisz to jasno.
+
+Jeżeli użytkownik musi wkleić klucze Clerk, Gemini, Bunny, Przelewy24/PayU do .env, napisz to jasno.
+
+Nie zakładaj, że użytkownik wie, co robi. Instrukcja ma być kompletna i „do wklejenia”.
+
+23. Reverse proxy i domena
+
+Przygotuj konfigurację pod domenę.
+
+Możesz użyć Caddy albo Nginx.
+
+Preferowane jest Caddy, jeśli projekt już go używa albo jeśli chcesz prostszy HTTPS.
+
+Konfiguracja powinna obsłużyć:
+
+frontend pod główną domeną,
+
+backend API pod /api albo subdomeną api.domena.pl,
+
+HTTPS,
+
+przekazywanie nagłówków,
+
+obsługę WebSocket, jeśli projekt tego potrzebuje,
+
+limity body size, jeśli projekt wysyła większe dane.
+
+Przykład architektury:
+
+https://domena.pl        -> frontend
+https://domena.pl/api    -> backend
+
+albo:
+
+https://domena.pl        -> frontend
+https://api.domena.pl    -> backend
+
+Wybierz rozwiązanie najlepiej dopasowane do istniejącego projektu.
+
+24. Produkcyjne ustawienia Clerk
+
+Przygotuj instrukcję konfiguracji Clerk.
+
+Uwzględnij:
+
+utworzenie aplikacji w Clerk,
+
+ustawienie development keys,
+
+ustawienie production keys,
+
+ustawienie allowed origins,
+
+ustawienie redirect URLs,
+
+ustawienie sign-in URL,
+
+ustawienie sign-up URL,
+
+ustawienie after sign-in URL,
+
+ustawienie after sign-up URL,
+
+ustawienie domeny produkcyjnej,
+
+ustawienie webhooków, jeśli są używane,
+
+opis, które wartości wkleić do .env.
+
+Nie używaj testowych kluczy w produkcji.
+
+Nie mieszaj development i production.
+
+25. Testy końcowe
+
+Po wdrożeniu wykonaj testy.
+
+Przetestuj:
+
+rejestrację nowego ucznia,
+
+logowanie ucznia,
+
+wylogowanie,
+
+wejście ucznia bez dostępu do panelu,
+
+wejście ucznia bez dostępu do darmowej lekcji,
+
+blokadę płatnej lekcji,
+
+ręczne nadanie dostępu przez admina,
+
+wejście ucznia z dostępem do płatnej lekcji,
+
+blokadę panelu admina dla zwykłego ucznia,
+
+wejście admina do panelu admina,
+
+migracje bazy,
+
+restart kontenerów,
+
+backup bazy,
+
+restore backupu na testowej bazie,
+
+build frontendu,
+
+działanie backendu,
+
+działanie reverse proxy,
+
+HTTPS,
+
+brak starych endpointów logowania,
+
+brak sekretów w repozytorium.
+
+26. Kryteria akceptacji
+
+Projekt można uznać za gotowy dopiero, gdy:
+
+Clerk jest jedynym aktywnym systemem logowania,
+
+stare logowanie zostało usunięte albo bezpiecznie odłączone,
+
+użytkownik może założyć konto przez Clerk,
+
+użytkownik może się zalogować przez Clerk,
+
+użytkownik bez zakupu nie ma pełnego dostępu,
+
+użytkownik bez zakupu może przetestować jedną darmową lekcję,
+
+użytkownik po nadaniu dostępu ma pełny dostęp do kursu,
+
+admin może zarządzać dostępami,
+
+backend weryfikuje użytkownika przez Clerk,
+
+backend sprawdza dostęp do kursu,
+
+płatne dane nie są zwracane przez API bez uprawnień,
+
+baza ma migracje,
+
+projekt ma .env.example,
+
+projekt ma Dockerfile / Docker Compose,
+
+projekt ma skrypty deploy/migrate/backup/restore,
+
+projekt ma instrukcję wdrożenia na VPS,
+
+projekt ma gotowy zestaw komend do uruchomienia na VPS,
+
+projekt działa po restarcie kontenerów,
+
+sekrety nie są w repozytorium,
+
+całość nadaje się do komercyjnego odbioru.
+
+27. Czego nie robić
+
+Nie zostawiaj starego logowania jako alternatywy.
+
+Nie rób logowania jednocześnie przez Clerk i własny JWT, jeśli nie jest to technicznie konieczne.
+
+Nie trzymaj haseł w lokalnej bazie.
+
+Nie trzymaj sekretów w frontendzie.
+
+Nie zabezpieczaj lekcji tylko przez ukrywanie przycisków.
+
+Nie zwracaj płatnych danych przez API użytkownikowi bez dostępu.
+
+Nie zostawiaj endpointów admina bez roli admin.
+
+Nie zakładaj, że frontend wystarczy do ochrony dostępu.
+
+Nie niszcz istniejących danych bez migracji.
+
+Nie kasuj volume bazy przy deployu.
+
+Nie rób ręcznego wdrożenia bez dokumentacji.
+
+Nie zostawiaj projektu w stanie „działa tylko u mnie”.
+
+28. Finalny wynik pracy
+
+Na końcu przygotuj i opisz:
+
+co zostało zmienione,
+
+jakie stare elementy logowania zostały usunięte,
+
+jak działa Clerk,
+
+jak działa model ról,
+
+jak działa darmowa lekcja,
+
+jak działa dostęp po zakupie lub ręcznym nadaniu,
+
+jak uruchomić projekt lokalnie,
+
+jak ustawić zmienne środowiskowe,
+
+jak uruchomić migracje,
+
+jak nadać admina,
+
+jak zbudować projekt,
+
+jak wdrożyć projekt na VPS,
+
+jak wykonać backup,
+
+jak odtworzyć backup,
+
+jak sprawdzić logi,
+
+jak zrestartować aplikację,
+
+jak wykonać redeploy po zmianach.
+
+Dostarcz kod i dokumentację tak, aby osoba nietechniczna mogła dostać zestaw komend, wkleić je na VPS, uzupełnić .env, uruchomić skrypt i postawić aplikację produkcyjnie.
+
+Całość ma być profesjonalna, komercyjna, bezpieczna i gotowa do odbioru.
