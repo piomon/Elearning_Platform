@@ -1,6 +1,7 @@
 - [Payments & access](payments-access.md) — payment success uses status "completed" (not "paid"); access is gated only by server `user.hasAccess`, never granted client-side.
 - [Env contract & testing](env-contract-and-testing.md) — env.ts is the source of truth; keep .env.example/docker-compose/README in lockstep. Prod-gated routes can't be unit-tested (env.ts throws on prod import).
 - [Local dev run setup](dev-run-setup.md) — to run locally: set JWT_SECRET (dev env), push schema, seed; fresh DB is empty so /api/courses 500s until seeded.
+- [Seed is destructive; backfill instead](seed-and-backfill.md) — seed.ts self-runs + wipes course data; share seed constants via course-data.ts; add content to existing/prod DBs via idempotent backfill keyed by section+lesson slug, never topic ids.
 - [Monorepo build & test quirks](monorepo-build-quirks.md) — typecheck only at root (builds project refs); never set root `packageManager`; detached installs; tests need real Postgres + drizzle generate for schema changes.
 - [Completion celebration pattern](completion-celebration.md) — confetti/celebration on server-confirmed state must fire on the false→true transition (prev-value ref + reset per entity id), never on initial truthy render.
 - [Production env contract](production-env-contract.md) — api-server crash-loops the deploy health check if required prod env vars missing; Gemini/P24/Bunny/SMTP are optional-at-boot and gated by isXConfigured guards.

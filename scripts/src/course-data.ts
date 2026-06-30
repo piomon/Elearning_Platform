@@ -1044,3 +1044,117 @@ export const COURSE: {
     },
   ],
 };
+
+// Board (whiteboard) task per lesson, keyed by lesson code. Every lesson has a
+// drawable, AI-checkable task so the interactive tablica appears on each lesson.
+// Consumed by seed.ts (fresh seed) and backfill-tasks.ts (non-destructive).
+export const BOARD_TASKS_BY_CODE: Record<string, { title: string; description: string }> = {
+  // Dział 1 — podstawy fizyki
+  D1_L01: {
+    title: "Zadanie: ciało fizyczne czy substancja?",
+    description:
+      "Na tablicy narysuj tabelę z dwiema kolumnami: „Ciało fizyczne” oraz „Substancja”. Wpisz do właściwych kolumn: gwóźdź, żelazo, szklanka, szkło, kostka lodu, woda. Pod tabelą napisz jednym zdaniem, czym różni się ciało fizyczne od substancji.",
+  },
+  D1_L02: {
+    title: "Zadanie: wielkości fizyczne i jednostki SI",
+    description:
+      "Narysuj na tablicy tabelę z trzema kolumnami: „Wielkość fizyczna”, „Symbol” oraz „Jednostka SI”. Uzupełnij ją dla długości, masy, czasu i temperatury. Pod tabelą zamień jednostki: ile to jest 2,5 km w metrach oraz 3000 g w kilogramach?",
+  },
+  D1_L03: {
+    title: "Zadanie: średnia z pomiarów",
+    description:
+      "Uczeń zmierzył długość ołówka trzy razy i otrzymał: 15,2 cm, 15,4 cm oraz 15,3 cm. Oblicz wartość średnią pomiaru. Zapisz wzór na średnią arytmetyczną, podstaw dane i podaj wynik zaokrąglony do jednego miejsca po przecinku, z jednostką.",
+  },
+  D1_L04: {
+    title: "Zadanie: rodzaje oddziaływań",
+    description:
+      "Narysuj trzy sytuacje i podpisz, jaki rodzaj oddziaływania w nich występuje (grawitacyjne, elektrostatyczne, magnetyczne): spadające jabłko, naelektryzowana linijka przyciągająca skrawki papieru oraz magnes przyciągający gwóźdź. Przy każdej sytuacji zaznacz strzałką zwrot siły.",
+  },
+  D1_L05: {
+    title: "Zadanie: wektor siły wypadkowej",
+    description:
+      "Na sanki działają dwie poziome siły: Tomek ciągnie w prawo siłą 30 N, a Ola w lewo siłą 18 N. Narysuj obie siły jako wektory (zachowaj proporcje długości) i zaznacz wektor siły wypadkowej. Podaj wartość oraz zwrot siły wypadkowej.",
+  },
+  D1_L06: {
+    title: "Zadanie powtórkowe: mapa pojęć działu 1",
+    description:
+      "Narysuj mapę myśli z hasłem głównym „Podstawy fizyki” i co najmniej czterema gałęziami (np. wielkości fizyczne, jednostki SI, pomiar i niepewność, oddziaływania i siła). Do każdej gałęzi dopisz jeden przykład lub wzór.",
+  },
+  // Dział 2 — właściwości materii
+  D2_L00: {
+    title: "Zadanie: właściwości materii",
+    description:
+      "Narysuj tabelę z dwiema kolumnami: „Właściwość materii” oraz „Przykład z życia”. Wpisz co najmniej cztery właściwości (np. masa, objętość, gęstość, twardość) i do każdej dopisz jeden przykład.",
+  },
+  D2_L01: {
+    title: "Zadanie: ułożenie drobin w trzech stanach skupienia",
+    description:
+      "Narysuj, jak rozmieszczone są drobiny (cząsteczki) w ciele stałym, w cieczy i w gazie. Podpisz każdy rysunek i napisz jednym zdaniem, czym różni się układ drobin w tych trzech stanach.",
+  },
+  D2_L02: {
+    title: "Zadanie: dyfuzja w wodzie",
+    description:
+      "Narysuj szklankę z wodą, do której wpuszczono kroplę atramentu, w trzech momentach: zaraz po wpuszczeniu, po chwili oraz po dłuższym czasie. Podpisz rysunki i wyjaśnij jednym zdaniem, na czym polega zjawisko dyfuzji.",
+  },
+  D2_L03: {
+    title: "Zadanie: jedna substancja w trzech stanach",
+    description:
+      "Narysuj wodę w trzech stanach skupienia: stałym (lód), ciekłym (woda) i gazowym (para wodna). Pod każdym rysunkiem podpisz nazwę stanu oraz napisz, czy ma on stały kształt i stałą objętość.",
+  },
+  D2_L04: {
+    title: "Zadanie: przemiany stanów skupienia",
+    description:
+      "Narysuj schemat przemian: ciało stałe → ciecz → gaz oraz przemiany odwrotne. Podpisz wszystkie strzałki nazwami przemian (topnienie, krzepnięcie, parowanie, skraplanie).",
+  },
+  D2_L05: {
+    title: "Zadanie powtórkowe: ciało stałe, ciecz i gaz",
+    description:
+      "Narysuj tabelę z trzema kolumnami (ciało stałe, ciecz, gaz) i trzema wierszami: kształt, objętość, ściśliwość. Uzupełnij każdą komórkę krótką informacją.",
+  },
+  D2_L06: {
+    title: "Zadanie: oblicz ciężar ciała",
+    description:
+      "Oblicz ciężar plecaka o masie 5 kg. Przyjmij g = 10 N/kg. Zapisz wzór (Fc = m · g), podstaw dane i podaj wynik z jednostką. Na rysunku zaznacz zwrot wektora ciężaru.",
+  },
+  D2_L07: {
+    title: "Zadanie powtórkowe: masa a ciężar",
+    description:
+      "Narysuj ciało zawieszone na siłomierzu i zaznacz strzałką wektor ciężaru. Pod rysunkiem napisz, czym różni się masa od ciężaru oraz w jakich jednostkach podajemy każdą z tych wielkości.",
+  },
+  D2_L08: {
+    title: "Zadanie: oblicz gęstość metalu",
+    description:
+      "Bryłka metalu ma masę 270 g i objętość 100 cm³. Oblicz jej gęstość. Zapisz wzór (ρ = m / V), podstaw dane i podaj wynik w g/cm³. Zapisz, jaki to może być metal.",
+  },
+  // Dział 3 — hydrostatyka i aerostatyka
+  D3_L00: {
+    title: "Zadanie: ciśnienie cieczy a głębokość",
+    description:
+      "Narysuj naczynie z wodą i zaznacz w nim trzy punkty na różnych głębokościach. Strzałkami pokaż, gdzie ciśnienie cieczy jest największe, a gdzie najmniejsze. Pod rysunkiem napisz, od czego zależy ciśnienie hydrostatyczne.",
+  },
+  D3_L01: {
+    title: "Zadanie: oblicz ciśnienie",
+    description:
+      "Klocek naciska na stół siłą 60 N, a pole jego podstawy wynosi 0,02 m². Oblicz ciśnienie, jakie klocek wywiera na stół. Zapisz wzór (p = F / S), podstaw dane i podaj wynik w paskalach (Pa).",
+  },
+  D3_L02: {
+    title: "Zadanie: oblicz ciśnienie hydrostatyczne",
+    description:
+      "Oblicz ciśnienie hydrostatyczne na głębokości 2 m w wodzie. Przyjmij ρ = 1000 kg/m³ oraz g = 10 N/kg. Zapisz wzór (p = ρ · g · h), podstaw dane i podaj wynik w paskalach (Pa).",
+  },
+  D3_L03: {
+    title: "Zadanie: prasa hydrauliczna",
+    description:
+      "Narysuj prasę hydrauliczną z dwoma tłokami o różnych polach powierzchni. Na mały tłok o polu 0,01 m² działa siła 50 N. Oblicz ciśnienie przekazywane w cieczy (p = F / S) i zaznacz strzałkami, jak przenosi się ono na większy tłok.",
+  },
+  D3_L04: {
+    title: "Zadanie: siła wyporu",
+    description:
+      "Kamień o objętości 0,001 m³ zanurzono całkowicie w wodzie (ρ = 1000 kg/m³, g = 10 N/kg). Oblicz siłę wyporu działającą na kamień. Zapisz wzór (Fw = ρ · g · V), podstaw dane i podaj wynik w niutonach. Narysuj zwrot siły wyporu.",
+  },
+  D3_L05: {
+    title: "Zadanie: pływa czy tonie?",
+    description:
+      "Narysuj naczynie z wodą (ρ = 1000 kg/m³) i umieść w nim trzy ciała o gęstościach 700 kg/m³, 1000 kg/m³ oraz 2700 kg/m³. Zaznacz, które ciało pływa na powierzchni, które unosi się zanurzone, a które tonie. Uzasadnij, porównując gęstości ciał z gęstością wody.",
+  },
+};

@@ -6,7 +6,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import * as schema from "../../lib/db/src/schema/index.js";
-import { COURSE } from "./course-data.js";
+import { COURSE, BOARD_TASKS_BY_CODE } from "./course-data.js";
 
 const { Pool } = pg;
 
@@ -351,38 +351,6 @@ async function seedContent() {
   );
 }
 
-const BOARD_TASKS_BY_CODE: Record<string, { title: string; description: string }> = {
-  D1_L01: {
-    title: "Zadanie: ciało fizyczne czy substancja?",
-    description:
-      "Na tablicy narysuj tabelę z dwiema kolumnami: „Ciało fizyczne” oraz „Substancja”. Wpisz do właściwych kolumn: gwóźdź, żelazo, szklanka, szkło, kostka lodu, woda. Pod tabelą napisz jednym zdaniem, czym różni się ciało fizyczne od substancji.",
-  },
-  D1_L05: {
-    title: "Zadanie: wektor siły wypadkowej",
-    description:
-      "Na sanki działają dwie poziome siły: Tomek ciągnie w prawo siłą 30 N, a Ola w lewo siłą 18 N. Narysuj obie siły jako wektory (zachowaj proporcje długości) i zaznacz wektor siły wypadkowej. Podaj wartość oraz zwrot siły wypadkowej.",
-  },
-  D2_L06: {
-    title: "Zadanie: oblicz ciężar ciała",
-    description:
-      "Oblicz ciężar plecaka o masie 5 kg. Przyjmij g = 10 N/kg. Zapisz wzór (Fc = m · g), podstaw dane i podaj wynik z jednostką. Na rysunku zaznacz zwrot wektora ciężaru.",
-  },
-  D2_L08: {
-    title: "Zadanie: oblicz gęstość metalu",
-    description:
-      "Bryłka metalu ma masę 270 g i objętość 100 cm³. Oblicz jej gęstość. Zapisz wzór (ρ = m / V), podstaw dane i podaj wynik w g/cm³. Zapisz, jaki to może być metal.",
-  },
-  D3_L01: {
-    title: "Zadanie: oblicz ciśnienie",
-    description:
-      "Klocek naciska na stół siłą 60 N, a pole jego podstawy wynosi 0,02 m². Oblicz ciśnienie, jakie klocek wywiera na stół. Zapisz wzór (p = F / S), podstaw dane i podaj wynik w paskalach (Pa).",
-  },
-  D3_L04: {
-    title: "Zadanie: siła wyporu",
-    description:
-      "Kamień o objętości 0,001 m³ zanurzono całkowicie w wodzie (ρ = 1000 kg/m³, g = 10 N/kg). Oblicz siłę wyporu działającą na kamień. Zapisz wzór (Fw = ρ · g · V), podstaw dane i podaj wynik w niutonach. Narysuj zwrot siły wyporu.",
-  },
-};
 
 async function seed() {
   console.log("Seeding database (Łatwa Fizyka)...");
