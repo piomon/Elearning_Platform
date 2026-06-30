@@ -6,7 +6,7 @@ description: How timed-quiz windows are enforced server-side and surfaced in the
 Timed quizzes use a signed start-ticket, not client trust.
 
 **Rule:** A timed quiz (`timeLimitMinutes != null`) requires the student to first
-call the start endpoint, which returns a JWT `startToken` carrying `{quizId,userId,startedAt}`.
+call the start endpoint, which returns a signed `startToken` (HMAC keyed by SESSION_SECRET) carrying `{quizId,userId,startedAt}`.
 Submission must echo that token; the server recomputes elapsed time and rejects late
 submissions (403) or a missing/invalid token (400). Untimed quizzes ignore the token.
 There is a small grace window (a few seconds) to absorb network latency.

@@ -1,16 +1,25 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from "react";
+import { useAuth as useClerkAuth } from "@clerk/clerk-react";
 import { useGetMe, setAuthTokenGetter } from "@workspace/api-client-react";
 import type { User } from "@workspace/api-client-react";
 import { useLocation } from "wouter";
 import { Lock } from "lucide-react";
 
-// Setup token getter for API client
-setAuthTokenGetter(() => localStorage.getItem("token"));
+// The API client requests a bearer token on every call. We keep the latest
+// Clerk getToken in a module-level ref and register the getter exactly once, so
+// the singleton always reaches the current Clerk session without re-binding.
+let clerkGetToken: (() => Promise<string | null>) | null = null;
+setAuthTokenGetter(async () => (clerkGetToken ? clerkGetToken() : null));
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (token: string) => void;
   logout: () => void;
   refresh: () => void;
 }
@@ -18,53 +27,61 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
-  login: () => {},
   logout: () => {},
   refresh: () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setTokenState] = useState<string | null>(localStorage.getItem("token"));
+  const { isLoaded, isSignedIn, getToken, signOut } = useClerkAuth();
   const [, setLocation] = useLocation();
 
-  const { data: user, isLoading: isUserLoading, error, refetch } = useGetMe({
-    query: { enabled: !!token, retry: false } as any,
+  useEffect(() => {
+    clerkGetToken = getToken;
+  }, [getToken]);
+
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    error,
+    refetch,
+  } = useGetMe({
+    query: { enabled: isLoaded && isSignedIn === true, retry: false } as never,
   });
 
+  const logout = useCallback(() => {
+    void signOut();
+    setLocation("/login");
+  }, [signOut, setLocation]);
+
+  // A valid Clerk session but a rejecting backend (unverified email, transient
+  // failure) leaves us in a broken state — sign out to recover cleanly.
   useEffect(() => {
     if (error) {
       logout();
     }
-  }, [error]);
+  }, [error, logout]);
 
   useEffect(() => {
     if (user?.isBanned) {
-      alert(`Twoje konto zostało zablokowane. Powód: ${user.bannedReason || "Brak podanego powodu"}`);
+      alert(
+        `Twoje konto zostało zablokowane. Powód: ${
+          user.bannedReason || "Brak podanego powodu"
+        }`,
+      );
       logout();
     }
-  }, [user]);
+  }, [user, logout]);
 
-  const login = (newToken: string) => {
-    localStorage.setItem("token", newToken);
-    setTokenState(newToken);
-    refetch();
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    setTokenState(null);
-    setLocation("/login");
-  };
+  const isLoading = !isLoaded || (isSignedIn === true && isUserLoading);
 
   return (
     <AuthContext.Provider
       value={{
-        user: user || null,
-        isLoading: isUserLoading && !!token,
-        login,
+        user: user ?? null,
+        isLoading,
         logout,
         refresh: () => {
-          refetch();
+          void refetch();
         },
       }}
     >
@@ -87,7 +104,12 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
     }
   }, [user, isLoading, setLocation]);
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Ładowanie...</div>;
+  if (isLoading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Ładowanie...
+      </div>
+    );
   if (!user) return null;
 
   return <>{children}</>;
@@ -103,7 +125,12 @@ export function AccessRoute({ children }: { children: ReactNode }) {
     }
   }, [user, isLoading, setLocation]);
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Ładowanie...</div>;
+  if (isLoading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Ładowanie...
+      </div>
+    );
   if (!user) return null;
 
   const canAccess = user.hasAccess || user.role === "admin";
@@ -114,9 +141,12 @@ export function AccessRoute({ children }: { children: ReactNode }) {
           <div className="w-20 h-20 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
             <Lock className="w-10 h-10" />
           </div>
-          <h1 className="text-3xl font-black font-display tracking-tight text-foreground">Ta treść wymaga dostępu</h1>
+          <h1 className="text-3xl font-black font-display tracking-tight text-foreground">
+            Ta treść wymaga dostępu
+          </h1>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Aby zobaczyć materiały kursu, quizy i zadania, potrzebny jest aktywny dostęp do platformy.
+            Aby zobaczyć materiały kursu, quizy i zadania, potrzebny jest aktywny
+            dostęp do platformy.
           </p>
           <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
             <button
@@ -154,7 +184,12 @@ export function AdminRoute({ children }: { children: ReactNode }) {
     }
   }, [user, isLoading, setLocation]);
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Ładowanie...</div>;
+  if (isLoading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Ładowanie...
+      </div>
+    );
   if (!user || user.role !== "admin") return null;
 
   return <>{children}</>;

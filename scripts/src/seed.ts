@@ -1,7 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { eq } from "drizzle-orm";
 import pg from "pg";
-import bcrypt from "bcrypt";
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -355,18 +354,20 @@ async function seedContent() {
 async function seed() {
   console.log("Seeding database (Łatwa Fizyka)...");
 
-  const adminHash = await bcrypt.hash("admin123", 10);
+  // Demo accounts are created without a password — authentication now runs
+  // through Clerk. When the owner signs in via Clerk with one of these verified
+  // emails, the JIT sync links the Clerk account to the matching row (and the
+  // admin row stays admin; ADMIN_EMAILS can also promote any email).
   await db
     .insert(users)
-    .values({ email: "admin@fizyka.edu.pl", passwordHash: adminHash, firstName: "Admin", lastName: "Platformy", role: "admin" })
+    .values({ email: "admin@fizyka.edu.pl", firstName: "Admin", lastName: "Platformy", role: "admin" })
     .onConflictDoNothing();
   const [admin] = await db.select().from(users).where(eq(users.email, "admin@fizyka.edu.pl")).limit(1);
   console.log("Admin user:", admin?.email ?? "(missing)");
 
-  const studentHash = await bcrypt.hash("student123", 10);
   await db
     .insert(users)
-    .values({ email: "uczen@fizyka.edu.pl", passwordHash: studentHash, firstName: "Kamil", lastName: "Nowak", role: "user" })
+    .values({ email: "uczen@fizyka.edu.pl", firstName: "Kamil", lastName: "Nowak", role: "user" })
     .onConflictDoNothing();
   const [student] = await db.select().from(users).where(eq(users.email, "uczen@fizyka.edu.pl")).limit(1);
   console.log("Student user:", student?.email ?? "(missing)");
@@ -493,9 +494,12 @@ async function seed() {
   await seedContent();
 
   console.log("\nSeed complete.");
-  console.log("Login credentials:");
-  console.log("  Admin:   admin@fizyka.edu.pl / admin123");
-  console.log("  Student: uczen@fizyka.edu.pl / student123");
+  console.log(
+    "Konta demo (admin@fizyka.edu.pl, uczen@fizyka.edu.pl) utworzone bez hasła — logowanie przez Clerk.",
+  );
+  console.log(
+    "Dostęp administratora: dodaj swój email do ADMIN_EMAILS lub zaloguj się adresem admin@fizyka.edu.pl.",
+  );
   await pool.end();
 }
 

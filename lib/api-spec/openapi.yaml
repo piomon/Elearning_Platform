@@ -31,60 +31,8 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 
   # ─── AUTH ────────────────────────────────────────────────────────────────────
-  /auth/register:
-    post:
-      operationId: register
-      tags: [auth]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RegisterInput"
-      responses:
-        "201":
-          description: Registered
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AuthResponse"
-        "400":
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "409":
-          description: Email already in use
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /auth/login:
-    post:
-      operationId: login
-      tags: [auth]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/LoginInput"
-      responses:
-        "200":
-          description: Logged in
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AuthResponse"
-        "401":
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
+  # Sign-in / sign-up are handled by Clerk on the client. The backend only
+  # exposes profile sync (/auth/me) and a no-op logout for legacy callers.
   /auth/logout:
     post:
       operationId: logout
@@ -2478,32 +2426,6 @@ components:
           type: string
 
     # ─── AUTH SCHEMAS ─────────────────────────────────────────────────────────
-    RegisterInput:
-      type: object
-      required: [email, password, firstName, lastName]
-      properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          minLength: 6
-        firstName:
-          type: string
-          minLength: 1
-        lastName:
-          type: string
-          minLength: 1
-
-    LoginInput:
-      type: object
-      required: [email, password]
-      properties:
-        email:
-          type: string
-        password:
-          type: string
-
     User:
       type: object
       required: [id, email, firstName, lastName, role, isBanned, createdAt]
@@ -2550,15 +2472,6 @@ components:
           type: string
         validTo:
           type: ["string", "null"]
-
-    AuthResponse:
-      type: object
-      required: [user, token]
-      properties:
-        user:
-          $ref: "#/components/schemas/User"
-        token:
-          type: string
 
     # ─── COURSE SCHEMAS ───────────────────────────────────────────────────────
     Course:

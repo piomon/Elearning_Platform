@@ -6,6 +6,7 @@ import express, {
 } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import { clerkMiddleware } from "@clerk/express";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { config } from "./config/env";
@@ -101,6 +102,16 @@ app.use(
   }),
 );
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
+
+// Populates the Clerk auth context (req.auth / getAuth(req)) from the
+// Authorization Bearer token or session cookie. It never rejects on its own —
+// route-level requireAuth enforces authentication.
+app.use(
+  clerkMiddleware({
+    secretKey: config.clerk.secretKey,
+    publishableKey: config.clerk.publishableKey,
+  }),
+);
 
 app.use("/api", router);
 

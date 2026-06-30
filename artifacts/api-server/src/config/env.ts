@@ -70,6 +70,18 @@ function parseAllowedOrigins(): string[] {
   return devOrigins;
 }
 
+// Comma-separated list of emails that are auto-promoted to admin when their
+// owner signs in via Clerk (matched against the verified primary email). This is
+// the VPS-friendly admin bootstrap now that there is no seeded admin password.
+function parseAdminEmails(): string[] {
+  const raw = process.env.ADMIN_EMAILS;
+  if (!raw || raw.trim() === "") return [];
+  return raw
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 const paynowEnvRaw = (process.env.PAYNOW_ENV ?? "sandbox").toLowerCase();
 const paynowEnv: "sandbox" | "production" =
   paynowEnvRaw === "production" ? "production" : "sandbox";
@@ -81,7 +93,14 @@ export const config = {
   isProd,
   isTest,
   isDev,
-  jwtSecret: readRequired("JWT_SECRET", 32),
+  clerk: {
+    secretKey: readRequired("CLERK_SECRET_KEY"),
+    publishableKey: readRequired("CLERK_PUBLISHABLE_KEY"),
+  },
+  // Signs internal HMAC tickets (e.g. timed-quiz start tickets). Not a Clerk
+  // credential. Provided by Replit in dev; required on the VPS.
+  sessionSecret: readRequired("SESSION_SECRET", 32),
+  adminEmails: parseAdminEmails(),
   databaseUrl: readRequired("DATABASE_URL"),
   appUrl: readProd("APP_URL", appUrlFallback),
   apiUrl: readProd("API_URL", appUrlFallback),

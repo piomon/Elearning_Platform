@@ -2,14 +2,13 @@
 # Backend (API Server) — Express + Drizzle, monorepo pnpm
 #
 # Strategia: jeden obraz zawiera zbudowaną aplikację oraz pełne node_modules
-# (potrzebne m.in. dla natywnego modułu bcrypt i dla drizzle-kit, który
-# uruchamia migracje przy starcie kontenera).
+# (potrzebne dla drizzle-kit, który uruchamia migracje przy starcie kontenera).
 # ============================================================================
 
 # --- Etap 1: build ----------------------------------------------------------
 FROM node:24-bookworm-slim AS builder
 
-# Narzędzia do kompilacji natywnych modułów (bcrypt) + git dla pnpm.
+# Narzędzia do kompilacji ewentualnych natywnych modułów npm + certyfikaty CA.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 make g++ ca-certificates \
     && rm -rf /var/lib/apt/lists/*
@@ -36,8 +35,8 @@ RUN corepack enable
 
 WORKDIR /app
 
-# Przenosimy cały zbudowany monorepo (z node_modules i natywnym bcrypt
-# skompilowanym pod tę samą platformę linux/x64).
+# Przenosimy cały zbudowany monorepo wraz z node_modules (skompilowanymi pod
+# tę samą platformę linux/x64).
 COPY --from=builder /app /app
 
 EXPOSE 8080

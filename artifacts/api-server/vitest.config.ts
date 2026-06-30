@@ -19,7 +19,9 @@ export default defineConfig({
     env: {
       NODE_ENV: "test",
       DATABASE_URL: testDatabaseUrl(),
-      JWT_SECRET: "test_jwt_secret_min_32_chars_long_000000",
+      CLERK_SECRET_KEY: "sk_test_clerk_secret_key_for_tests_000000",
+      CLERK_PUBLISHABLE_KEY: "pk_test_clerk_publishable_key_for_tests",
+      SESSION_SECRET: "test_session_secret_min_32_chars_long_0000",
       LOG_LEVEL: "silent",
     },
   },

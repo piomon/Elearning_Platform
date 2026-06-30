@@ -17,21 +17,6 @@ export interface MessageResponse {
   message: string;
 }
 
-export interface RegisterInput {
-  email: string;
-  /** @minLength 6 */
-  password: string;
-  /** @minLength 1 */
-  firstName: string;
-  /** @minLength 1 */
-  lastName: string;
-}
-
-export interface LoginInput {
-  email: string;
-  password: string;
-}
-
 export type UserRole = typeof UserRole[keyof typeof UserRole];
 
 
@@ -64,11 +49,6 @@ export interface User {
   lastLoginAt?: string | null;
   hasAccess?: boolean;
   accessGrants?: AccessGrant[];
-}
-
-export interface AuthResponse {
-  user: User;
-  token: string;
 }
 
 export interface Course {

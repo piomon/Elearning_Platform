@@ -37,7 +37,9 @@ services:
       PORT: 8080
       LOG_LEVEL: ${LOG_LEVEL:-info}
       DATABASE_URL: ${DATABASE_URL:-postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}}
-      JWT_SECRET: ${JWT_SECRET}
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
+      CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
       SESSION_SECRET: ${SESSION_SECRET}
       APP_URL: ${APP_URL:-}
       API_URL: ${API_URL:-}
@@ -75,6 +77,10 @@ services:
     build:
       context: .
       dockerfile: docker/web/Dockerfile
+      args:
+        # Klucz PUBLICZNY Clerk jest wbudowywany w statyczny build frontendu.
+        # Nigdy nie przekazuj tu CLERK_SECRET_KEY.
+        CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY}
     restart: unless-stopped
     # Dostęp lokalny tylko z localhost (w produkcji ruch idzie przez Traefik).
     ports:

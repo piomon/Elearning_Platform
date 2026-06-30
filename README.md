@@ -52,7 +52,7 @@ Trzy kontenery aplikacyjne + (w produkcji) reverse proxy:
                           └───────────────────┘
 ```
 
-- **Front i API są pod tym samym originem** (Nginx proxuje `/api/`), więc cookies/JWT działają bez konfiguracji CORS.
+- **Front i API są pod tym samym originem** (Nginx proxuje `/api/`), więc tokeny Clerk działają bez dodatkowej konfiguracji CORS.
 - **Migracje** uruchamiają się automatycznie przy starcie kontenera `api`.
 - **Dane bazy** trwają w nazwanym wolumenie Docker (`db_data`) — przeżywają restart i przebudowę.
 
@@ -138,8 +138,10 @@ niej) · — = opcjonalna.
 | Zmienna | Wymagana | Opis |
 |---------|:--------:|------|
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | ✅ | Dane bazy w kontenerze `db`; z nich składany jest `DATABASE_URL`. |
-| `JWT_SECRET` | ✅ | Sekret do podpisywania tokenów JWT (min. 32 znaki). Wygeneruj: `openssl rand -hex 32`. |
-| `SESSION_SECRET` | ✅ | Sekret sesji. Inny niż JWT. `openssl rand -hex 32`. |
+| `CLERK_SECRET_KEY` | ✅ | Tajny klucz backendu Clerk (Dashboard → API Keys). Nigdy nie wystawiaj publicznie. |
+| `CLERK_PUBLISHABLE_KEY` | ✅ | Publiczny klucz Clerk. Wbudowywany w build frontendu (kontener `web` pobiera go jako build-arg) oraz używany przez API. |
+| `ADMIN_EMAILS` | — | Lista e-maili (po przecinku) automatycznie promowanych do roli administratora przy logowaniu przez Clerk. |
+| `SESSION_SECRET` | ✅ | Sekret podpisujący wewnętrzne tokeny HMAC (np. bilety quizów na czas). To NIE klucz Clerk. Min. 32 znaki: `openssl rand -hex 32`. |
 | `NODE_ENV` | — | `production` (domyślnie). |
 | `LOG_LEVEL` | — | Poziom logów: `info`, `debug`, `warn`, `error`. |
 | `APP_URL` / `API_URL` | prod | Publiczne adresy (linki w e-mailach, walidacja `returnUrl` płatności). |
@@ -169,7 +171,7 @@ niej) · — = opcjonalna.
 ```bash
 # 1. Konfiguracja
 cp .env.example .env
-#    edytuj .env: ustaw POSTGRES_PASSWORD, JWT_SECRET, SESSION_SECRET
+#    edytuj .env: ustaw POSTGRES_PASSWORD, CLERK_SECRET_KEY, CLERK_PUBLISHABLE_KEY, SESSION_SECRET
 
 # 2. Budowa i start wszystkich usług
 docker compose up -d --build
@@ -237,14 +239,17 @@ Co ładuje seeder (źródło: `scripts/src/course-data.ts`):
 - pierwsza lekcja oznaczona jako **demonstracyjna** (`isPreview`) — dostępna bez wykupionego dostępu,
 - lekcje bez filmu (np. część działu 2) obsługiwane są poprawnie: pokazują grafiki i quiz.
 
-Konta demonstracyjne tworzone przez seeder:
+Konta startowe tworzone przez seeder (**bez haseł** — logowanie odbywa się przez Clerk):
 
-| Rola | E-mail | Hasło | Uwagi |
-|------|--------|-------|-------|
-| Administrator | `admin@fizyka.edu.pl` | `admin123` | pełny dostęp + panel administratora |
-| Uczeń | `uczen@fizyka.edu.pl` | `student123` | otrzymuje pełny dostęp do kursu (do testów płatnej ścieżki) |
+| Rola | E-mail | Uwagi |
+|------|--------|-------|
+| Administrator | `admin@fizyka.edu.pl` | rola `admin`; przy logowaniu przez Clerk tym adresem konto Clerk zostaje powiązane z tym wierszem |
+| Uczeń | `uczen@fizyka.edu.pl` | otrzymuje pełny dostęp do kursu (do testów płatnej ścieżki) |
 
-> Zmień te hasła po pierwszym logowaniu w środowisku produkcyjnym.
+> Seeder nie ustawia haseł. Aby uzyskać dostęp administratora, zarejestruj się w
+> Clerk **tym samym, zweryfikowanym** adresem e-mail (`admin@fizyka.edu.pl`) **lub**
+> dodaj swój adres do `ADMIN_EMAILS` w `.env` — przy pierwszym logowaniu zostaniesz
+> automatycznie promowany do roli administratora.
 
 ### Panel administratora
 
@@ -336,12 +341,13 @@ cd twoje-repo
 cp .env.example .env
 nano .env
 #    Ustaw KONIECZNIE:
-#      POSTGRES_PASSWORD  — silne hasło
-#      JWT_SECRET         — openssl rand -hex 32
-#      SESSION_SECRET     — openssl rand -hex 32
-#      DOMAIN             — twoja-domena.pl
-#      ACME_EMAIL         — admin@twoja-domena.pl
-#      APP_URL/API_URL    — https://twoja-domena.pl (+ /api)
+#      POSTGRES_PASSWORD     — silne hasło
+#      CLERK_SECRET_KEY      — klucz tajny z dashboardu Clerk
+#      CLERK_PUBLISHABLE_KEY — klucz publiczny z dashboardu Clerk
+#      SESSION_SECRET        — openssl rand -hex 32
+#      DOMAIN                — twoja-domena.pl
+#      ACME_EMAIL            — admin@twoja-domena.pl
+#      APP_URL/API_URL       — https://twoja-domena.pl (+ /api)
 
 # 3. Uruchom w trybie produkcyjnym (z Traefik + SSL)
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build

@@ -16,50 +16,6 @@ export const HealthCheckResponse = zod.object({
 })
 
 
-export const registerBodyPasswordMin = 6;
-
-
-
-
-
-export const RegisterBody = zod.object({
-  "email": zod.string().email(),
-  "password": zod.string().min(registerBodyPasswordMin),
-  "firstName": zod.string().min(1),
-  "lastName": zod.string().min(1)
-})
-
-
-export const LoginBody = zod.object({
-  "email": zod.string(),
-  "password": zod.string()
-})
-
-export const LoginResponse = zod.object({
-  "user": zod.object({
-  "id": zod.number(),
-  "email": zod.string(),
-  "firstName": zod.string(),
-  "lastName": zod.string(),
-  "role": zod.enum(['user', 'admin']),
-  "isBanned": zod.boolean(),
-  "bannedReason": zod.string().nullish(),
-  "createdAt": zod.string(),
-  "lastLoginAt": zod.string().nullish(),
-  "hasAccess": zod.boolean().optional(),
-  "accessGrants": zod.array(zod.object({
-  "id": zod.number(),
-  "courseId": zod.number(),
-  "source": zod.string(),
-  "status": zod.string(),
-  "validFrom": zod.string(),
-  "validTo": zod.string().nullish()
-})).optional()
-}),
-  "token": zod.string()
-})
-
-
 export const LogoutResponse = zod.object({
   "message": zod.string()
 })

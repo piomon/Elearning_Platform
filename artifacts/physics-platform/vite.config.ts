@@ -27,8 +27,23 @@ if (!basePath) {
   );
 }
 
+// Clerk's publishable key is baked into the static bundle. In dev it comes from
+// the Replit secret; in the Docker web image it must be supplied as a build arg
+// (it is public — never pass the secret key here).
+const clerkPublishableKey = process.env.CLERK_PUBLISHABLE_KEY;
+
+if (!clerkPublishableKey) {
+  throw new Error(
+    "CLERK_PUBLISHABLE_KEY environment variable is required but was not provided.",
+  );
+}
+
 export default defineConfig({
   base: basePath,
+  define: {
+    "import.meta.env.VITE_CLERK_PUBLISHABLE_KEY":
+      JSON.stringify(clerkPublishableKey),
+  },
   plugins: [
     react(),
     tailwindcss(),

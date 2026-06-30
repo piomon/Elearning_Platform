@@ -10,14 +10,13 @@ committed — `listWorkflows()`/`listArtifacts()` return empty. Re-register each
 (api-server, physics-platform) by replacing its `artifact.toml` with byte-identical content
 via `verifyAndReplaceArtifactToml`; that materializes the workflows so they can be started.
 
-The API server fails to boot / seed+auth fail until these are done:
+The API server fails to boot / seed fails until these are done:
 
-1. `pnpm install`, then **`pnpm rebuild bcrypt`** — bcrypt's native build script is in
-   pnpm's ignored-build-scripts list, so a plain install leaves it unbuilt and any
-   `require('bcrypt')` (seed script, login/register) throws at runtime. Rebuild it once.
-2. **JWT_SECRET** must exist (min 32 chars) — required even in dev by `env.ts`. App-internal
-   signing key, not a third-party credential, so generate one and set as a `development`
-   env var (don't pester the user). `DATABASE_URL` is already provided.
+1. `pnpm install` — no native build steps; auth runs through Clerk, there is no bcrypt.
+2. Env required at import by `env.ts` even in dev: **CLERK_SECRET_KEY** + **CLERK_PUBLISHABLE_KEY**
+   (third-party — the user supplies these as secrets) and **SESSION_SECRET** (min 32 chars;
+   app-internal HMAC key for quiz start-tickets — generate one yourself, don't pester the
+   user). `DATABASE_URL` is already provided.
 3. **Push schema**: `pnpm --filter @workspace/db run push` (the dev Postgres starts empty).
 4. **Seed**: `pnpm --filter @workspace/scripts run seed`.
 
@@ -28,6 +27,7 @@ whole frontend looks broken even though the code is fine.
 
 # Seed data shape
 
-Seed creates an admin user, a student user (granted access to the seeded course), 1 course
-("Fizyka klasy 7"), 3 sections, and 9 topics (each with video/quiz/task). The exact dev
-login credentials live in `scripts/src/seed.ts` — read them there, don't duplicate here.
+Seed creates a passwordless admin user and a student user (granted access to the seeded
+course), 1 course, its sections, and topics (each with video/quiz/task). Login is via Clerk:
+sign in with the seeded admin email (or any ADMIN_EMAILS address) to get admin. The exact
+seeded emails live in `scripts/src/seed.ts` — read them there, don't duplicate here.

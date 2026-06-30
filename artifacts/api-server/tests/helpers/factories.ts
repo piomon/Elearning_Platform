@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import { db } from "@workspace/db";
 import {
   users,
@@ -12,7 +11,6 @@ import {
   tasks,
   accessGrants,
 } from "@workspace/db";
-import { generateToken } from "../../src/middlewares/auth";
 
 let counter = 0;
 function uniq(prefix: string): string {
@@ -23,21 +21,20 @@ function uniq(prefix: string): string {
 export async function createUser(
   opts: {
     email?: string;
-    password?: string;
     firstName?: string;
     lastName?: string;
     role?: "user" | "admin";
     isBanned?: boolean;
     bannedReason?: string;
+    clerkUserId?: string;
   } = {},
 ) {
-  const password = opts.password ?? "haslo123";
-  const passwordHash = await bcrypt.hash(password, 10);
+  const clerkUserId = opts.clerkUserId ?? uniq("clerk");
   const [user] = await db
     .insert(users)
     .values({
       email: (opts.email ?? `${uniq("user")}@test.pl`).toLowerCase(),
-      passwordHash,
+      clerkUserId,
       firstName: opts.firstName ?? "Jan",
       lastName: opts.lastName ?? "Testowy",
       role: opts.role ?? "user",
@@ -45,12 +42,11 @@ export async function createUser(
       bannedReason: opts.bannedReason ?? null,
     })
     .returning();
-  const token = generateToken({
-    id: user.id,
-    email: user.email,
-    role: user.role,
-  });
-  return { user, token, password };
+  // Tests authenticate with `Authorization: Bearer <token>`. The @clerk/express
+  // mock in tests/setup.ts maps that bearer value straight to a Clerk userId,
+  // so the token is simply this user's clerk_user_id (the JIT sync then resolves
+  // it via its fast path without ever calling clerkClient).
+  return { user, token: clerkUserId, clerkUserId };
 }
 
 export async function createAdmin() {

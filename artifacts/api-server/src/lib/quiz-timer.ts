@@ -1,16 +1,24 @@
-import jwt from "jsonwebtoken";
+import crypto from "node:crypto";
 import { config } from "../config/env";
 
-const JWT_SECRET = config.jwtSecret;
+const TICKET_SECRET = config.sessionSecret;
 
 // A signed "quiz started" ticket. The server issues it when a student begins a
 // timed quiz and verifies it on submission, so the elapsed-time check is
-// server-authoritative and cannot be forged or back-dated by the client.
+// server-authoritative and cannot be forged or back-dated by the client. Signed
+// with a local HMAC (not a Clerk credential) so it stays independent of auth.
 interface QuizStartClaims {
   quizId: number;
   userId: number;
   // Epoch milliseconds when the attempt window opened.
   startedAt: number;
+}
+
+function sign(payload: string): string {
+  return crypto
+    .createHmac("sha256", TICKET_SECRET)
+    .update(payload)
+    .digest("base64url");
 }
 
 // `startedAt` is injectable so tests can simulate an already-elapsed window.
@@ -20,12 +28,26 @@ export function signQuizStart(
   startedAt: number = Date.now(),
 ): string {
   const claims: QuizStartClaims = { quizId, userId, startedAt };
-  return jwt.sign(claims, JWT_SECRET);
+  const payload = Buffer.from(JSON.stringify(claims)).toString("base64url");
+  return `${payload}.${sign(payload)}`;
 }
 
 export function verifyQuizStart(token: string): QuizStartClaims | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as Partial<QuizStartClaims>;
+    const [payload, signature] = token.split(".");
+    if (!payload || !signature) return null;
+    const expected = sign(payload);
+    const sigBuf = Buffer.from(signature);
+    const expBuf = Buffer.from(expected);
+    if (
+      sigBuf.length !== expBuf.length ||
+      !crypto.timingSafeEqual(sigBuf, expBuf)
+    ) {
+      return null;
+    }
+    const decoded = JSON.parse(
+      Buffer.from(payload, "base64url").toString("utf8"),
+    ) as Partial<QuizStartClaims>;
     if (
       typeof decoded.quizId === "number" &&
       typeof decoded.userId === "number" &&

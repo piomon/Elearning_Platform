@@ -35,7 +35,6 @@ import type {
   AiSettingsInput,
   AiTestInput,
   AiTestResult,
-  AuthResponse,
   BanInput,
   BunnyAssignInput,
   BunnyDiagnostics,
@@ -77,7 +76,6 @@ import type {
   ListAdminPaymentsParams,
   ListAdminUsersParams,
   ListContactMessagesParams,
-  LoginInput,
   LoginStats,
   MessageResponse,
   MockCompletePayment200,
@@ -108,7 +106,6 @@ import type {
   QuizQuestionInput,
   RefundInput,
   RefundResult,
-  RegisterInput,
   ReorderInput,
   Section,
   SectionInput,
@@ -222,136 +219,6 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 
 
 
-
-export const getRegisterUrl = () => {
-
-
-
-
-  return `/api/auth/register`
-}
-
-export const register = async (registerInput: RegisterInput, options?: RequestInit): Promise<AuthResponse> => {
-
-  return customFetch<AuthResponse>(getRegisterUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      registerInput,)
-  }
-);}
-
-
-
-
-export const getRegisterMutationOptions = <TError = ErrorType<ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof register>>, TError,{data: BodyType<RegisterInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof register>>, TError,{data: BodyType<RegisterInput>}, TContext> => {
-
-const mutationKey = ['register'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof register>>, {data: BodyType<RegisterInput>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  register(data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type RegisterMutationResult = NonNullable<Awaited<ReturnType<typeof register>>>
-    export type RegisterMutationBody = BodyType<RegisterInput>
-    export type RegisterMutationError = ErrorType<ErrorResponse>
-
-    export const useRegister = <TError = ErrorType<ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof register>>, TError,{data: BodyType<RegisterInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
- ): UseMutationResult<
-        Awaited<ReturnType<typeof register>>,
-        TError,
-        {data: BodyType<RegisterInput>},
-        TContext
-      > => {
-      return useMutation(getRegisterMutationOptions(options));
-    }
-
-export const getLoginUrl = () => {
-
-
-
-
-  return `/api/auth/login`
-}
-
-export const login = async (loginInput: LoginInput, options?: RequestInit): Promise<AuthResponse> => {
-
-  return customFetch<AuthResponse>(getLoginUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      loginInput,)
-  }
-);}
-
-
-
-
-export const getLoginMutationOptions = <TError = ErrorType<ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,{data: BodyType<LoginInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,{data: BodyType<LoginInput>}, TContext> => {
-
-const mutationKey = ['login'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof login>>, {data: BodyType<LoginInput>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  login(data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type LoginMutationResult = NonNullable<Awaited<ReturnType<typeof login>>>
-    export type LoginMutationBody = BodyType<LoginInput>
-    export type LoginMutationError = ErrorType<ErrorResponse>
-
-    export const useLogin = <TError = ErrorType<ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof login>>, TError,{data: BodyType<LoginInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
- ): UseMutationResult<
-        Awaited<ReturnType<typeof login>>,
-        TError,
-        {data: BodyType<LoginInput>},
-        TContext
-      > => {
-      return useMutation(getLoginMutationOptions(options));
-    }
 
 export const getLogoutUrl = () => {
 

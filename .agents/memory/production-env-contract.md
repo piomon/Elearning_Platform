@@ -10,14 +10,16 @@ description: Which env vars the api-server requires to boot in production vs whi
 probe, so the *deploy* fails at the promote phase (build logs look successful and
 stop at "Creating Autoscale service").
 
-**Required in production (must be set or deploy fails):**
-`JWT_SECRET` (>=32 chars), `DATABASE_URL` (auto), `APP_URL`, `API_URL`,
-`ALLOWED_ORIGINS`, `COURSE_PRICE_GROSZ` (these last four use `readProd`, which
-throws in prod even though it has a dev fallback).
+**Required to boot at all (always, via `readRequired` — dev and prod):**
+`CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `SESSION_SECRET` (>=32 chars),
+`DATABASE_URL` (auto).
 
-**Optional at boot, gated by guards:** Gemini (`GEMINI_API_KEY`), Przelewy24
-(`P24_*`), Bunny (`BUNNY_*`), SMTP (`SMTP_*`/`CONTACT_FROM_EMAIL`). Read via
-`readOptional`; features are disabled via `isGeminiConfigured`/`isP24Configured`/
+**Additionally required in production (via `readProd`, which throws in prod but has a
+dev fallback):** `APP_URL`, `API_URL`, `ALLOWED_ORIGINS`, `COURSE_PRICE_GROSZ`.
+
+**Optional at boot, gated by guards:** Gemini (`GEMINI_API_KEY`), Paynow
+(`PAYNOW_API_KEY`/`PAYNOW_SIGNATURE_KEY`), Bunny (`BUNNY_*`), SMTP (`SMTP_*`/`CONTACT_FROM_EMAIL`).
+Read via `readOptional`; features are disabled via `isGeminiConfigured`/`isPaynowConfigured`/
 `isSmtpConfigured` (and `config.bunny.libraryId` check in courses) when absent.
 
 **Why:** the user chose to publish before configuring the paid integrations. They

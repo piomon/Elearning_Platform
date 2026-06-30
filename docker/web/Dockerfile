@@ -2,7 +2,8 @@
 # Frontend (Platforma Fizyki) — React + Vite, serwowany przez Nginx.
 #
 # Nginx serwuje statyczny build SPA ORAZ proxuje /api/ do kontenera `api`,
-# dzięki czemu front i API są pod tym samym originem (cookies/JWT działają).
+# dzięki czemu front i API są pod tym samym originem (tokeny Clerk działają bez
+# problemów CORS).
 # ============================================================================
 
 # --- Etap 1: build ----------------------------------------------------------
@@ -16,6 +17,13 @@ WORKDIR /app
 ENV PORT=8080
 ENV BASE_PATH=/
 ENV NODE_ENV=production
+
+# Klucz PUBLICZNY Clerk jest wstrzykiwany w czasie buildu: vite.config.ts czyta
+# process.env.CLERK_PUBLISHABLE_KEY i wkompilowuje go w bundle jako
+# VITE_CLERK_PUBLISHABLE_KEY. To klucz publiczny — NIGDY nie przekazuj tu
+# CLERK_SECRET_KEY. Wartość pochodzi z build-arg (patrz docker-compose.yml).
+ARG CLERK_PUBLISHABLE_KEY
+ENV CLERK_PUBLISHABLE_KEY=$CLERK_PUBLISHABLE_KEY
 
 COPY . .
 

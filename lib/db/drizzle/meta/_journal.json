@@ -71,6 +71,13 @@
       "when": 1781563636932,
       "tag": "0009_faithful_masked_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1782828488134,
+      "tag": "0010_sweet_rogue",
+      "breakpoints": true
     }
   ]
 }
