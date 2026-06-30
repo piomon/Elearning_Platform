@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import confetti from "canvas-confetti";
 import { useRoute, useLocation } from "wouter";
 import {
@@ -35,6 +35,10 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+
+const LessonWhiteboard = lazy(
+  () => import("@/components/lesson-whiteboard/lesson-whiteboard"),
+);
 
 function formatRemaining(ms: number): string {
   const total = Math.max(0, Math.ceil(ms / 1000));
@@ -947,6 +951,19 @@ export default function TopicDetail() {
                 </div>
               )}
             </section>
+          )}
+
+          {/* Interactive whiteboard — solve the task on the board and get AI feedback */}
+          {topic.tasks.length > 0 && (
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center gap-2 rounded-3xl border bg-card p-10 text-muted-foreground">
+                  <Loader2 className="w-5 h-5 animate-spin" /> Wczytywanie tablicy…
+                </div>
+              }
+            >
+              <LessonWhiteboard tasks={topic.tasks} />
+            </Suspense>
           )}
 
           {/* Prev / Next */}
