@@ -1,5 +1,5 @@
 # Keep the Docker build context small and force a clean, in-image install
-# (so native modules like bcrypt are compiled for the image platform).
+# of all dependencies for the target image platform.
 
 # Dependencies — always reinstalled inside the image
 **/node_modules

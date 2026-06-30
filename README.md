@@ -111,8 +111,11 @@ sudo usermod -aG docker $USER   # następnie wyloguj się i zaloguj ponownie
 │       ├── Dockerfile         # Obraz frontendu (Nginx)
 │       └── nginx.conf         # SPA fallback + proxy /api
 ├── deploy/
+│   ├── deploy.sh             # Pierwsze uruchomienie (sprawdza .env, build, up)
 │   ├── update.sh             # Aktualizacja po pushu (pull + build + up)
-│   └── backup-db.sh          # Kopia zapasowa bazy
+│   ├── migrate.sh            # Ręczne uruchomienie migracji
+│   ├── backup.sh             # Kopia zapasowa bazy
+│   └── restore.sh            # Odtworzenie bazy z kopii
 ├── docker-compose.yml         # Konfiguracja bazowa (lokalna)
 ├── docker-compose.prod.yml    # Nakładka produkcyjna (Traefik + SSL)
 ├── .env.example               # Wzór konfiguracji środowiska
@@ -349,8 +352,11 @@ nano .env
 #      ACME_EMAIL            — admin@twoja-domena.pl
 #      APP_URL/API_URL       — https://twoja-domena.pl (+ /api)
 
-# 3. Uruchom w trybie produkcyjnym (z Traefik + SSL)
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# 3. Uruchom w trybie produkcyjnym (z Traefik + SSL).
+#    Skrypt sprawdza .env, buduje obrazy, startuje usługi i czeka na bazę:
+./deploy/deploy.sh
+#    (alternatywnie, ręcznie:)
+# docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 # 4. Sprawdź status i logi
 docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
@@ -427,11 +433,10 @@ docker compose down
 docker compose up -d
 
 # Kopia zapasowa bazy danych
-./deploy/backup-db.sh        # zapisuje do ./backups/
+./deploy/backup.sh           # zapisuje do ./backups/
 
-# Odtworzenie bazy z kopii
-gunzip -c backups/PLIK.sql.gz | docker compose exec -T db \
-  psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+# Odtworzenie bazy z kopii (UWAGA: nadpisuje bieżące dane)
+./deploy/restore.sh backups/PLIK.sql.gz
 ```
 
 Automatyczny restart po awarii zapewnia polityka `restart: unless-stopped` —
@@ -447,7 +452,7 @@ kontenery wstają same po crashu lub po restarcie serwera.
 - **API i front** nie publikują portów publicznie w produkcji — wejście wyłącznie przez Traefik (HTTPS).
 - **Wymuszony HTTPS** + nagłówki bezpieczeństwa w Nginx (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`).
 - **Logowanie** strukturalne (pino) na `api`; poziom sterowany `LOG_LEVEL`.
-- **Aktualizuj** obraz bazowy i zależności; rób regularne kopie (`deploy/backup-db.sh`).
+- **Aktualizuj** obraz bazowy i zależności; rób regularne kopie (`deploy/backup.sh`).
 - Po seedowaniu **zmień domyślne hasła** kont demonstracyjnych.
 - **Integralność postępu (nie do podrobienia z klienta).** Ukończenie lekcji jest wyznaczane wyłącznie po stronie serwera:
   - mianownikiem procentu obejrzenia jest zawsze **czas trwania filmu zapisany w bazie** (`videos.durationSeconds`, pobierany z pola `length` Bunny podczas seedowania) — klient nie może przysłać własnego czasu trwania;
@@ -483,14 +488,20 @@ git init && git add . && git commit -m "Initial commit"
 git remote add origin git@github.com:USER/REPO.git
 git push -u origin main
 
-# VPS (produkcja)
+# VPS (produkcja) — pierwsze uruchomienie
 git clone <repo> && cd <repo>
 cp .env.example .env && nano .env
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+./deploy/deploy.sh          # sprawdza .env, buduje, startuje (migracje automatyczne)
 
-# Migracje / seed
-docker compose exec api pnpm --filter @workspace/db run migrate
+# Seed danych startowych (jednorazowo)
 docker compose exec api pnpm --filter @workspace/scripts run seed
+
+# Migracje ręcznie (zwykle automatyczne przy starcie api)
+./deploy/migrate.sh
+
+# Kopia / odtworzenie bazy
+./deploy/backup.sh
+./deploy/restore.sh backups/PLIK.sql.gz
 
 # Aktualizacja po pushu
 ./deploy/update.sh

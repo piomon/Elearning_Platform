@@ -56,3 +56,7 @@ Thumbs.db
 # Docker / Let's Encrypt local artifacts
 letsencrypt/
 acme.json
+
+# Kopie zapasowe bazy danych — mogą zawierać dane osobowe/płatności.
+# NIGDY nie commituj zrzutów bazy. (Migracje w lib/db/drizzle/*.sql są śledzone.)
+backups/
