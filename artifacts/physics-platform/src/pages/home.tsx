@@ -987,7 +987,7 @@ export default function Home() {
   };
 
   return (
-    <div className={`flex flex-col w-full overflow-hidden ${user?.hasAccess ? "" : "pb-24 sm:pb-0"}`}>
+    <div className="flex flex-col w-full overflow-hidden">
       <SeoHead />
       {isPreview && <PreviewBanner label="Podgląd strony głównej jak u ucznia — uwzględnia ukryte sekcje." />}
 
@@ -997,50 +997,8 @@ export default function Home() {
         return render ? render() : null;
       })}
 
-      {/* ── MOBILE APP-STYLE STICKY CTA ── */}
-      {!user?.hasAccess && (
-        <div className="sm:hidden fixed bottom-0 inset-x-0 z-50 border-t border-border/60 bg-background/90 backdrop-blur-xl px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] animate-in slide-in-from-bottom-4 duration-500">
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col leading-tight">
-              {priceLabel ? (
-                <>
-                  <span className="flex items-baseline gap-1.5">
-                    {showOldPrice && oldPriceLabel && (
-                      <span className="text-xs font-bold text-muted-foreground/70 line-through">{oldPriceLabel}</span>
-                    )}
-                    <span className="text-lg font-black tracking-tight">
-                      {priceLabel}<span className="text-xs font-bold text-muted-foreground"> / mies.</span>
-                    </span>
-                    {showDiscount && (
-                      <span className="inline-flex items-center rounded-full bg-gradient-to-r from-primary via-violet-600 to-cyan-500 text-white px-1.5 py-0.5 text-[10px] font-black">
-                        -{discount}%
-                      </span>
-                    )}
-                  </span>
-                  {showCountdown && (
-                    <span className="text-[11px] text-muted-foreground font-medium tabular-nums">
-                      Promo: {countdown.days}d {String(countdown.hours).padStart(2, "0")}:{String(countdown.minutes).padStart(2, "0")}:{String(countdown.seconds).padStart(2, "0")}
-                    </span>
-                  )}
-                </>
-              ) : (
-                <>
-                  <span className="text-base font-bold tracking-tight">fizyka7</span>
-                  <span className="text-[11px] text-muted-foreground font-medium">Klasa 7</span>
-                </>
-              )}
-            </div>
-            <Button
-              onClick={handleBuy}
-              disabled={isPending || primaryCourseId == null}
-              className="flex-1 h-12 rounded-full text-base font-bold shadow-lg shadow-primary/25"
-            >
-              {isPending ? "Przetwarzanie..." : "Kup dostęp"}
-              {!isPending && <ArrowRight className="w-5 h-5 ml-1.5" />}
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* Mobile sticky buy bar is provided globally by the Layout
+          (MobileBuyBar) so it never stacks with the bottom nav. */}
 
       {/* ── FOOTER ── */}
       <footer className="py-12 bg-background border-t border-border text-center">

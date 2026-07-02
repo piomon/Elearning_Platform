@@ -4,15 +4,33 @@ import { Button } from "@/components/ui/button";
 import { Moon, Sun, BookOpen } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { MobileNav } from "@/components/mobile-nav";
+import { MobileBuyBar } from "@/components/mobile-buy-bar";
 import { PromoBanner } from "@/components/promo-banner";
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const [location] = useLocation();
   const { theme, setTheme } = useTheme();
 
   const isAdmin = user?.role === "admin";
   const isDashboard = location.startsWith("/dashboard") || location.startsWith("/courses") || location.startsWith("/sections") || location.startsWith("/topics");
+
+  // Exactly one mobile bottom bar shows: the learning nav once access is
+  // granted, otherwise a persistent buy bar for prospects (logged-out) and
+  // logged-in buyers who still need access. Hidden on auth/payment/admin views.
+  const isAuthPage = location === "/login" || location === "/register";
+  const isPaymentPage = location.startsWith("/payment");
+  // Show the buy bar as soon as possible (prospects are the priority audience);
+  // only suppress the learning nav until auth resolves so a returning student
+  // does not briefly see it before their access is known.
+  const showLearnNav = !isLoading && !!user && !isAdmin && !!user.hasAccess;
+  const showBuyBar =
+    !isAdmin &&
+    !user?.hasAccess &&
+    !isAuthPage &&
+    !isPaymentPage &&
+    !location.startsWith("/admin");
+  const showBottomBar = showLearnNav || showBuyBar;
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background selection:bg-primary/20">
@@ -92,14 +110,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </header>
       </div>
 
-      <main className={`flex-1 flex flex-col ${user && !isAdmin ? "pb-20 sm:pb-0" : ""}`}>
+      <main className={`flex-1 flex flex-col ${showBottomBar ? "pb-24 sm:pb-0" : ""}`}>
         {children}
       </main>
 
-      <MobileNav />
+      {showLearnNav && <MobileNav />}
+      {showBuyBar && <MobileBuyBar />}
 
       {!isDashboard && !location.startsWith("/admin") && (
-        <footer className="border-t border-border/40 py-12 bg-card mt-auto">
+        <footer className={`border-t border-border/40 py-12 bg-card mt-auto ${showBuyBar ? "pb-28 sm:pb-12" : ""}`}>
           <div className="container mx-auto px-4 space-y-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">

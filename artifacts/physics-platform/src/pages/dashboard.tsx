@@ -6,13 +6,17 @@ import {
   useGetMyProgress,
   useGetProgressSummary,
   useGetCourse,
+  useGetCoursePrice,
 } from "@workspace/api-client-react";
 import type { Course, Progress } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress as ProgressBar } from "@/components/ui/progress";
-import { PlayCircle, BookOpen, PenTool, LayoutDashboard, Target, ArrowRight } from "lucide-react";
+import { BuyAccessButton } from "@/components/buy-access-button";
+import { formatPln } from "@/lib/format";
+import { discountPercent } from "@/lib/promo";
+import { PlayCircle, BookOpen, PenTool, LayoutDashboard, Target, ArrowRight, Flame } from "lucide-react";
 
 function CourseCard({ course, progress }: { course: Course; progress: Progress[] }) {
   const [, setLocation] = useLocation();
@@ -65,8 +69,19 @@ export default function Dashboard() {
   const { data: continueProgress } = useGetContinueProgress();
   const { data: myProgress } = useGetMyProgress();
   const { data: summary } = useGetProgressSummary();
+  const { data: price } = useGetCoursePrice();
 
   const hasAccess = user?.hasAccess ?? false;
+
+  const promoActive = price?.promoEnabled !== false;
+  const priceLabel = price ? formatPln(price.price, price.currency) : null;
+  const hasOldPrice = !!(price && price.oldPrice && price.oldPrice > price.price);
+  const oldPriceLabel =
+    hasOldPrice && price ? formatPln(price.oldPrice!, price.currency) : null;
+  const discount =
+    hasOldPrice && price ? discountPercent(price.oldPrice!, price.price) : 0;
+  const showOldPrice = promoActive && hasOldPrice;
+  const showDiscount = promoActive && discount > 0;
 
   if (coursesLoading) {
     return (
@@ -112,17 +127,38 @@ export default function Dashboard() {
 
       {!hasAccess ? (
         <Card className="border-dashed border-2 bg-muted/30 rounded-3xl overflow-hidden">
-          <CardContent className="flex flex-col items-center justify-center p-12 sm:p-20 text-center space-y-6">
-            <div className="w-24 h-24 bg-background rounded-full shadow-sm flex items-center justify-center mb-2">
-              <BookOpen className="w-12 h-12 text-muted-foreground/50" />
+          <CardContent className="flex flex-col items-center justify-center p-10 sm:p-16 text-center space-y-6">
+            <div className="w-20 h-20 bg-background rounded-full shadow-sm flex items-center justify-center">
+              <BookOpen className="w-10 h-10 text-primary" />
             </div>
-            <h3 className="text-2xl font-bold font-display">Nie masz jeszcze dostępu do kursów</h3>
-            <p className="text-muted-foreground max-w-md mx-auto text-lg">
-              Aby rozpocząć naukę, poproś rodzica o zakup dostępu do platformy lub skontaktuj się z administratorem.
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold font-display">Odblokuj pełny kurs fizyki dla klasy 7</h3>
+              <p className="text-muted-foreground max-w-md mx-auto text-lg">
+                Uzyskaj dostęp do wszystkich lekcji wideo, quizów, zadań i asystenta AI. Dostęp aktywuje się automatycznie zaraz po opłaceniu.
+              </p>
+            </div>
+
+            {priceLabel && (
+              <div className="flex flex-wrap items-baseline justify-center gap-2">
+                {showOldPrice && oldPriceLabel && (
+                  <span className="text-xl font-bold text-muted-foreground/70 line-through decoration-2">
+                    {oldPriceLabel}
+                  </span>
+                )}
+                <span className="text-4xl font-black tracking-tight">{priceLabel}</span>
+                <span className="text-muted-foreground font-medium">/ mies.</span>
+                {showDiscount && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-primary via-violet-600 to-cyan-500 text-white px-2.5 py-1 text-xs font-black">
+                    <Flame className="w-3 h-3" /> -{discount}%
+                  </span>
+                )}
+              </div>
+            )}
+
+            <BuyAccessButton label="Kup dostęp" className="mt-2 px-10 h-14 text-lg" />
+            <p className="text-sm text-muted-foreground">
+              Masz kod rabatowy? Wpiszesz go w podsumowaniu zakupu.
             </p>
-            <Button size="lg" className="mt-4 rounded-full px-8 h-14" onClick={() => setLocation("/")}>
-              Zobacz ofertę kursów
-            </Button>
           </CardContent>
         </Card>
       ) : (

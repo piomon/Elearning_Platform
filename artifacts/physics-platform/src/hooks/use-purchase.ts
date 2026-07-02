@@ -69,6 +69,7 @@ export function usePurchase() {
 
 export function PurchaseResume() {
   const { user, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
   const resumed = useRef(false);
 
   useEffect(() => {
@@ -77,10 +78,11 @@ export function PurchaseResume() {
     if (courseId == null) return;
     resumed.current = true;
     if (user.hasAccess) return;
-    void redirectToPayment(courseId).catch(() => {
-      resumed.current = false;
-    });
-  }, [user, isLoading]);
+    // Resume the purchase on the dashboard buy panel (price + discount code)
+    // instead of jumping straight to the payment provider, so a newly
+    // registered customer can still enter a promo code before paying.
+    setLocation("/dashboard");
+  }, [user, isLoading, setLocation]);
 
   return null;
 }

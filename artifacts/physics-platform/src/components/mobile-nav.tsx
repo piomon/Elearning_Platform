@@ -19,8 +19,10 @@ export function MobileNav() {
     query: { enabled: !!user } as any,
   });
 
-  // Bottom nav is a student-facing convenience; admins use the full header nav.
-  if (!user || user.role === "admin") return null;
+  // Learning nav is only for students who already have access. Admins use the
+  // header nav; visitors without access get the MobileBuyBar instead, so there
+  // is never a dead "Nauka" link that loops back to an empty dashboard.
+  if (!user || user.role === "admin" || !user.hasAccess) return null;
 
   const learnHref = cont?.topicId ? `/topics/${cont.topicId}` : "/dashboard";
 

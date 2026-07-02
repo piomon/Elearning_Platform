@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { BuyAccessButton } from "@/components/buy-access-button";
 
 const LessonWhiteboard = lazy(
   () => import("@/components/lesson-whiteboard/lesson-whiteboard"),
@@ -440,15 +441,13 @@ export default function TopicDetail() {
             To pełna lekcja kursu. Wykup dostęp, aby oglądać wszystkie materiały, rozwiązywać quizy i korzystać z asystenta AI.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <Button className="rounded-full px-8 h-12" onClick={() => setLocation("/")}>
-              Zobacz ofertę
-            </Button>
+            <BuyAccessButton label="Kup dostęp" size="default" className="px-8 h-12" />
             <Button
               variant="outline"
               className="rounded-full px-8 h-12"
-              onClick={() => setLocation("/dashboard")}
+              onClick={() => setLocation("/")}
             >
-              Wróć do pulpitu
+              Strona główna
             </Button>
           </div>
         </div>
