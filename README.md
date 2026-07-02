@@ -228,11 +228,39 @@ docker compose exec api pnpm --filter @workspace/db run migrate
 
 ## Seedowanie danych
 
-Seeder odtwarza pełny kurs **„Łatwa Fizyka — klasa 7"** wraz z kontami startowymi:
+Seeder ładuje pełny kurs **„Łatwa Fizyka — klasa 7"** (źródło: `scripts/src/course-data.ts`)
+wraz z kontami startowymi. Jest **idempotentny i nieniszczący**: dopasowuje kurs,
+działy i lekcje po stabilnych slugach i **dodaje tylko brakujące** dane — istniejące
+wiersze, a także **użytkownicy, płatności, dostępy i postępy uczniów pozostają
+nietknięte**. Dzięki temu można go bezpiecznie uruchamiać wielokrotnie na produkcji.
 
 ```bash
+# Ręcznie (w działającym kontenerze API, lokalnie lub na VPS):
 docker compose exec api pnpm --filter @workspace/scripts run seed
+# lub skrótem:
+./deploy/seed.sh
 ```
+
+> `deploy/update.sh` uruchamia ten import automatycznie po każdej aktualizacji,
+> więc kurs nigdy nie zostaje pusty (także po świeżym postawieniu bazy).
+>
+> **Ważne (skutek automatycznego importu):** ponieważ seed dodaje brakujące
+> działy/lekcje przy każdym wdrożeniu, treść **usunięta** przez admina zostanie
+> odtworzona przy następnym `update.sh`. Aby trwale ukryć materiał, użyj statusu
+> **`hidden`/`archived`/`draft`** w panelu (istniejące wiersze nie są nadpisywane),
+> zamiast twardego usuwania. Zmiana `slug` istniejącego działu/lekcji w panelu może
+> spowodować dodanie duplikatu pod pierwotnym slugiem.
+>
+> **Konta demo na produkcji:** domyślnie **nie są** tworzone (seed pomija je, gdy
+> `NODE_ENV=production`). Rolę administratora nadaje `ADMIN_EMAILS` przy logowaniu.
+> Aby wymusić utworzenie kont demo: `-e SEED_DEMO_ACCOUNTS=1`.
+>
+> **Twardy reset treści (TYLKO dev):** `SEED_RESET=1` czyści i odtwarza całą treść
+> kursu, ale **odmawia działania**, gdy w bazie są rzeczywiste płatności lub dostępy
+> z płatności — nigdy nie skasuje danych klientów:
+> ```bash
+> docker compose exec -e SEED_RESET=1 api pnpm --filter @workspace/scripts run seed
+> ```
 
 Co ładuje seeder (źródło: `scripts/src/course-data.ts`):
 

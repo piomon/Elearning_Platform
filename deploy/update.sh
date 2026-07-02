@@ -20,7 +20,13 @@ echo "==> Przebudowuję obrazy..."
 $COMPOSE build
 
 echo "==> Uruchamiam zaktualizowane kontenery (migracje wykonają się automatycznie)..."
-$COMPOSE up -d
+$COMPOSE up -d --wait --wait-timeout 240
+
+echo "==> Importuję brakujące treści kursu (idempotentnie, bez kasowania danych)..."
+# Seed jest teraz NIENISZCZĄCY i idempotentny: dodaje tylko brakujące działy/
+# lekcje/materiały, więc bezpiecznie uruchamia się przy każdej aktualizacji i
+# gwarantuje, że kurs nigdy nie jest pusty (nawet po świeżym postawieniu bazy).
+$COMPOSE exec -T api pnpm --filter @workspace/scripts run seed
 
 echo "==> Czyszczę nieużywane obrazy..."
 docker image prune -f

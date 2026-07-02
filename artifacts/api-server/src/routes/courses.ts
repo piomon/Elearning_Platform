@@ -56,6 +56,15 @@ router.get("/courses/:slug", async (req, res) => {
       .from(sections)
       .where(and(eq(sections.courseId, course.id), eq(sections.status, "published")))
       .orderBy(asc(sections.sortOrder));
+    if (sectionList.length === 0) {
+      // Diagnostyka dla administratora: opublikowany kurs bez żadnych
+      // opublikowanych działów prawie zawsze oznacza, że seed/import treści nie
+      // został uruchomiony na tym środowisku (albo baza jest świeża/pusta).
+      req.log.warn(
+        { courseId: course.id, slug: course.slug },
+        "Opublikowany kurs nie ma opublikowanych działów — uruchom import treści: docker compose exec api pnpm --filter @workspace/scripts run seed",
+      );
+    }
     const topicCounts = await Promise.all(
       sectionList.map(async (s) => {
         const ts = await db

@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import pg from "pg";
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -30,6 +30,7 @@ const {
   aiChecks,
   tasks,
   accessGrants,
+  payments,
   landingSections,
   faqItems,
   seoSettings,
@@ -354,139 +355,222 @@ async function seedContent() {
 async function seed() {
   console.log("Seeding database (Łatwa Fizyka)...");
 
-  // Demo accounts are created without a password — authentication now runs
-  // through Clerk. When the owner signs in via Clerk with one of these verified
-  // emails, the JIT sync links the Clerk account to the matching row (and the
-  // admin row stays admin; ADMIN_EMAILS can also promote any email).
-  await db
-    .insert(users)
-    .values({ email: "admin@fizyka.edu.pl", firstName: "Admin", lastName: "Platformy", role: "admin" })
-    .onConflictDoNothing();
-  const [admin] = await db.select().from(users).where(eq(users.email, "admin@fizyka.edu.pl")).limit(1);
-  console.log("Admin user:", admin?.email ?? "(missing)");
+  // Konta demo (admin + uczeń) provisionujemy TYLKO w devie albo gdy jawnie
+  // włączone przez SEED_DEMO_ACCOUNTS=1. Na produkcji domyślnie ich NIE tworzymy:
+  // seed uruchamia się teraz przy każdym wdrożeniu, a automatyczne konto
+  // admin@fizyka.edu.pl z rolą admin byłoby ryzykiem (JIT-sync Clerk wiąże konto
+  // po zweryfikowanym e-mailu). Rolę administratora na produkcji nadaje
+  // ADMIN_EMAILS przy pierwszym logowaniu.
+  const seedDemo = process.env.SEED_DEMO_ACCOUNTS === "1" || process.env.NODE_ENV !== "production";
+  let studentId: number | null = null;
+  if (seedDemo) {
+    await db
+      .insert(users)
+      .values({ email: "admin@fizyka.edu.pl", firstName: "Admin", lastName: "Platformy", role: "admin" })
+      .onConflictDoNothing();
+    const [admin] = await db.select().from(users).where(eq(users.email, "admin@fizyka.edu.pl")).limit(1);
+    console.log("Admin user:", admin?.email ?? "(missing)");
 
-  await db
-    .insert(users)
-    .values({ email: "uczen@fizyka.edu.pl", firstName: "Kamil", lastName: "Nowak", role: "user" })
-    .onConflictDoNothing();
-  const [student] = await db.select().from(users).where(eq(users.email, "uczen@fizyka.edu.pl")).limit(1);
-  console.log("Student user:", student?.email ?? "(missing)");
+    await db
+      .insert(users)
+      .values({ email: "uczen@fizyka.edu.pl", firstName: "Kamil", lastName: "Nowak", role: "user" })
+      .onConflictDoNothing();
+    const [student] = await db.select().from(users).where(eq(users.email, "uczen@fizyka.edu.pl")).limit(1);
+    studentId = student?.id ?? null;
+    console.log("Student user:", student?.email ?? "(missing)");
+  } else {
+    console.log(
+      "Pomijam konta demo (produkcja). Ustaw SEED_DEMO_ACCOUNTS=1, aby je utworzyć; rolę admina nadaje ADMIN_EMAILS.",
+    );
+  }
 
-  await wipeCourseData();
-  console.log("Cleared previous course data.");
+  // SEED_RESET=1 wipes and rebuilds all course content — DEV ONLY. It refuses
+  // to run if the database holds real customer data (any payment, or an access
+  // grant created by a payment), so it can never destroy paid access on
+  // production. The default (no SEED_RESET) is a non-destructive import.
+  if (process.env.SEED_RESET === "1") {
+    const [paid] = await db.select({ id: payments.id }).from(payments).limit(1);
+    const [paidGrant] = await db
+      .select({ id: accessGrants.id })
+      .from(accessGrants)
+      .where(eq(accessGrants.source, "payment"))
+      .limit(1);
+    if (paid || paidGrant) {
+      throw new Error(
+        "SEED_RESET odrzucony: baza zawiera rzeczywiste płatności lub dostępy z płatności. " +
+          "Reset skasowałby dane klientów. Uruchom seed BEZ SEED_RESET — brakujące treści " +
+          "zostaną zaimportowane bez usuwania danych.",
+      );
+    }
+    await wipeCourseData();
+    console.log("SEED_RESET: wyczyszczono poprzednie treści kursu (czysty start — tryb dev).");
+  }
 
   const bunnyVideos = loadBunnyVideos();
   const imageFiles = loadImageFiles();
   console.log(`Loaded ${bunnyVideos.length} Bunny videos and ${imageFiles.length} images.`);
 
-  const [course] = await db
-    .insert(courses)
-    .values({ title: COURSE.title, slug: COURSE.slug, description: COURSE.description, isPublished: true })
-    .returning();
-  console.log("Course:", course.title);
+  // ── Idempotentny, NIENISZCZĄCY import ──────────────────────────────────────
+  // Kurs, działy i lekcje są dopasowywane po stabilnych slugach: istniejące
+  // wiersze pozostają NIETKNIĘTE (dzięki temu dostępy z płatności, płatności i
+  // postępy uczniów, które wskazują na ich id, są zachowane). Dodawane są tylko
+  // BRAKUJĄCE działy/lekcje oraz BRAKUJĄCE materiały lekcji, więc seed można
+  // bezpiecznie uruchamiać na produkcji przy każdym wdrożeniu — bez duplikatów
+  // i bez kasowania danych klientów.
+  let [course] = await db.select().from(courses).where(eq(courses.slug, COURSE.slug)).limit(1);
+  if (!course) {
+    [course] = await db
+      .insert(courses)
+      .values({
+        title: COURSE.title,
+        slug: COURSE.slug,
+        description: COURSE.description,
+        status: "published",
+        isPublished: true,
+      })
+      .returning();
+    console.log("Course created:", course.title);
+  } else {
+    console.log(`Course already present: ${course.title} (id=${course.id}) — pozostawiam bez zmian.`);
+  }
 
+  let sectionCreated = 0;
+  let topicCreated = 0;
   let videoCount = 0;
   let imageCount = 0;
   let quizCount = 0;
   let taskCount = 0;
 
   for (const sec of COURSE.sections) {
-    const [section] = await db
-      .insert(sections)
-      .values({
-        courseId: course.id,
-        title: sec.title,
-        slug: sec.slug,
-        sortOrder: sec.sortOrder,
-        bunnyCollectionId: sec.bunnyCollectionId,
-      })
-      .returning();
-
-    for (const lesson of sec.lessons) {
-      const [topic] = await db
-        .insert(topics)
+    let [section] = await db
+      .select()
+      .from(sections)
+      .where(and(eq(sections.courseId, course.id), eq(sections.slug, sec.slug)))
+      .limit(1);
+    if (!section) {
+      [section] = await db
+        .insert(sections)
         .values({
-          sectionId: section.id,
-          title: lesson.title,
-          slug: lesson.slug,
-          description: lesson.description ?? null,
-          sortOrder: lesson.sortOrder,
-          isPreview: lesson.isPreview ?? false,
+          courseId: course.id,
+          title: sec.title,
+          slug: sec.slug,
+          sortOrder: sec.sortOrder,
+          bunnyCollectionId: sec.bunnyCollectionId,
+          status: "published",
         })
         .returning();
+      sectionCreated += 1;
+    }
 
-      const vids = videosForLesson(lesson.code, bunnyVideos);
-      let filmIndex = 0;
-      for (const v of vids) {
-        filmIndex += 1;
-        await db.insert(videos).values({
-          topicId: topic.id,
-          bunnyVideoId: v.bunnyVideoId,
-          bunnyTitle: v.bunnyTitle,
-          videoUrl: null,
-          title: vids.length > 1 ? `Film ${filmIndex}` : "Film lekcji",
-          durationSeconds: v.durationSeconds,
-          sortOrder: v.sortOrder,
-        });
-        videoCount += 1;
+    for (const lesson of sec.lessons) {
+      let [topic] = await db
+        .select()
+        .from(topics)
+        .where(and(eq(topics.sectionId, section.id), eq(topics.slug, lesson.slug)))
+        .limit(1);
+      if (!topic) {
+        [topic] = await db
+          .insert(topics)
+          .values({
+            sectionId: section.id,
+            title: lesson.title,
+            slug: lesson.slug,
+            description: lesson.description ?? null,
+            sortOrder: lesson.sortOrder,
+            isPreview: lesson.isPreview ?? false,
+            status: "published",
+          })
+          .returning();
+        topicCreated += 1;
       }
 
-      const imgs = imagesForLesson(lesson.code, imageFiles);
-      for (const img of imgs) {
-        await db.insert(lessonImages).values({
-          topicId: topic.id,
-          imageUrl: img.imageUrl,
-          alt: img.alt,
-          sortOrder: img.sortOrder,
-        });
-        imageCount += 1;
+      // Materiały lekcji dodajemy tylko, gdy lekcja nie ma jeszcze danego typu.
+      // Dzięki temu ponowne uruchomienie nie tworzy duplikatów i nigdy nie
+      // usuwa wierszy postępu, które wskazują na istniejące filmy/quizy.
+      const [hasVideo] = await db.select({ id: videos.id }).from(videos).where(eq(videos.topicId, topic.id)).limit(1);
+      if (!hasVideo) {
+        const vids = videosForLesson(lesson.code, bunnyVideos);
+        let filmIndex = 0;
+        for (const v of vids) {
+          filmIndex += 1;
+          await db.insert(videos).values({
+            topicId: topic.id,
+            bunnyVideoId: v.bunnyVideoId,
+            bunnyTitle: v.bunnyTitle,
+            videoUrl: null,
+            title: vids.length > 1 ? `Film ${filmIndex}` : "Film lekcji",
+            durationSeconds: v.durationSeconds,
+            sortOrder: v.sortOrder,
+          });
+          videoCount += 1;
+        }
+      }
+
+      const [hasImage] = await db.select({ id: lessonImages.id }).from(lessonImages).where(eq(lessonImages.topicId, topic.id)).limit(1);
+      if (!hasImage) {
+        const imgs = imagesForLesson(lesson.code, imageFiles);
+        for (const img of imgs) {
+          await db.insert(lessonImages).values({
+            topicId: topic.id,
+            imageUrl: img.imageUrl,
+            alt: img.alt,
+            sortOrder: img.sortOrder,
+          });
+          imageCount += 1;
+        }
       }
 
       if (lesson.quiz) {
-        const [quiz] = await db
-          .insert(quizzes)
-          .values({ topicId: topic.id, title: `Quiz — ${lesson.title}` })
-          .returning();
-        quizCount += 1;
-        for (let qi = 0; qi < lesson.quiz.questions.length; qi++) {
-          const q = lesson.quiz.questions[qi];
-          const [question] = await db
-            .insert(quizQuestions)
-            .values({ quizId: quiz.id, questionText: q.q, sortOrder: qi + 1 })
+        const [hasQuiz] = await db.select({ id: quizzes.id }).from(quizzes).where(eq(quizzes.topicId, topic.id)).limit(1);
+        if (!hasQuiz) {
+          const [quiz] = await db
+            .insert(quizzes)
+            .values({ topicId: topic.id, title: `Quiz — ${lesson.title}`, status: "published" })
             .returning();
-          for (const opt of q.options) {
-            await db.insert(quizAnswers).values({
-              questionId: question.id,
-              answerLabel: opt.label,
-              answerText: opt.text,
-              isCorrect: opt.label.toUpperCase() === q.correct.toUpperCase(),
-            });
+          quizCount += 1;
+          for (let qi = 0; qi < lesson.quiz.questions.length; qi++) {
+            const q = lesson.quiz.questions[qi];
+            const [question] = await db
+              .insert(quizQuestions)
+              .values({ quizId: quiz.id, questionText: q.q, sortOrder: qi + 1 })
+              .returning();
+            for (const opt of q.options) {
+              await db.insert(quizAnswers).values({
+                questionId: question.id,
+                answerLabel: opt.label,
+                answerText: opt.text,
+                isCorrect: opt.label.toUpperCase() === q.correct.toUpperCase(),
+              });
+            }
           }
         }
       }
 
       const boardTask = BOARD_TASKS_BY_CODE[lesson.code];
       if (boardTask) {
-        await db.insert(tasks).values({
-          topicId: topic.id,
-          title: boardTask.title,
-          description: boardTask.description,
-        });
-        taskCount += 1;
+        const [hasTask] = await db.select({ id: tasks.id }).from(tasks).where(eq(tasks.topicId, topic.id)).limit(1);
+        if (!hasTask) {
+          await db.insert(tasks).values({
+            topicId: topic.id,
+            title: boardTask.title,
+            description: boardTask.description,
+          });
+          taskCount += 1;
+        }
       }
     }
   }
 
   console.log(
-    `Inserted ${videoCount} videos, ${imageCount} images, ${quizCount} quizzes, ${taskCount} tasks.`,
+    `Import: +${sectionCreated} działów, +${topicCreated} lekcji, +${videoCount} filmów, +${imageCount} grafik, +${quizCount} quizów, +${taskCount} zadań (istniejące wiersze bez zmian).`,
   );
 
   // Demo student gets full access so the paid experience can be tested. The
   // first lesson stays a free preview for everyone via topics.isPreview.
-  if (student) {
+  if (studentId != null) {
     await db
       .insert(accessGrants)
-      .values({ userId: student.id, courseId: course.id, source: "admin", status: "active", validFrom: new Date() })
+      .values({ userId: studentId, courseId: course.id, source: "admin", status: "active", validFrom: new Date() })
       .onConflictDoNothing();
     console.log("Granted demo student full course access.");
   }
