@@ -25,6 +25,19 @@ export const paymentLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Payment status re-check: the return page polls this every few seconds while it
+// waits for confirmation, so it needs a looser cap than payment creation while
+// still bounding abuse (a fresh poll cycle is ~12 calls).
+export const verifyLimiter = rateLimit({
+  windowMs: FIFTEEN_MIN,
+  max: 60,
+  message: {
+    error: "Zbyt wiele prób sprawdzenia płatności. Spróbuj ponownie za chwilę.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // AI checks: expensive third-party calls, keep tight.
 export const aiLimiter = rateLimit({
   windowMs: FIFTEEN_MIN,

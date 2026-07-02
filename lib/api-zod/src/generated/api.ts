@@ -431,6 +431,19 @@ export const MockCompletePaymentResponse = zod.object({
 })
 
 
+/**
+ * Authenticated fallback for when the asynchronous Paynow webhook never arrives (sandbox, or a VPS whose notification URL is not yet reachable). Actively pulls the payment status from Paynow and, on confirmation, completes the payment and grants course access (idempotent and race-safe with the webhook). Owner-only.
+ * @summary Reconcile a payment's status against Paynow
+ */
+export const VerifyPaymentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const VerifyPaymentResponse = zod.object({
+  "status": zod.enum(['completed', 'pending', 'failed']).describe('Reconciled payment status after checking Paynow.')
+})
+
+
 
 
 export const submitContactBodyMessageMin = 10;

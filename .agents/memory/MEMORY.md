@@ -1,4 +1,5 @@
 - [Payments & access](payments-access.md) — payment success uses status "completed" (not "paid"); access is gated only by server `user.hasAccess`, never granted client-side.
+- [Payment webhook resilience](payment-webhook-resilience.md) — never gate activation on the provider webhook alone; add a server verify endpoint + bounded client polling sharing one idempotent completion helper.
 - [Env contract & testing](env-contract-and-testing.md) — env.ts is the source of truth; keep .env.example/docker-compose/README in lockstep. Prod-gated routes can't be unit-tested (env.ts throws on prod import).
 - [Local dev run setup](dev-run-setup.md) — to run locally: ensure CLERK_SECRET_KEY/CLERK_PUBLISHABLE_KEY + SESSION_SECRET, push schema, seed; fresh DB is empty so /api/courses 500s until seeded.
 - [Seed is destructive; backfill instead](seed-and-backfill.md) — seed.ts self-runs + wipes course data; share seed constants via course-data.ts; add content to existing/prod DBs via idempotent backfill keyed by section+lesson slug, never topic ids.

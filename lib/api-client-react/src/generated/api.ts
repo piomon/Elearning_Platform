@@ -83,6 +83,7 @@ import type {
   PaymentCreated,
   PaymentInput,
   PaymentPrice,
+  PaymentVerifyResult,
   PlatformSetting,
   PlatformSettingsUpdate,
   PreviewCourse200,
@@ -1719,6 +1720,77 @@ export const useMockCompletePayment = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getMockCompletePaymentMutationOptions(options));
+    }
+
+export const getVerifyPaymentUrl = (id: number,) => {
+
+
+
+
+  return `/api/payments/${id}/verify`
+}
+
+/**
+ * Authenticated fallback for when the asynchronous Paynow webhook never arrives (sandbox, or a VPS whose notification URL is not yet reachable). Actively pulls the payment status from Paynow and, on confirmation, completes the payment and grants course access (idempotent and race-safe with the webhook). Owner-only.
+ * @summary Reconcile a payment's status against Paynow
+ */
+export const verifyPayment = async (id: number, options?: RequestInit): Promise<PaymentVerifyResult> => {
+
+  return customFetch<PaymentVerifyResult>(getVerifyPaymentUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getVerifyPaymentMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyPayment>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyPayment>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['verifyPayment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyPayment>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  verifyPayment(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyPaymentMutationResult = NonNullable<Awaited<ReturnType<typeof verifyPayment>>>
+
+    export type VerifyPaymentMutationError = ErrorType<void>
+
+    /**
+ * @summary Reconcile a payment's status against Paynow
+ */
+export const useVerifyPayment = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyPayment>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof verifyPayment>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getVerifyPaymentMutationOptions(options));
     }
 
 export const getSubmitContactUrl = () => {

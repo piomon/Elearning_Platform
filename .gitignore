@@ -60,3 +60,6 @@ acme.json
 # Kopie zapasowe bazy danych — mogą zawierać dane osobowe/płatności.
 # NIGDY nie commituj zrzutów bazy. (Migracje w lib/db/drizzle/*.sql są śledzone.)
 backups/
+
+# Surowe wklejki promptów w attached_assets (nie są częścią aplikacji).
+attached_assets/Pasted-*.txt

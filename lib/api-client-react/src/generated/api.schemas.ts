@@ -784,6 +784,23 @@ export interface Payment {
   createdAt: string;
 }
 
+/**
+ * Reconciled payment status after checking Paynow.
+ */
+export type PaymentVerifyResultStatus = typeof PaymentVerifyResultStatus[keyof typeof PaymentVerifyResultStatus];
+
+
+export const PaymentVerifyResultStatus = {
+  completed: 'completed',
+  pending: 'pending',
+  failed: 'failed',
+} as const;
+
+export interface PaymentVerifyResult {
+  /** Reconciled payment status after checking Paynow. */
+  status: PaymentVerifyResultStatus;
+}
+
 export interface WebhookInput {
   /** @nullable */
   externalId?: string | null;

@@ -10,6 +10,7 @@ import { useGetMe, setAuthTokenGetter } from "@workspace/api-client-react";
 import type { User } from "@workspace/api-client-react";
 import { useLocation } from "wouter";
 import { Lock } from "lucide-react";
+import { BuyAccessButton } from "@/components/buy-access-button";
 
 // The API client requests a bearer token on every call. We keep the latest
 // Clerk getToken in a module-level ref and register the getter exactly once, so
@@ -149,17 +150,12 @@ export function AccessRoute({ children }: { children: ReactNode }) {
             dostęp do platformy.
           </p>
           <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
+            <BuyAccessButton />
             <button
               onClick={() => setLocation("/")}
-              className="inline-flex items-center justify-center rounded-full h-12 px-8 text-base font-bold bg-primary text-primary-foreground shadow-md hover:opacity-90 transition-opacity"
-            >
-              Zobacz ofertę
-            </button>
-            <button
-              onClick={() => setLocation("/dashboard")}
               className="inline-flex items-center justify-center rounded-full h-12 px-8 text-base font-bold border border-border bg-background hover:bg-muted transition-colors"
             >
-              Wróć do kokpitu
+              Zobacz ofertę
             </button>
           </div>
         </div>

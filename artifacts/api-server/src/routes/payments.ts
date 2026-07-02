@@ -2,9 +2,9 @@ import { Router } from "express";
 import crypto from "crypto";
 import { db } from "@workspace/db";
 import { payments, accessGrants, courses, discountCodes, discountCodeUses } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
-import { paymentLimiter } from "../middlewares/rate-limit";
+import { paymentLimiter, verifyLimiter } from "../middlewares/rate-limit";
 import { logger } from "../lib/logger";
 import { config, isPaynowConfigured } from "../config/env";
 import { getPricingSettings } from "../lib/settings";
@@ -97,6 +97,81 @@ async function finalizeDiscountUse(
     .update(discountCodes)
     .set({ usedCount: sql`${discountCodes.usedCount} + 1`, updatedAt: new Date() })
     .where(eq(discountCodes.id, payment.discountCodeId));
+}
+
+// Complete a payment, grant course access and record the discount use in one
+// atomic step. Shared by the Paynow webhook and the authenticated status-verify
+// endpoint. Safe under races between the two (and provider retries): the
+// conditional update flips pending -> completed at most once, and the two
+// inserts are guarded by unique indexes (onConflictDoNothing). Even when the
+// update matches no row (already completed) the inserts still run, so a
+// partially-applied prior attempt self-heals instead of leaving access ungranted.
+async function markPaymentCompleted(
+  payment: typeof payments.$inferSelect,
+  providerOrderId?: string | null,
+) {
+  if (payment.courseId == null) {
+    throw new Error(`Payment ${payment.id} has no associated course`);
+  }
+  const courseId = payment.courseId;
+  await db.transaction(async (tx) => {
+    await tx
+      .update(payments)
+      .set({
+        status: "completed",
+        providerOrderId:
+          providerOrderId != null
+            ? String(providerOrderId)
+            : payment.providerOrderId,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(payments.id, payment.id), ne(payments.status, "completed")));
+    await grantCourseAccess(payment.userId, courseId, payment.id, tx);
+    await finalizeDiscountUse({ ...payment, status: "completed" }, tx);
+  });
+}
+
+// Actively pull a payment's status from Paynow. This is the reliable fallback
+// for when the asynchronous webhook never arrives — e.g. the sandbox, or a VPS
+// whose notification URL is not yet publicly reachable/configured. Paynow's v1
+// API signs GET requests with an HMAC of the empty string (the same Signature
+// scheme the create call and webhook already use over their raw bodies).
+// Returns the normalized (upper-cased) status, or null on ANY transport/HTTP
+// error — callers MUST treat null as "unknown / still pending", never as a
+// failure, so a network blip can never wrongly mark a paid order as failed.
+async function fetchPaynowStatus(
+  providerPaymentId: string,
+): Promise<string | null> {
+  try {
+    const paynowRes = await fetch(
+      `${config.paynow.apiUrl}/v1/payments/${encodeURIComponent(
+        providerPaymentId,
+      )}/status`,
+      {
+        method: "GET",
+        headers: {
+          "Api-Key": config.paynow.apiKey!,
+          Signature: signPaynow(""),
+          Accept: "application/json",
+        },
+        signal: AbortSignal.timeout(10_000),
+      },
+    );
+    if (!paynowRes.ok) {
+      logger.warn(
+        { status: paynowRes.status, providerPaymentId },
+        "Paynow status fetch failed",
+      );
+      return null;
+    }
+    const data = (await paynowRes.json().catch(() => null)) as {
+      status?: string;
+    } | null;
+    return data?.status ? String(data.status).toUpperCase() : null;
+  } catch (err) {
+    logger.warn({ err, providerPaymentId }, "Paynow status fetch error");
+    return null;
+  }
 }
 
 router.get("/payments/price", async (_req, res) => {
@@ -223,7 +298,14 @@ router.post("/payments/create", paymentLimiter, requireAuth as any, async (req: 
       return;
     }
 
-    const continueUrl = safeReturnUrl(returnUrl);
+    // Carry our local payment id on the return URL as `pid` so the success page
+    // can actively verify this exact payment against Paynow. We must NOT use
+    // `paymentId` here: Paynow appends its own `paymentId=<providerId>` and
+    // `paymentStatus=…` query params to continueUrl on redirect, which would
+    // collide (and `paymentId` is also reserved for the dev mock flow).
+    const continueUrlObj = new URL(safeReturnUrl(returnUrl));
+    continueUrlObj.searchParams.set("pid", String(payment.id));
+    const continueUrl = continueUrlObj.toString();
 
     // externalId ties the Paynow payment back to our row; amount is fixed
     // server-side so the buyer can never tamper with the charged price.
@@ -381,27 +463,9 @@ router.post("/payments/webhook", async (req, res) => {
       return;
     }
 
-    // Complete the payment, grant access and record the discount use atomically:
-    // either all three commit or none do. Combined with the idempotent inserts
-    // (onConflictDoNothing) this makes provider retries safe — a failed
-    // finalization rolls back the "completed" status so a retry redoes it instead
-    // of being short-circuited by the early-return above.
-    const courseId = payment.courseId;
-    await db.transaction(async (tx) => {
-      await tx
-        .update(payments)
-        .set({
-          status: "completed",
-          providerOrderId:
-            providerPaymentId != null
-              ? String(providerPaymentId)
-              : payment.providerOrderId,
-          updatedAt: new Date(),
-        })
-        .where(eq(payments.id, localId));
-      await grantCourseAccess(payment.userId, courseId, payment.id, tx);
-      await finalizeDiscountUse({ ...payment, status: "completed" }, tx);
-    });
+    // Complete the payment, grant access and record the discount use atomically.
+    // Idempotent and race-safe with the verify endpoint (see markPaymentCompleted).
+    await markPaymentCompleted(payment, providerPaymentId);
 
     res.json({ message: "OK" });
   } catch (err) {
@@ -432,6 +496,89 @@ router.get("/payments/me", requireAuth as any, async (req: AuthRequest, res) => 
   }
 });
 
+// Authenticated status reconciliation. The webhook is best-effort (it may never
+// arrive in the sandbox or on a VPS whose notification URL is not yet
+// reachable/configured), so the return page calls this to actively pull the
+// payment status from Paynow and activate access without depending on the
+// webhook. Registered in ALL environments. Idempotent and race-safe with the
+// webhook. Owner-only. Responds with a stable { status } shape.
+router.post(
+  "/payments/:id/verify",
+  verifyLimiter,
+  requireAuth as any,
+  async (req: AuthRequest, res) => {
+    try {
+      const id = Number(req.params.id);
+      if (!Number.isInteger(id) || id <= 0) {
+        res.status(400).json({ error: "Nieprawidłowy identyfikator płatności" });
+        return;
+      }
+      const [payment] = await db
+        .select()
+        .from(payments)
+        .where(eq(payments.id, id))
+        .limit(1);
+      // Owner-only. Return 404 (not 403) so the endpoint never reveals which
+      // payment ids exist for other users.
+      if (!payment || payment.userId !== req.user!.id) {
+        res.status(404).json({ error: "Płatność nie znaleziona" });
+        return;
+      }
+
+      // Terminal states are returned as-is (completed is idempotent).
+      if (payment.status === "completed") {
+        res.json({ status: "completed" });
+        return;
+      }
+      if (payment.status === "failed") {
+        res.json({ status: "failed" });
+        return;
+      }
+
+      // Nothing to reconcile against a provider: the dev mock flow, or a row
+      // created before the Paynow call succeeded. Report the local status.
+      if (!isPaynowConfigured() || !payment.providerPaymentId) {
+        res.json({ status: payment.status });
+        return;
+      }
+
+      const remote = await fetchPaynowStatus(payment.providerPaymentId);
+
+      if (remote === "CONFIRMED") {
+        if (payment.courseId == null) {
+          res.status(500).json({ error: "Płatność bez przypisanego kursu" });
+          return;
+        }
+        await markPaymentCompleted(payment, payment.providerPaymentId);
+        res.json({ status: "completed" });
+        return;
+      }
+
+      // Only an authoritative terminal status from Paynow marks the payment
+      // failed. A null (network/HTTP error) or NEW/PENDING stays pending so a
+      // transient blip can never wrongly fail a paid order.
+      if (
+        remote === "REJECTED" ||
+        remote === "ERROR" ||
+        remote === "EXPIRED" ||
+        remote === "ABANDONED"
+      ) {
+        await db
+          .update(payments)
+          .set({ status: "failed", updatedAt: new Date() })
+          .where(eq(payments.id, id));
+        res.json({ status: "failed" });
+        return;
+      }
+
+      res.json({ status: "pending" });
+    } catch (err) {
+      req.log.error({ err }, "Verify payment error");
+      res.status(500).json({ error: "Błąd serwera" });
+    }
+  },
+);
+
 // Development/test-only helper to simulate a completed payment without a real
 // payment provider. Never registered in production.
 if (config.isDev || config.isTest) {
@@ -456,17 +603,7 @@ if (config.isDev || config.isTest) {
           return;
         }
 
-        const courseId = payment.courseId;
-        await db.transaction(async (tx) => {
-          if (payment.status !== "completed") {
-            await tx
-              .update(payments)
-              .set({ status: "completed", updatedAt: new Date() })
-              .where(eq(payments.id, paymentId));
-          }
-          await grantCourseAccess(payment.userId, courseId, payment.id, tx);
-          await finalizeDiscountUse({ ...payment, status: "completed" }, tx);
-        });
+        await markPaymentCompleted(payment);
 
         res.json({ message: "Dostęp aktywowany!" });
       } catch (err) {

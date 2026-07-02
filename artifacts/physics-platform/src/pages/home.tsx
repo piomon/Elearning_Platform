@@ -570,7 +570,7 @@ export default function Home() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start pt-4">
-                  {user ? (
+                  {user?.hasAccess ? (
                     <Link href="/dashboard" className="w-full sm:w-auto">
                       <Button size="lg" className="w-full text-lg h-16 px-10 font-bold shadow-xl shadow-primary/30 rounded-full hover-lift">
                         Przejdź do nauki <ArrowRight className="w-5 h-5 ml-2" />
@@ -987,7 +987,7 @@ export default function Home() {
   };
 
   return (
-    <div className={`flex flex-col w-full overflow-hidden ${user ? "" : "pb-24 sm:pb-0"}`}>
+    <div className={`flex flex-col w-full overflow-hidden ${user?.hasAccess ? "" : "pb-24 sm:pb-0"}`}>
       <SeoHead />
       {isPreview && <PreviewBanner label="Podgląd strony głównej jak u ucznia — uwzględnia ukryte sekcje." />}
 
@@ -998,7 +998,7 @@ export default function Home() {
       })}
 
       {/* ── MOBILE APP-STYLE STICKY CTA ── */}
-      {!user && (
+      {!user?.hasAccess && (
         <div className="sm:hidden fixed bottom-0 inset-x-0 z-50 border-t border-border/60 bg-background/90 backdrop-blur-xl px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] animate-in slide-in-from-bottom-4 duration-500">
           <div className="flex items-center gap-3">
             <div className="flex flex-col leading-tight">

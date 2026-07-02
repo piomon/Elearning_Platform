@@ -102,6 +102,8 @@ export * from './payment';
 export * from './paymentCreated';
 export * from './paymentInput';
 export * from './paymentPrice';
+export * from './paymentVerifyResult';
+export * from './paymentVerifyResultStatus';
 export * from './platformSetting';
 export * from './platformSettingsUpdate';
 export * from './platformSettingsUpdateSettingsItem';

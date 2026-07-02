@@ -478,6 +478,35 @@ paths:
         "404":
           description: Payment not found (or endpoint disabled in production)
 
+  /payments/{id}/verify:
+    post:
+      operationId: verifyPayment
+      tags: [payments]
+      summary: Reconcile a payment's status against Paynow
+      description: >-
+        Authenticated fallback for when the asynchronous Paynow webhook never
+        arrives (sandbox, or a VPS whose notification URL is not yet reachable).
+        Actively pulls the payment status from Paynow and, on confirmation,
+        completes the payment and grants course access (idempotent and race-safe
+        with the webhook). Owner-only.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Reconciled status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentVerifyResult"
+        "400":
+          description: Invalid payment id
+        "404":
+          description: Payment not found
+
   # ─── CONTACT ─────────────────────────────────────────────────────────────────
   /contact:
     post:
@@ -3529,6 +3558,15 @@ components:
           type: string
         createdAt:
           type: string
+
+    PaymentVerifyResult:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          description: Reconciled payment status after checking Paynow.
+          enum: [completed, pending, failed]
 
     # Paynow notification payload (server-to-server). The request is
     # authenticated by the `Signature` header (HMAC-SHA256 of the raw body),
