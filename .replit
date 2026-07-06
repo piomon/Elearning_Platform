@@ -45,6 +45,7 @@ BUNNY_COLLECTION_DZIAL_1 = "76622699-49f9-4827-8eb9-b17701caf854"
 BUNNY_COLLECTION_DZIAL_2 = "8cd03b14-9792-41b5-9380-a18da5fc8502"
 BUNNY_COLLECTION_DZIAL_3 = "10dfd152-f817-404b-b015-db08cf2affb3"
 PAYNOW_ENV = "sandbox"
+ADMIN_EMAILS = "programujemy.olx@gmail.com"
 
 [userenv.production]
 APP_URL = "https://fizyka7e.replit.app"
