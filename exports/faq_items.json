@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "question": "Dla kogo jest ta platforma?",
+    "answer": "Dla uczniów klasy 7 szkoły podstawowej oraz ich rodziców, którzy chcą spokojnie i skutecznie ogarnąć fizykę.",
+    "sortOrder": 1,
+    "isVisible": true,
+    "createdAt": "2026-06-16T10:48:37.483Z",
+    "updatedAt": "2026-06-16T10:48:37.483Z"
+  },
+  {
+    "id": 2,
+    "question": "Jak działa sprawdzanie zadań przez AI?",
+    "answer": "Uczeń rozwiązuje zadanie na wirtualnej tablicy, a sztuczna inteligencja analizuje tok rozumowania i wskazuje, co jest poprawne, a nad czym warto jeszcze popracować.",
+    "sortOrder": 2,
+    "isVisible": true,
+    "createdAt": "2026-06-16T10:48:37.483Z",
+    "updatedAt": "2026-06-16T10:48:37.483Z"
+  },
+  {
+    "id": 3,
+    "question": "Jak uzyskuję dostęp po zakupie?",
+    "answer": "Po potwierdzeniu płatności dostęp do wszystkich materiałów kursu odblokowuje się automatycznie — uczysz się we własnym tempie.",
+    "sortOrder": 3,
+    "isVisible": true,
+    "createdAt": "2026-06-16T10:48:37.483Z",
+    "updatedAt": "2026-06-16T10:48:37.483Z"
+  },
+  {
+    "id": 4,
+    "question": "Czy potrzebuję specjalnego sprzętu?",
+    "answer": "Do wygodnej nauki rekomendujemy komputer lub tablet. Tablica i zadania działają najlepiej na większym ekranie.",
+    "sortOrder": 4,
+    "isVisible": true,
+    "createdAt": "2026-06-16T10:48:37.483Z",
+    "updatedAt": "2026-06-16T10:48:37.483Z"
+  }
+]

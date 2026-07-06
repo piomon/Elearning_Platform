@@ -22,11 +22,26 @@ $COMPOSE build
 echo "==> Uruchamiam zaktualizowane kontenery (migracje wykonają się automatycznie)..."
 $COMPOSE up -d --wait --wait-timeout 240
 
-echo "==> Importuję brakujące treści kursu (idempotentnie, bez kasowania danych)..."
-# Seed jest teraz NIENISZCZĄCY i idempotentny: dodaje tylko brakujące działy/
-# lekcje/materiały, więc bezpiecznie uruchamia się przy każdej aktualizacji i
-# gwarantuje, że kurs nigdy nie jest pusty (nawet po świeżym postawieniu bazy).
-$COMPOSE exec -T api pnpm --filter @workspace/scripts run seed
+echo "==> Tworzę kopię zapasową bazy PRZED importem treści..."
+# Najpierw kopia zapasowa (pg_dump). Gdyby import coś zepsuł, można wrócić przez
+# ./deploy/restore.sh. Nie przerywamy wdrożenia, jeśli kopia się nie powiedzie.
+./deploy/backup.sh || echo "UWAGA: nie udało się utworzyć kopii zapasowej — kontynuuję ostrożnie."
+
+if [ -f exports/full-elearning-export.json ]; then
+  echo "==> Importuję treść e-learningu z exports/ (tryb merge — idempotentnie, bez kasowania danych)..."
+  # merge = dodaje brakujące i AKTUALIZUJE istniejące wiersze, aby baza
+  # odpowiadała eksportowi z Replit. NIGDY nie usuwa danych klientów.
+  $COMPOSE exec -T api pnpm --filter @workspace/scripts run import:content --mode=merge
+else
+  echo "UWAGA: brak exports/full-elearning-export.json — używam awaryjnie wbudowanego seeda."
+  echo "       Uruchom na Replit: pnpm export:content i zacommituj katalog exports/."
+  $COMPOSE exec -T api pnpm --filter @workspace/scripts run seed
+fi
+
+echo "==> Weryfikuję wdrożenie..."
+if ! $COMPOSE exec -T api pnpm --filter @workspace/scripts run verify:deployment; then
+  echo "UWAGA: weryfikacja zgłosiła problemy — sprawdź powyższe komunikaty (❌)." >&2
+fi
 
 echo "==> Czyszczę nieużywane obrazy..."
 docker image prune -f

@@ -81,10 +81,14 @@ cat <<EOF
 ==> Gotowe. Migracje bazy wykonały się automatycznie przy starcie kontenera API.
 
 Dalsze kroki:
-  1. (jednorazowo) Zaseeduj dane startowe kursu:
-       $COMPOSE exec api pnpm --filter @workspace/scripts run seed
-  2. Wejdź na swoją domenę:  https://${DOMAIN}
-  3. Zaloguj się adresem wpisanym w ADMIN_EMAILS, aby otrzymać rolę administratora.
+  1. Zaimportuj treść e-learningu z repozytorium (exports/ z GitHuba):
+       $COMPOSE exec api pnpm --filter @workspace/scripts run import:content --mode=merge
+     (Gdyby brakowało katalogu exports/, uruchom na Replit: pnpm export:content
+      i zacommituj wynik. Awaryjnie działa też wbudowany seed: ... run seed.)
+  2. Zweryfikuj wdrożenie:
+       $COMPOSE exec api pnpm --filter @workspace/scripts run verify:deployment
+  3. Wejdź na swoją domenę:  https://${DOMAIN}
+  4. Zaloguj się adresem wpisanym w ADMIN_EMAILS, aby otrzymać rolę administratora.
 
 Podgląd logów:   $COMPOSE logs -f
 EOF

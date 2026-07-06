@@ -21,6 +21,12 @@
 letsencrypt/
 acme.json
 
+# Kopie zapasowe bazy (mogą zawierać dane osobowe/płatności) — NIGDY do obrazu.
+backups/
+
+# Surowe wklejki promptów — nie są częścią aplikacji.
+attached_assets/
+
 # Editor / OS noise
 .idea
 .vscode

@@ -8,7 +8,12 @@
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
     "test": "pnpm -r --if-present run test",
-    "test:all": "pnpm run typecheck && pnpm -r --if-present run test"
+    "test:all": "pnpm run typecheck && pnpm -r --if-present run test",
+    "export:content": "pnpm --filter @workspace/scripts run export:content",
+    "import:content": "pnpm --filter @workspace/scripts run import:content",
+    "verify:deployment": "pnpm --filter @workspace/scripts run verify:deployment",
+    "backup:db": "bash deploy/backup.sh",
+    "deploy:vps": "bash deploy/update.sh"
   },
   "private": true,
   "devDependencies": {

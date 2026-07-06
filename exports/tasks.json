@@ -1,0 +1,212 @@
+[
+  {
+    "id": 1,
+    "topicId": 22,
+    "title": "Zadanie: ciało fizyczne czy substancja?",
+    "description": "Na tablicy narysuj tabelę z dwiema kolumnami: „Ciało fizyczne” oraz „Substancja”. Wpisz do właściwych kolumn: gwóźdź, żelazo, szklanka, szkło, kostka lodu, woda. Pod tabelą napisz jednym zdaniem, czym różni się ciało fizyczne od substancji.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:10:57.463Z",
+    "updatedAt": "2026-06-30T12:10:57.463Z"
+  },
+  {
+    "id": 2,
+    "topicId": 26,
+    "title": "Zadanie: wektor siły wypadkowej",
+    "description": "Na sanki działają dwie poziome siły: Tomek ciągnie w prawo siłą 30 N, a Ola w lewo siłą 18 N. Narysuj obie siły jako wektory (zachowaj proporcje długości) i zaznacz wektor siły wypadkowej. Podaj wartość oraz zwrot siły wypadkowej.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:10:57.849Z",
+    "updatedAt": "2026-06-30T12:10:57.849Z"
+  },
+  {
+    "id": 3,
+    "topicId": 34,
+    "title": "Zadanie: oblicz ciężar ciała",
+    "description": "Oblicz ciężar plecaka o masie 5 kg. Przyjmij g = 10 N/kg. Zapisz wzór (Fc = m · g), podstaw dane i podaj wynik z jednostką. Na rysunku zaznacz zwrot wektora ciężaru.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:10:58.465Z",
+    "updatedAt": "2026-06-30T12:10:58.465Z"
+  },
+  {
+    "id": 4,
+    "topicId": 36,
+    "title": "Zadanie: oblicz gęstość metalu",
+    "description": "Bryłka metalu ma masę 270 g i objętość 100 cm³. Oblicz jej gęstość. Zapisz wzór (ρ = m / V), podstaw dane i podaj wynik w g/cm³. Zapisz, jaki to może być metal.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:10:58.640Z",
+    "updatedAt": "2026-06-30T12:10:58.640Z"
+  },
+  {
+    "id": 5,
+    "topicId": 38,
+    "title": "Zadanie: oblicz ciśnienie",
+    "description": "Klocek naciska na stół siłą 60 N, a pole jego podstawy wynosi 0,02 m². Oblicz ciśnienie, jakie klocek wywiera na stół. Zapisz wzór (p = F / S), podstaw dane i podaj wynik w paskalach (Pa).",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:10:58.767Z",
+    "updatedAt": "2026-06-30T12:10:58.767Z"
+  },
+  {
+    "id": 6,
+    "topicId": 41,
+    "title": "Zadanie: siła wyporu",
+    "description": "Kamień o objętości 0,001 m³ zanurzono całkowicie w wodzie (ρ = 1000 kg/m³, g = 10 N/kg). Oblicz siłę wyporu działającą na kamień. Zapisz wzór (Fw = ρ · g · V), podstaw dane i podaj wynik w niutonach. Narysuj zwrot siły wyporu.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:10:59.038Z",
+    "updatedAt": "2026-06-30T12:10:59.038Z"
+  },
+  {
+    "id": 7,
+    "topicId": 25,
+    "title": "Zadanie: rodzaje oddziaływań",
+    "description": "Narysuj trzy sytuacje i podpisz, jaki rodzaj oddziaływania w nich występuje (grawitacyjne, elektrostatyczne, magnetyczne): spadające jabłko, naelektryzowana linijka przyciągająca skrawki papieru oraz magnes przyciągający gwóźdź. Przy każdej sytuacji zaznacz strzałką zwrot siły.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 8,
+    "topicId": 27,
+    "title": "Zadanie powtórkowe: mapa pojęć działu 1",
+    "description": "Narysuj mapę myśli z hasłem głównym „Podstawy fizyki” i co najmniej czterema gałęziami (np. wielkości fizyczne, jednostki SI, pomiar i niepewność, oddziaływania i siła). Do każdej gałęzi dopisz jeden przykład lub wzór.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 9,
+    "topicId": 39,
+    "title": "Zadanie: oblicz ciśnienie hydrostatyczne",
+    "description": "Oblicz ciśnienie hydrostatyczne na głębokości 2 m w wodzie. Przyjmij ρ = 1000 kg/m³ oraz g = 10 N/kg. Zapisz wzór (p = ρ · g · h), podstaw dane i podaj wynik w paskalach (Pa).",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 10,
+    "topicId": 33,
+    "title": "Zadanie powtórkowe: ciało stałe, ciecz i gaz",
+    "description": "Narysuj tabelę z trzema kolumnami (ciało stałe, ciecz, gaz) i trzema wierszami: kształt, objętość, ściśliwość. Uzupełnij każdą komórkę krótką informacją.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 11,
+    "topicId": 31,
+    "title": "Zadanie: jedna substancja w trzech stanach",
+    "description": "Narysuj wodę w trzech stanach skupienia: stałym (lód), ciekłym (woda) i gazowym (para wodna). Pod każdym rysunkiem podpisz nazwę stanu oraz napisz, czy ma on stały kształt i stałą objętość.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 12,
+    "topicId": 40,
+    "title": "Zadanie: prasa hydrauliczna",
+    "description": "Narysuj prasę hydrauliczną z dwoma tłokami o różnych polach powierzchni. Na mały tłok o polu 0,01 m² działa siła 50 N. Oblicz ciśnienie przekazywane w cieczy (p = F / S) i zaznacz strzałkami, jak przenosi się ono na większy tłok.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 13,
+    "topicId": 37,
+    "title": "Zadanie: ciśnienie cieczy a głębokość",
+    "description": "Narysuj naczynie z wodą i zaznacz w nim trzy punkty na różnych głębokościach. Strzałkami pokaż, gdzie ciśnienie cieczy jest największe, a gdzie najmniejsze. Pod rysunkiem napisz, od czego zależy ciśnienie hydrostatyczne.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 14,
+    "topicId": 32,
+    "title": "Zadanie: przemiany stanów skupienia",
+    "description": "Narysuj schemat przemian: ciało stałe → ciecz → gaz oraz przemiany odwrotne. Podpisz wszystkie strzałki nazwami przemian (topnienie, krzepnięcie, parowanie, skraplanie).",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 15,
+    "topicId": 24,
+    "title": "Zadanie: średnia z pomiarów",
+    "description": "Uczeń zmierzył długość ołówka trzy razy i otrzymał: 15,2 cm, 15,4 cm oraz 15,3 cm. Oblicz wartość średnią pomiaru. Zapisz wzór na średnią arytmetyczną, podstaw dane i podaj wynik zaokrąglony do jednego miejsca po przecinku, z jednostką.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 16,
+    "topicId": 28,
+    "title": "Zadanie: właściwości materii",
+    "description": "Narysuj tabelę z dwiema kolumnami: „Właściwość materii” oraz „Przykład z życia”. Wpisz co najmniej cztery właściwości (np. masa, objętość, gęstość, twardość) i do każdej dopisz jeden przykład.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 17,
+    "topicId": 30,
+    "title": "Zadanie: dyfuzja w wodzie",
+    "description": "Narysuj szklankę z wodą, do której wpuszczono kroplę atramentu, w trzech momentach: zaraz po wpuszczeniu, po chwili oraz po dłuższym czasie. Podpisz rysunki i wyjaśnij jednym zdaniem, na czym polega zjawisko dyfuzji.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 18,
+    "topicId": 42,
+    "title": "Zadanie: pływa czy tonie?",
+    "description": "Narysuj naczynie z wodą (ρ = 1000 kg/m³) i umieść w nim trzy ciała o gęstościach 700 kg/m³, 1000 kg/m³ oraz 2700 kg/m³. Zaznacz, które ciało pływa na powierzchni, które unosi się zanurzone, a które tonie. Uzasadnij, porównując gęstości ciał z gęstością wody.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 19,
+    "topicId": 29,
+    "title": "Zadanie: ułożenie drobin w trzech stanach skupienia",
+    "description": "Narysuj, jak rozmieszczone są drobiny (cząsteczki) w ciele stałym, w cieczy i w gazie. Podpisz każdy rysunek i napisz jednym zdaniem, czym różni się układ drobin w tych trzech stanach.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 20,
+    "topicId": 23,
+    "title": "Zadanie: wielkości fizyczne i jednostki SI",
+    "description": "Narysuj na tablicy tabelę z trzema kolumnami: „Wielkość fizyczna”, „Symbol” oraz „Jednostka SI”. Uzupełnij ją dla długości, masy, czasu i temperatury. Pod tabelą zamień jednostki: ile to jest 2,5 km w metrach oraz 3000 g w kilogramach?",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  },
+  {
+    "id": 21,
+    "topicId": 35,
+    "title": "Zadanie powtórkowe: masa a ciężar",
+    "description": "Narysuj ciało zawieszone na siłomierzu i zaznacz strzałką wektor ciężaru. Pod rysunkiem napisz, czym różni się masa od ciężaru oraz w jakich jednostkach podajemy każdą z tych wielkości.",
+    "initialImageUrl": null,
+    "aiPromptConfig": null,
+    "createdAt": "2026-06-30T12:38:35.070Z",
+    "updatedAt": "2026-06-30T12:38:35.070Z"
+  }
+]

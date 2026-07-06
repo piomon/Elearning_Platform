@@ -7,6 +7,9 @@
     "hello": "tsx ./src/hello.ts",
     "seed": "tsx ./src/seed.ts",
     "backfill:tasks": "tsx ./src/backfill-tasks.ts",
+    "export:content": "tsx ./src/export-content.ts",
+    "import:content": "tsx ./src/import-content.ts",
+    "verify:deployment": "tsx ./src/verify-deployment.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

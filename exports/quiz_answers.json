@@ -1,0 +1,3402 @@
+[
+  {
+    "id": 341,
+    "questionId": 91,
+    "answerLabel": "A",
+    "answerText": "Budowanie maszyn, programowanie i przewidywanie pogody.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.391Z",
+    "updatedAt": "2026-06-30T12:10:57.391Z"
+  },
+  {
+    "id": 342,
+    "questionId": 91,
+    "answerLabel": "B",
+    "answerText": "Odkrywanie podstawowych praw przyrody, wyjaśnianie zjawisk i opisywanie właściwości materii.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.396Z",
+    "updatedAt": "2026-06-30T12:10:57.396Z"
+  },
+  {
+    "id": 343,
+    "questionId": 91,
+    "answerLabel": "C",
+    "answerText": "Wymyślanie wzorów matematycznych, tworzenie instrukcji obsługi i badanie biologii.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.398Z",
+    "updatedAt": "2026-06-30T12:10:57.398Z"
+  },
+  {
+    "id": 344,
+    "questionId": 91,
+    "answerLabel": "D",
+    "answerText": "Obserwowanie kosmosu, ochrona przyrody i nauka o zwierzętach.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.401Z",
+    "updatedAt": "2026-06-30T12:10:57.401Z"
+  },
+  {
+    "id": 345,
+    "questionId": 92,
+    "answerLabel": "A",
+    "answerText": "Ciało fizyczne to materiał (np. szkło), a substancja to gotowy przedmiot (np. szklanka).",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.406Z",
+    "updatedAt": "2026-06-30T12:10:57.406Z"
+  },
+  {
+    "id": 346,
+    "questionId": 92,
+    "answerLabel": "B",
+    "answerText": "Ciało fizyczne to odpowiedź na pytanie \"Co to jest?\", a substancja to odpowiedź na \"Z czego to jest zrobione?\".",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.409Z",
+    "updatedAt": "2026-06-30T12:10:57.409Z"
+  },
+  {
+    "id": 347,
+    "questionId": 92,
+    "answerLabel": "C",
+    "answerText": "Ciało fizyczne to wyłącznie istota żywa, a substancja to przedmiot martwy.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.411Z",
+    "updatedAt": "2026-06-30T12:10:57.411Z"
+  },
+  {
+    "id": 348,
+    "questionId": 92,
+    "answerLabel": "D",
+    "answerText": "W fizyce nie ma różnicy między tymi pojęciami, oznaczają to samo.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.414Z",
+    "updatedAt": "2026-06-30T12:10:57.414Z"
+  },
+  {
+    "id": 349,
+    "questionId": 93,
+    "answerLabel": "A",
+    "answerText": "Ponieważ zajmują miejsce w przestrzeni, mają swoją masę i działają na nie różne siły.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.420Z",
+    "updatedAt": "2026-06-30T12:10:57.420Z"
+  },
+  {
+    "id": 350,
+    "questionId": 93,
+    "answerLabel": "B",
+    "answerText": "Ponieważ w fizyce słowo \"ciało\" oznacza wyłącznie organizmy biologiczne.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.424Z",
+    "updatedAt": "2026-06-30T12:10:57.424Z"
+  },
+  {
+    "id": 351,
+    "questionId": 93,
+    "answerLabel": "C",
+    "answerText": "Ponieważ potrafią się same poruszać, w przeciwieństwie do gwoździa czy szklanki.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.426Z",
+    "updatedAt": "2026-06-30T12:10:57.426Z"
+  },
+  {
+    "id": 352,
+    "questionId": 93,
+    "answerLabel": "D",
+    "answerText": "Organizmy żywe nie są ciałami fizycznymi, zajmuje się nimi tylko biologia.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.431Z",
+    "updatedAt": "2026-06-30T12:10:57.431Z"
+  },
+  {
+    "id": 353,
+    "questionId": 94,
+    "answerLabel": "A",
+    "answerText": "Obserwację prowadzi się w laboratorium, a eksperyment wyłącznie na zewnątrz.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.438Z",
+    "updatedAt": "2026-06-30T12:10:57.438Z"
+  },
+  {
+    "id": 354,
+    "questionId": 94,
+    "answerLabel": "B",
+    "answerText": "W obserwacji celowo modyfikuje się otoczenie, a w eksperymencie tylko patrzy z ukrycia.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.440Z",
+    "updatedAt": "2026-06-30T12:10:57.440Z"
+  },
+  {
+    "id": 355,
+    "questionId": 94,
+    "answerLabel": "C",
+    "answerText": "Podczas obserwacji nie ingerujesz w badany świat, a w eksperymencie celowo zmieniasz zasady i warunki.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.443Z",
+    "updatedAt": "2026-06-30T12:10:57.443Z"
+  },
+  {
+    "id": 356,
+    "questionId": 94,
+    "answerLabel": "D",
+    "answerText": "Obserwacja wymaga skomplikowanych maszyn, a eksperyment wykonuje się bez użycia narzędzi.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.446Z",
+    "updatedAt": "2026-06-30T12:10:57.446Z"
+  },
+  {
+    "id": 357,
+    "questionId": 95,
+    "answerLabel": "A",
+    "answerText": "Podglądanie zachowania tygrysa i papugi w dżungli z ukrycia.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.451Z",
+    "updatedAt": "2026-06-30T12:10:57.451Z"
+  },
+  {
+    "id": 358,
+    "questionId": 95,
+    "answerLabel": "B",
+    "answerText": "Mierzenie siły wiatru i ilości opadów deszczu na stacji meteorologicznej.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.454Z",
+    "updatedAt": "2026-06-30T12:10:57.454Z"
+  },
+  {
+    "id": 359,
+    "questionId": 95,
+    "answerLabel": "C",
+    "answerText": "Zapisywanie w notatniku, w jakim kierunku płynie woda w rzece.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.457Z",
+    "updatedAt": "2026-06-30T12:10:57.457Z"
+  },
+  {
+    "id": 360,
+    "questionId": 95,
+    "answerLabel": "D",
+    "answerText": "Celowe zmienianie nachylenia rampy i mierzenie czasu stoczenia się autka.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.460Z",
+    "updatedAt": "2026-06-30T12:10:57.460Z"
+  },
+  {
+    "id": 361,
+    "questionId": 96,
+    "answerLabel": "A",
+    "answerText": "Na odgadywaniu wymiarów przedmiotu \"na oko\".",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.482Z",
+    "updatedAt": "2026-06-30T12:10:57.482Z"
+  },
+  {
+    "id": 362,
+    "questionId": 96,
+    "answerLabel": "B",
+    "answerText": "Na porównaniu wartości mierzonej z ustaloną wartością wzorcową.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.487Z",
+    "updatedAt": "2026-06-30T12:10:57.487Z"
+  },
+  {
+    "id": 363,
+    "questionId": 96,
+    "answerLabel": "C",
+    "answerText": "Na dodawaniu do siebie różnych jednostek miary z Układu SI.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.490Z",
+    "updatedAt": "2026-06-30T12:10:57.490Z"
+  },
+  {
+    "id": 364,
+    "questionId": 96,
+    "answerLabel": "D",
+    "answerText": "Na rozkładaniu przedmiotu na najmniejsze elementy i ich liczeniu.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.492Z",
+    "updatedAt": "2026-06-30T12:10:57.492Z"
+  },
+  {
+    "id": 365,
+    "questionId": 97,
+    "answerLabel": "A",
+    "answerText": "Stopień Celsjusza",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.498Z",
+    "updatedAt": "2026-06-30T12:10:57.498Z"
+  },
+  {
+    "id": 366,
+    "questionId": 97,
+    "answerLabel": "B",
+    "answerText": "Stopień Fahrenheita",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.500Z",
+    "updatedAt": "2026-06-30T12:10:57.500Z"
+  },
+  {
+    "id": 367,
+    "questionId": 97,
+    "answerLabel": "C",
+    "answerText": "Kelwin",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.502Z",
+    "updatedAt": "2026-06-30T12:10:57.502Z"
+  },
+  {
+    "id": 368,
+    "questionId": 97,
+    "answerLabel": "D",
+    "answerText": "Paskal",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.506Z",
+    "updatedAt": "2026-06-30T12:10:57.506Z"
+  },
+  {
+    "id": 369,
+    "questionId": 98,
+    "answerLabel": "A",
+    "answerText": "Objętość",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.512Z",
+    "updatedAt": "2026-06-30T12:10:57.512Z"
+  },
+  {
+    "id": 370,
+    "questionId": 98,
+    "answerLabel": "B",
+    "answerText": "Masa",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.515Z",
+    "updatedAt": "2026-06-30T12:10:57.515Z"
+  },
+  {
+    "id": 371,
+    "questionId": 98,
+    "answerLabel": "C",
+    "answerText": "Temperatura",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.519Z",
+    "updatedAt": "2026-06-30T12:10:57.519Z"
+  },
+  {
+    "id": 372,
+    "questionId": 98,
+    "answerLabel": "D",
+    "answerText": "Ostrość krawędzi",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.522Z",
+    "updatedAt": "2026-06-30T12:10:57.522Z"
+  },
+  {
+    "id": 373,
+    "questionId": 99,
+    "answerLabel": "A",
+    "answerText": "Wielkie \"M\" to przedrostek mega (mnożnik przez milion), a małe \"m\" to mili (krojenie na tysiąc części).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.526Z",
+    "updatedAt": "2026-06-30T12:10:57.526Z"
+  },
+  {
+    "id": 374,
+    "questionId": 99,
+    "answerLabel": "B",
+    "answerText": "Wielkie \"M\" oznacza metry, a małe \"m\" to minuty.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.529Z",
+    "updatedAt": "2026-06-30T12:10:57.529Z"
+  },
+  {
+    "id": 375,
+    "questionId": 99,
+    "answerLabel": "C",
+    "answerText": "Wielkie \"M\" to makro, a małe \"m\" to mikro (dzielenie przez milion).",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.532Z",
+    "updatedAt": "2026-06-30T12:10:57.532Z"
+  },
+  {
+    "id": 376,
+    "questionId": 99,
+    "answerLabel": "D",
+    "answerText": "Obie litery oznaczają dokładnie to samo i można ich używać zamiennie na sprawdzianach.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.534Z",
+    "updatedAt": "2026-06-30T12:10:57.534Z"
+  },
+  {
+    "id": 377,
+    "questionId": 100,
+    "answerLabel": "A",
+    "answerText": "Ponieważ sekunda nie jest jednostką należącą do Układu SI.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.541Z",
+    "updatedAt": "2026-06-30T12:10:57.541Z"
+  },
+  {
+    "id": 378,
+    "questionId": 100,
+    "answerLabel": "B",
+    "answerText": "Ponieważ podczas zamiany minut na sekundy należy zawsze używać dzielenia przez 1000.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.544Z",
+    "updatedAt": "2026-06-30T12:10:57.544Z"
+  },
+  {
+    "id": 379,
+    "questionId": 100,
+    "answerLabel": "C",
+    "answerText": "Ponieważ w fizyce czasu nie da się dokładnie zmierzyć stoperem.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.547Z",
+    "updatedAt": "2026-06-30T12:10:57.547Z"
+  },
+  {
+    "id": 380,
+    "questionId": 100,
+    "answerLabel": "D",
+    "answerText": "Ponieważ czas omija zasady dziesiątek i setek, a przy zamianie minut na sekundy zawsze mnożymy przez 60.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.552Z",
+    "updatedAt": "2026-06-30T12:10:57.552Z"
+  },
+  {
+    "id": 381,
+    "questionId": 101,
+    "answerLabel": "A",
+    "answerText": "Ponieważ narzędzia pomiarowe oraz my sami nie jesteśmy idealni (np. przez drżenie ręki czy grubość kresek na miarce).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.590Z",
+    "updatedAt": "2026-06-30T12:10:57.590Z"
+  },
+  {
+    "id": 382,
+    "questionId": 101,
+    "answerLabel": "B",
+    "answerText": "Ponieważ przedmioty w laboratorium cały czas zmieniają swój rozmiar pod wpływem temperatury.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.592Z",
+    "updatedAt": "2026-06-30T12:10:57.592Z"
+  },
+  {
+    "id": 383,
+    "questionId": 101,
+    "answerLabel": "C",
+    "answerText": "Ponieważ w fizyce celowo używa się błędnych narzędzi, żeby trudniej było wyliczyć wynik.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.596Z",
+    "updatedAt": "2026-06-30T12:10:57.596Z"
+  },
+  {
+    "id": 384,
+    "questionId": 101,
+    "answerLabel": "D",
+    "answerText": "Ponieważ klocki podczas mierzenia zawsze minimalnie się przesuwają na stole.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.600Z",
+    "updatedAt": "2026-06-30T12:10:57.600Z"
+  },
+  {
+    "id": 385,
+    "questionId": 102,
+    "answerLabel": "A",
+    "answerText": "Wybrać tylko i wyłącznie największy ze wszystkich wyników, żeby nie zabrakło materiału.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.604Z",
+    "updatedAt": "2026-06-30T12:10:57.604Z"
+  },
+  {
+    "id": 386,
+    "questionId": 102,
+    "answerLabel": "B",
+    "answerText": "Dodać wszystkie wyniki do siebie i podzielić przez ich liczbę, obliczając w ten sposób średnią arytmetyczną.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.607Z",
+    "updatedAt": "2026-06-30T12:10:57.607Z"
+  },
+  {
+    "id": 387,
+    "questionId": 102,
+    "answerLabel": "C",
+    "answerText": "Zignorować otrzymane liczby i spróbować oszacować wymiary przedmiotu \"na oko\".",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.609Z",
+    "updatedAt": "2026-06-30T12:10:57.609Z"
+  },
+  {
+    "id": 388,
+    "questionId": 102,
+    "answerLabel": "D",
+    "answerText": "Odrzucić najmniejszy wynik, a resztę pomnożyć przez 10.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.612Z",
+    "updatedAt": "2026-06-30T12:10:57.612Z"
+  },
+  {
+    "id": 389,
+    "questionId": 103,
+    "answerLabel": "A",
+    "answerText": "Zaokrąglić w górę, czyli dodać jeden, aby otrzymać pełną czwórkę.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.619Z",
+    "updatedAt": "2026-06-30T12:10:57.619Z"
+  },
+  {
+    "id": 390,
+    "questionId": 103,
+    "answerLabel": "B",
+    "answerText": "Zostawić wynik bez zmian, ponieważ w fizyce nigdy nie ucina się ogonków po przecinku.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.623Z",
+    "updatedAt": "2026-06-30T12:10:57.623Z"
+  },
+  {
+    "id": 391,
+    "questionId": 103,
+    "answerLabel": "C",
+    "answerText": "Zaokrąglić w dół, czyli po prostu uciąć ogonek po przecinku i zostać przy twardej, pełnej trójce.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.626Z",
+    "updatedAt": "2026-06-30T12:10:57.626Z"
+  },
+  {
+    "id": 392,
+    "questionId": 103,
+    "answerLabel": "D",
+    "answerText": "Przesunąć przecinek w prawo, żeby otrzymać nową liczbę 34.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.629Z",
+    "updatedAt": "2026-06-30T12:10:57.629Z"
+  },
+  {
+    "id": 393,
+    "questionId": 104,
+    "answerLabel": "A",
+    "answerText": "Zawsze, gdy wynik posiada na końcu po przecinku jakąkolwiek cyfrę parzystą.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.634Z",
+    "updatedAt": "2026-06-30T12:10:57.634Z"
+  },
+  {
+    "id": 394,
+    "questionId": 104,
+    "answerLabel": "B",
+    "answerText": "Kiedy pierwsza cyfra po przecinku jest równa 5 albo większa.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.640Z",
+    "updatedAt": "2026-06-30T12:10:57.640Z"
+  },
+  {
+    "id": 395,
+    "questionId": 104,
+    "answerLabel": "C",
+    "answerText": "Kiedy pierwsza cyfra po przecinku jest mniejsza niż 5.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.642Z",
+    "updatedAt": "2026-06-30T12:10:57.642Z"
+  },
+  {
+    "id": 396,
+    "questionId": 104,
+    "answerLabel": "D",
+    "answerText": "Kiedy obok badanej liczby postawimy znak drogowy.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.644Z",
+    "updatedAt": "2026-06-30T12:10:57.644Z"
+  },
+  {
+    "id": 397,
+    "questionId": 105,
+    "answerLabel": "A",
+    "answerText": "Na błędnym wstawianiu przecinka w połowie wielkiej liczby.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.651Z",
+    "updatedAt": "2026-06-30T12:10:57.651Z"
+  },
+  {
+    "id": 398,
+    "questionId": 105,
+    "answerLabel": "B",
+    "answerText": "Na szukaniu najważniejszych cyfr VIP, zaczynając błędnie od prawej strony.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.653Z",
+    "updatedAt": "2026-06-30T12:10:57.653Z"
+  },
+  {
+    "id": 399,
+    "questionId": 105,
+    "answerLabel": "C",
+    "answerText": "Na dodaniu do wyniku dodatkowego tysiąca z powodu użycia żółtych klocków.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.656Z",
+    "updatedAt": "2026-06-30T12:10:57.656Z"
+  },
+  {
+    "id": 400,
+    "questionId": 105,
+    "answerLabel": "D",
+    "answerText": "Na braku uzupełnienia odrzuconych miejsc zerami, przez co wielka liczba drastycznie maleje i traci skalę (np. zapisanie małego 35 zamiast 3500).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.661Z",
+    "updatedAt": "2026-06-30T12:10:57.661Z"
+  },
+  {
+    "id": 401,
+    "questionId": 106,
+    "answerLabel": "A",
+    "answerText": "Grawitacyjne, elektrostatyczne i magnetyczne",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.678Z",
+    "updatedAt": "2026-06-30T12:10:57.678Z"
+  },
+  {
+    "id": 402,
+    "questionId": 106,
+    "answerLabel": "B",
+    "answerText": "Mechaniczne, sprężyste i grawitacyjne",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.681Z",
+    "updatedAt": "2026-06-30T12:10:57.681Z"
+  },
+  {
+    "id": 403,
+    "questionId": 106,
+    "answerLabel": "C",
+    "answerText": "Tylko oddziaływanie grawitacyjne",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.685Z",
+    "updatedAt": "2026-06-30T12:10:57.685Z"
+  },
+  {
+    "id": 404,
+    "questionId": 106,
+    "answerLabel": "D",
+    "answerText": "Wszystkie oddziaływania fizyczne wymagają bezpośredniego kontaktu",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.694Z",
+    "updatedAt": "2026-06-30T12:10:57.694Z"
+  },
+  {
+    "id": 405,
+    "questionId": 107,
+    "answerLabel": "A",
+    "answerText": "Oddziaływanie grawitacyjne potrafi zarówno przyciągać, jak i odpychać inne przedmioty.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.701Z",
+    "updatedAt": "2026-06-30T12:10:57.701Z"
+  },
+  {
+    "id": 406,
+    "questionId": 107,
+    "answerLabel": "B",
+    "answerText": "Grawitacja działa tylko na planecie Ziemia, a w kosmosie zupełnie zanika.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.705Z",
+    "updatedAt": "2026-06-30T12:10:57.705Z"
+  },
+  {
+    "id": 407,
+    "questionId": 107,
+    "answerLabel": "C",
+    "answerText": "Grawitacja zawsze i wyłącznie przyciąga obiekty, nigdy ich nie odpycha.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.707Z",
+    "updatedAt": "2026-06-30T12:10:57.707Z"
+  },
+  {
+    "id": 408,
+    "questionId": 107,
+    "answerLabel": "D",
+    "answerText": "Grawitacja przyciąga tylko materiały ferromagnetyczne.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.710Z",
+    "updatedAt": "2026-06-30T12:10:57.710Z"
+  },
+  {
+    "id": 409,
+    "questionId": 108,
+    "answerLabel": "A",
+    "answerText": "Błyskawicznie się przyciągną i połączą ze sobą.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.716Z",
+    "updatedAt": "2026-06-30T12:10:57.716Z"
+  },
+  {
+    "id": 410,
+    "questionId": 108,
+    "answerLabel": "B",
+    "answerText": "Będą uciekać od siebie i się odpychać.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.719Z",
+    "updatedAt": "2026-06-30T12:10:57.719Z"
+  },
+  {
+    "id": 411,
+    "questionId": 108,
+    "answerLabel": "C",
+    "answerText": "Zaczną drastycznie zmieniać swój kształt.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.723Z",
+    "updatedAt": "2026-06-30T12:10:57.723Z"
+  },
+  {
+    "id": 412,
+    "questionId": 108,
+    "answerLabel": "D",
+    "answerText": "Zignorują się nawzajem, bo brakuje plusa.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.725Z",
+    "updatedAt": "2026-06-30T12:10:57.725Z"
+  },
+  {
+    "id": 413,
+    "questionId": 109,
+    "answerLabel": "A",
+    "answerText": "uderzony przedmiot nagle wystrzeliwuje do przodu (zostaje wprawiony w ruch).",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.734Z",
+    "updatedAt": "2026-06-30T12:10:57.734Z"
+  },
+  {
+    "id": 414,
+    "questionId": 109,
+    "answerLabel": "B",
+    "answerText": "pędzący bolid wciska hamulec i zwalnia.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.738Z",
+    "updatedAt": "2026-06-30T12:10:57.738Z"
+  },
+  {
+    "id": 415,
+    "questionId": 109,
+    "answerLabel": "C",
+    "answerText": "działająca siła zmusza pojazd do zmiany kierunku ruchu.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.741Z",
+    "updatedAt": "2026-06-30T12:10:57.741Z"
+  },
+  {
+    "id": 416,
+    "questionId": 109,
+    "answerLabel": "D",
+    "answerText": "przedmiot pod wpływem siły nie porusza się, ale zmienia swój kształt (np. zgniata się lub wygina).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.745Z",
+    "updatedAt": "2026-06-30T12:10:57.745Z"
+  },
+  {
+    "id": 417,
+    "questionId": 110,
+    "answerLabel": "A",
+    "answerText": "Ściśnięcie maszynami spirali, tak że staje się nagle dużo krótsza.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.757Z",
+    "updatedAt": "2026-06-30T12:10:57.757Z"
+  },
+  {
+    "id": 418,
+    "questionId": 110,
+    "answerLabel": "B",
+    "answerText": "Zmiana kierunku ruchu przez pojazd, aby ominąć przeszkodę na drodze.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.759Z",
+    "updatedAt": "2026-06-30T12:10:57.759Z"
+  },
+  {
+    "id": 419,
+    "questionId": 110,
+    "answerLabel": "C",
+    "answerText": "Wgniecenie, lepienie i rozciąganie kuli z miękkiej plasteliny.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.762Z",
+    "updatedAt": "2026-06-30T12:10:57.762Z"
+  },
+  {
+    "id": 420,
+    "questionId": 110,
+    "answerLabel": "D",
+    "answerText": "Ugięcie się długiej belki (mostu) pod ciężarem wjeżdżającej ciężarówki.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.764Z",
+    "updatedAt": "2026-06-30T12:10:57.764Z"
+  },
+  {
+    "id": 421,
+    "questionId": 111,
+    "answerLabel": "A",
+    "answerText": "Od słowa Fast, a mierzy się ją w kilometrach.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.779Z",
+    "updatedAt": "2026-06-30T12:10:57.779Z"
+  },
+  {
+    "id": 422,
+    "questionId": 111,
+    "answerLabel": "B",
+    "answerText": "Od słowa Force, a mierzy się ją w niutonach.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.782Z",
+    "updatedAt": "2026-06-30T12:10:57.782Z"
+  },
+  {
+    "id": 423,
+    "questionId": 111,
+    "answerLabel": "C",
+    "answerText": "Od słowa Form, a mierzy się ją w kilogramach.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.786Z",
+    "updatedAt": "2026-06-30T12:10:57.786Z"
+  },
+  {
+    "id": 424,
+    "questionId": 111,
+    "answerLabel": "D",
+    "answerText": "Od słowa Friction, a mierzy się ją w metrach.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.788Z",
+    "updatedAt": "2026-06-30T12:10:57.788Z"
+  },
+  {
+    "id": 425,
+    "questionId": 112,
+    "answerLabel": "A",
+    "answerText": "Zderzenie klockowego autka ze ścianą.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.796Z",
+    "updatedAt": "2026-06-30T12:10:57.796Z"
+  },
+  {
+    "id": 426,
+    "questionId": 112,
+    "answerLabel": "B",
+    "answerText": "Opór, jaki stawiają dwa odpychające się magnesy.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.798Z",
+    "updatedAt": "2026-06-30T12:10:57.798Z"
+  },
+  {
+    "id": 427,
+    "questionId": 112,
+    "answerLabel": "C",
+    "answerText": "Delikatny nacisk stugramowej tabliczki czekolady na otwartą dłoń.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.801Z",
+    "updatedAt": "2026-06-30T12:10:57.801Z"
+  },
+  {
+    "id": 428,
+    "questionId": 112,
+    "answerLabel": "D",
+    "answerText": "Pchanie dużej ciężarówki siłą dziesięciu niutonów.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.804Z",
+    "updatedAt": "2026-06-30T12:10:57.804Z"
+  },
+  {
+    "id": 429,
+    "questionId": 113,
+    "answerLabel": "A",
+    "answerText": "Na tym, że wszystkie strzałki zawsze muszą mieć tę samą długość, niezależnie od siły.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.809Z",
+    "updatedAt": "2026-06-30T12:10:57.809Z"
+  },
+  {
+    "id": 430,
+    "questionId": 113,
+    "answerLabel": "B",
+    "answerText": "Na samodzielnym ustaleniu, jakiej sile (np. ilu niutonom) odpowiada jedna kratka, aby rysunek dużej siły zmieścił się w zeszycie.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.812Z",
+    "updatedAt": "2026-06-30T12:10:57.812Z"
+  },
+  {
+    "id": 431,
+    "questionId": 113,
+    "answerLabel": "C",
+    "answerText": "Na rysowaniu większych sił grubszym pisakiem, a mniejszych cienkim ołówkiem.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.815Z",
+    "updatedAt": "2026-06-30T12:10:57.815Z"
+  },
+  {
+    "id": 432,
+    "questionId": 113,
+    "answerLabel": "D",
+    "answerText": "Na zamianie jednostek z niutonów na centymetry, by łatwiej było użyć linijki na gładkim papierze.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.819Z",
+    "updatedAt": "2026-06-30T12:10:57.819Z"
+  },
+  {
+    "id": 433,
+    "questionId": 114,
+    "answerLabel": "A",
+    "answerText": "Niewidzialną linią, wzdłuż której działa siła.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.825Z",
+    "updatedAt": "2026-06-30T12:10:57.825Z"
+  },
+  {
+    "id": 434,
+    "questionId": 114,
+    "answerLabel": "B",
+    "answerText": "Wartością liczbową mówiącą nam, jak mocno pchamy dany przedmiot.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.827Z",
+    "updatedAt": "2026-06-30T12:10:57.827Z"
+  },
+  {
+    "id": 435,
+    "questionId": 114,
+    "answerLabel": "C",
+    "answerText": "Stroną, w którą skierowany jest grot narysowanej strzałki.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.830Z",
+    "updatedAt": "2026-06-30T12:10:57.830Z"
+  },
+  {
+    "id": 436,
+    "questionId": 114,
+    "answerLabel": "D",
+    "answerText": "Konkretnym, malutkim miejscem kontaktu, w którym stykasz się z przedmiotem i zaczynasz na niego działać.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.832Z",
+    "updatedAt": "2026-06-30T12:10:57.832Z"
+  },
+  {
+    "id": 437,
+    "questionId": 115,
+    "answerLabel": "A",
+    "answerText": "Kierunek i zwrot to w fizyce dokładnie to samo i można używać tych słów zamiennie.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.837Z",
+    "updatedAt": "2026-06-30T12:10:57.837Z"
+  },
+  {
+    "id": 438,
+    "questionId": 115,
+    "answerLabel": "B",
+    "answerText": "Kierunek to niewidzialna linia działania siły (jak sztywne tory), a zwrot to konkretna strona oznaczona grotem strzałki (znak dokąd jedziemy).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.839Z",
+    "updatedAt": "2026-06-30T12:10:57.839Z"
+  },
+  {
+    "id": 439,
+    "questionId": 115,
+    "answerLabel": "C",
+    "answerText": "Kierunek określa wartość siły w niutonach, a zwrot to miejsce dotyku przedmiotu.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.844Z",
+    "updatedAt": "2026-06-30T12:10:57.844Z"
+  },
+  {
+    "id": 440,
+    "questionId": 115,
+    "answerLabel": "D",
+    "answerText": "Kierunek dotyczy wyłącznie grawitacji, a zwrot oddziaływań mechanicznych.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.846Z",
+    "updatedAt": "2026-06-30T12:10:57.846Z"
+  },
+  {
+    "id": 441,
+    "questionId": 116,
+    "answerLabel": "A",
+    "answerText": "Dowolnym połączeniem dwóch różnych pierwiastków.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.914Z",
+    "updatedAt": "2026-06-30T12:10:57.914Z"
+  },
+  {
+    "id": 442,
+    "questionId": 116,
+    "answerLabel": "B",
+    "answerText": "Częścią klocka LEGO, z którego buduje się wodę.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.917Z",
+    "updatedAt": "2026-06-30T12:10:57.917Z"
+  },
+  {
+    "id": 443,
+    "questionId": 116,
+    "answerLabel": "C",
+    "answerText": "Najmniejszą, niepodzielną chemicznie „cegiełką” budującą pierwiastek.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.919Z",
+    "updatedAt": "2026-06-30T12:10:57.919Z"
+  },
+  {
+    "id": 444,
+    "questionId": 116,
+    "answerLabel": "D",
+    "answerText": "Zjawiskiem mieszania się różnych substancji.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.924Z",
+    "updatedAt": "2026-06-30T12:10:57.924Z"
+  },
+  {
+    "id": 445,
+    "questionId": 117,
+    "answerLabel": "A",
+    "answerText": "Nowy pierwiastek",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.930Z",
+    "updatedAt": "2026-06-30T12:10:57.930Z"
+  },
+  {
+    "id": 446,
+    "questionId": 117,
+    "answerLabel": "B",
+    "answerText": "Cząsteczka",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.933Z",
+    "updatedAt": "2026-06-30T12:10:57.933Z"
+  },
+  {
+    "id": 447,
+    "questionId": 117,
+    "answerLabel": "C",
+    "answerText": "Detergent",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.936Z",
+    "updatedAt": "2026-06-30T12:10:57.936Z"
+  },
+  {
+    "id": 448,
+    "questionId": 117,
+    "answerLabel": "D",
+    "answerText": "Stan stały",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.939Z",
+    "updatedAt": "2026-06-30T12:10:57.939Z"
+  },
+  {
+    "id": 449,
+    "questionId": 118,
+    "answerLabel": "A",
+    "answerText": "Ziarnistą",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.948Z",
+    "updatedAt": "2026-06-30T12:10:57.948Z"
+  },
+  {
+    "id": 450,
+    "questionId": 118,
+    "answerLabel": "B",
+    "answerText": "Płynną",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.951Z",
+    "updatedAt": "2026-06-30T12:10:57.951Z"
+  },
+  {
+    "id": 451,
+    "questionId": 118,
+    "answerLabel": "C",
+    "answerText": "Losową",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.954Z",
+    "updatedAt": "2026-06-30T12:10:57.954Z"
+  },
+  {
+    "id": 452,
+    "questionId": 118,
+    "answerLabel": "D",
+    "answerText": "Niewidzialną",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.956Z",
+    "updatedAt": "2026-06-30T12:10:57.956Z"
+  },
+  {
+    "id": 453,
+    "questionId": 119,
+    "answerLabel": "A",
+    "answerText": "W ciele stałym",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.963Z",
+    "updatedAt": "2026-06-30T12:10:57.963Z"
+  },
+  {
+    "id": 454,
+    "questionId": 119,
+    "answerLabel": "B",
+    "answerText": "W cieczy",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.965Z",
+    "updatedAt": "2026-06-30T12:10:57.965Z"
+  },
+  {
+    "id": 455,
+    "questionId": 119,
+    "answerLabel": "C",
+    "answerText": "W gazie",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.972Z",
+    "updatedAt": "2026-06-30T12:10:57.972Z"
+  },
+  {
+    "id": 456,
+    "questionId": 119,
+    "answerLabel": "D",
+    "answerText": "We wszystkich stanach poruszają się tak samo",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.976Z",
+    "updatedAt": "2026-06-30T12:10:57.976Z"
+  },
+  {
+    "id": 457,
+    "questionId": 120,
+    "answerLabel": "A",
+    "answerText": "Im jest cieplej, tym cząsteczki poruszają się wolniej.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.983Z",
+    "updatedAt": "2026-06-30T12:10:57.983Z"
+  },
+  {
+    "id": 458,
+    "questionId": 120,
+    "answerLabel": "B",
+    "answerText": "Temperatura nie ma żadnego wpływu na ruch cząsteczek.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.985Z",
+    "updatedAt": "2026-06-30T12:10:57.985Z"
+  },
+  {
+    "id": 459,
+    "questionId": 120,
+    "answerLabel": "C",
+    "answerText": "Cząsteczki całkowicie się zatrzymują przy wysokiej temperaturze.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.988Z",
+    "updatedAt": "2026-06-30T12:10:57.988Z"
+  },
+  {
+    "id": 460,
+    "questionId": 120,
+    "answerLabel": "D",
+    "answerText": "Im jest cieplej, tym cząsteczki poruszają się szybciej.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.990Z",
+    "updatedAt": "2026-06-30T12:10:57.990Z"
+  },
+  {
+    "id": 461,
+    "questionId": 121,
+    "answerLabel": "A",
+    "answerText": "Sile spójności",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:57.996Z",
+    "updatedAt": "2026-06-30T12:10:57.996Z"
+  },
+  {
+    "id": 462,
+    "questionId": 121,
+    "answerLabel": "B",
+    "answerText": "Sile przylegania",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.000Z",
+    "updatedAt": "2026-06-30T12:10:58.000Z"
+  },
+  {
+    "id": 463,
+    "questionId": 121,
+    "answerLabel": "C",
+    "answerText": "Sile grawitacji",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.002Z",
+    "updatedAt": "2026-06-30T12:10:58.002Z"
+  },
+  {
+    "id": 464,
+    "questionId": 121,
+    "answerLabel": "D",
+    "answerText": "Sile wyporu",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.005Z",
+    "updatedAt": "2026-06-30T12:10:58.005Z"
+  },
+  {
+    "id": 465,
+    "questionId": 122,
+    "answerLabel": "A",
+    "answerText": "Wzajemne przyciąganie się cząsteczek tej samej substancji (np. woda z wodą).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.011Z",
+    "updatedAt": "2026-06-30T12:10:58.011Z"
+  },
+  {
+    "id": 466,
+    "questionId": 122,
+    "answerLabel": "B",
+    "answerText": "Wzajemne przyciąganie się cząsteczek różnych substancji (np. woda i szkło).",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.014Z",
+    "updatedAt": "2026-06-30T12:10:58.014Z"
+  },
+  {
+    "id": 467,
+    "questionId": 122,
+    "answerLabel": "C",
+    "answerText": "Łączenie się atomów węgla i wodoru w metan.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.017Z",
+    "updatedAt": "2026-06-30T12:10:58.017Z"
+  },
+  {
+    "id": 468,
+    "questionId": 122,
+    "answerLabel": "D",
+    "answerText": "Działanie detergentów na brud.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.019Z",
+    "updatedAt": "2026-06-30T12:10:58.019Z"
+  },
+  {
+    "id": 469,
+    "questionId": 123,
+    "answerLabel": "A",
+    "answerText": "Napięcie powierzchniowe",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.025Z",
+    "updatedAt": "2026-06-30T12:10:58.025Z"
+  },
+  {
+    "id": 470,
+    "questionId": 123,
+    "answerLabel": "B",
+    "answerText": "Dyfuzja",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.027Z",
+    "updatedAt": "2026-06-30T12:10:58.027Z"
+  },
+  {
+    "id": 471,
+    "questionId": 123,
+    "answerLabel": "C",
+    "answerText": "Kondensacja",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.030Z",
+    "updatedAt": "2026-06-30T12:10:58.030Z"
+  },
+  {
+    "id": 472,
+    "questionId": 123,
+    "answerLabel": "D",
+    "answerText": "Parowanie",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.034Z",
+    "updatedAt": "2026-06-30T12:10:58.034Z"
+  },
+  {
+    "id": 473,
+    "questionId": 124,
+    "answerLabel": "A",
+    "answerText": "Ponieważ działają na nie siły przylegania.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.038Z",
+    "updatedAt": "2026-06-30T12:10:58.038Z"
+  },
+  {
+    "id": 474,
+    "questionId": 124,
+    "answerLabel": "B",
+    "answerText": "Ponieważ woda w stawie punktowo zamienia się w ciało stałe.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.043Z",
+    "updatedAt": "2026-06-30T12:10:58.043Z"
+  },
+  {
+    "id": 475,
+    "questionId": 124,
+    "answerLabel": "C",
+    "answerText": "Dzięki napięciu powierzchniowemu, które tworzy na wodzie niewidzialną „błonkę”.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.046Z",
+    "updatedAt": "2026-06-30T12:10:58.046Z"
+  },
+  {
+    "id": 476,
+    "questionId": 124,
+    "answerLabel": "D",
+    "answerText": "Dzięki szybkiej dyfuzji cząsteczek powietrza.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.049Z",
+    "updatedAt": "2026-06-30T12:10:58.049Z"
+  },
+  {
+    "id": 477,
+    "questionId": 125,
+    "answerLabel": "A",
+    "answerText": "Zwiększają napięcie powierzchniowe wody.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.053Z",
+    "updatedAt": "2026-06-30T12:10:58.053Z"
+  },
+  {
+    "id": 478,
+    "questionId": 125,
+    "answerLabel": "B",
+    "answerText": "Zmniejszają napięcie powierzchniowe wody, rozrywając silne połączenia między jej cząsteczkami.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.056Z",
+    "updatedAt": "2026-06-30T12:10:58.056Z"
+  },
+  {
+    "id": 479,
+    "questionId": 125,
+    "answerLabel": "C",
+    "answerText": "Zamieniają cząsteczki wody w gaz, by ułatwić mycie.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.058Z",
+    "updatedAt": "2026-06-30T12:10:58.058Z"
+  },
+  {
+    "id": 480,
+    "questionId": 125,
+    "answerLabel": "D",
+    "answerText": "Sprawiają, że woda zaczyna szybciej zamarzać.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.060Z",
+    "updatedAt": "2026-06-30T12:10:58.060Z"
+  },
+  {
+    "id": 481,
+    "questionId": 126,
+    "answerLabel": "A",
+    "answerText": "Ślizgają się swobodnie jedna po drugiej.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.080Z",
+    "updatedAt": "2026-06-30T12:10:58.080Z"
+  },
+  {
+    "id": 482,
+    "questionId": 126,
+    "answerLabel": "B",
+    "answerText": "Pędzą we wszystkich kierunkach i latają swobodnie.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.083Z",
+    "updatedAt": "2026-06-30T12:10:58.083Z"
+  },
+  {
+    "id": 483,
+    "questionId": 126,
+    "answerLabel": "C",
+    "answerText": "Są ułożone bardzo blisko siebie i mogą co najwyżej delikatnie drgać w miejscu.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.089Z",
+    "updatedAt": "2026-06-30T12:10:58.089Z"
+  },
+  {
+    "id": 484,
+    "questionId": 126,
+    "answerLabel": "D",
+    "answerText": "Stale zmieniają swój kształt.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.096Z",
+    "updatedAt": "2026-06-30T12:10:58.096Z"
+  },
+  {
+    "id": 485,
+    "questionId": 127,
+    "answerLabel": "A",
+    "answerText": "Ponieważ cząsteczki cieczy mają na tyle luzu, że mogą się przemieszczać i ślizgać po sobie.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.105Z",
+    "updatedAt": "2026-06-30T12:10:58.105Z"
+  },
+  {
+    "id": 486,
+    "questionId": 127,
+    "answerLabel": "B",
+    "answerText": "Ponieważ cząsteczki w cieczy są zablokowane w sztywnej klatce.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.107Z",
+    "updatedAt": "2026-06-30T12:10:58.107Z"
+  },
+  {
+    "id": 487,
+    "questionId": 127,
+    "answerLabel": "C",
+    "answerText": "Ponieważ między cząsteczkami cieczy jest mnóstwo pustej przestrzeni.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.110Z",
+    "updatedAt": "2026-06-30T12:10:58.110Z"
+  },
+  {
+    "id": 488,
+    "questionId": 127,
+    "answerLabel": "D",
+    "answerText": "Ponieważ cząsteczki wody są sprężyste.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.112Z",
+    "updatedAt": "2026-06-30T12:10:58.112Z"
+  },
+  {
+    "id": 489,
+    "questionId": 128,
+    "answerLabel": "A",
+    "answerText": "W ciele stałym",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.119Z",
+    "updatedAt": "2026-06-30T12:10:58.119Z"
+  },
+  {
+    "id": 490,
+    "questionId": 128,
+    "answerLabel": "B",
+    "answerText": "W cieczy",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.122Z",
+    "updatedAt": "2026-06-30T12:10:58.122Z"
+  },
+  {
+    "id": 491,
+    "questionId": 128,
+    "answerLabel": "C",
+    "answerText": "W gazie",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.132Z",
+    "updatedAt": "2026-06-30T12:10:58.132Z"
+  },
+  {
+    "id": 492,
+    "questionId": 128,
+    "answerLabel": "D",
+    "answerText": "W ciele plastycznym",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.134Z",
+    "updatedAt": "2026-06-30T12:10:58.134Z"
+  },
+  {
+    "id": 493,
+    "questionId": 129,
+    "answerLabel": "A",
+    "answerText": "Mają stałą objętość, ale przyjmują kształt naczynia.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.141Z",
+    "updatedAt": "2026-06-30T12:10:58.141Z"
+  },
+  {
+    "id": 494,
+    "questionId": 129,
+    "answerLabel": "B",
+    "answerText": "Zajmują całą dostępną przestrzeń.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.144Z",
+    "updatedAt": "2026-06-30T12:10:58.144Z"
+  },
+  {
+    "id": 495,
+    "questionId": 129,
+    "answerLabel": "C",
+    "answerText": "Nie mają ani własnego kształtu, ani objętości.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.146Z",
+    "updatedAt": "2026-06-30T12:10:58.146Z"
+  },
+  {
+    "id": 496,
+    "questionId": 129,
+    "answerLabel": "D",
+    "answerText": "Mają swój określony kształt i objętość.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.148Z",
+    "updatedAt": "2026-06-30T12:10:58.148Z"
+  },
+  {
+    "id": 497,
+    "questionId": 130,
+    "answerLabel": "A",
+    "answerText": "Kruche",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.154Z",
+    "updatedAt": "2026-06-30T12:10:58.154Z"
+  },
+  {
+    "id": 498,
+    "questionId": 130,
+    "answerLabel": "B",
+    "answerText": "Sprężyste",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.158Z",
+    "updatedAt": "2026-06-30T12:10:58.158Z"
+  },
+  {
+    "id": 499,
+    "questionId": 130,
+    "answerLabel": "C",
+    "answerText": "Plastyczne",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.160Z",
+    "updatedAt": "2026-06-30T12:10:58.160Z"
+  },
+  {
+    "id": 500,
+    "questionId": 130,
+    "answerLabel": "D",
+    "answerText": "Ściśliwe",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.163Z",
+    "updatedAt": "2026-06-30T12:10:58.163Z"
+  },
+  {
+    "id": 501,
+    "questionId": 131,
+    "answerLabel": "A",
+    "answerText": "Po zmianie kształtu wracają do pierwotnej formy.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.168Z",
+    "updatedAt": "2026-06-30T12:10:58.168Z"
+  },
+  {
+    "id": 502,
+    "questionId": 131,
+    "answerLabel": "B",
+    "answerText": "Rozpadają się na kawałki pod wpływem siły.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.170Z",
+    "updatedAt": "2026-06-30T12:10:58.170Z"
+  },
+  {
+    "id": 503,
+    "questionId": 131,
+    "answerLabel": "C",
+    "answerText": "Kiedy zmienimy ich kształt, to już w takiej nowej formie zostają.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.243Z",
+    "updatedAt": "2026-06-30T12:10:58.243Z"
+  },
+  {
+    "id": 504,
+    "questionId": 131,
+    "answerLabel": "D",
+    "answerText": "Zachowują się jak gaz i uciekają z pojemnika.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.245Z",
+    "updatedAt": "2026-06-30T12:10:58.245Z"
+  },
+  {
+    "id": 505,
+    "questionId": 132,
+    "answerLabel": "A",
+    "answerText": "Zmienia się jej objętość oraz kształt.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.251Z",
+    "updatedAt": "2026-06-30T12:10:58.251Z"
+  },
+  {
+    "id": 506,
+    "questionId": 132,
+    "answerLabel": "B",
+    "answerText": "Zachowuje swój własny kształt, ale zmienia objętość.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.254Z",
+    "updatedAt": "2026-06-30T12:10:58.254Z"
+  },
+  {
+    "id": 507,
+    "questionId": 132,
+    "answerLabel": "C",
+    "answerText": "Zamienia się w gaz, wypełniając całe naczynie.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.260Z",
+    "updatedAt": "2026-06-30T12:10:58.260Z"
+  },
+  {
+    "id": 508,
+    "questionId": 132,
+    "answerLabel": "D",
+    "answerText": "Ma nadal tę samą objętość, ale przyjmuje kształt nowego naczynia.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.264Z",
+    "updatedAt": "2026-06-30T12:10:58.264Z"
+  },
+  {
+    "id": 509,
+    "questionId": 133,
+    "answerLabel": "A",
+    "answerText": "Ponieważ ich cząsteczki są upakowane bardzo ciasno i ciężko jest je do siebie zbliżyć.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.269Z",
+    "updatedAt": "2026-06-30T12:10:58.269Z"
+  },
+  {
+    "id": 510,
+    "questionId": 133,
+    "answerLabel": "B",
+    "answerText": "Ponieważ rozpadają się na kawałki podczas próby ściśnięcia.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.271Z",
+    "updatedAt": "2026-06-30T12:10:58.271Z"
+  },
+  {
+    "id": 511,
+    "questionId": 133,
+    "answerLabel": "C",
+    "answerText": "Ponieważ między ich cząsteczkami jest mnóstwo wolnej przestrzeni.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.274Z",
+    "updatedAt": "2026-06-30T12:10:58.274Z"
+  },
+  {
+    "id": 512,
+    "questionId": 133,
+    "answerLabel": "D",
+    "answerText": "Ponieważ nie posiadają powierzchni swobodnej.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.276Z",
+    "updatedAt": "2026-06-30T12:10:58.276Z"
+  },
+  {
+    "id": 513,
+    "questionId": 134,
+    "answerLabel": "A",
+    "answerText": "Ponieważ gazy są kruche.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.282Z",
+    "updatedAt": "2026-06-30T12:10:58.282Z"
+  },
+  {
+    "id": 514,
+    "questionId": 134,
+    "answerLabel": "B",
+    "answerText": "Ponieważ gazy mają swój określony kształt.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.284Z",
+    "updatedAt": "2026-06-30T12:10:58.284Z"
+  },
+  {
+    "id": 515,
+    "questionId": 134,
+    "answerLabel": "C",
+    "answerText": "Ponieważ gazy są ściśliwe – między ich cząsteczkami jest dużo pustej przestrzeni, więc łatwo je do siebie dosunąć.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.287Z",
+    "updatedAt": "2026-06-30T12:10:58.287Z"
+  },
+  {
+    "id": 516,
+    "questionId": 134,
+    "answerLabel": "D",
+    "answerText": "Ponieważ wewnątrz butelki nie ma w ogóle żadnych cząsteczek.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.289Z",
+    "updatedAt": "2026-06-30T12:10:58.289Z"
+  },
+  {
+    "id": 517,
+    "questionId": 135,
+    "answerLabel": "A",
+    "answerText": "To dno każdego naczynia, w którym znajduje się woda.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.296Z",
+    "updatedAt": "2026-06-30T12:10:58.296Z"
+  },
+  {
+    "id": 518,
+    "questionId": 135,
+    "answerLabel": "B",
+    "answerText": "To górna granica cieczy, która styka się z powietrzem (gazem) nad nią.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.298Z",
+    "updatedAt": "2026-06-30T12:10:58.298Z"
+  },
+  {
+    "id": 519,
+    "questionId": 135,
+    "answerLabel": "C",
+    "answerText": "To siła, która zgniata cząsteczki wewnątrz cieczy.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.302Z",
+    "updatedAt": "2026-06-30T12:10:58.302Z"
+  },
+  {
+    "id": 520,
+    "questionId": 135,
+    "answerLabel": "D",
+    "answerText": "To zjawisko zamarzania wody na powierzchni.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.304Z",
+    "updatedAt": "2026-06-30T12:10:58.304Z"
+  },
+  {
+    "id": 521,
+    "questionId": 136,
+    "answerLabel": "A",
+    "answerText": "Niewidzialną liną, z jaką Ziemia ciągnie przedmioty.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.327Z",
+    "updatedAt": "2026-06-30T12:10:58.327Z"
+  },
+  {
+    "id": 522,
+    "questionId": 136,
+    "answerLabel": "B",
+    "answerText": "Ilością materii, czyli tym, z ilu „klocków” zbudowane jest ciało.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.329Z",
+    "updatedAt": "2026-06-30T12:10:58.329Z"
+  },
+  {
+    "id": 523,
+    "questionId": 136,
+    "answerLabel": "C",
+    "answerText": "Przyspieszeniem ziemskim wyrażanym w niutonach.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.333Z",
+    "updatedAt": "2026-06-30T12:10:58.333Z"
+  },
+  {
+    "id": 524,
+    "questionId": 136,
+    "answerLabel": "D",
+    "answerText": "Kształtem i objętością danego przedmiotu.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.335Z",
+    "updatedAt": "2026-06-30T12:10:58.335Z"
+  },
+  {
+    "id": 525,
+    "questionId": 137,
+    "answerLabel": "A",
+    "answerText": "W kilogramach (kg)",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.345Z",
+    "updatedAt": "2026-06-30T12:10:58.345Z"
+  },
+  {
+    "id": 526,
+    "questionId": 137,
+    "answerLabel": "B",
+    "answerText": "W gramach (g)",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.348Z",
+    "updatedAt": "2026-06-30T12:10:58.348Z"
+  },
+  {
+    "id": 527,
+    "questionId": 137,
+    "answerLabel": "C",
+    "answerText": "W niutonach (N)",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.351Z",
+    "updatedAt": "2026-06-30T12:10:58.351Z"
+  },
+  {
+    "id": 528,
+    "questionId": 137,
+    "answerLabel": "D",
+    "answerText": "W tonach (t)",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.353Z",
+    "updatedAt": "2026-06-30T12:10:58.353Z"
+  },
+  {
+    "id": 529,
+    "questionId": 138,
+    "answerLabel": "A",
+    "answerText": "1,62 N/kg",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.359Z",
+    "updatedAt": "2026-06-30T12:10:58.359Z"
+  },
+  {
+    "id": 530,
+    "questionId": 138,
+    "answerLabel": "B",
+    "answerText": "10 N/kg",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.361Z",
+    "updatedAt": "2026-06-30T12:10:58.361Z"
+  },
+  {
+    "id": 531,
+    "questionId": 138,
+    "answerLabel": "C",
+    "answerText": "100 N/kg",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.363Z",
+    "updatedAt": "2026-06-30T12:10:58.363Z"
+  },
+  {
+    "id": 532,
+    "questionId": 138,
+    "answerLabel": "D",
+    "answerText": "1000 N/kg",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.366Z",
+    "updatedAt": "2026-06-30T12:10:58.366Z"
+  },
+  {
+    "id": 533,
+    "questionId": 139,
+    "answerLabel": "A",
+    "answerText": "2 N",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.372Z",
+    "updatedAt": "2026-06-30T12:10:58.372Z"
+  },
+  {
+    "id": 534,
+    "questionId": 139,
+    "answerLabel": "B",
+    "answerText": "10 N",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.374Z",
+    "updatedAt": "2026-06-30T12:10:58.374Z"
+  },
+  {
+    "id": 535,
+    "questionId": 139,
+    "answerLabel": "C",
+    "answerText": "20 N",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.377Z",
+    "updatedAt": "2026-06-30T12:10:58.377Z"
+  },
+  {
+    "id": 536,
+    "questionId": 139,
+    "answerLabel": "D",
+    "answerText": "200 N",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.380Z",
+    "updatedAt": "2026-06-30T12:10:58.380Z"
+  },
+  {
+    "id": 537,
+    "questionId": 140,
+    "answerLabel": "A",
+    "answerText": "Materac, ponieważ jest większy i bardziej rozłożysty.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.385Z",
+    "updatedAt": "2026-06-30T12:10:58.385Z"
+  },
+  {
+    "id": 538,
+    "questionId": 140,
+    "answerLabel": "B",
+    "answerText": "Odważnik, ponieważ jest bardziej zbity i gęsty.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.388Z",
+    "updatedAt": "2026-06-30T12:10:58.388Z"
+  },
+  {
+    "id": 539,
+    "questionId": 140,
+    "answerLabel": "C",
+    "answerText": "Ziemia przyciąga je z dokładnie taką samą siłą, bo liczy się tylko masa.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.391Z",
+    "updatedAt": "2026-06-30T12:10:58.391Z"
+  },
+  {
+    "id": 540,
+    "questionId": 140,
+    "answerLabel": "D",
+    "answerText": "Ziemia nie przyciąga ich wcale, dopóki się nie poruszą.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.393Z",
+    "updatedAt": "2026-06-30T12:10:58.393Z"
+  },
+  {
+    "id": 541,
+    "questionId": 141,
+    "answerLabel": "A",
+    "answerText": "Jego masa i ciężar się nie zmienią.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.398Z",
+    "updatedAt": "2026-06-30T12:10:58.398Z"
+  },
+  {
+    "id": 542,
+    "questionId": 141,
+    "answerLabel": "B",
+    "answerText": "Jego masa zmaleje, a ciężar wzrośnie.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.401Z",
+    "updatedAt": "2026-06-30T12:10:58.401Z"
+  },
+  {
+    "id": 543,
+    "questionId": 141,
+    "answerLabel": "C",
+    "answerText": "Jego masa wzrośnie, ale ciężar spadnie do zera.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.403Z",
+    "updatedAt": "2026-06-30T12:10:58.403Z"
+  },
+  {
+    "id": 544,
+    "questionId": 141,
+    "answerLabel": "D",
+    "answerText": "Jego masa się nie zmieni, ale jego ciężar będzie znacznie mniejszy.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.405Z",
+    "updatedAt": "2026-06-30T12:10:58.405Z"
+  },
+  {
+    "id": 545,
+    "questionId": 142,
+    "answerLabel": "A",
+    "answerText": "Podzielić przez 1000 (wynik: 1,3 kg)",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.412Z",
+    "updatedAt": "2026-06-30T12:10:58.412Z"
+  },
+  {
+    "id": 546,
+    "questionId": 142,
+    "answerLabel": "B",
+    "answerText": "Pomnożyć przez 1000 (wynik: 1300000 kg)",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.414Z",
+    "updatedAt": "2026-06-30T12:10:58.414Z"
+  },
+  {
+    "id": 547,
+    "questionId": 142,
+    "answerLabel": "C",
+    "answerText": "Podzielić przez 100 (wynik: 13 kg)",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.416Z",
+    "updatedAt": "2026-06-30T12:10:58.416Z"
+  },
+  {
+    "id": 548,
+    "questionId": 142,
+    "answerLabel": "D",
+    "answerText": "Pomnożyć przez 10 (wynik: 13000 kg)",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.418Z",
+    "updatedAt": "2026-06-30T12:10:58.418Z"
+  },
+  {
+    "id": 549,
+    "questionId": 143,
+    "answerLabel": "A",
+    "answerText": "40 kg",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.424Z",
+    "updatedAt": "2026-06-30T12:10:58.424Z"
+  },
+  {
+    "id": 550,
+    "questionId": 143,
+    "answerLabel": "B",
+    "answerText": "400 kg",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.426Z",
+    "updatedAt": "2026-06-30T12:10:58.426Z"
+  },
+  {
+    "id": 551,
+    "questionId": 143,
+    "answerLabel": "C",
+    "answerText": "4000 kg",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.428Z",
+    "updatedAt": "2026-06-30T12:10:58.428Z"
+  },
+  {
+    "id": 552,
+    "questionId": 143,
+    "answerLabel": "D",
+    "answerText": "40000 kg",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.431Z",
+    "updatedAt": "2026-06-30T12:10:58.431Z"
+  },
+  {
+    "id": 553,
+    "questionId": 144,
+    "answerLabel": "A",
+    "answerText": "m = F × g",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.436Z",
+    "updatedAt": "2026-06-30T12:10:58.436Z"
+  },
+  {
+    "id": 554,
+    "questionId": 144,
+    "answerLabel": "B",
+    "answerText": "m = F : g",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.439Z",
+    "updatedAt": "2026-06-30T12:10:58.439Z"
+  },
+  {
+    "id": 555,
+    "questionId": 144,
+    "answerLabel": "C",
+    "answerText": "m = g : F",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.441Z",
+    "updatedAt": "2026-06-30T12:10:58.441Z"
+  },
+  {
+    "id": 556,
+    "questionId": 144,
+    "answerLabel": "D",
+    "answerText": "m = F + g",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.449Z",
+    "updatedAt": "2026-06-30T12:10:58.449Z"
+  },
+  {
+    "id": 557,
+    "questionId": 145,
+    "answerLabel": "A",
+    "answerText": "25 kg",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.454Z",
+    "updatedAt": "2026-06-30T12:10:58.454Z"
+  },
+  {
+    "id": 558,
+    "questionId": 145,
+    "answerLabel": "B",
+    "answerText": "250 kg",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.457Z",
+    "updatedAt": "2026-06-30T12:10:58.457Z"
+  },
+  {
+    "id": 559,
+    "questionId": 145,
+    "answerLabel": "C",
+    "answerText": "2500 kg",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.460Z",
+    "updatedAt": "2026-06-30T12:10:58.460Z"
+  },
+  {
+    "id": 560,
+    "questionId": 145,
+    "answerLabel": "D",
+    "answerText": "25000 kg",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.462Z",
+    "updatedAt": "2026-06-30T12:10:58.462Z"
+  },
+  {
+    "id": 561,
+    "questionId": 146,
+    "answerLabel": "A",
+    "answerText": "Mają różną masę, ale taką samą objętość",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.511Z",
+    "updatedAt": "2026-06-30T12:10:58.511Z"
+  },
+  {
+    "id": 562,
+    "questionId": 146,
+    "answerLabel": "B",
+    "answerText": "Mają taką samą masę, ale różną objętość",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.514Z",
+    "updatedAt": "2026-06-30T12:10:58.514Z"
+  },
+  {
+    "id": 563,
+    "questionId": 146,
+    "answerLabel": "C",
+    "answerText": "Szary odważnik ma mniejszą gęstość niż klocki",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.516Z",
+    "updatedAt": "2026-06-30T12:10:58.516Z"
+  },
+  {
+    "id": 564,
+    "questionId": 146,
+    "answerLabel": "D",
+    "answerText": "Kolorowe klocki mają większą masę niż odważnik",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.519Z",
+    "updatedAt": "2026-06-30T12:10:58.519Z"
+  },
+  {
+    "id": 565,
+    "questionId": 147,
+    "answerLabel": "A",
+    "answerText": "d = m * V",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.525Z",
+    "updatedAt": "2026-06-30T12:10:58.525Z"
+  },
+  {
+    "id": 566,
+    "questionId": 147,
+    "answerLabel": "B",
+    "answerText": "d = V / m",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.527Z",
+    "updatedAt": "2026-06-30T12:10:58.527Z"
+  },
+  {
+    "id": 567,
+    "questionId": 147,
+    "answerLabel": "C",
+    "answerText": "d = m / V",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.529Z",
+    "updatedAt": "2026-06-30T12:10:58.529Z"
+  },
+  {
+    "id": 568,
+    "questionId": 147,
+    "answerLabel": "D",
+    "answerText": "m = d / V",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.533Z",
+    "updatedAt": "2026-06-30T12:10:58.533Z"
+  },
+  {
+    "id": 569,
+    "questionId": 148,
+    "answerLabel": "A",
+    "answerText": "Ten o najmniejszej gęstości będzie miał największą masę",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.538Z",
+    "updatedAt": "2026-06-30T12:10:58.538Z"
+  },
+  {
+    "id": 570,
+    "questionId": 148,
+    "answerLabel": "B",
+    "answerText": "Ten o największej objętości będzie najcięższy",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.540Z",
+    "updatedAt": "2026-06-30T12:10:58.540Z"
+  },
+  {
+    "id": 571,
+    "questionId": 148,
+    "answerLabel": "C",
+    "answerText": "Ten zbudowany z największej liczby elementów będzie najlżejszy",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.543Z",
+    "updatedAt": "2026-06-30T12:10:58.543Z"
+  },
+  {
+    "id": 572,
+    "questionId": 148,
+    "answerLabel": "D",
+    "answerText": "Ten o największej gęstości zawsze będzie miał największą masę",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.545Z",
+    "updatedAt": "2026-06-30T12:10:58.545Z"
+  },
+  {
+    "id": 573,
+    "questionId": 149,
+    "answerLabel": "A",
+    "answerText": "Ponieważ miedź ma mniejszą gęstość niż aluminium",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.550Z",
+    "updatedAt": "2026-06-30T12:10:58.550Z"
+  },
+  {
+    "id": 574,
+    "questionId": 149,
+    "answerLabel": "B",
+    "answerText": "Ponieważ miedź ma większą gęstość niż aluminium",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.553Z",
+    "updatedAt": "2026-06-30T12:10:58.553Z"
+  },
+  {
+    "id": 575,
+    "questionId": 149,
+    "answerLabel": "C",
+    "answerText": "Ponieważ miedź zajmuje więcej miejsca",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.555Z",
+    "updatedAt": "2026-06-30T12:10:58.555Z"
+  },
+  {
+    "id": 576,
+    "questionId": 149,
+    "answerLabel": "D",
+    "answerText": "Ponieważ aluminium jest \"ciaśniej upakowane\"",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.558Z",
+    "updatedAt": "2026-06-30T12:10:58.558Z"
+  },
+  {
+    "id": 577,
+    "questionId": 150,
+    "answerLabel": "A",
+    "answerText": "Mnożymy wartość przez tysiąc",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.562Z",
+    "updatedAt": "2026-06-30T12:10:58.562Z"
+  },
+  {
+    "id": 578,
+    "questionId": 150,
+    "answerLabel": "B",
+    "answerText": "Dzielimy wartość przez tysiąc",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.565Z",
+    "updatedAt": "2026-06-30T12:10:58.565Z"
+  },
+  {
+    "id": 579,
+    "questionId": 150,
+    "answerLabel": "C",
+    "answerText": "Mnożymy wartość przez milion",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.568Z",
+    "updatedAt": "2026-06-30T12:10:58.568Z"
+  },
+  {
+    "id": 580,
+    "questionId": 150,
+    "answerLabel": "D",
+    "answerText": "Dzielimy wartość przez milion",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.570Z",
+    "updatedAt": "2026-06-30T12:10:58.570Z"
+  },
+  {
+    "id": 581,
+    "questionId": 151,
+    "answerLabel": "A",
+    "answerText": "1 metr sześcienny",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.576Z",
+    "updatedAt": "2026-06-30T12:10:58.576Z"
+  },
+  {
+    "id": 582,
+    "questionId": 151,
+    "answerLabel": "B",
+    "answerText": "1 centymetr sześcienny",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.578Z",
+    "updatedAt": "2026-06-30T12:10:58.578Z"
+  },
+  {
+    "id": 583,
+    "questionId": 151,
+    "answerLabel": "C",
+    "answerText": "1 litr",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.581Z",
+    "updatedAt": "2026-06-30T12:10:58.581Z"
+  },
+  {
+    "id": 584,
+    "questionId": 151,
+    "answerLabel": "D",
+    "answerText": "1000 litrów",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.583Z",
+    "updatedAt": "2026-06-30T12:10:58.583Z"
+  },
+  {
+    "id": 585,
+    "questionId": 152,
+    "answerLabel": "A",
+    "answerText": "Należy podzielić wynik przez 100",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.589Z",
+    "updatedAt": "2026-06-30T12:10:58.589Z"
+  },
+  {
+    "id": 586,
+    "questionId": 152,
+    "answerLabel": "B",
+    "answerText": "Należy pomnożyć wynik przez 100",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.592Z",
+    "updatedAt": "2026-06-30T12:10:58.592Z"
+  },
+  {
+    "id": 587,
+    "questionId": 152,
+    "answerLabel": "C",
+    "answerText": "Należy podzielić wynik przez 1000",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.594Z",
+    "updatedAt": "2026-06-30T12:10:58.594Z"
+  },
+  {
+    "id": 588,
+    "questionId": 152,
+    "answerLabel": "D",
+    "answerText": "Należy pomnożyć wynik przez 1000",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.596Z",
+    "updatedAt": "2026-06-30T12:10:58.596Z"
+  },
+  {
+    "id": 589,
+    "questionId": 153,
+    "answerLabel": "A",
+    "answerText": "Mierząc linijką jego najdłuższe boki",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.602Z",
+    "updatedAt": "2026-06-30T12:10:58.602Z"
+  },
+  {
+    "id": 590,
+    "questionId": 153,
+    "answerLabel": "B",
+    "answerText": "Używając metody wypierania cieczy (np. w menzurce)",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.604Z",
+    "updatedAt": "2026-06-30T12:10:58.604Z"
+  },
+  {
+    "id": 591,
+    "questionId": 153,
+    "answerLabel": "C",
+    "answerText": "Ważąc go na wadze i mnożąc wynik przez 1000",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.606Z",
+    "updatedAt": "2026-06-30T12:10:58.606Z"
+  },
+  {
+    "id": 592,
+    "questionId": 153,
+    "answerLabel": "D",
+    "answerText": "Obliczając objętość naczynia, w którym się znajduje",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.609Z",
+    "updatedAt": "2026-06-30T12:10:58.609Z"
+  },
+  {
+    "id": 593,
+    "questionId": 154,
+    "answerLabel": "A",
+    "answerText": "Dodając do siebie długość, szerokość i wysokość",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.615Z",
+    "updatedAt": "2026-06-30T12:10:58.615Z"
+  },
+  {
+    "id": 594,
+    "questionId": 154,
+    "answerLabel": "B",
+    "answerText": "Mnożąc przez siebie długość, szerokość i wysokość",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.619Z",
+    "updatedAt": "2026-06-30T12:10:58.619Z"
+  },
+  {
+    "id": 595,
+    "questionId": 154,
+    "answerLabel": "C",
+    "answerText": "Dzieląc długość przez szerokość",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.623Z",
+    "updatedAt": "2026-06-30T12:10:58.623Z"
+  },
+  {
+    "id": 596,
+    "questionId": 154,
+    "answerLabel": "D",
+    "answerText": "Mnożąc długość przez szerokość i dodając wysokość",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.625Z",
+    "updatedAt": "2026-06-30T12:10:58.625Z"
+  },
+  {
+    "id": 597,
+    "questionId": 155,
+    "answerLabel": "A",
+    "answerText": "Ponieważ waga użyta w eksperymencie była zepsuta",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.630Z",
+    "updatedAt": "2026-06-30T12:10:58.630Z"
+  },
+  {
+    "id": 598,
+    "questionId": 155,
+    "answerLabel": "B",
+    "answerText": "Ponieważ źle odczytano objętość szklanki",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.633Z",
+    "updatedAt": "2026-06-30T12:10:58.633Z"
+  },
+  {
+    "id": 599,
+    "questionId": 155,
+    "answerLabel": "C",
+    "answerText": "Ponieważ woda wyparła część cukru z naczynia",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.635Z",
+    "updatedAt": "2026-06-30T12:10:58.635Z"
+  },
+  {
+    "id": 600,
+    "questionId": 155,
+    "answerLabel": "D",
+    "answerText": "Ponieważ obliczono gęstość nasypową, uwzględniającą puste, wypełnione powietrzem przestrzenie między kryształkami",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.637Z",
+    "updatedAt": "2026-06-30T12:10:58.637Z"
+  },
+  {
+    "id": 601,
+    "questionId": 156,
+    "answerLabel": "A",
+    "answerText": "Pod kątem ostrym",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.703Z",
+    "updatedAt": "2026-06-30T12:10:58.703Z"
+  },
+  {
+    "id": 602,
+    "questionId": 156,
+    "answerLabel": "B",
+    "answerText": "Równolegle do powierzchni",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.705Z",
+    "updatedAt": "2026-06-30T12:10:58.705Z"
+  },
+  {
+    "id": 603,
+    "questionId": 156,
+    "answerLabel": "C",
+    "answerText": "Pod kątem prostym (prostopadle, 90 stopni)",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.707Z",
+    "updatedAt": "2026-06-30T12:10:58.707Z"
+  },
+  {
+    "id": 604,
+    "questionId": 157,
+    "answerLabel": "A",
+    "answerText": "Ponieważ klocek w niewytłumaczalny sposób zwiększa naszą siłę grawitacji.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.713Z",
+    "updatedAt": "2026-06-30T12:10:58.713Z"
+  },
+  {
+    "id": 605,
+    "questionId": 157,
+    "answerLabel": "B",
+    "answerText": "Ponieważ nasza siła dzieli się przez bardzo małą powierzchnię, co generuje ogromne ciśnienie.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.716Z",
+    "updatedAt": "2026-06-30T12:10:58.716Z"
+  },
+  {
+    "id": 606,
+    "questionId": 157,
+    "answerLabel": "C",
+    "answerText": "Ponieważ duża płytka zmniejsza naszą masę, gdy na niej stoimy.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.719Z",
+    "updatedAt": "2026-06-30T12:10:58.719Z"
+  },
+  {
+    "id": 607,
+    "questionId": 158,
+    "answerLabel": "A",
+    "answerText": "Oznacza to, że narzędzie ma zminimalizowaną, bardzo małą powierzchnię styku.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.725Z",
+    "updatedAt": "2026-06-30T12:10:58.725Z"
+  },
+  {
+    "id": 608,
+    "questionId": 158,
+    "answerLabel": "B",
+    "answerText": "Oznacza to, że narzędzie potrafi wygenerować z siebie dodatkową siłę nacisku.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.728Z",
+    "updatedAt": "2026-06-30T12:10:58.728Z"
+  },
+  {
+    "id": 609,
+    "questionId": 158,
+    "answerLabel": "C",
+    "answerText": "Oznacza to, że działa ono z siłą równoległą do podłoża.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.734Z",
+    "updatedAt": "2026-06-30T12:10:58.734Z"
+  },
+  {
+    "id": 610,
+    "questionId": 159,
+    "answerLabel": "A",
+    "answerText": "Sto (100)",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.740Z",
+    "updatedAt": "2026-06-30T12:10:58.740Z"
+  },
+  {
+    "id": 611,
+    "questionId": 159,
+    "answerLabel": "B",
+    "answerText": "Tysiąc (1 000)",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.744Z",
+    "updatedAt": "2026-06-30T12:10:58.744Z"
+  },
+  {
+    "id": 612,
+    "questionId": 159,
+    "answerLabel": "C",
+    "answerText": "Milion (1 000 000)",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.747Z",
+    "updatedAt": "2026-06-30T12:10:58.747Z"
+  },
+  {
+    "id": 613,
+    "questionId": 160,
+    "answerLabel": "A",
+    "answerText": "Należy podzielić liczbę przez 100 (przesunąć przecinek o 2 miejsca w lewo).",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.752Z",
+    "updatedAt": "2026-06-30T12:10:58.752Z"
+  },
+  {
+    "id": 614,
+    "questionId": 160,
+    "answerLabel": "B",
+    "answerText": "Należy pomnożyć liczbę przez 1 000 (dodać 3 zera z prawej strony).",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.755Z",
+    "updatedAt": "2026-06-30T12:10:58.755Z"
+  },
+  {
+    "id": 615,
+    "questionId": 160,
+    "answerLabel": "C",
+    "answerText": "Należy podzielić liczbę przez 10 000 (przesunąć przecinek o 4 miejsca w lewo).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.758Z",
+    "updatedAt": "2026-06-30T12:10:58.758Z"
+  },
+  {
+    "id": 616,
+    "questionId": 161,
+    "answerLabel": "A",
+    "answerText": "Parcie",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.800Z",
+    "updatedAt": "2026-06-30T12:10:58.800Z"
+  },
+  {
+    "id": 617,
+    "questionId": 161,
+    "answerLabel": "B",
+    "answerText": "Grawitacja",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.805Z",
+    "updatedAt": "2026-06-30T12:10:58.805Z"
+  },
+  {
+    "id": 618,
+    "questionId": 161,
+    "answerLabel": "C",
+    "answerText": "Wypór",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.808Z",
+    "updatedAt": "2026-06-30T12:10:58.808Z"
+  },
+  {
+    "id": 619,
+    "questionId": 162,
+    "answerLabel": "A",
+    "answerText": "Od kształtu naczynia i szerokości dna",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.814Z",
+    "updatedAt": "2026-06-30T12:10:58.814Z"
+  },
+  {
+    "id": 620,
+    "questionId": 162,
+    "answerLabel": "B",
+    "answerText": "Od objętości i całkowitej masy płynu w zbiorniku",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.817Z",
+    "updatedAt": "2026-06-30T12:10:58.817Z"
+  },
+  {
+    "id": 621,
+    "questionId": 162,
+    "answerLabel": "C",
+    "answerText": "Od gęstości cieczy, grawitacji i głębokości (wysokości słupa wody)",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.820Z",
+    "updatedAt": "2026-06-30T12:10:58.820Z"
+  },
+  {
+    "id": 622,
+    "questionId": 163,
+    "answerLabel": "A",
+    "answerText": "Ciśnienie na dnie jest największe w najszerszym akwarium, bo znajduje się tam najwięcej wody.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.825Z",
+    "updatedAt": "2026-06-30T12:10:58.825Z"
+  },
+  {
+    "id": 623,
+    "questionId": 163,
+    "answerLabel": "B",
+    "answerText": "Szerokość i kształt naczynia nie mają znaczenia - przy tej samej głębokości ciśnienie na dnie każdego z nich jest identyczne.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.827Z",
+    "updatedAt": "2026-06-30T12:10:58.827Z"
+  },
+  {
+    "id": 624,
+    "questionId": 163,
+    "answerLabel": "C",
+    "answerText": "Woda wywiera największe ciśnienie wyłącznie w naczyniach zwężających się ku górze.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.830Z",
+    "updatedAt": "2026-06-30T12:10:58.830Z"
+  },
+  {
+    "id": 625,
+    "questionId": 164,
+    "answerLabel": "A",
+    "answerText": "Ponieważ rtęć ma znacznie większą gęstość w porównaniu do lekkiej wody.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.836Z",
+    "updatedAt": "2026-06-30T12:10:58.836Z"
+  },
+  {
+    "id": 626,
+    "questionId": 164,
+    "answerLabel": "B",
+    "answerText": "Ponieważ na rtęć działa silniejsza grawitacja ziemska.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.838Z",
+    "updatedAt": "2026-06-30T12:10:58.838Z"
+  },
+  {
+    "id": 627,
+    "questionId": 164,
+    "answerLabel": "C",
+    "answerText": "Ponieważ cząsteczki rtęci są mniejsze i ciaśniej ułożone na dnie.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.841Z",
+    "updatedAt": "2026-06-30T12:10:58.841Z"
+  },
+  {
+    "id": 628,
+    "questionId": 165,
+    "answerLabel": "A",
+    "answerText": "Ciśnienie rośnie, bo powietrze wysoko w górach jest bardziej upakowane.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.846Z",
+    "updatedAt": "2026-06-30T12:10:58.846Z"
+  },
+  {
+    "id": 629,
+    "questionId": 165,
+    "answerLabel": "B",
+    "answerText": "Ciśnienie pozostaje bez zmian, wszędzie na Ziemi jest dokładnie takie samo.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.848Z",
+    "updatedAt": "2026-06-30T12:10:58.848Z"
+  },
+  {
+    "id": 630,
+    "questionId": 165,
+    "answerLabel": "C",
+    "answerText": "Ciśnienie maleje (im wyżej, tym niższe ciśnienie), ponieważ słup powietrza nad naszymi głowami jest po prostu krótszy.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.852Z",
+    "updatedAt": "2026-06-30T12:10:58.852Z"
+  },
+  {
+    "id": 631,
+    "questionId": 166,
+    "answerLabel": "A",
+    "answerText": "Winda osobowa",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.901Z",
+    "updatedAt": "2026-06-30T12:10:58.901Z"
+  },
+  {
+    "id": 632,
+    "questionId": 166,
+    "answerLabel": "B",
+    "answerText": "Prasa hydrauliczna",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.904Z",
+    "updatedAt": "2026-06-30T12:10:58.904Z"
+  },
+  {
+    "id": 633,
+    "questionId": 166,
+    "answerLabel": "C",
+    "answerText": "Turbina wodna",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.907Z",
+    "updatedAt": "2026-06-30T12:10:58.907Z"
+  },
+  {
+    "id": 634,
+    "questionId": 167,
+    "answerLabel": "A",
+    "answerText": "Ciśnienie rośnie dokładnie tak samo w całej objętości cieczy.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.915Z",
+    "updatedAt": "2026-06-30T12:10:58.915Z"
+  },
+  {
+    "id": 635,
+    "questionId": 167,
+    "answerLabel": "B",
+    "answerText": "Ciśnienie maleje na samym dnie urządzenia.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.918Z",
+    "updatedAt": "2026-06-30T12:10:58.918Z"
+  },
+  {
+    "id": 636,
+    "questionId": 167,
+    "answerLabel": "C",
+    "answerText": "Ciśnienie rośnie tylko w miejscu, gdzie znajduje się mały tłok.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.921Z",
+    "updatedAt": "2026-06-30T12:10:58.921Z"
+  },
+  {
+    "id": 637,
+    "questionId": 168,
+    "answerLabel": "A",
+    "answerText": "Ciśnienie pod małym tłokiem jest dużo większe (p1 jest większe).",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.926Z",
+    "updatedAt": "2026-06-30T12:10:58.926Z"
+  },
+  {
+    "id": 638,
+    "questionId": 168,
+    "answerLabel": "B",
+    "answerText": "Ciśnienie pod dużym tłokiem jest dużo większe (p2 jest większe).",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.929Z",
+    "updatedAt": "2026-06-30T12:10:58.929Z"
+  },
+  {
+    "id": 639,
+    "questionId": 168,
+    "answerLabel": "C",
+    "answerText": "Ciśnienie po obu stronach jest po prostu identyczne (p1 równa się p2).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.933Z",
+    "updatedAt": "2026-06-30T12:10:58.933Z"
+  },
+  {
+    "id": 640,
+    "questionId": 169,
+    "answerLabel": "A",
+    "answerText": "Mniejsza powierzchnia potrzebuje mniejszej siły.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.941Z",
+    "updatedAt": "2026-06-30T12:10:58.941Z"
+  },
+  {
+    "id": 641,
+    "questionId": 169,
+    "answerLabel": "B",
+    "answerText": "Większa powierzchnia potrzebuje mniejszej siły.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.943Z",
+    "updatedAt": "2026-06-30T12:10:58.943Z"
+  },
+  {
+    "id": 642,
+    "questionId": 169,
+    "answerLabel": "C",
+    "answerText": "Wielkość powierzchni nie ma absolutnie żadnego znaczenia.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.946Z",
+    "updatedAt": "2026-06-30T12:10:58.946Z"
+  },
+  {
+    "id": 643,
+    "questionId": 170,
+    "answerLabel": "A",
+    "answerText": "Strzykawka, ciśnieniomierz i waga samochodowa.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.951Z",
+    "updatedAt": "2026-06-30T12:10:58.951Z"
+  },
+  {
+    "id": 644,
+    "questionId": 170,
+    "answerLabel": "B",
+    "answerText": "Hamulec hydrauliczny, podnośnik hydrauliczny i prasa hydrauliczna.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.954Z",
+    "updatedAt": "2026-06-30T12:10:58.954Z"
+  },
+  {
+    "id": 645,
+    "questionId": 170,
+    "answerLabel": "C",
+    "answerText": "Amortyzator rowerowy, silnik spalinowy i wycieraczki samochodowe.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.957Z",
+    "updatedAt": "2026-06-30T12:10:58.957Z"
+  },
+  {
+    "id": 646,
+    "questionId": 171,
+    "answerLabel": "A",
+    "answerText": "Arystoteles",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.982Z",
+    "updatedAt": "2026-06-30T12:10:58.982Z"
+  },
+  {
+    "id": 647,
+    "questionId": 171,
+    "answerLabel": "B",
+    "answerText": "Sokrates",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.985Z",
+    "updatedAt": "2026-06-30T12:10:58.985Z"
+  },
+  {
+    "id": 648,
+    "questionId": 171,
+    "answerLabel": "C",
+    "answerText": "Archimedes",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.989Z",
+    "updatedAt": "2026-06-30T12:10:58.989Z"
+  },
+  {
+    "id": 649,
+    "questionId": 172,
+    "answerLabel": "A",
+    "answerText": "Z mniejszą siłą.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.995Z",
+    "updatedAt": "2026-06-30T12:10:58.995Z"
+  },
+  {
+    "id": 650,
+    "questionId": 172,
+    "answerLabel": "B",
+    "answerText": "Z dokładnie taką samą siłą (4 niutony).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:58.998Z",
+    "updatedAt": "2026-06-30T12:10:58.998Z"
+  },
+  {
+    "id": 651,
+    "questionId": 172,
+    "answerLabel": "C",
+    "answerText": "Z dużo większą siłą.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.001Z",
+    "updatedAt": "2026-06-30T12:10:59.001Z"
+  },
+  {
+    "id": 652,
+    "questionId": 173,
+    "answerLabel": "A",
+    "answerText": "Objętość tylko tej części klocka, która faktycznie jest zanurzona w wodzie.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.007Z",
+    "updatedAt": "2026-06-30T12:10:59.007Z"
+  },
+  {
+    "id": 653,
+    "questionId": 173,
+    "answerLabel": "B",
+    "answerText": "Całkowitą objętość akwarium, w którym przeprowadzamy eksperyment.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.010Z",
+    "updatedAt": "2026-06-30T12:10:59.010Z"
+  },
+  {
+    "id": 654,
+    "questionId": 173,
+    "answerLabel": "C",
+    "answerText": "Prędkość, z jaką klocek uderza w powierzchnię wody.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.012Z",
+    "updatedAt": "2026-06-30T12:10:59.012Z"
+  },
+  {
+    "id": 655,
+    "questionId": 174,
+    "answerLabel": "A",
+    "answerText": "Słona woda wyłącza działanie grawitacji.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.018Z",
+    "updatedAt": "2026-06-30T12:10:59.018Z"
+  },
+  {
+    "id": 656,
+    "questionId": 174,
+    "answerLabel": "B",
+    "answerText": "Słona woda ma mniejszą gęstość, więc przedmioty stają się w niej lżejsze.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.021Z",
+    "updatedAt": "2026-06-30T12:10:59.021Z"
+  },
+  {
+    "id": 657,
+    "questionId": 174,
+    "answerLabel": "C",
+    "answerText": "Słona woda ma większą gęstość, a zasada mówi jasno: im większa gęstość, tym większa siła wyporu.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.024Z",
+    "updatedAt": "2026-06-30T12:10:59.024Z"
+  },
+  {
+    "id": 658,
+    "questionId": 175,
+    "answerLabel": "A",
+    "answerText": "Morze Martwe",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.029Z",
+    "updatedAt": "2026-06-30T12:10:59.029Z"
+  },
+  {
+    "id": 659,
+    "questionId": 175,
+    "answerLabel": "B",
+    "answerText": "Morze Bałtyckie",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.031Z",
+    "updatedAt": "2026-06-30T12:10:59.031Z"
+  },
+  {
+    "id": 660,
+    "questionId": 175,
+    "answerLabel": "C",
+    "answerText": "Morze Śródziemne",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.036Z",
+    "updatedAt": "2026-06-30T12:10:59.036Z"
+  },
+  {
+    "id": 661,
+    "questionId": 176,
+    "answerLabel": "A",
+    "answerText": "Ponieważ ma największą gęstość i jest \"najcięższym zawodnikiem\".",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.052Z",
+    "updatedAt": "2026-06-30T12:10:59.052Z"
+  },
+  {
+    "id": 662,
+    "questionId": 176,
+    "answerLabel": "B",
+    "answerText": "Ponieważ ma najmniejszą gęstość i jest \"najlżejszymi klockami\" w zestawie.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.055Z",
+    "updatedAt": "2026-06-30T12:10:59.055Z"
+  },
+  {
+    "id": 663,
+    "questionId": 176,
+    "answerLabel": "C",
+    "answerText": "Ponieważ jego cząsteczki są upakowane najciaśniej.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.057Z",
+    "updatedAt": "2026-06-30T12:10:59.057Z"
+  },
+  {
+    "id": 664,
+    "questionId": 176,
+    "answerLabel": "D",
+    "answerText": "Ponieważ działa na niego największa siła grawitacji.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.059Z",
+    "updatedAt": "2026-06-30T12:10:59.059Z"
+  },
+  {
+    "id": 665,
+    "questionId": 177,
+    "answerLabel": "A",
+    "answerText": "Działa na nią tylko i wyłącznie siła wyporu.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.065Z",
+    "updatedAt": "2026-06-30T12:10:59.065Z"
+  },
+  {
+    "id": 666,
+    "questionId": 177,
+    "answerLabel": "B",
+    "answerText": "Siła grawitacji jest znacznie większa od siły wyporu.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.068Z",
+    "updatedAt": "2026-06-30T12:10:59.068Z"
+  },
+  {
+    "id": 667,
+    "questionId": 177,
+    "answerLabel": "C",
+    "answerText": "Siła grawitacji (ciągnąca w dół) i siła wyporu (pchająca w górę) są sobie idealnie równe (remis).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.071Z",
+    "updatedAt": "2026-06-30T12:10:59.071Z"
+  },
+  {
+    "id": 668,
+    "questionId": 177,
+    "answerLabel": "D",
+    "answerText": "Woda nie stawia kłodzie żadnego oporu.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.074Z",
+    "updatedAt": "2026-06-30T12:10:59.074Z"
+  },
+  {
+    "id": 669,
+    "questionId": 178,
+    "answerLabel": "A",
+    "answerText": "Jego gęstość jest mniejsza niż gęstość wody.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.079Z",
+    "updatedAt": "2026-06-30T12:10:59.079Z"
+  },
+  {
+    "id": 670,
+    "questionId": 178,
+    "answerLabel": "B",
+    "answerText": "Siła wyporu pchająca w górę jest większa od siły grawitacji.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.082Z",
+    "updatedAt": "2026-06-30T12:10:59.082Z"
+  },
+  {
+    "id": 671,
+    "questionId": 178,
+    "answerLabel": "C",
+    "answerText": "Siła grawitacji ciągnąca w dół jest większa niż siła wyporu (Fg > Fb).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.085Z",
+    "updatedAt": "2026-06-30T12:10:59.085Z"
+  },
+  {
+    "id": 672,
+    "questionId": 178,
+    "answerLabel": "D",
+    "answerText": "Stalowe klocki są ułożone znacznie luźniej niż cząsteczki wody.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.088Z",
+    "updatedAt": "2026-06-30T12:10:59.088Z"
+  },
+  {
+    "id": 673,
+    "questionId": 179,
+    "answerLabel": "A",
+    "answerText": "Siła grawitacji musi być równa sile wyporu (Fg = Fw).",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.093Z",
+    "updatedAt": "2026-06-30T12:10:59.093Z"
+  },
+  {
+    "id": 674,
+    "questionId": 179,
+    "answerLabel": "B",
+    "answerText": "Ciało musi mieć gęstość znacznie większą od gęstości wody.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.096Z",
+    "updatedAt": "2026-06-30T12:10:59.096Z"
+  },
+  {
+    "id": 675,
+    "questionId": 179,
+    "answerLabel": "C",
+    "answerText": "Siła grawitacji musi całkowicie zniknąć.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.099Z",
+    "updatedAt": "2026-06-30T12:10:59.099Z"
+  },
+  {
+    "id": 676,
+    "questionId": 179,
+    "answerLabel": "D",
+    "answerText": "Ciało musi być zbudowane z najcięższych możliwych klocków.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.104Z",
+    "updatedAt": "2026-06-30T12:10:59.104Z"
+  },
+  {
+    "id": 677,
+    "questionId": 180,
+    "answerLabel": "A",
+    "answerText": "Gęstość głazu jest na pewno mniejsza niż 0,8.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.111Z",
+    "updatedAt": "2026-06-30T12:10:59.111Z"
+  },
+  {
+    "id": 678,
+    "questionId": 180,
+    "answerLabel": "B",
+    "answerText": "Gęstość głazu jest na pewno większa niż 1,5.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.113Z",
+    "updatedAt": "2026-06-30T12:10:59.113Z"
+  },
+  {
+    "id": 679,
+    "questionId": 180,
+    "answerLabel": "C",
+    "answerText": "Gęstość głazu wynosi dokładnie 0.",
+    "isCorrect": false,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.116Z",
+    "updatedAt": "2026-06-30T12:10:59.116Z"
+  },
+  {
+    "id": 680,
+    "questionId": 180,
+    "answerLabel": "D",
+    "answerText": "Gęstość głazu jest większa niż 0,8, ale mniejsza niż 1,5.",
+    "isCorrect": true,
+    "sortOrder": 0,
+    "createdAt": "2026-06-30T12:10:59.120Z",
+    "updatedAt": "2026-06-30T12:10:59.120Z"
+  }
+]

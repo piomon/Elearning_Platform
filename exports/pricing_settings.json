@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "priceGrosz": 3500,
+    "oldPriceGrosz": 19900,
+    "currency": "PLN",
+    "promoEnabled": true,
+    "promoLabel": "Promocja na start",
+    "promoStartsAt": null,
+    "promoEndsAt": null,
+    "ctaText": "Kup dostęp i zacznij naukę",
+    "updatedAt": "2026-06-16T10:48:37.495Z"
+  }
+]

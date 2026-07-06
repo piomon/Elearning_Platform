@@ -1,0 +1,38 @@
+{
+  "exportedAt": "2026-07-06T11:23:03.519Z",
+  "source": "replit-database",
+  "counts": {
+    "courses": 1,
+    "sections": 3,
+    "topics": 21,
+    "videos": 46,
+    "lesson_images": 34,
+    "quizzes": 14,
+    "quiz_questions": 90,
+    "quiz_answers": 340,
+    "tasks": 21,
+    "landing_sections": 9,
+    "faq_items": 4,
+    "seo_settings": 1,
+    "ai_settings": 0,
+    "pricing_settings": 1,
+    "platform_settings": 0
+  },
+  "excludedTables": [
+    "users",
+    "payments",
+    "payment_refunds",
+    "access_grants",
+    "discount_codes",
+    "discount_code_uses",
+    "learning_progress",
+    "video_progress",
+    "quiz_attempts",
+    "quiz_attempt_answers",
+    "ai_checks",
+    "contact_submissions"
+  ],
+  "videosWithBunnyRef": 46,
+  "videosTotal": 46,
+  "note": "Eksport zawiera WYŁĄCZNIE treść e-learningu (kursy/działy/lekcje/materiały/quizy/zadania/ustawienia). NIE zawiera kont, płatności, dostępów, postępów ani sekretów. Można commitować do GitHuba."
+}

@@ -43,6 +43,21 @@ dev workflow and the deployment inject these, a plain shell does not.
 `mockup-sandbox` is the Canvas dev tool (not a product artifact) — its build
 failing in CI-style runs is expected/irrelevant.
 
+# Root-alias arg forwarding: no `--` separator
+Root package.json aliases like `import:content` = `pnpm --filter @workspace/scripts
+run import:content`. To pass flags, run `pnpm import:content --dry-run` (pnpm
+forwards trailing flags). Do NOT write `pnpm import:content -- --dry-run`: the `--`
+is passed through literally to the underlying `tsx script.ts -- --dry-run`, and a
+strict arg parser then rejects `--`.
+**How to apply:** document/CLI-invoke these aliases WITHOUT `--`. Multi-flag works
+too (`pnpm import:content --mode=replace-demo-content --dry-run`).
+
+# psql command-substitution captures the status tag
+`ID=$(psql "$DB" -tA -c "insert ... returning id;")` captures BOTH the id AND the
+`INSERT 0 1` status line, so `$ID` becomes multi-word and breaks the next query.
+**How to apply:** add `-q` (quiet) — `psql -tAqX` — when capturing a RETURNING
+value into a shell variable.
+
 # Testing the Paynow webhook signature path
 The webhook only runs HMAC verification when `isPaynowConfigured()` (both
 `PAYNOW_API_KEY` + `PAYNOW_SIGNATURE_KEY` set); default test env is unset → mock
