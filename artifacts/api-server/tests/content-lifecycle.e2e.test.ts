@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect } from "vitest";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -31,14 +31,16 @@ async function count(table: string): Promise<number> {
 // Pełny cykl życia danych treści na żywej bazie testowej:
 //   import (repo) -> eksport (temp) -> ponowny import (temp, idempotencja)
 //   -> migracje treści (temp, dziennik) -> walidacja.
-// To gwarancja, że treść e-learningu przetrwa wdrożenie i jest spójna.
-describe("Cykl życia treści E2E: import → eksport → content:migrate → verify", () => {
-  const tmpExport = mkdtempSync(path.join(os.tmpdir(), "elearning-export-"));
-  const tmpMigrations = mkdtempSync(path.join(os.tmpdir(), "content-migrations-"));
+//
+// UWAGA: cały scenariusz jest JEDNYM testem, bo globalny beforeEach (setup.ts)
+// czyści tabele treści przed KAŻDYM `it` — rozbicie na wiele `it` zerowałoby
+// stan między krokami.
+describe("Cykl życia treści E2E", () => {
+  it("import → eksport → ponowny import → content:migrate → verify", async () => {
+    const tmpExport = mkdtempSync(path.join(os.tmpdir(), "elearning-export-"));
+    const tmpMigrations = mkdtempSync(path.join(os.tmpdir(), "content-migrations-"));
 
-  beforeAll(async () => {
-    // Dziennik migracji treści nie jest czyszczony przez per-test TRUNCATE —
-    // czyścimy go tu jawnie, by test był deterministyczny niezależnie od kolejności.
+    // Dziennik migracji treści nie jest czyszczony przez per-test TRUNCATE.
     await pool.query("DELETE FROM content_migrations");
 
     // Tymczasowa migracja treści (read-only) — dowodzi mechanizmu dziennika.
@@ -53,59 +55,49 @@ describe("Cykl życia treści E2E: import → eksport → content:migrate → ve
         "",
       ].join("\n"),
     );
-  });
 
-  it("importuje treść z repo i wypełnia rdzeń bazy", () => {
+    // 1) Import treści z repo (scripts/data/export) — wypełnia rdzeń bazy.
     runScript("import:elearning", ["--mode=merge"]);
-  }, 60000);
-
-  it("rdzeń treści nie jest pusty po imporcie", async () => {
     expect(await count("courses")).toBeGreaterThan(0);
     expect(await count("sections")).toBeGreaterThan(0);
     expect(await count("topics")).toBeGreaterThan(0);
     expect(await count("tasks")).toBeGreaterThan(0);
     expect(await count("videos")).toBeGreaterThan(0);
-  });
 
-  it("eksportuje do katalogu tymczasowego (pliki JSON powstają)", () => {
+    // 2) Eksport do katalogu tymczasowego — pliki JSON powstają i nie są puste.
     runScript("export:elearning", [], { EXPORT_DIR: tmpExport });
     const combined = path.join(tmpExport, "full-elearning-export.json");
     expect(existsSync(combined)).toBe(true);
     const parsed = JSON.parse(readFileSync(combined, "utf8"));
     expect(Array.isArray(parsed.courses)).toBe(true);
     expect(parsed.courses.length).toBeGreaterThan(0);
-  }, 60000);
 
-  it("ponowny import z eksportu jest idempotentny (bez duplikatów)", async () => {
-    const before = await count("courses");
+    // 3) Ponowny import z eksportu — idempotentny (bez duplikatów kursów).
+    const beforeCourses = await count("courses");
     runScript("import:elearning", ["--mode=merge"], { EXPORT_DIR: tmpExport });
-    const after = await count("courses");
-    expect(after).toBe(before);
-  }, 60000);
+    expect(await count("courses")).toBe(beforeCourses);
 
-  it("content:migrate stosuje migrację i zapisuje ją w dzienniku", async () => {
+    // 4) content:migrate — stosuje migrację i zapisuje ją w dzienniku.
     runScript("content:migrate", [], { CONTENT_MIGRATIONS_DIR: tmpMigrations });
-    const { rows } = await pool.query(
+    const applied = await pool.query(
       "select name, status, details_json from content_migrations where name = $1",
       ["e2e-0001-count-courses"],
     );
-    expect(rows.length).toBe(1);
-    expect(rows[0].status).toBe("applied");
-    expect(rows[0].details_json?.courses).toBeGreaterThan(0);
-  }, 60000);
+    expect(applied.rows.length).toBe(1);
+    expect(applied.rows[0].status).toBe("applied");
+    expect(applied.rows[0].details_json?.courses).toBeGreaterThan(0);
 
-  it("ponowne content:migrate pomija już zastosowaną migrację", async () => {
-    const out = runScript("content:migrate", [], { CONTENT_MIGRATIONS_DIR: tmpMigrations });
-    expect(out).toMatch(/pominięta|pominięto/);
-    const { rows } = await pool.query(
+    // 5) Ponowne content:migrate — migracja jest pomijana (dokładnie raz).
+    const rerun = runScript("content:migrate", [], { CONTENT_MIGRATIONS_DIR: tmpMigrations });
+    expect(rerun).toMatch(/pominięta|pominięto/);
+    const still = await pool.query(
       "select count(*)::int as n from content_migrations where name = $1",
       ["e2e-0001-count-courses"],
     );
-    expect(rows[0].n).toBe(1);
-  }, 60000);
+    expect(still.rows[0].n).toBe(1);
 
-  it("verify:content przechodzi na kompletnej bazie (kod wyjścia 0)", () => {
-    const out = runScript("verify:content", [], { BUNNY_LIBRARY_ID: "test-library" });
-    expect(out).toMatch(/WYNIK: OK/);
-  }, 60000);
+    // 6) verify:content — przechodzi na kompletnej bazie (kod wyjścia 0).
+    const verifyOut = runScript("verify:content", [], { BUNNY_LIBRARY_ID: "test-library" });
+    expect(verifyOut).toMatch(/WYNIK: OK/);
+  }, 180000);
 });
