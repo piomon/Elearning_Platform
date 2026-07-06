@@ -69,6 +69,14 @@ if [ "${POSTGRES_PASSWORD:-}" = "zmien_to_na_silne_haslo" ]; then
 fi
 [ "$missing" -eq 0 ] || { echo "Uzupełnij .env i uruchom ponownie." >&2; exit 1; }
 
+# Bunny Stream jest opcjonalne przy starcie, ale bez BUNNY_LIBRARY_ID serwer nie
+# zbuduje adresu odtwarzacza i filmy pokażą się jako „chwilowo niedostępne".
+# To najczęstsza przyczyna, gdy filmy działają lokalnie, a na VPS nie.
+if [ -z "${BUNNY_LIBRARY_ID:-}" ]; then
+  echo "UWAGA: brak BUNNY_LIBRARY_ID w .env — filmy z Bunny nie będą się odtwarzać." >&2
+  echo "       Uzupełnij BUNNY_LIBRARY_ID (i BUNNY_CDN_HOSTNAME) w .env, aby włączyć wideo." >&2
+fi
+
 # --- 2) Najnowszy kod ------------------------------------------------------
 if [ -d .git ] && command -v git >/dev/null 2>&1; then
   echo "==> Pobieram najnowsze zmiany z gita..."

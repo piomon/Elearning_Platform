@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type ComponentProps } from "react";
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from "react";
 import "@excalidraw/excalidraw/index.css";
 import { Excalidraw, exportToBlob } from "@excalidraw/excalidraw";
 import type { Task } from "@workspace/api-client-react";
@@ -12,7 +12,8 @@ import {
   AlertCircle,
   RotateCcw,
   Monitor,
-  ImageIcon,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 type ExcalidrawAPI = Parameters<
@@ -63,9 +64,16 @@ function WhiteboardTask({ task }: { task: Task }) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isPreparing, setIsPreparing] = useState(false);
+  const [showTask, setShowTask] = useState(true);
   const checkMutation = useCheckTask();
   const busyRef = useRef(false);
   const isBusy = isPreparing || checkMutation.isPending;
+
+  // Domyślnie wybierz cienki pisak (odręczny), aby od razu można było pisać
+  // rozwiązanie bez szukania narzędzia i zmiany grubości linii.
+  useEffect(() => {
+    if (api) api.setActiveTool({ type: "freedraw" });
+  }, [api]);
 
   const handleClear = useCallback(() => {
     if (!api) return;
@@ -150,44 +158,14 @@ function WhiteboardTask({ task }: { task: Task }) {
 
   return (
     <article className="rounded-3xl border bg-card shadow-sm overflow-hidden">
-      <div className="p-5 sm:p-6 space-y-4">
-        <div className="space-y-1.5">
-          <h3 className="text-lg font-bold">{task.title}</h3>
-          {task.description && (
-            <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-              {task.description}
-            </p>
-          )}
-        </div>
-
-        {task.initialImageUrl && (
-          <figure className="rounded-2xl border overflow-hidden bg-muted/30">
-            <img
-              src={task.initialImageUrl}
-              alt={`Rysunek do zadania: ${task.title}`}
-              loading="lazy"
-              className="w-full h-auto"
-            />
-            <figcaption className="flex items-center gap-2 px-4 py-2 text-xs text-muted-foreground border-t">
-              <ImageIcon className="w-3.5 h-3.5" /> Rysunek do zadania
-            </figcaption>
-          </figure>
-        )}
-
-        <div className="flex sm:hidden items-start gap-2 rounded-2xl bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
-          <Monitor className="w-4 h-4 mt-0.5 shrink-0" />
-          <span>
-            Dla wygodnego rozwiązywania zadań najlepiej użyć tabletu lub komputera.
-          </span>
-        </div>
-      </div>
-
-      <div className="relative h-[460px] sm:h-[560px] w-full border-y">
+      <div className="relative h-[78vh] min-h-[520px] w-full">
         <Excalidraw
           excalidrawAPI={(instance) => setApi(instance)}
           langCode="pl-PL"
           theme="light"
-          initialData={{ appState: { viewBackgroundColor: "#ffffff" } }}
+          initialData={{
+            appState: { viewBackgroundColor: "#ffffff", currentItemStrokeWidth: 1 },
+          }}
           UIOptions={{
             canvasActions: {
               loadScene: false,
@@ -197,9 +175,56 @@ function WhiteboardTask({ task }: { task: Task }) {
             },
           }}
         />
+
+        {/* Treść zadania przypięta bezpośrednio na tablicy — nie znika podczas
+            rysowania. Można ją zwinąć, aby odzyskać miejsce do pisania. */}
+        <div className="pointer-events-none absolute right-3 top-16 z-10 w-[min(320px,calc(100%-1.5rem))]">
+          <div className="pointer-events-auto overflow-hidden rounded-2xl border bg-card/95 shadow-lg backdrop-blur">
+            <button
+              type="button"
+              onClick={() => setShowTask((s) => !s)}
+              className="flex w-full items-center justify-between gap-2 px-4 py-2.5 text-left"
+              aria-expanded={showTask}
+            >
+              <span className="flex items-center gap-2 text-sm font-bold">
+                <PencilRuler className="h-4 w-4 text-sky-500" /> Zadanie
+              </span>
+              {showTask ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+            {showTask && (
+              <div className="max-h-[45vh] space-y-2 overflow-y-auto border-t px-4 py-3">
+                <p className="text-sm font-semibold">{task.title}</p>
+                {task.description && (
+                  <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                    {task.description}
+                  </p>
+                )}
+                {task.initialImageUrl && (
+                  <img
+                    src={task.initialImageUrl}
+                    alt={`Rysunek do zadania: ${task.title}`}
+                    loading="lazy"
+                    className="h-auto w-full rounded-lg border"
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="p-5 sm:p-6 space-y-5">
+      <div className="p-5 sm:p-6 space-y-5 border-t">
+        <div className="flex sm:hidden items-start gap-2 rounded-2xl bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+          <Monitor className="w-4 h-4 mt-0.5 shrink-0" />
+          <span>
+            Dla wygodnego rozwiązywania zadań najlepiej użyć tabletu lub komputera.
+          </span>
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
             size="lg"
