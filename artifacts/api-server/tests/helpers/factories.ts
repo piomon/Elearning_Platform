@@ -120,7 +120,7 @@ export async function seedCourse(
     .insert(videos)
     .values({
       topicId: topic.id,
-      bunnyVideoId: "demo-video",
+      bunnyVideoId: uniq("demo-video"),
       title: "Film testowy",
       durationSeconds: 120,
     })

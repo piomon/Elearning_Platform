@@ -1871,7 +1871,16 @@ router.post("/admin/topics/:id/duplicate", async (req: AuthRequest, res) => {
       const [srcVideo] = await tx.select().from(videos).where(eq(videos.topicId, id)).limit(1);
       if (srcVideo) {
         const { id: _vid, createdAt, updatedAt, topicId, ...vrest } = srcVideo;
-        await tx.insert(videos).values({ ...vrest, topicId: newTopic.id });
+        // A Bunny clip GUID is a global unique identity (one clip ↔ one video row —
+        // the content importer keys on it). A duplicated draft lesson therefore must
+        // not claim the source's GUID, so clear the Bunny linkage; the admin
+        // re-assigns a video to the copy.
+        await tx.insert(videos).values({
+          ...vrest,
+          topicId: newTopic.id,
+          bunnyVideoId: null,
+          bunnyTitle: null,
+        });
       }
 
       const srcImages = await tx.select().from(lessonImages).where(eq(lessonImages.topicId, id));
@@ -2303,6 +2312,22 @@ router.post("/admin/bunny/assign", async (req: AuthRequest, res) => {
     }
     const [topic] = await db.select({ id: topics.id, title: topics.title }).from(topics).where(eq(topics.id, Number(topicId))).limit(1);
     if (!topic) { res.status(404).json({ error: "Temat nie znaleziony" }); return; }
+
+    // A Bunny GUID is a global identity (one clip ↔ one video row), enforced by
+    // videos_bunny_video_id_uniq. Detect a conflict up front and return a clean
+    // 409 naming the owning lesson, instead of letting the unique index throw 500.
+    const [guidOwner] = await db
+      .select({ topicTitle: topics.title })
+      .from(videos)
+      .innerJoin(topics, eq(videos.topicId, topics.id))
+      .where(and(eq(videos.bunnyVideoId, guid), ne(videos.topicId, Number(topicId))))
+      .limit(1);
+    if (guidOwner) {
+      res.status(409).json({
+        error: `To wideo Bunny jest już przypisane do lekcji „${guidOwner.topicTitle}". Jedno wideo można przypisać tylko do jednej lekcji.`,
+      });
+      return;
+    }
 
     // Pull live metadata when Bunny is reachable so title/duration are accurate.
     let resolvedTitle = typeof title === "string" && title.trim() ? title.trim() : topic.title;

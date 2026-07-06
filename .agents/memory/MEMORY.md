@@ -12,6 +12,7 @@
 - [Async-before-mutation busy lock](async-pre-mutation-lock.md) — if a handler does async work before calling mutate(), guard with a synchronous ref lock; mutation.isPending flips too late to stop double-submits.
 - [Quiz time-limit](quiz-time-limit.md) — timed quizzes use a signed start-ticket; server rejects late/forged submissions, client countdown is UX only.
 - [Discount redemption idempotency](discount-redemption-idempotency.md) — use a PLAIN unique index + ON CONFLICT for "record once" guards; partial indexes break ON CONFLICT and this drizzle version drops targetWhere.
+- [Bunny video GUID identity](bunny-video-identity.md) — bunnyVideoId is GLOBALLY unique (one clip↔one row); importer matches by GUID first; duplication clears the clone's GUID, assign route must 409 on conflict.
 - [Seed idempotency & non-destructive import](seed-idempotency.md) — empty prod course = migrated-but-never-seeded; seed must upsert by slug, fill gaps only, never wipe users/payments/access; demo accounts gated off in prod.
 - [Mobile purchase visibility & no-access loop](mobile-purchase-visibility.md) — one central sticky bottom bar (learn-nav vs buy-bar, exclusive); no-access paths must end at a purchase panel; show buy CTA instantly; resume purchase via dashboard so discount stays reachable.
 - [DB backups vs .gitignore](backups-gitignore.md) — ignore the `backups/` dir (PII/payment dumps); never add global `*.sql` ignore — drizzle migrations are tracked .sql files.

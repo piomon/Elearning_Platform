@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import request from "supertest";
 import { db } from "@workspace/db";
-import { videos, quizAnswers } from "@workspace/db";
+import { videos, quizAnswers, topics } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import app from "../src/app";
 import { createUser, createAdmin, seedCourse, grantAccess } from "./helpers/factories";
@@ -191,6 +191,30 @@ describe("Bunny video assignment", () => {
       .set("Authorization", `Bearer ${token}`)
       .send({ topicId: topic.id, source: "not-a-guid" });
     expect(res.status).toBe(400);
+  });
+
+  it("returns 409 when the GUID is already assigned to another lesson", async () => {
+    const { token } = await createAdmin();
+    const { section, topic } = await seedCourse();
+    const guid = "99999999-8888-7777-6666-555555555555";
+
+    const first = await request(app)
+      .post(`/api/admin/bunny/assign`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ topicId: topic.id, source: guid });
+    expect(first.status).toBe(200);
+
+    const [otherTopic] = await db
+      .insert(topics)
+      .values({ sectionId: section.id, title: "Druga lekcja", slug: "druga-lekcja", sortOrder: 1 })
+      .returning();
+
+    const conflict = await request(app)
+      .post(`/api/admin/bunny/assign`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ topicId: otherTopic.id, source: guid });
+    expect(conflict.status).toBe(409);
+    expect(conflict.body.error).toContain(topic.title);
   });
 });
 
