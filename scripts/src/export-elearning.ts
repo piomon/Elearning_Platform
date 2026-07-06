@@ -2,22 +2,22 @@
 // EKSPORT treści e-learningu z bazy (uruchamiany na Replit).
 //
 // Odczytuje z bazy WYŁĄCZNIE tabele treści (allowlist w content-io/tables.ts)
-// i zapisuje je do katalogu `exports/` jako pliki JSON, które MOŻNA commitować
-// do GitHuba. Dzięki temu treść utworzona w panelu administratora (która żyje
-// tylko w bazie) trafia do repozytorium i może zostać odtworzona na VPS.
+// i zapisuje je do katalogu `scripts/data/export/` jako pliki JSON, które MOŻNA
+// commitować do GitHuba. Dzięki temu treść utworzona w panelu administratora
+// (która żyje tylko w bazie) trafia do repozytorium i może zostać odtworzona na VPS.
 //
 // NIE eksportuje: kont użytkowników, płatności, dostępów, postępów, prób quizów
 // ani żadnych sekretów (klucze API Bunny/Gemini żyją tylko w ENV, nigdy w bazie).
 //
-// Użycie:   pnpm --filter @workspace/scripts run export:content
-// Wynik:    exports/<tabela>.json, exports/full-elearning-export.json,
-//           exports/bunny-videos.json (podsumowanie), exports/manifest.json
+// Użycie:   pnpm --filter @workspace/scripts run export:elearning
+// Wynik:    scripts/data/export/<tabela>.json, scripts/data/export/full-elearning-export.json,
+//           scripts/data/export/bunny-videos.json (podsumowanie), scripts/data/export/manifest.json
 // ============================================================================
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import * as schema from "../../lib/db/src/schema/index.js";
 import { EXPORT_TABLES, EXCLUDED_TABLES } from "./content-io/tables.js";
 
@@ -28,8 +28,10 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool, { schema });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// scripts/src → scripts → <root>/exports
-const EXPORT_DIR = join(__dirname, "../../exports");
+// scripts/src → scripts/data/export. Nadpisywalne przez ENV (używane w testach).
+const EXPORT_DIR = process.env.EXPORT_DIR
+  ? resolve(process.env.EXPORT_DIR)
+  : join(__dirname, "../data/export");
 
 function writeJson(file: string, data: unknown): void {
   writeFileSync(join(EXPORT_DIR, file), JSON.stringify(data, null, 2) + "\n", "utf8");
@@ -90,10 +92,10 @@ async function main() {
   writeJson("manifest.json", meta);
 
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
-  console.log(`\n==> Gotowe. Zapisano ${total} wierszy do katalogu exports/.`);
+  console.log(`\n==> Gotowe. Zapisano ${total} wierszy do katalogu scripts/data/export/.`);
   console.log(`   Wideo z powiązaniem Bunny.net: ${withBunny}/${videos.length}`);
   console.log(
-    "   Zacommituj katalog exports/ do GitHuba, a następnie na VPS uruchom import.",
+    "   Zacommituj katalog scripts/data/export/ do GitHuba, a następnie na VPS uruchom import.",
   );
   await pool.end();
 }

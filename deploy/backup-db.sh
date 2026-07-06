@@ -3,9 +3,9 @@
 # Kopia zapasowa bazy danych PostgreSQL z kontenera `db`.
 #
 # Zrzut tworzony jest z opcjami --clean --if-exists, dzięki czemu odtworzenie
-# przez ./deploy/restore.sh czysto nadpisuje istniejące dane.
+# przez ./deploy/restore-db.sh czysto nadpisuje istniejące dane.
 #
-# Użycie:   ./deploy/backup.sh
+# Użycie:   ./deploy/backup-db.sh
 # Wynik:    ./backups/<POSTGRES_DB>_YYYY-MM-DD_HHMMSS.sql.gz
 # ============================================================================
 set -euo pipefail

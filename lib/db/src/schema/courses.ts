@@ -1,4 +1,4 @@
-import { pgTable, serial, text, boolean, integer, timestamp, jsonb, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, boolean, integer, timestamp, jsonb, pgEnum, uniqueIndex } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 // Publication lifecycle for educational content. `published` is the only state
@@ -37,7 +37,11 @@ export const sections = pgTable("sections", {
   status: publishStatusEnum("status").notNull().default("published"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  // A section slug is unique within its course; this is the natural key the
+  // content importer upserts on, and it prevents duplicate sections on re-import.
+  uniqueIndex("sections_course_id_slug_uniq").on(table.courseId, table.slug),
+]);
 
 export const topics = pgTable("topics", {
   id: serial("id").primaryKey(),
@@ -65,7 +69,11 @@ export const topics = pgTable("topics", {
   status: publishStatusEnum("status").notNull().default("published"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  // A topic (lesson) slug is unique within its section — the importer's natural
+  // key. Guards against duplicate lessons if an import runs more than once.
+  uniqueIndex("topics_section_id_slug_uniq").on(table.sectionId, table.slug),
+]);
 
 export const videos = pgTable("videos", {
   id: serial("id").primaryKey(),
@@ -79,7 +87,12 @@ export const videos = pgTable("videos", {
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  // A Bunny.net video GUID maps to exactly one video row, so re-importing the
+  // same export never duplicates a clip. NULL is allowed for videos not yet
+  // linked to Bunny (Postgres treats NULLs as distinct in a unique index).
+  uniqueIndex("videos_bunny_video_id_uniq").on(table.bunnyVideoId),
+]);
 
 // Static images interleaved into a lesson (answer keys, diagrams). Ordered with
 // videos by sortOrder so the lesson renders materials in the intended sequence.
@@ -164,7 +177,11 @@ export const tasks = pgTable("tasks", {
   aiPromptConfig: jsonb("ai_prompt_config"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  // Tasks have no slug; their title is unique within a lesson. This is the
+  // importer's natural key and prevents duplicate tasks on re-import.
+  uniqueIndex("tasks_topic_id_title_uniq").on(table.topicId, table.title),
+]);
 
 export const aiChecks = pgTable("ai_checks", {
   id: serial("id").primaryKey(),

@@ -7,9 +7,10 @@
     "hello": "tsx ./src/hello.ts",
     "seed": "tsx ./src/seed.ts",
     "backfill:tasks": "tsx ./src/backfill-tasks.ts",
-    "export:content": "tsx ./src/export-content.ts",
-    "import:content": "tsx ./src/import-content.ts",
-    "verify:deployment": "tsx ./src/verify-deployment.ts",
+    "export:elearning": "tsx ./src/export-elearning.ts",
+    "import:elearning": "tsx ./src/import-elearning.ts",
+    "content:migrate": "tsx ./src/run-content-migrations.ts",
+    "verify:content": "tsx ./src/verify-content.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

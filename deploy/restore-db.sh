@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Odtworzenie bazy danych PostgreSQL z kopii zapasowej (./deploy/backup.sh).
+# Odtworzenie bazy danych PostgreSQL z kopii zapasowej (./deploy/backup-db.sh).
 #
 # UWAGA: operacja NADPISUJE bieżące dane w bazie. Używaj kopii utworzonych
-# skryptem ./deploy/backup.sh (zrzut zawiera instrukcje DROP ... IF EXISTS).
+# skryptem ./deploy/backup-db.sh (zrzut zawiera instrukcje DROP ... IF EXISTS).
 #
-# Użycie:   ./deploy/restore.sh <ścieżka/do/kopii.sql.gz> [--yes]
+# Użycie:   ./deploy/restore-db.sh <ścieżka/do/kopii.sql.gz> [--yes]
 #           (--yes pomija pytanie o potwierdzenie)
 # ============================================================================
 set -euo pipefail
@@ -16,7 +16,7 @@ BACKUP="${1:-}"
 CONFIRM="${2:-}"
 
 if [ -z "$BACKUP" ]; then
-  echo "Użycie: ./deploy/restore.sh <ścieżka/do/kopii.sql.gz> [--yes]" >&2
+  echo "Użycie: ./deploy/restore-db.sh <ścieżka/do/kopii.sql.gz> [--yes]" >&2
   exit 1
 fi
 if [ ! -f "$BACKUP" ]; then

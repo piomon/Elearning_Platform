@@ -9,11 +9,17 @@
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
     "test": "pnpm -r --if-present run test",
     "test:all": "pnpm run typecheck && pnpm -r --if-present run test",
-    "export:content": "pnpm --filter @workspace/scripts run export:content",
-    "import:content": "pnpm --filter @workspace/scripts run import:content",
-    "verify:deployment": "pnpm --filter @workspace/scripts run verify:deployment",
-    "backup:db": "bash deploy/backup.sh",
-    "deploy:vps": "bash deploy/update.sh"
+    "db:generate": "pnpm --filter @workspace/db run generate",
+    "db:migrate": "pnpm --filter @workspace/db run migrate",
+    "db:push": "pnpm --filter @workspace/db run push",
+    "seed": "pnpm --filter @workspace/scripts run seed",
+    "export:elearning": "pnpm --filter @workspace/scripts run export:elearning",
+    "import:elearning": "pnpm --filter @workspace/scripts run import:elearning",
+    "content:migrate": "pnpm --filter @workspace/scripts run content:migrate",
+    "verify:content": "pnpm --filter @workspace/scripts run verify:content",
+    "backup:db": "bash deploy/backup-db.sh",
+    "restore:db": "bash deploy/restore-db.sh",
+    "deploy:vps": "bash deploy/deploy-vps.sh"
   },
   "private": true,
   "devDependencies": {

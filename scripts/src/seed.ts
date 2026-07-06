@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { eq, and } from "drizzle-orm";
 import pg from "pg";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import * as schema from "../../lib/db/src/schema/index.js";
@@ -354,6 +354,31 @@ async function seedContent() {
 
 async function seed() {
   console.log("Seeding database (Łatwa Fizyka)...");
+
+  // ── Bezpiecznik idempotencji ──────────────────────────────────────────────
+  // Seed to już TYLKO awaryjny bootstrap PUSTEJ bazy. Kanonicznym źródłem treści
+  // jest eksport (scripts/data/export/) wgrywany przez `import:elearning`. Aby
+  // seed nie nadpisywał ani nie duplikował treści przy każdym wdrożeniu, wychodzi
+  // wcześnie, gdy baza MA już treść ALBO istnieje plik eksportu. SEED_FORCE=1
+  // (lub flaga --force) wymusza pełny seed z course-data.ts.
+  const force = process.env.SEED_FORCE === "1" || process.argv.slice(2).includes("--force");
+  if (!force) {
+    const [hasCourse] = await db.select({ id: courses.id }).from(courses).limit(1);
+    if (hasCourse) {
+      console.log("Baza już zawiera treść (są kursy) — pomijam seed. SEED_FORCE=1 wymusza.");
+      await pool.end();
+      return;
+    }
+    const exportFile = join(__dirname, "../data/export/full-elearning-export.json");
+    if (existsSync(exportFile)) {
+      console.log(
+        "Istnieje eksport treści (scripts/data/export/) — użyj `import:elearning` zamiast seed. " +
+          "Pomijam seed. SEED_FORCE=1 wymusza pełny seed.",
+      );
+      await pool.end();
+      return;
+    }
+  }
 
   // Konta demo (admin + uczeń) provisionujemy TYLKO w devie albo gdy jawnie
   // włączone przez SEED_DEMO_ACCOUNTS=1. Na produkcji domyślnie ich NIE tworzymy:

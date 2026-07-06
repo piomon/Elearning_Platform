@@ -1,8 +1,8 @@
 // ============================================================================
 // IMPORT treści e-learningu do bazy (uruchamiany na VPS po `git pull`).
 //
-// Czyta pliki z katalogu `exports/` (wygenerowane przez export-content.ts na
-// Replit i zacommitowane do GitHuba) i odtwarza treść w bazie na VPS.
+// Czyta pliki z katalogu `scripts/data/export/` (wygenerowane przez
+// export-elearning.ts na Replit i zacommitowane do GitHuba) i odtwarza treść na VPS.
 //
 // IDEMPOTENTNY: dopasowuje wiersze po KLUCZACH NATURALNYCH (slug/tytuł/etykieta),
 // nie po id z Replit — bo id na VPS są inne. Ponowne uruchomienie nie tworzy
@@ -22,17 +22,18 @@
 //                                transakcję (żadnych zapisów).
 //
 // Użycie:
-//   pnpm --filter @workspace/scripts run import:content
-//   pnpm --filter @workspace/scripts run import:content -- --dry-run
-//   pnpm --filter @workspace/scripts run import:content -- --mode=merge
-//   pnpm --filter @workspace/scripts run import:content -- --mode=replace-demo-content --yes
+//   pnpm --filter @workspace/scripts run import:elearning
+//   pnpm --filter @workspace/scripts run import:elearning -- --dry-run
+//   pnpm --filter @workspace/scripts run import:elearning -- --mode=merge
+//   pnpm --filter @workspace/scripts run import:elearning -- --mode=replace-demo-content --yes
 // ============================================================================
 import { drizzle } from "drizzle-orm/node-postgres";
 import { eq, and, inArray } from "drizzle-orm";
 import pg from "pg";
 import { readFileSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import * as schema from "../../lib/db/src/schema/index.js";
 import {
   videoNaturalKey,
@@ -70,10 +71,14 @@ const {
   learningProgress,
   videoProgress,
   quizAttempts,
+  contentMigrations,
 } = schema;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const EXPORT_DIR = join(__dirname, "../../exports");
+// scripts/src → scripts/data/export. Nadpisywalne przez ENV (używane w testach).
+const EXPORT_DIR = process.env.EXPORT_DIR
+  ? resolve(process.env.EXPORT_DIR)
+  : join(__dirname, "../data/export");
 
 type Mode = "merge" | "replace-demo-content";
 
@@ -99,8 +104,8 @@ function loadExport(): Record<string, any> {
   if (!existsSync(combinedPath)) {
     throw new Error(
       `Brak pliku eksportu: ${combinedPath}\n` +
-        "Najpierw uruchom eksport na Replit (pnpm --filter @workspace/scripts run export:content) " +
-        "i zacommituj katalog exports/ do GitHuba.",
+        "Najpierw uruchom eksport na Replit (pnpm --filter @workspace/scripts run export:elearning) " +
+        "i zacommituj katalog scripts/data/export/ do GitHuba.",
     );
   }
   return JSON.parse(readFileSync(combinedPath, "utf8"));
@@ -119,7 +124,7 @@ async function main() {
   const data = loadExport();
 
   console.log(
-    `==> Import treści (tryb: ${mode}${dryRun ? " + DRY-RUN" : ""}). Źródło: exports/full-elearning-export.json`,
+    `==> Import treści (tryb: ${mode}${dryRun ? " + DRY-RUN" : ""}). Źródło: scripts/data/export/full-elearning-export.json`,
   );
   if (data.meta?.exportedAt) console.log(`    Eksport z: ${data.meta.exportedAt}`);
 
@@ -277,13 +282,15 @@ async function main() {
         topicMap.set(t.id, id);
       }
 
-      // 4) Wideo — klucz: (topicId, videoNaturalKey)
+      // 4) Wideo — dopasowanie: NAJPIERW globalnie po bunnyVideoId (kolumna
+      //    UNIKALNA — ten sam token Bunny nie może istnieć dwa razy), a gdy go
+      //    brak, awaryjnie po (topicId, kluczu naturalnym). Dzięki temu wideo
+      //    przeniesione w panelu do innej lekcji zostaje ZAKTUALIZOWANE (nowy
+      //    topicId), a nie wstawione ponownie — inaczej nowy wiersz naruszyłby
+      //    unikalność bunny_video_id w środku transakcji.
       for (const v of data.videos ?? []) {
         const topicId = topicMap.get(v.topicId);
         if (!topicId) continue;
-        const key = videoNaturalKey(v);
-        const rows = await tx.select().from(videos).where(eq(videos.topicId, topicId));
-        const existing = rows.find((r: any) => videoNaturalKey(r) === key);
         const values = {
           topicId,
           bunnyVideoId: v.bunnyVideoId ?? null,
@@ -293,6 +300,19 @@ async function main() {
           durationSeconds: v.durationSeconds ?? null,
           sortOrder: v.sortOrder ?? 0,
         };
+        let existing: any;
+        if (v.bunnyVideoId) {
+          [existing] = await tx
+            .select()
+            .from(videos)
+            .where(eq(videos.bunnyVideoId, v.bunnyVideoId))
+            .limit(1);
+        }
+        if (!existing) {
+          const key = videoNaturalKey(v);
+          const rows = await tx.select().from(videos).where(eq(videos.topicId, topicId));
+          existing = rows.find((r: any) => videoNaturalKey(r) === key);
+        }
         if (existing) {
           await tx.update(videos).set({ ...values, updatedAt: new Date() }).where(eq(videos.id, existing.id));
           stats.videos.updated += 1;
@@ -549,7 +569,51 @@ async function main() {
     `\n==> ${dryRun ? "DRY-RUN: " : ""}${dryRun ? "zostałoby " : ""}dodane ${created}, zaktualizowane ${updated} wierszy.`,
   );
   if (dryRun) console.log("   Nic nie zapisano. Uruchom bez --dry-run, aby wykonać import.");
-  else console.log("   Zalecane: uruchom `verify:deployment`, aby potwierdzić wynik.");
+  else console.log("   Zalecane: uruchom `verify:content`, aby potwierdzić wynik.");
+
+  // ── Ślad audytu (§12) ──────────────────────────────────────────────────────
+  // Zapisz, który eksport (po sumie kontrolnej treści) został ostatnio
+  // zaimportowany. To NIE jest migracja wersjonowana — te obsługuje osobno
+  // `content:migrate`. Tu trzymamy jeden wiersz-znacznik (name="import:elearning")
+  // aktualizowany przy każdym imporcie. Zapis POZA transakcją treści; ewentualny
+  // błąd audytu tylko ostrzega i nie wycofuje udanego importu.
+  if (!dryRun) {
+    try {
+      const { meta, ...content } = data;
+      const checksum = createHash("sha256").update(JSON.stringify(content)).digest("hex");
+      const details = { mode, exportedAt: meta?.exportedAt ?? null, created, updated, stats };
+      const [existing] = await db
+        .select()
+        .from(contentMigrations)
+        .where(eq(contentMigrations.name, "import:elearning"))
+        .limit(1);
+      if (existing) {
+        await db
+          .update(contentMigrations)
+          .set({
+            checksum,
+            status: "applied",
+            appliedBy: "import:elearning",
+            detailsJson: details,
+            appliedAt: new Date(),
+          })
+          .where(eq(contentMigrations.id, existing.id));
+      } else {
+        await db.insert(contentMigrations).values({
+          name: "import:elearning",
+          checksum,
+          status: "applied",
+          appliedBy: "import:elearning",
+          detailsJson: details,
+        });
+      }
+    } catch (e) {
+      console.warn(
+        "   (uwaga) Nie zapisano śladu audytu w content_migrations:",
+        (e as Error).message,
+      );
+    }
+  }
 
   await pool.end();
 }
