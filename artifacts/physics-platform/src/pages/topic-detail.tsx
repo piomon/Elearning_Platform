@@ -952,47 +952,6 @@ export default function TopicDetail() {
             </section>
           )}
 
-          {/* Interactive whiteboard — solve the task on the board and get AI feedback */}
-          {topic.tasks.length > 0 && (
-            <Suspense
-              fallback={
-                <div className="flex items-center justify-center gap-2 rounded-3xl border bg-card p-10 text-muted-foreground">
-                  <Loader2 className="w-5 h-5 animate-spin" /> Wczytywanie tablicy…
-                </div>
-              }
-            >
-              <LessonWhiteboard tasks={topic.tasks} />
-            </Suspense>
-          )}
-
-          {/* Prev / Next */}
-          <div className="flex items-center justify-between gap-4 border-t pt-8">
-            <Button
-              variant="outline"
-              className="rounded-full"
-              disabled={!topic.previousTopicId}
-              onClick={() => {
-                if (topic.previousTopicId) {
-                  setLocation(`/topics/${topic.previousTopicId}`);
-                  window.scrollTo({ top: 0 });
-                }
-              }}
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" /> Poprzednia
-            </Button>
-            <Button
-              className="rounded-full font-bold"
-              disabled={!topic.nextTopicId}
-              onClick={() => {
-                if (topic.nextTopicId) {
-                  setLocation(`/topics/${topic.nextTopicId}`);
-                  window.scrollTo({ top: 0 });
-                }
-              }}
-            >
-              Następna lekcja <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
         </div>
 
         {/* Desktop side panel */}
@@ -1001,6 +960,51 @@ export default function TopicDetail() {
             <CardContent className="p-0 h-full">{sidePanel}</CardContent>
           </Card>
         </aside>
+      </div>
+
+      {/* Interactive whiteboard — placed below the grid on purpose so the board
+          spans the full container width (more horizontal room to write). */}
+      {topic.tasks.length > 0 && (
+        <div className="mt-10">
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center gap-2 rounded-3xl border bg-card p-10 text-muted-foreground">
+                <Loader2 className="w-5 h-5 animate-spin" /> Wczytywanie tablicy…
+              </div>
+            }
+          >
+            <LessonWhiteboard tasks={topic.tasks} />
+          </Suspense>
+        </div>
+      )}
+
+      {/* Prev / Next */}
+      <div className="mt-10 flex items-center justify-between gap-4 border-t pt-8">
+        <Button
+          variant="outline"
+          className="rounded-full"
+          disabled={!topic.previousTopicId}
+          onClick={() => {
+            if (topic.previousTopicId) {
+              setLocation(`/topics/${topic.previousTopicId}`);
+              window.scrollTo({ top: 0 });
+            }
+          }}
+        >
+          <ChevronLeft className="w-4 h-4 mr-1" /> Poprzednia
+        </Button>
+        <Button
+          className="rounded-full font-bold"
+          disabled={!topic.nextTopicId}
+          onClick={() => {
+            if (topic.nextTopicId) {
+              setLocation(`/topics/${topic.nextTopicId}`);
+              window.scrollTo({ top: 0 });
+            }
+          }}
+        >
+          Następna lekcja <ChevronRight className="w-4 h-4 ml-1" />
+        </Button>
       </div>
     </div>
   );

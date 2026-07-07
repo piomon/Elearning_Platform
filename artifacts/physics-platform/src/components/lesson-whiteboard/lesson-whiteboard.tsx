@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ComponentProps } from "react";
 import "@excalidraw/excalidraw/index.css";
 import { Excalidraw, exportToBlob } from "@excalidraw/excalidraw";
+import type { NormalizedZoomValue } from "@excalidraw/excalidraw/types";
 import type { Task } from "@workspace/api-client-react";
 import { useCheckTask } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -44,15 +45,22 @@ function loadSketch(taskId: number): SketchElements | undefined {
   }
 }
 
-// Excalidraw obsługuje trzy poziomy grubości linii: 1 (cienki), 2 (normalny),
-// 4 (gruby). Domyślnie wybieramy cienki — jest najczytelniejszy do cyfr, wzorów
-// i jednostek, a przy eksporcie 1600 px pozostaje wyraźny dla Gemini AI.
-type PenWidth = 1 | 2 | 4;
+// Grubości pisaka (strokeWidth w jednostkach sceny Excalidraw). Wartości są
+// celowo niższe niż standardowe 1/2/4 — „Cienki” ma być realnie cienki do cyfr,
+// wzorów i jednostek, ale przy eksporcie do 1600 px nadal czytelny dla Gemini
+// AI. „Gruby” służy głównie do podkreśleń i zaznaczeń.
+type PenWidth = 0.75 | 1.5 | 3;
+const DEFAULT_PEN: PenWidth = 0.75;
 const PEN_OPTIONS: { label: string; value: PenWidth; preview: number }[] = [
-  { label: "Cienki pisak", value: 1, preview: 2 },
-  { label: "Normalny pisak", value: 2, preview: 3 },
-  { label: "Gruby pisak", value: 4, preview: 5 },
+  { label: "Cienki pisak", value: 0.75, preview: 1.5 },
+  { label: "Normalny pisak", value: 1.5, preview: 3 },
+  { label: "Gruby pisak", value: 3, preview: 5 },
 ];
+
+// Tablica startuje lekko oddalona (zoom 0.8 = oddalenie o ~20%): linie wyglądają
+// optycznie cieniej, a uczeń od razu ma więcej miejsca na obliczenia. Eksport do
+// AI bazuje na elementach sceny, więc zoom nie wpływa na obraz wysyłany do Gemini.
+const DEFAULT_ZOOM = 0.8 as NormalizedZoomValue;
 
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -97,7 +105,7 @@ function WhiteboardTask({ task }: { task: Task }) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isPreparing, setIsPreparing] = useState(false);
   const [showTask, setShowTask] = useState(true);
-  const [penWidth, setPenWidth] = useState<PenWidth>(1);
+  const [penWidth, setPenWidth] = useState<PenWidth>(DEFAULT_PEN);
   const checkMutation = useCheckTask();
   const busyRef = useRef(false);
   const isBusy = isPreparing || checkMutation.isPending;
@@ -111,9 +119,15 @@ function WhiteboardTask({ task }: { task: Task }) {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Domyślnie wybierz cienki pisak (odręczny), aby od razu można było pisać
-  // rozwiązanie bez szukania narzędzia i zmiany grubości linii.
+  // rozwiązanie bez szukania narzędzia. Jeżeli przywrócono zapisany szkic,
+  // wycentruj widok na notatkach ucznia (bez zmiany startowego oddalenia).
   useEffect(() => {
-    if (api) api.setActiveTool({ type: "freedraw" });
+    if (!api) return;
+    api.setActiveTool({ type: "freedraw" });
+    const elements = api.getSceneElements();
+    if (elements.length > 0) {
+      api.scrollToContent(elements, { fitToViewport: false, animate: false });
+    }
   }, [api]);
 
   const handleClear = useCallback(() => {
@@ -251,7 +265,7 @@ function WhiteboardTask({ task }: { task: Task }) {
 
   return (
     <article className="rounded-3xl border bg-card shadow-sm overflow-hidden">
-      <div className="relative h-[70vh] min-h-[440px] sm:h-[78vh] sm:min-h-[520px] w-full">
+      <div className="relative w-full h-[72vh] min-h-[500px] max-h-[560px] sm:h-[74vh] sm:min-h-[600px] sm:max-h-[680px] lg:h-[78vh] lg:min-h-[620px] lg:max-h-[780px] xl:max-h-[800px]">
         <Excalidraw
           excalidrawAPI={(instance) => setApi(instance)}
           langCode="pl-PL"
@@ -261,10 +275,11 @@ function WhiteboardTask({ task }: { task: Task }) {
             elements: initialElements,
             appState: {
               viewBackgroundColor: "#ffffff",
-              currentItemStrokeWidth: 1,
+              currentItemStrokeWidth: DEFAULT_PEN,
               currentItemStrokeColor: "#1e1e1e",
               currentItemOpacity: 100,
               currentItemRoughness: 0,
+              zoom: { value: DEFAULT_ZOOM },
             },
           }}
           UIOptions={{
@@ -337,7 +352,7 @@ function WhiteboardTask({ task }: { task: Task }) {
                     type="button"
                     onClick={() => setPen(opt.value)}
                     aria-pressed={active}
-                    title="Najlepiej używać cienkiego pisaka do obliczeń i wzorów."
+                    title="Do obliczeń najlepiej używać cienkiego pisaka i lekko oddalonego widoku."
                     className={`flex h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors ${
                       active
                         ? "border-sky-500 bg-sky-500 text-white shadow-sm"
@@ -357,7 +372,7 @@ function WhiteboardTask({ task }: { task: Task }) {
           </div>
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Info className="h-3.5 w-3.5 shrink-0" />
-            Najlepiej używać cienkiego pisaka do obliczeń i wzorów.
+            Do obliczeń najlepiej używać cienkiego pisaka i lekko oddalonego widoku.
           </p>
         </div>
 
