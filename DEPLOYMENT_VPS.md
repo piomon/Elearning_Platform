@@ -95,6 +95,14 @@ patrz `.env.example`):
 ./deploy/deploy-vps.sh          # lub z aliasu: pnpm deploy:vps
 ```
 
+> **DNS (wymagane przed pierwszym wdrożeniem):** utwórz rekord **A** dla domeny
+> głównej (`fizyka7.pl`) **oraz** rekord `www` (A lub CNAME na `fizyka7.pl`) —
+> oba skierowane na IP VPS. Traefik pobiera certyfikat Let's Encrypt dla obu
+> hostów, więc brak rekordu `www` uniemożliwi wystawienie certyfikatu dla `www`.
+> Ruch z `www.fizyka7.pl` jest automatycznie przekierowywany (301) na
+> `https://fizyka7.pl` (domena kanoniczna) — sesje, PWA i dane lokalne
+> pozostają wtedy na jednym adresie.
+
 Skrypt wykonuje po kolei:
 
 1. **Sprawdza** obecność plików (`docker-compose.yml`, `docker-compose.prod.yml`,

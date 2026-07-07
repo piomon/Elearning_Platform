@@ -41,11 +41,24 @@ services:
     # tylko z 127.0.0.1 (localhost VPS) i nie jest wystawiony na świat.
     labels:
       - "traefik.enable=true"
+      # Router główny — serwuje aplikację na domenie kanonicznej.
       - "traefik.http.routers.web.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls=true"
       - "traefik.http.routers.web.tls.certresolver=le"
       - "traefik.http.services.web.loadbalancer.server.port=80"
+      # Router www — Let's Encrypt wystawia certyfikat także dla www, a cały ruch
+      # jest przekierowywany (301) na domenę kanoniczną. Dzięki temu sesje, PWA,
+      # localStorage (autozapis tablicy) i SEO pozostają na jednym origin.
+      - "traefik.http.routers.web-www.rule=Host(`www.${DOMAIN}`)"
+      - "traefik.http.routers.web-www.entrypoints=websecure"
+      - "traefik.http.routers.web-www.tls=true"
+      - "traefik.http.routers.web-www.tls.certresolver=le"
+      - "traefik.http.routers.web-www.service=web"
+      - "traefik.http.routers.web-www.middlewares=www-to-apex"
+      - "traefik.http.middlewares.www-to-apex.redirectregex.regex=^https?://www\\.(.+)"
+      - "traefik.http.middlewares.www-to-apex.redirectregex.replacement=https://$${1}"
+      - "traefik.http.middlewares.www-to-apex.redirectregex.permanent=true"
 
 volumes:
   letsencrypt:

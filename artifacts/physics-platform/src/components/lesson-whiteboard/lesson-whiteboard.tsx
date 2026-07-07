@@ -23,6 +23,27 @@ type ExcalidrawAPI = Parameters<
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
+// Elementy sceny w formacie zwracanym przez onChange Excalidraw — używane do
+// autozapisu szkicu ucznia w localStorage i przywrócenia go po odświeżeniu.
+type SketchElements = Parameters<
+  NonNullable<ComponentProps<typeof Excalidraw>["onChange"]>
+>[0];
+
+const SKETCH_PREFIX = "fizyka-whiteboard:";
+
+function loadSketch(taskId: number): SketchElements | undefined {
+  try {
+    const raw = localStorage.getItem(SKETCH_PREFIX + taskId);
+    if (!raw) return undefined;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0
+      ? (parsed as unknown as SketchElements)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 // Excalidraw obsługuje trzy poziomy grubości linii: 1 (cienki), 2 (normalny),
 // 4 (gruby). Domyślnie wybieramy cienki — jest najczytelniejszy do cyfr, wzorów
 // i jednostek, a przy eksporcie 1600 px pozostaje wyraźny dla Gemini AI.
@@ -81,6 +102,14 @@ function WhiteboardTask({ task }: { task: Task }) {
   const busyRef = useRef(false);
   const isBusy = isPreparing || checkMutation.isPending;
 
+  // Autozapis szkicu: przywracamy zapisany rysunek przy montowaniu komponentu
+  // (osobna instancja na każde zadanie — klucz task.id), a zmiany zapisujemy
+  // z opóźnieniem do localStorage, aby uczeń nie tracił pracy po odświeżeniu.
+  const [initialElements] = useState<SketchElements | undefined>(() =>
+    loadSketch(task.id),
+  );
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Domyślnie wybierz cienki pisak (odręczny), aby od razu można było pisać
   // rozwiązanie bez szukania narzędzia i zmiany grubości linii.
   useEffect(() => {
@@ -90,9 +119,42 @@ function WhiteboardTask({ task }: { task: Task }) {
   const handleClear = useCallback(() => {
     if (!api) return;
     api.updateScene({ elements: [] });
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    try {
+      localStorage.removeItem(SKETCH_PREFIX + task.id);
+    } catch {
+      /* brak dostępu do localStorage — ignorujemy */
+    }
     setFeedback(null);
     setErrorMsg(null);
-  }, [api]);
+  }, [api, task.id]);
+
+  // Zapis szkicu z opóźnieniem (Excalidraw wywołuje onChange bardzo często —
+  // przy każdym ruchu). Zapisujemy tylko żywe elementy; pustą tablicę czyścimy.
+  const persistSketch = useCallback(
+    (elements: SketchElements) => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(() => {
+        try {
+          const live = elements.filter((el) => !el.isDeleted);
+          if (live.length === 0) {
+            localStorage.removeItem(SKETCH_PREFIX + task.id);
+          } else {
+            localStorage.setItem(SKETCH_PREFIX + task.id, JSON.stringify(live));
+          }
+        } catch {
+          /* localStorage pełny lub niedostępny — pomijamy autozapis */
+        }
+      }, 700);
+    },
+    [task.id],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+  }, []);
 
   // Szybki wybór grubości pisaka. Zmienia domyślną grubość nowych elementów
   // (istniejące rysunki zostają bez zmian) i od razu aktywuje pisak odręczny,
@@ -189,12 +251,14 @@ function WhiteboardTask({ task }: { task: Task }) {
 
   return (
     <article className="rounded-3xl border bg-card shadow-sm overflow-hidden">
-      <div className="relative h-[78vh] min-h-[520px] w-full">
+      <div className="relative h-[70vh] min-h-[440px] sm:h-[78vh] sm:min-h-[520px] w-full">
         <Excalidraw
           excalidrawAPI={(instance) => setApi(instance)}
           langCode="pl-PL"
           theme="light"
+          onChange={persistSketch}
           initialData={{
+            elements: initialElements,
             appState: {
               viewBackgroundColor: "#ffffff",
               currentItemStrokeWidth: 1,
