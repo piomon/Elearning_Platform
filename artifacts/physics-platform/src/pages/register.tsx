@@ -1,18 +1,18 @@
-import { useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, Redirect } from "wouter";
 import { useAuth as useClerkAuth, SignUp } from "@clerk/clerk-react";
 import { BookOpen } from "lucide-react";
 
 export default function Register() {
   const { isLoaded, isSignedIn } = useClerkAuth();
-  const [, setLocation] = useLocation();
   const base = import.meta.env.BASE_URL;
 
-  useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      setLocation("/dashboard");
-    }
-  }, [isLoaded, isSignedIn, setLocation]);
+  // Zalogowanego użytkownika przekierowujemy deklaratywnie (raz), zamiast
+  // wołać setLocation w useEffect — to eliminuje pętlę przekierowań powstającą
+  // w wyścigu z własnym przekierowaniem komponentu <SignUp/> Clerka. Dzięki
+  // wcześniejszemu return komponent <SignUp/> nie renderuje się dla zalogowanych.
+  if (isLoaded && isSignedIn) {
+    return <Redirect to="/dashboard" replace />;
+  }
 
   return (
     <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4 bg-muted/30">

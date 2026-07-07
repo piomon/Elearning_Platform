@@ -9,6 +9,7 @@
 - [CORS & deploy domain](cors-same-origin-deploy.md) — SPA+API are same-origin in deploy; allow Origin matching X-Forwarded-Host/Proto so login survives renames; stale APP_URL/ALLOWED_ORIGINS breaks login+payments.
 - [Status filtering scope](status-filtering-scope.md) — publish-status gating must cover AI/progress/metadata routes, not just GET content; reuse access.ts chain helpers; tasks inherit topic visibility.
 - [React effect/mutation loops](react-effect-mutation-loops.md) — never put a TanStack Query mutation result (or a callback closing over it) in effect/callback deps; use mutate/refetch (stable) or a ref, or you get infinite render loops.
+- [Auth redirect pattern](auth-redirect-pattern.md) — on Clerk <SignIn/>/<SignUp/> pages, redirect signed-in users via early-return declarative wouter <Redirect>, never setLocation-in-effect (races Clerk's own redirect → max update depth loop).
 - [Async-before-mutation busy lock](async-pre-mutation-lock.md) — if a handler does async work before calling mutate(), guard with a synchronous ref lock; mutation.isPending flips too late to stop double-submits.
 - [Quiz time-limit](quiz-time-limit.md) — timed quizzes use a signed start-ticket; server rejects late/forged submissions, client countdown is UX only.
 - [Discount redemption idempotency](discount-redemption-idempotency.md) — use a PLAIN unique index + ON CONFLICT for "record once" guards; partial indexes break ON CONFLICT and this drizzle version drops targetWhere.

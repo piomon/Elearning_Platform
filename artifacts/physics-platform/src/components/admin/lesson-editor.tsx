@@ -295,6 +295,7 @@ function VideoEditor({ topicId, video, onChanged, toast }: { topicId: number; vi
   }, [video?.id]);
 
   const save = () => {
+    if (updateVideo.isPending || createVideo.isPending) return;
     const payload = {
       topicId, title,
       videoUrl: videoUrl || undefined,
@@ -337,7 +338,7 @@ function VideoEditor({ topicId, video, onChanged, toast }: { topicId: number; vi
             onConfirm={() => deleteVideo.mutate({ id: video.id }, opts(onChanged, toast, "Usunięto wideo"))}
           />
         )}
-        <Button size="sm" className="rounded-lg" disabled={!title.trim()} onClick={save}><Save className="w-3.5 h-3.5 mr-1" />{video ? "Zapisz" : "Dodaj wideo"}</Button>
+        <Button size="sm" className="rounded-lg" disabled={!title.trim() || updateVideo.isPending || createVideo.isPending} onClick={save}><Save className="w-3.5 h-3.5 mr-1" />{video ? "Zapisz" : "Dodaj wideo"}</Button>
       </div>
     </div>
   );
@@ -389,6 +390,7 @@ function TasksEditor({ topicId, tasks, onChanged, toast }: { topicId: number; ta
         <TaskDialogBody
           open={dialog.open}
           edit={dialog.edit}
+          submitting={createTask.isPending || updateTask.isPending}
           onClose={() => setDialog({ open: false })}
           onSubmit={(payload) => {
             if (dialog.edit) {
@@ -403,9 +405,10 @@ function TasksEditor({ topicId, tasks, onChanged, toast }: { topicId: number; ta
   );
 }
 
-function TaskDialogBody({ open, edit, onClose, onSubmit }: {
+function TaskDialogBody({ open, edit, submitting, onClose, onSubmit }: {
   open: boolean;
   edit?: Task;
+  submitting?: boolean;
   onClose: () => void;
   onSubmit: (payload: { title: string; description?: string; initialImageUrl?: string; aiPromptConfig?: Record<string, unknown> }) => void;
 }) {
@@ -446,7 +449,7 @@ function TaskDialogBody({ open, edit, onClose, onSubmit }: {
       </div>
       <DialogFooter>
         <Button variant="outline" className="rounded-xl" onClick={onClose}>Anuluj</Button>
-        <Button className="rounded-xl" disabled={!title.trim()} onClick={() => onSubmit({
+        <Button className="rounded-xl" disabled={!title.trim() || submitting} onClick={() => onSubmit({
           title,
           description: description || undefined,
           initialImageUrl: imageUrl || undefined,
