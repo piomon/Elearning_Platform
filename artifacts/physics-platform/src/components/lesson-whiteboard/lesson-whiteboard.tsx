@@ -14,6 +14,7 @@ import {
   Monitor,
   ChevronDown,
   ChevronUp,
+  Info,
 } from "lucide-react";
 
 type ExcalidrawAPI = Parameters<
@@ -21,6 +22,16 @@ type ExcalidrawAPI = Parameters<
 >[0];
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+
+// Excalidraw obsługuje trzy poziomy grubości linii: 1 (cienki), 2 (normalny),
+// 4 (gruby). Domyślnie wybieramy cienki — jest najczytelniejszy do cyfr, wzorów
+// i jednostek, a przy eksporcie 1600 px pozostaje wyraźny dla Gemini AI.
+type PenWidth = 1 | 2 | 4;
+const PEN_OPTIONS: { label: string; value: PenWidth; preview: number }[] = [
+  { label: "Cienki pisak", value: 1, preview: 2 },
+  { label: "Normalny pisak", value: 2, preview: 3 },
+  { label: "Gruby pisak", value: 4, preview: 5 },
+];
 
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -65,6 +76,7 @@ function WhiteboardTask({ task }: { task: Task }) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isPreparing, setIsPreparing] = useState(false);
   const [showTask, setShowTask] = useState(true);
+  const [penWidth, setPenWidth] = useState<PenWidth>(1);
   const checkMutation = useCheckTask();
   const busyRef = useRef(false);
   const isBusy = isPreparing || checkMutation.isPending;
@@ -81,6 +93,25 @@ function WhiteboardTask({ task }: { task: Task }) {
     setFeedback(null);
     setErrorMsg(null);
   }, [api]);
+
+  // Szybki wybór grubości pisaka. Zmienia domyślną grubość nowych elementów
+  // (istniejące rysunki zostają bez zmian) i od razu aktywuje pisak odręczny,
+  // aby uczeń mógł pisać dalej bez dodatkowych kliknięć.
+  const setPen = useCallback(
+    (width: PenWidth) => {
+      setPenWidth(width);
+      if (!api) return;
+      api.updateScene({
+        appState: {
+          currentItemStrokeWidth: width,
+          currentItemStrokeColor: "#1e1e1e",
+          currentItemOpacity: 100,
+        },
+      });
+      api.setActiveTool({ type: "freedraw" });
+    },
+    [api],
+  );
 
   const handleCheck = useCallback(async () => {
     if (busyRef.current) return;
@@ -164,7 +195,13 @@ function WhiteboardTask({ task }: { task: Task }) {
           langCode="pl-PL"
           theme="light"
           initialData={{
-            appState: { viewBackgroundColor: "#ffffff", currentItemStrokeWidth: 1 },
+            appState: {
+              viewBackgroundColor: "#ffffff",
+              currentItemStrokeWidth: 1,
+              currentItemStrokeColor: "#1e1e1e",
+              currentItemOpacity: 100,
+              currentItemRoughness: 0,
+            },
           }}
           UIOptions={{
             canvasActions: {
@@ -218,6 +255,48 @@ function WhiteboardTask({ task }: { task: Task }) {
       </div>
 
       <div className="p-5 sm:p-6 space-y-5 border-t">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="text-sm font-semibold text-muted-foreground">
+              Grubość pisaka:
+            </span>
+            <div
+              className="flex flex-wrap gap-2"
+              role="group"
+              aria-label="Wybór grubości pisaka"
+            >
+              {PEN_OPTIONS.map((opt) => {
+                const active = penWidth === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setPen(opt.value)}
+                    aria-pressed={active}
+                    title="Najlepiej używać cienkiego pisaka do obliczeń i wzorów."
+                    className={`flex h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors ${
+                      active
+                        ? "border-sky-500 bg-sky-500 text-white shadow-sm"
+                        : "border-border bg-muted text-foreground hover:bg-muted/70"
+                    }`}
+                  >
+                    <span
+                      aria-hidden
+                      className="inline-block w-5 rounded-full bg-current"
+                      style={{ height: `${opt.preview}px` }}
+                    />
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Info className="h-3.5 w-3.5 shrink-0" />
+            Najlepiej używać cienkiego pisaka do obliczeń i wzorów.
+          </p>
+        </div>
+
         <div className="flex sm:hidden items-start gap-2 rounded-2xl bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
           <Monitor className="w-4 h-4 mt-0.5 shrink-0" />
           <span>
