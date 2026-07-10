@@ -1,5 +1,35 @@
 [
   {
+    "id": 29,
+    "topicId": 43,
+    "title": "Quiz — Względność ruchu, układ odniesienia, układ współrzędnych, tor i droga",
+    "passThreshold": 80,
+    "maxAttempts": null,
+    "timeLimitMinutes": null,
+    "shuffleQuestions": false,
+    "shuffleAnswers": false,
+    "showScore": true,
+    "showCorrectAnswers": true,
+    "status": "published",
+    "createdAt": "2026-07-10T14:13:31.082Z",
+    "updatedAt": "2026-07-10T14:13:31.082Z"
+  },
+  {
+    "id": 30,
+    "topicId": 44,
+    "title": "Quiz — Ruch jednostajny prostoliniowy - prędkość, droga i czas",
+    "passThreshold": 80,
+    "maxAttempts": null,
+    "timeLimitMinutes": null,
+    "shuffleQuestions": false,
+    "shuffleAnswers": false,
+    "showScore": true,
+    "showCorrectAnswers": true,
+    "status": "published",
+    "createdAt": "2026-07-10T14:13:31.195Z",
+    "updatedAt": "2026-07-10T14:13:31.195Z"
+  },
+  {
     "id": 15,
     "topicId": 22,
     "title": "Quiz — Podstawy fizyki — ciało, substancja, obserwacja i eksperyment",
@@ -12,7 +42,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:57.383Z",
-    "updatedAt": "2026-06-30T12:10:57.383Z"
+    "updatedAt": "2026-07-06T11:24:42.994Z"
   },
   {
     "id": 16,
@@ -27,7 +57,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:57.474Z",
-    "updatedAt": "2026-06-30T12:10:57.474Z"
+    "updatedAt": "2026-07-06T11:24:42.996Z"
   },
   {
     "id": 17,
@@ -42,7 +72,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:57.584Z",
-    "updatedAt": "2026-06-30T12:10:57.584Z"
+    "updatedAt": "2026-07-06T11:24:42.998Z"
   },
   {
     "id": 18,
@@ -57,7 +87,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:57.671Z",
-    "updatedAt": "2026-06-30T12:10:57.671Z"
+    "updatedAt": "2026-07-06T11:24:43.000Z"
   },
   {
     "id": 19,
@@ -72,7 +102,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:57.774Z",
-    "updatedAt": "2026-06-30T12:10:57.774Z"
+    "updatedAt": "2026-07-06T11:24:43.002Z"
   },
   {
     "id": 20,
@@ -87,7 +117,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:57.909Z",
-    "updatedAt": "2026-06-30T12:10:57.909Z"
+    "updatedAt": "2026-07-06T11:24:43.004Z"
   },
   {
     "id": 21,
@@ -102,7 +132,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:58.075Z",
-    "updatedAt": "2026-06-30T12:10:58.075Z"
+    "updatedAt": "2026-07-06T11:24:43.016Z"
   },
   {
     "id": 22,
@@ -117,7 +147,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:58.322Z",
-    "updatedAt": "2026-06-30T12:10:58.322Z"
+    "updatedAt": "2026-07-06T11:24:43.018Z"
   },
   {
     "id": 23,
@@ -132,7 +162,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:58.505Z",
-    "updatedAt": "2026-06-30T12:10:58.505Z"
+    "updatedAt": "2026-07-06T11:24:43.020Z"
   },
   {
     "id": 24,
@@ -147,7 +177,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:58.696Z",
-    "updatedAt": "2026-06-30T12:10:58.696Z"
+    "updatedAt": "2026-07-06T11:24:43.022Z"
   },
   {
     "id": 25,
@@ -162,7 +192,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:58.795Z",
-    "updatedAt": "2026-06-30T12:10:58.795Z"
+    "updatedAt": "2026-07-06T11:24:43.025Z"
   },
   {
     "id": 26,
@@ -177,7 +207,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:58.889Z",
-    "updatedAt": "2026-06-30T12:10:58.889Z"
+    "updatedAt": "2026-07-06T11:24:43.028Z"
   },
   {
     "id": 27,
@@ -192,7 +222,7 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:58.975Z",
-    "updatedAt": "2026-06-30T12:10:58.975Z"
+    "updatedAt": "2026-07-06T11:24:43.031Z"
   },
   {
     "id": 28,
@@ -207,6 +237,6 @@
     "showCorrectAnswers": true,
     "status": "published",
     "createdAt": "2026-06-30T12:10:59.046Z",
-    "updatedAt": "2026-06-30T12:10:59.046Z"
+    "updatedAt": "2026-07-06T11:24:43.034Z"
   }
 ]

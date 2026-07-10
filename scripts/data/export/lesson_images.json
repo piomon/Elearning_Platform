@@ -4,305 +4,479 @@
     "topicId": 24,
     "imageUrl": "course-assets/D1_L03_04_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D1_L03",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:57.573Z",
-    "updatedAt": "2026-06-30T12:10:57.573Z"
+    "updatedAt": "2026-07-06T11:24:42.916Z"
   },
   {
     "id": 36,
     "topicId": 24,
     "imageUrl": "course-assets/D1_L03_06_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D1_L03",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 6,
     "createdAt": "2026-06-30T12:10:57.576Z",
-    "updatedAt": "2026-06-30T12:10:57.576Z"
+    "updatedAt": "2026-07-06T11:24:42.918Z"
   },
   {
     "id": 37,
     "topicId": 24,
     "imageUrl": "course-assets/D1_L03_08_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D1_L03",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 8,
     "createdAt": "2026-06-30T12:10:57.579Z",
-    "updatedAt": "2026-06-30T12:10:57.579Z"
+    "updatedAt": "2026-07-06T11:24:42.922Z"
   },
   {
     "id": 38,
     "topicId": 24,
     "imageUrl": "course-assets/D1_L03_10_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D1_L03",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 10,
     "createdAt": "2026-06-30T12:10:57.581Z",
-    "updatedAt": "2026-06-30T12:10:57.581Z"
+    "updatedAt": "2026-07-06T11:24:42.924Z"
   },
   {
     "id": 39,
     "topicId": 28,
     "imageUrl": "course-assets/D2_L00_02_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D2_L00",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 2,
     "createdAt": "2026-06-30T12:10:57.881Z",
-    "updatedAt": "2026-06-30T12:10:57.881Z"
+    "updatedAt": "2026-07-06T11:24:42.926Z"
   },
   {
     "id": 40,
     "topicId": 28,
     "imageUrl": "course-assets/D2_L00_04_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D2_L00",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:57.884Z",
-    "updatedAt": "2026-06-30T12:10:57.884Z"
+    "updatedAt": "2026-07-06T11:24:42.928Z"
   },
   {
     "id": 41,
     "topicId": 28,
     "imageUrl": "course-assets/D2_L00_06_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D2_L00",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 6,
     "createdAt": "2026-06-30T12:10:57.888Z",
-    "updatedAt": "2026-06-30T12:10:57.888Z"
+    "updatedAt": "2026-07-06T11:24:42.931Z"
   },
   {
     "id": 42,
     "topicId": 28,
     "imageUrl": "course-assets/D2_L00_08_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D2_L00",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 8,
     "createdAt": "2026-06-30T12:10:57.892Z",
-    "updatedAt": "2026-06-30T12:10:57.892Z"
+    "updatedAt": "2026-07-06T11:24:42.932Z"
   },
   {
     "id": 43,
     "topicId": 30,
     "imageUrl": "course-assets/D2_L02_ROOT_IMAGE_Screenshot_1.png",
     "alt": "Materiał pomocniczy – D2_L02",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 0,
     "createdAt": "2026-06-30T12:10:57.904Z",
-    "updatedAt": "2026-06-30T12:10:57.904Z"
+    "updatedAt": "2026-07-06T11:24:42.934Z"
   },
   {
     "id": 44,
     "topicId": 32,
     "imageUrl": "course-assets/D2_L04_ROOT_IMAGE_Screenshot_2.png",
     "alt": "Materiał pomocniczy – D2_L04",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 0,
     "createdAt": "2026-06-30T12:10:58.072Z",
-    "updatedAt": "2026-06-30T12:10:58.072Z"
+    "updatedAt": "2026-07-06T11:24:42.936Z"
   },
   {
     "id": 45,
     "topicId": 33,
     "imageUrl": "course-assets/D2_L05_03_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D2_L05",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 3,
     "createdAt": "2026-06-30T12:10:58.314Z",
-    "updatedAt": "2026-06-30T12:10:58.314Z"
+    "updatedAt": "2026-07-06T11:24:42.938Z"
   },
   {
     "id": 46,
     "topicId": 34,
     "imageUrl": "course-assets/D2_L06_ROOT_IMAGE_Screenshot_1.png",
     "alt": "Materiał pomocniczy – D2_L06",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 0,
     "createdAt": "2026-06-30T12:10:58.319Z",
-    "updatedAt": "2026-06-30T12:10:58.319Z"
+    "updatedAt": "2026-07-06T11:24:42.940Z"
   },
   {
     "id": 47,
     "topicId": 35,
     "imageUrl": "course-assets/D2_L07_03_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D2_L07",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 3,
     "createdAt": "2026-06-30T12:10:58.486Z",
-    "updatedAt": "2026-06-30T12:10:58.486Z"
+    "updatedAt": "2026-07-06T11:24:42.943Z"
   },
   {
     "id": 48,
     "topicId": 35,
     "imageUrl": "course-assets/D2_L07_05_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D2_L07",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 5,
     "createdAt": "2026-06-30T12:10:58.489Z",
-    "updatedAt": "2026-06-30T12:10:58.489Z"
+    "updatedAt": "2026-07-06T11:24:42.948Z"
   },
   {
     "id": 49,
     "topicId": 35,
     "imageUrl": "course-assets/D2_L07_07_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D2_L07",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 7,
     "createdAt": "2026-06-30T12:10:58.492Z",
-    "updatedAt": "2026-06-30T12:10:58.492Z"
+    "updatedAt": "2026-07-06T11:24:42.950Z"
   },
   {
     "id": 50,
     "topicId": 35,
     "imageUrl": "course-assets/D2_L07_10_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D2_L07",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 10,
     "createdAt": "2026-06-30T12:10:58.494Z",
-    "updatedAt": "2026-06-30T12:10:58.494Z"
+    "updatedAt": "2026-07-06T11:24:42.952Z"
   },
   {
     "id": 51,
     "topicId": 35,
     "imageUrl": "course-assets/D2_L07_12_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D2_L07",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 12,
     "createdAt": "2026-06-30T12:10:58.496Z",
-    "updatedAt": "2026-06-30T12:10:58.496Z"
+    "updatedAt": "2026-07-06T11:24:42.954Z"
   },
   {
     "id": 52,
     "topicId": 36,
     "imageUrl": "course-assets/D2_L08_ROOT_IMAGE_odp.png",
     "alt": "Materiał pomocniczy – D2_L08",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 0,
     "createdAt": "2026-06-30T12:10:58.502Z",
-    "updatedAt": "2026-06-30T12:10:58.502Z"
+    "updatedAt": "2026-07-06T11:24:42.956Z"
   },
   {
     "id": 53,
     "topicId": 37,
     "imageUrl": "course-assets/D3_L00_02_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L00",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 2,
     "createdAt": "2026-06-30T12:10:58.665Z",
-    "updatedAt": "2026-06-30T12:10:58.665Z"
+    "updatedAt": "2026-07-06T11:24:42.960Z"
   },
   {
     "id": 54,
     "topicId": 37,
     "imageUrl": "course-assets/D3_L00_04_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L00",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:58.667Z",
-    "updatedAt": "2026-06-30T12:10:58.667Z"
+    "updatedAt": "2026-07-06T11:24:42.961Z"
   },
   {
     "id": 55,
     "topicId": 37,
     "imageUrl": "course-assets/D3_L00_06_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L00",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 6,
     "createdAt": "2026-06-30T12:10:58.670Z",
-    "updatedAt": "2026-06-30T12:10:58.670Z"
+    "updatedAt": "2026-07-06T11:24:42.963Z"
   },
   {
     "id": 56,
     "topicId": 37,
     "imageUrl": "course-assets/D3_L00_08_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L00",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 8,
     "createdAt": "2026-06-30T12:10:58.673Z",
-    "updatedAt": "2026-06-30T12:10:58.673Z"
+    "updatedAt": "2026-07-06T11:24:42.967Z"
   },
   {
     "id": 57,
     "topicId": 38,
     "imageUrl": "course-assets/D3_L01_04_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L01",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:58.688Z",
-    "updatedAt": "2026-06-30T12:10:58.688Z"
+    "updatedAt": "2026-07-06T11:24:42.970Z"
   },
   {
     "id": 58,
     "topicId": 38,
     "imageUrl": "course-assets/D3_L01_06_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L01",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 6,
     "createdAt": "2026-06-30T12:10:58.691Z",
-    "updatedAt": "2026-06-30T12:10:58.691Z"
+    "updatedAt": "2026-07-06T11:24:42.972Z"
   },
   {
     "id": 59,
     "topicId": 38,
     "imageUrl": "course-assets/D3_L01_08_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L01",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 8,
     "createdAt": "2026-06-30T12:10:58.694Z",
-    "updatedAt": "2026-06-30T12:10:58.694Z"
+    "updatedAt": "2026-07-06T11:24:42.974Z"
   },
   {
     "id": 60,
     "topicId": 39,
     "imageUrl": "course-assets/D3_L02_04_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L02",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:58.787Z",
-    "updatedAt": "2026-06-30T12:10:58.787Z"
+    "updatedAt": "2026-07-06T11:24:42.975Z"
   },
   {
     "id": 61,
     "topicId": 39,
     "imageUrl": "course-assets/D3_L02_06_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L02",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 6,
     "createdAt": "2026-06-30T12:10:58.790Z",
-    "updatedAt": "2026-06-30T12:10:58.790Z"
+    "updatedAt": "2026-07-06T11:24:42.977Z"
   },
   {
     "id": 62,
     "topicId": 39,
     "imageUrl": "course-assets/D3_L02_08_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L02",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 8,
     "createdAt": "2026-06-30T12:10:58.792Z",
-    "updatedAt": "2026-06-30T12:10:58.792Z"
+    "updatedAt": "2026-07-06T11:24:42.979Z"
   },
   {
     "id": 63,
     "topicId": 40,
     "imageUrl": "course-assets/D3_L03_05_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L03",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 5,
     "createdAt": "2026-06-30T12:10:58.878Z",
-    "updatedAt": "2026-06-30T12:10:58.878Z"
+    "updatedAt": "2026-07-06T11:24:42.981Z"
   },
   {
     "id": 64,
     "topicId": 40,
     "imageUrl": "course-assets/D3_L03_07_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L03",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 7,
     "createdAt": "2026-06-30T12:10:58.881Z",
-    "updatedAt": "2026-06-30T12:10:58.881Z"
+    "updatedAt": "2026-07-06T11:24:42.983Z"
+  },
+  {
+    "id": 69,
+    "topicId": 44,
+    "imageUrl": "course-assets/D4_L02_04_PNG_ZADANIE_DROGA_SAMOCHOD_15MIN_60KMH.png",
+    "alt": "Oblicz drogę, jaką pokona samochód w ciągu 15 minut, jeżeli porusza się ze stałą prędkością 60 km/h.",
+    "answer": "15 km",
+    "solution": "15 min = 0,25 h; s = v·t = 60 km/h · 0,25 h = 15 km.",
+    "relatedVideoTitle": "D4_L02_03_VIDEO_ScreenRecorderProject86",
+    "sortOrder": 4,
+    "createdAt": "2026-07-10T14:13:31.189Z",
+    "updatedAt": "2026-07-10T14:13:31.189Z"
+  },
+  {
+    "id": 70,
+    "topicId": 44,
+    "imageUrl": "course-assets/D4_L02_06_PNG_ZADANIE_PREDKOSC_POCIAG_360KM_4H.png",
+    "alt": "Oblicz prędkość pociągu, który jadąc ruchem jednostajnym, w ciągu 4 godzin przebył drogę 360 km.",
+    "answer": "90 km/h",
+    "solution": "v = s/t = 360 km / 4 h = 90 km/h.",
+    "relatedVideoTitle": "D4_L02_05_VIDEO_ScreenRecorderProject87",
+    "sortOrder": 6,
+    "createdAt": "2026-07-10T14:13:31.192Z",
+    "updatedAt": "2026-07-10T14:13:31.192Z"
+  },
+  {
+    "id": 71,
+    "topicId": 45,
+    "imageUrl": "course-assets/D4_L03_03_PNG_ZADANIE_PRZYSPIESZENIE_MOTOCYKLISTA_36_72KMH.png",
+    "alt": "Podczas wyprzedzania motocyklista zwiększył swoją prędkość w stałym tempie od 36 km/h do 72 km/h. Cały manewr trwał 5 sekund. Oblicz przyspieszenie tego motocykla. Wynik podaj w m/s².",
+    "answer": "2 m/s²",
+    "solution": "36 km/h = 10 m/s; 72 km/h = 20 m/s; a = (20 - 10) / 5 = 2 m/s².",
+    "relatedVideoTitle": "D4_L03_02_VIDEO_ScreenRecorderProject88",
+    "sortOrder": 3,
+    "createdAt": "2026-07-10T14:13:31.282Z",
+    "updatedAt": "2026-07-10T14:13:31.282Z"
+  },
+  {
+    "id": 72,
+    "topicId": 45,
+    "imageUrl": "course-assets/D4_L03_05_PNG_ZADANIE_PRZYROST_PREDKOSCI_MOTOCYKL_4MS2.png",
+    "alt": "Oblicz, o ile wzrosła prędkość motocykla poruszającego się ze stałym przyspieszeniem 4 m/s²: a) w piątej sekundzie ruchu; b) w ciągu pierwszych pięciu sekund ruchu.",
+    "answer": "a) 4 m/s; b) 20 m/s",
+    "solution": "W każdej sekundzie prędkość rośnie o 4 m/s. W ciągu 5 s: Δv = a·t = 4·5 = 20 m/s.",
+    "relatedVideoTitle": "D4_L03_04_VIDEO_ScreenRecorderProject89",
+    "sortOrder": 5,
+    "createdAt": "2026-07-10T14:13:31.284Z",
+    "updatedAt": "2026-07-10T14:13:31.284Z"
+  },
+  {
+    "id": 73,
+    "topicId": 45,
+    "imageUrl": "course-assets/D4_L03_07_PNG_ZADANIE_PRZYSPIESZENIE_ROWERZYSTA_18KMH.png",
+    "alt": "Oblicz przyspieszenie rowerzysty, który ruszając z miejsca, w ciągu 5 sekund osiągnął prędkość 18 km/h. Wynik podaj w m/s².",
+    "answer": "1 m/s²",
+    "solution": "18 km/h = 5 m/s; a = 5/5 = 1 m/s².",
+    "relatedVideoTitle": "D4_L03_06_VIDEO_ScreenRecorderProject90",
+    "sortOrder": 7,
+    "createdAt": "2026-07-10T14:13:31.287Z",
+    "updatedAt": "2026-07-10T14:13:31.287Z"
+  },
+  {
+    "id": 74,
+    "topicId": 45,
+    "imageUrl": "course-assets/D4_L03_09_PNG_ZADANIE_DROGA_ROBOT_2MS2_5S.png",
+    "alt": "Robot kuchenny na kołach (zabawka) rusza z miejsca ze stałym przyspieszeniem 2 m/s². Oblicz, jaką drogę pokona ten robot w ciągu 5 s ruchu.",
+    "answer": "25 m",
+    "solution": "s = 1/2·a·t² = 1/2·2·5² = 25 m.",
+    "relatedVideoTitle": "D4_L03_08_VIDEO_ScreenRecorderProject91",
+    "sortOrder": 9,
+    "createdAt": "2026-07-10T14:13:31.290Z",
+    "updatedAt": "2026-07-10T14:13:31.290Z"
   },
   {
     "id": 65,
     "topicId": 40,
     "imageUrl": "course-assets/D3_L03_09W_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L03",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 9,
     "createdAt": "2026-06-30T12:10:58.883Z",
-    "updatedAt": "2026-06-30T12:10:58.883Z"
+    "updatedAt": "2026-07-06T11:24:42.984Z"
   },
   {
     "id": 66,
     "topicId": 40,
     "imageUrl": "course-assets/D3_L03_11_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L03",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 11,
     "createdAt": "2026-06-30T12:10:58.886Z",
-    "updatedAt": "2026-06-30T12:10:58.886Z"
+    "updatedAt": "2026-07-06T11:24:42.987Z"
   },
   {
     "id": 67,
     "topicId": 41,
     "imageUrl": "course-assets/D3_L04_04_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L04",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:58.970Z",
-    "updatedAt": "2026-06-30T12:10:58.970Z"
+    "updatedAt": "2026-07-06T11:24:42.990Z"
   },
   {
     "id": 68,
     "topicId": 41,
     "imageUrl": "course-assets/D3_L04_06_IMAGE_1.png",
     "alt": "Materiał pomocniczy – D3_L04",
+    "answer": null,
+    "solution": null,
+    "relatedVideoTitle": null,
     "sortOrder": 6,
     "createdAt": "2026-06-30T12:10:58.972Z",
-    "updatedAt": "2026-06-30T12:10:58.972Z"
+    "updatedAt": "2026-07-06T11:24:42.992Z"
   }
 ]

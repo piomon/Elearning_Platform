@@ -1,33 +1,93 @@
 [
   {
-    "id": 91,
-    "quizId": 15,
-    "questionText": "Jakie trzy główne zadania fizyki zostały wymienione w tekście?",
+    "id": 181,
+    "quizId": 29,
+    "questionText": "Dlaczego według tekstu w fizyce nie ma czegoś takiego jak absolutny ruch?",
     "explanation": null,
     "points": 1,
     "sortOrder": 1,
-    "createdAt": "2026-06-30T12:10:57.387Z",
-    "updatedAt": "2026-06-30T12:10:57.387Z"
+    "createdAt": "2026-07-10T14:13:31.087Z",
+    "updatedAt": "2026-07-10T14:13:31.087Z"
   },
   {
-    "id": 92,
-    "quizId": 15,
-    "questionText": "Zgodnie ze \"ściągą\" z filmu, w jaki sposób najprościej odróżnić ciało fizyczne od substancji?",
+    "id": 182,
+    "quizId": 29,
+    "questionText": "Jakie pytanie pozwala najłatwiej sprawdzić, czy jedno ciało porusza się względem drugiego?",
     "explanation": null,
     "points": 1,
     "sortOrder": 2,
-    "createdAt": "2026-06-30T12:10:57.403Z",
-    "updatedAt": "2026-06-30T12:10:57.403Z"
+    "createdAt": "2026-07-10T14:13:31.111Z",
+    "updatedAt": "2026-07-10T14:13:31.111Z"
   },
   {
-    "id": 93,
-    "quizId": 15,
-    "questionText": "Dlaczego organizmy żywe (np. ryba, pies, ty) w fizyce są traktowane jako ciała fizyczne?",
+    "id": 183,
+    "quizId": 29,
+    "questionText": "Ile liczb (współrzędnych) jest potrzebnych, aby namierzyć obiekt w pełnym układzie trójwymiarowym (3D), np. latający w niebie balon?",
     "explanation": null,
     "points": 1,
     "sortOrder": 3,
-    "createdAt": "2026-06-30T12:10:57.417Z",
-    "updatedAt": "2026-06-30T12:10:57.417Z"
+    "createdAt": "2026-07-10T14:13:31.128Z",
+    "updatedAt": "2026-07-10T14:13:31.128Z"
+  },
+  {
+    "id": 184,
+    "quizId": 29,
+    "questionText": "Jaka jest różnica między torem ruchu a drogą?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 4,
+    "createdAt": "2026-07-10T14:13:31.142Z",
+    "updatedAt": "2026-07-10T14:13:31.142Z"
+  },
+  {
+    "id": 185,
+    "quizId": 29,
+    "questionText": "Piłka rzucona przez koszykarza wpada do obręczy wygiętym łukiem. Jaki to rodzaj ruchu?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 5,
+    "createdAt": "2026-07-10T14:13:31.159Z",
+    "updatedAt": "2026-07-10T14:13:31.159Z"
+  },
+  {
+    "id": 186,
+    "quizId": 30,
+    "questionText": "Co to znaczy, że ruch jest \"jednostajny\"?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 1,
+    "createdAt": "2026-07-10T14:13:31.198Z",
+    "updatedAt": "2026-07-10T14:13:31.198Z"
+  },
+  {
+    "id": 187,
+    "quizId": 30,
+    "questionText": "Co oznaczają litery we wzorze na prędkość v = s / t?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 2,
+    "createdAt": "2026-07-10T14:13:31.211Z",
+    "updatedAt": "2026-07-10T14:13:31.211Z"
+  },
+  {
+    "id": 188,
+    "quizId": 30,
+    "questionText": "Jak zamienić wielkie jednostki (kilometry na godzinę) na mniejsze (metry na sekundę)?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 3,
+    "createdAt": "2026-07-10T14:13:31.224Z",
+    "updatedAt": "2026-07-10T14:13:31.224Z"
+  },
+  {
+    "id": 189,
+    "quizId": 30,
+    "questionText": "Ile wynosi przyspieszenie w ruchu jednostajnym prostoliniowym (np. podczas jazdy z włączonym tempomatem)?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 4,
+    "createdAt": "2026-07-10T14:13:31.244Z",
+    "updatedAt": "2026-07-10T14:13:31.244Z"
   },
   {
     "id": 94,
@@ -37,147 +97,17 @@
     "points": 1,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:57.435Z",
-    "updatedAt": "2026-06-30T12:10:57.435Z"
+    "updatedAt": "2026-07-06T11:24:43.044Z"
   },
   {
-    "id": 95,
+    "id": 91,
     "quizId": 15,
-    "questionText": "Która z poniższych sytuacji przedstawionych w tekście jest przykładem eksperymentu, a nie obserwacji?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 5,
-    "createdAt": "2026-06-30T12:10:57.448Z",
-    "updatedAt": "2026-06-30T12:10:57.448Z"
-  },
-  {
-    "id": 96,
-    "quizId": 16,
-    "questionText": "Na czym według tekstu polega proces pomiaru?",
+    "questionText": "Jakie trzy główne zadania fizyki zostały wymienione w tekście?",
     "explanation": null,
     "points": 1,
     "sortOrder": 1,
-    "createdAt": "2026-06-30T12:10:57.478Z",
-    "updatedAt": "2026-06-30T12:10:57.478Z"
-  },
-  {
-    "id": 97,
-    "quizId": 16,
-    "questionText": "Jaka jest podstawowa jednostka temperatury w układzie SI, którą tekst określa mianem podchwytliwej pułapki na sprawdzianach?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 2,
-    "createdAt": "2026-06-30T12:10:57.495Z",
-    "updatedAt": "2026-06-30T12:10:57.495Z"
-  },
-  {
-    "id": 98,
-    "quizId": 16,
-    "questionText": "Zgodnie z tekstem wielkość fizyczna to cecha, którą można obiektywnie zmierzyć. Która z poniższych cech klocka NIE JEST wielkością fizyczną?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 3,
-    "createdAt": "2026-06-30T12:10:57.508Z",
-    "updatedAt": "2026-06-30T12:10:57.508Z"
-  },
-  {
-    "id": 99,
-    "quizId": 16,
-    "questionText": "Przed jaką pułapką ostrzega tekst w kontekście przedrostków zapisywanych literą \"M\" i \"m\"?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 4,
-    "createdAt": "2026-06-30T12:10:57.524Z",
-    "updatedAt": "2026-06-30T12:10:57.524Z"
-  },
-  {
-    "id": 100,
-    "quizId": 16,
-    "questionText": "Dlaczego w tekście przeliczanie jednostek czasu (np. zamiana minut na sekundy) zostało nazwane największą pułapką?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 5,
-    "createdAt": "2026-06-30T12:10:57.537Z",
-    "updatedAt": "2026-06-30T12:10:57.537Z"
-  },
-  {
-    "id": 101,
-    "quizId": 17,
-    "questionText": "Dlaczego według tekstu w fizyce KAŻDY pomiar jest niedokładny i daje różne wyniki?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 1,
-    "createdAt": "2026-06-30T12:10:57.587Z",
-    "updatedAt": "2026-06-30T12:10:57.587Z"
-  },
-  {
-    "id": 102,
-    "quizId": 17,
-    "questionText": "Co powinien zrobić fizyk, aby poznać faktyczną długość przedmiotu po uzyskaniu kilku różnych wyników z pomiarów?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 2,
-    "createdAt": "2026-06-30T12:10:57.602Z",
-    "updatedAt": "2026-06-30T12:10:57.602Z"
-  },
-  {
-    "id": 103,
-    "quizId": 17,
-    "questionText": "Zgodnie z klockowym prawem zaokrąglania z tekstu, co powinieneś zrobić, gdy Twój wynik wynosi 3,4?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 3,
-    "createdAt": "2026-06-30T12:10:57.614Z",
-    "updatedAt": "2026-06-30T12:10:57.614Z"
-  },
-  {
-    "id": 104,
-    "quizId": 17,
-    "questionText": "W jakiej sytuacji nasza główna liczba robi \"Level Up\" i zostaje zaokrąglona w górę (np. zamienia się z 3,7 na 4)?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 4,
-    "createdAt": "2026-06-30T12:10:57.631Z",
-    "updatedAt": "2026-06-30T12:10:57.631Z"
-  },
-  {
-    "id": 105,
-    "quizId": 17,
-    "questionText": "Na czym polega gigantyczna pułapka przy zaokrąglaniu dużych liczb do cyfr znaczących (tak jak w przypadku liczby 3456 zaokrąglanej do dwóch cyfr znaczących)?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 5,
-    "createdAt": "2026-06-30T12:10:57.647Z",
-    "updatedAt": "2026-06-30T12:10:57.647Z"
-  },
-  {
-    "id": 106,
-    "quizId": 18,
-    "questionText": "Które z wymienionych oddziaływań, zgodnie z tekstem, potrafią działać na odległość i nie wymagają bezpośredniego dotyku?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 1,
-    "createdAt": "2026-06-30T12:10:57.674Z",
-    "updatedAt": "2026-06-30T12:10:57.674Z"
-  },
-  {
-    "id": 107,
-    "quizId": 18,
-    "questionText": "Jaka jest najważniejsza reguła dotycząca grawitacji opisana w tekście?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 2,
-    "createdAt": "2026-06-30T12:10:57.698Z",
-    "updatedAt": "2026-06-30T12:10:57.698Z"
-  },
-  {
-    "id": 108,
-    "quizId": 18,
-    "questionText": "Jak, według tekstu, zachowają się dwa takie same ładunki elektryczne (np. dwa minusy) albo dwa identyczne bieguny magnesu?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 3,
-    "createdAt": "2026-06-30T12:10:57.714Z",
-    "updatedAt": "2026-06-30T12:10:57.714Z"
+    "createdAt": "2026-06-30T12:10:57.387Z",
+    "updatedAt": "2026-07-06T11:24:43.036Z"
   },
   {
     "id": 109,
@@ -187,327 +117,7 @@
     "points": 1,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:57.728Z",
-    "updatedAt": "2026-06-30T12:10:57.728Z"
-  },
-  {
-    "id": 110,
-    "quizId": 18,
-    "questionText": "Który z poniższych przykładów z tekstu jest skutkiem dynamicznym oddziaływania?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 5,
-    "createdAt": "2026-06-30T12:10:57.752Z",
-    "updatedAt": "2026-06-30T12:10:57.752Z"
-  },
-  {
-    "id": 111,
-    "quizId": 19,
-    "questionText": "Od jakiego angielskiego słowa pochodzi litera F, którą fizycy oznaczają siłę, oraz w jakich jednostkach się ją mierzy?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 1,
-    "createdAt": "2026-06-30T12:10:57.777Z",
-    "updatedAt": "2026-06-30T12:10:57.777Z"
-  },
-  {
-    "id": 112,
-    "quizId": 19,
-    "questionText": "Jaki przykład podano w tekście, aby zobrazować siłę o wartości jednego niutona?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 2,
-    "createdAt": "2026-06-30T12:10:57.792Z",
-    "updatedAt": "2026-06-30T12:10:57.792Z"
-  },
-  {
-    "id": 113,
-    "quizId": 19,
-    "questionText": "Na czym polega inżynieryjny sekret, czyli \"wybór odpowiedniej skali\" podczas rysowania wektorów siły w zeszycie w kratkę?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 3,
-    "createdAt": "2026-06-30T12:10:57.807Z",
-    "updatedAt": "2026-06-30T12:10:57.807Z"
-  },
-  {
-    "id": 114,
-    "quizId": 19,
-    "questionText": "Czym, według tekstu, jest \"punkt przyłożenia\" siły?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 4,
-    "createdAt": "2026-06-30T12:10:57.822Z",
-    "updatedAt": "2026-06-30T12:10:57.822Z"
-  },
-  {
-    "id": 115,
-    "quizId": 19,
-    "questionText": "Jaka jest kluczowa różnica między \"kierunkiem\" a \"zwrotem\" siły, określona w tekście jako największa pułapka?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 5,
-    "createdAt": "2026-06-30T12:10:57.834Z",
-    "updatedAt": "2026-06-30T12:10:57.834Z"
-  },
-  {
-    "id": 116,
-    "quizId": 20,
-    "questionText": "Czym według tekstu jest atom?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 1,
-    "createdAt": "2026-06-30T12:10:57.912Z",
-    "updatedAt": "2026-06-30T12:10:57.912Z"
-  },
-  {
-    "id": 117,
-    "quizId": 20,
-    "questionText": "Co powstaje w wyniku połączenia ze sobą kilku atomów (np. tlenu i wodoru)?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 2,
-    "createdAt": "2026-06-30T12:10:57.927Z",
-    "updatedAt": "2026-06-30T12:10:57.927Z"
-  },
-  {
-    "id": 118,
-    "quizId": 20,
-    "questionText": "Zgodnie z tekstem materia nie jest ciągła. Jaką zatem ma budowę?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 3,
-    "createdAt": "2026-06-30T12:10:57.943Z",
-    "updatedAt": "2026-06-30T12:10:57.943Z"
-  },
-  {
-    "id": 119,
-    "quizId": 20,
-    "questionText": "W którym stanie skupienia cząsteczki poruszają się najszybciej i panuje wśród nich „totalny chaos”?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 4,
-    "createdAt": "2026-06-30T12:10:57.960Z",
-    "updatedAt": "2026-06-30T12:10:57.960Z"
-  },
-  {
-    "id": 120,
-    "quizId": 20,
-    "questionText": "Jaka jest złota zasada fizyki dotycząca temperatury i ruchu cząsteczek?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 5,
-    "createdAt": "2026-06-30T12:10:57.979Z",
-    "updatedAt": "2026-06-30T12:10:57.979Z"
-  },
-  {
-    "id": 121,
-    "quizId": 20,
-    "questionText": "Dzięki jakiej sile krople deszczu trzymają się szyby okna lub pajęczyny?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 6,
-    "createdAt": "2026-06-30T12:10:57.993Z",
-    "updatedAt": "2026-06-30T12:10:57.993Z"
-  },
-  {
-    "id": 122,
-    "quizId": 20,
-    "questionText": "Siły spójności można opisać jako:",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 7,
-    "createdAt": "2026-06-30T12:10:58.008Z",
-    "updatedAt": "2026-06-30T12:10:58.008Z"
-  },
-  {
-    "id": 123,
-    "quizId": 20,
-    "questionText": "Jak nazywa się zjawisko samorzutnego mieszania się cząsteczek różnych substancji (np. zapachu perfum w powietrzu lub herbaty w wodzie)?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 8,
-    "createdAt": "2026-06-30T12:10:58.022Z",
-    "updatedAt": "2026-06-30T12:10:58.022Z"
-  },
-  {
-    "id": 124,
-    "quizId": 20,
-    "questionText": "Dlaczego owady wodne potrafią spacerować po powierzchni stawu i nie toną, a spinacz unosi się na wodzie?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 9,
-    "createdAt": "2026-06-30T12:10:58.036Z",
-    "updatedAt": "2026-06-30T12:10:58.036Z"
-  },
-  {
-    "id": 125,
-    "quizId": 20,
-    "questionText": "Jak działają detergenty (np. płyn do naczyń) na wodę?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 10,
-    "createdAt": "2026-06-30T12:10:58.051Z",
-    "updatedAt": "2026-06-30T12:10:58.051Z"
-  },
-  {
-    "id": 126,
-    "quizId": 21,
-    "questionText": "Jak zachowują się cząsteczki w ciele stałym (np. w lodzie)?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 1,
-    "createdAt": "2026-06-30T12:10:58.078Z",
-    "updatedAt": "2026-06-30T12:10:58.078Z"
-  },
-  {
-    "id": 127,
-    "quizId": 21,
-    "questionText": "Dlaczego woda w szklance może się przelewać i dopasowywać do jej kształtu?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 2,
-    "createdAt": "2026-06-30T12:10:58.101Z",
-    "updatedAt": "2026-06-30T12:10:58.101Z"
-  },
-  {
-    "id": 128,
-    "quizId": 21,
-    "questionText": "W którym stanie skupienia cząsteczki mają najwięcej energii i nic ich nie ogranicza?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 3,
-    "createdAt": "2026-06-30T12:10:58.116Z",
-    "updatedAt": "2026-06-30T12:10:58.116Z"
-  },
-  {
-    "id": 129,
-    "quizId": 21,
-    "questionText": "Co charakteryzuje ciała stałe pod względem ich formy?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 4,
-    "createdAt": "2026-06-30T12:10:58.137Z",
-    "updatedAt": "2026-06-30T12:10:58.137Z"
-  },
-  {
-    "id": 130,
-    "quizId": 21,
-    "questionText": "Jak nazywamy ciała stałe (np. czerwoną sprężynę z tekstu), które po rozciągnięciu lub wygięciu wracają do swojego pierwotnego kształtu?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 5,
-    "createdAt": "2026-06-30T12:10:58.151Z",
-    "updatedAt": "2026-06-30T12:10:58.151Z"
-  },
-  {
-    "id": 131,
-    "quizId": 21,
-    "questionText": "Czym charakteryzują się ciała plastyczne, takie jak klockowa plastelina?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 6,
-    "createdAt": "2026-06-30T12:10:58.165Z",
-    "updatedAt": "2026-06-30T12:10:58.165Z"
-  },
-  {
-    "id": 132,
-    "quizId": 21,
-    "questionText": "Co się dzieje z cieczą (np. wodą), gdy przelejemy ją z wysokiej wieży do okrągłej misy?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 7,
-    "createdAt": "2026-06-30T12:10:58.247Z",
-    "updatedAt": "2026-06-30T12:10:58.247Z"
-  },
-  {
-    "id": 133,
-    "quizId": 21,
-    "questionText": "Dlaczego ciała stałe i ciecze są trudno ściśliwe?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 8,
-    "createdAt": "2026-06-30T12:10:58.266Z",
-    "updatedAt": "2026-06-30T12:10:58.266Z"
-  },
-  {
-    "id": 134,
-    "quizId": 21,
-    "questionText": "Dlaczego nasz bohater bez problemu może zgnieść pustą butelkę wypełnioną gazem (powietrzem)?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 9,
-    "createdAt": "2026-06-30T12:10:58.280Z",
-    "updatedAt": "2026-06-30T12:10:58.280Z"
-  },
-  {
-    "id": 135,
-    "quizId": 21,
-    "questionText": "Czym jest powierzchnia swobodna cieczy?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 10,
-    "createdAt": "2026-06-30T12:10:58.293Z",
-    "updatedAt": "2026-06-30T12:10:58.293Z"
-  },
-  {
-    "id": 136,
-    "quizId": 22,
-    "questionText": "Czym według tekstu jest masa (oznaczana literą m)?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 1,
-    "createdAt": "2026-06-30T12:10:58.325Z",
-    "updatedAt": "2026-06-30T12:10:58.325Z"
-  },
-  {
-    "id": 137,
-    "quizId": 22,
-    "questionText": "W jakich jednostkach mierzymy siłę ciężkości (oznaczaną literą F)?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 2,
-    "createdAt": "2026-06-30T12:10:58.341Z",
-    "updatedAt": "2026-06-30T12:10:58.341Z"
-  },
-  {
-    "id": 138,
-    "quizId": 22,
-    "questionText": "Ile wynosi w przybliżeniu współczynnik proporcjonalności (g) na Ziemi?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 3,
-    "createdAt": "2026-06-30T12:10:58.356Z",
-    "updatedAt": "2026-06-30T12:10:58.356Z"
-  },
-  {
-    "id": 139,
-    "quizId": 22,
-    "questionText": "Klockowa sztanga ma masę 2 kg. Z jaką siłą (ciężarem) przyciąga ją Ziemia?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 4,
-    "createdAt": "2026-06-30T12:10:58.369Z",
-    "updatedAt": "2026-06-30T12:10:58.369Z"
-  },
-  {
-    "id": 140,
-    "quizId": 22,
-    "questionText": "Duży materac i mały odważnik mają taką samą masę (2 kg). Który z nich Ziemia przyciąga mocniej?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 5,
-    "createdAt": "2026-06-30T12:10:58.382Z",
-    "updatedAt": "2026-06-30T12:10:58.382Z"
-  },
-  {
-    "id": 141,
-    "quizId": 22,
-    "questionText": "Co się stanie z masą i ciężarem Jasia, gdy poleci na Księżyc, gdzie grawitacja jest słabsza?",
-    "explanation": null,
-    "points": 1,
-    "sortOrder": 6,
-    "createdAt": "2026-06-30T12:10:58.395Z",
-    "updatedAt": "2026-06-30T12:10:58.395Z"
+    "updatedAt": "2026-07-06T11:24:43.082Z"
   },
   {
     "id": 142,
@@ -517,7 +127,7 @@
     "points": 1,
     "sortOrder": 7,
     "createdAt": "2026-06-30T12:10:58.408Z",
-    "updatedAt": "2026-06-30T12:10:58.408Z"
+    "updatedAt": "2026-07-06T11:24:43.154Z"
   },
   {
     "id": 143,
@@ -527,7 +137,7 @@
     "points": 1,
     "sortOrder": 8,
     "createdAt": "2026-06-30T12:10:58.421Z",
-    "updatedAt": "2026-06-30T12:10:58.421Z"
+    "updatedAt": "2026-07-06T11:24:43.156Z"
   },
   {
     "id": 144,
@@ -537,7 +147,7 @@
     "points": 1,
     "sortOrder": 9,
     "createdAt": "2026-06-30T12:10:58.434Z",
-    "updatedAt": "2026-06-30T12:10:58.434Z"
+    "updatedAt": "2026-07-06T11:24:43.158Z"
   },
   {
     "id": 145,
@@ -547,7 +157,7 @@
     "points": 1,
     "sortOrder": 10,
     "createdAt": "2026-06-30T12:10:58.451Z",
-    "updatedAt": "2026-06-30T12:10:58.451Z"
+    "updatedAt": "2026-07-06T11:24:43.161Z"
   },
   {
     "id": 146,
@@ -557,7 +167,7 @@
     "points": 1,
     "sortOrder": 1,
     "createdAt": "2026-06-30T12:10:58.508Z",
-    "updatedAt": "2026-06-30T12:10:58.508Z"
+    "updatedAt": "2026-07-06T11:24:43.163Z"
   },
   {
     "id": 147,
@@ -567,7 +177,7 @@
     "points": 1,
     "sortOrder": 2,
     "createdAt": "2026-06-30T12:10:58.522Z",
-    "updatedAt": "2026-06-30T12:10:58.522Z"
+    "updatedAt": "2026-07-06T11:24:43.166Z"
   },
   {
     "id": 148,
@@ -577,7 +187,7 @@
     "points": 1,
     "sortOrder": 3,
     "createdAt": "2026-06-30T12:10:58.535Z",
-    "updatedAt": "2026-06-30T12:10:58.535Z"
+    "updatedAt": "2026-07-06T11:24:43.169Z"
   },
   {
     "id": 149,
@@ -587,7 +197,487 @@
     "points": 1,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:58.548Z",
-    "updatedAt": "2026-06-30T12:10:58.548Z"
+    "updatedAt": "2026-07-06T11:24:43.172Z"
+  },
+  {
+    "id": 92,
+    "quizId": 15,
+    "questionText": "Zgodnie ze \"ściągą\" z filmu, w jaki sposób najprościej odróżnić ciało fizyczne od substancji?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 2,
+    "createdAt": "2026-06-30T12:10:57.403Z",
+    "updatedAt": "2026-07-06T11:24:43.039Z"
+  },
+  {
+    "id": 93,
+    "quizId": 15,
+    "questionText": "Dlaczego organizmy żywe (np. ryba, pies, ty) w fizyce są traktowane jako ciała fizyczne?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 3,
+    "createdAt": "2026-06-30T12:10:57.417Z",
+    "updatedAt": "2026-07-06T11:24:43.043Z"
+  },
+  {
+    "id": 95,
+    "quizId": 15,
+    "questionText": "Która z poniższych sytuacji przedstawionych w tekście jest przykładem eksperymentu, a nie obserwacji?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 5,
+    "createdAt": "2026-06-30T12:10:57.448Z",
+    "updatedAt": "2026-07-06T11:24:43.049Z"
+  },
+  {
+    "id": 96,
+    "quizId": 16,
+    "questionText": "Na czym według tekstu polega proces pomiaru?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 1,
+    "createdAt": "2026-06-30T12:10:57.478Z",
+    "updatedAt": "2026-07-06T11:24:43.052Z"
+  },
+  {
+    "id": 97,
+    "quizId": 16,
+    "questionText": "Jaka jest podstawowa jednostka temperatury w układzie SI, którą tekst określa mianem podchwytliwej pułapki na sprawdzianach?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 2,
+    "createdAt": "2026-06-30T12:10:57.495Z",
+    "updatedAt": "2026-07-06T11:24:43.055Z"
+  },
+  {
+    "id": 98,
+    "quizId": 16,
+    "questionText": "Zgodnie z tekstem wielkość fizyczna to cecha, którą można obiektywnie zmierzyć. Która z poniższych cech klocka NIE JEST wielkością fizyczną?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 3,
+    "createdAt": "2026-06-30T12:10:57.508Z",
+    "updatedAt": "2026-07-06T11:24:43.057Z"
+  },
+  {
+    "id": 99,
+    "quizId": 16,
+    "questionText": "Przed jaką pułapką ostrzega tekst w kontekście przedrostków zapisywanych literą \"M\" i \"m\"?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 4,
+    "createdAt": "2026-06-30T12:10:57.524Z",
+    "updatedAt": "2026-07-06T11:24:43.060Z"
+  },
+  {
+    "id": 100,
+    "quizId": 16,
+    "questionText": "Dlaczego w tekście przeliczanie jednostek czasu (np. zamiana minut na sekundy) zostało nazwane największą pułapką?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 5,
+    "createdAt": "2026-06-30T12:10:57.537Z",
+    "updatedAt": "2026-07-06T11:24:43.062Z"
+  },
+  {
+    "id": 101,
+    "quizId": 17,
+    "questionText": "Dlaczego według tekstu w fizyce KAŻDY pomiar jest niedokładny i daje różne wyniki?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 1,
+    "createdAt": "2026-06-30T12:10:57.587Z",
+    "updatedAt": "2026-07-06T11:24:43.064Z"
+  },
+  {
+    "id": 102,
+    "quizId": 17,
+    "questionText": "Co powinien zrobić fizyk, aby poznać faktyczną długość przedmiotu po uzyskaniu kilku różnych wyników z pomiarów?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 2,
+    "createdAt": "2026-06-30T12:10:57.602Z",
+    "updatedAt": "2026-07-06T11:24:43.067Z"
+  },
+  {
+    "id": 103,
+    "quizId": 17,
+    "questionText": "Zgodnie z klockowym prawem zaokrąglania z tekstu, co powinieneś zrobić, gdy Twój wynik wynosi 3,4?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 3,
+    "createdAt": "2026-06-30T12:10:57.614Z",
+    "updatedAt": "2026-07-06T11:24:43.069Z"
+  },
+  {
+    "id": 104,
+    "quizId": 17,
+    "questionText": "W jakiej sytuacji nasza główna liczba robi \"Level Up\" i zostaje zaokrąglona w górę (np. zamienia się z 3,7 na 4)?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 4,
+    "createdAt": "2026-06-30T12:10:57.631Z",
+    "updatedAt": "2026-07-06T11:24:43.072Z"
+  },
+  {
+    "id": 105,
+    "quizId": 17,
+    "questionText": "Na czym polega gigantyczna pułapka przy zaokrąglaniu dużych liczb do cyfr znaczących (tak jak w przypadku liczby 3456 zaokrąglanej do dwóch cyfr znaczących)?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 5,
+    "createdAt": "2026-06-30T12:10:57.647Z",
+    "updatedAt": "2026-07-06T11:24:43.074Z"
+  },
+  {
+    "id": 106,
+    "quizId": 18,
+    "questionText": "Które z wymienionych oddziaływań, zgodnie z tekstem, potrafią działać na odległość i nie wymagają bezpośredniego dotyku?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 1,
+    "createdAt": "2026-06-30T12:10:57.674Z",
+    "updatedAt": "2026-07-06T11:24:43.075Z"
+  },
+  {
+    "id": 107,
+    "quizId": 18,
+    "questionText": "Jaka jest najważniejsza reguła dotycząca grawitacji opisana w tekście?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 2,
+    "createdAt": "2026-06-30T12:10:57.698Z",
+    "updatedAt": "2026-07-06T11:24:43.078Z"
+  },
+  {
+    "id": 108,
+    "quizId": 18,
+    "questionText": "Jak, według tekstu, zachowają się dwa takie same ładunki elektryczne (np. dwa minusy) albo dwa identyczne bieguny magnesu?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 3,
+    "createdAt": "2026-06-30T12:10:57.714Z",
+    "updatedAt": "2026-07-06T11:24:43.080Z"
+  },
+  {
+    "id": 110,
+    "quizId": 18,
+    "questionText": "Który z poniższych przykładów z tekstu jest skutkiem dynamicznym oddziaływania?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 5,
+    "createdAt": "2026-06-30T12:10:57.752Z",
+    "updatedAt": "2026-07-06T11:24:43.084Z"
+  },
+  {
+    "id": 111,
+    "quizId": 19,
+    "questionText": "Od jakiego angielskiego słowa pochodzi litera F, którą fizycy oznaczają siłę, oraz w jakich jednostkach się ją mierzy?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 1,
+    "createdAt": "2026-06-30T12:10:57.777Z",
+    "updatedAt": "2026-07-06T11:24:43.086Z"
+  },
+  {
+    "id": 112,
+    "quizId": 19,
+    "questionText": "Jaki przykład podano w tekście, aby zobrazować siłę o wartości jednego niutona?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 2,
+    "createdAt": "2026-06-30T12:10:57.792Z",
+    "updatedAt": "2026-07-06T11:24:43.087Z"
+  },
+  {
+    "id": 113,
+    "quizId": 19,
+    "questionText": "Na czym polega inżynieryjny sekret, czyli \"wybór odpowiedniej skali\" podczas rysowania wektorów siły w zeszycie w kratkę?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 3,
+    "createdAt": "2026-06-30T12:10:57.807Z",
+    "updatedAt": "2026-07-06T11:24:43.089Z"
+  },
+  {
+    "id": 114,
+    "quizId": 19,
+    "questionText": "Czym, według tekstu, jest \"punkt przyłożenia\" siły?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 4,
+    "createdAt": "2026-06-30T12:10:57.822Z",
+    "updatedAt": "2026-07-06T11:24:43.091Z"
+  },
+  {
+    "id": 115,
+    "quizId": 19,
+    "questionText": "Jaka jest kluczowa różnica między \"kierunkiem\" a \"zwrotem\" siły, określona w tekście jako największa pułapka?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 5,
+    "createdAt": "2026-06-30T12:10:57.834Z",
+    "updatedAt": "2026-07-06T11:24:43.094Z"
+  },
+  {
+    "id": 116,
+    "quizId": 20,
+    "questionText": "Czym według tekstu jest atom?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 1,
+    "createdAt": "2026-06-30T12:10:57.912Z",
+    "updatedAt": "2026-07-06T11:24:43.096Z"
+  },
+  {
+    "id": 117,
+    "quizId": 20,
+    "questionText": "Co powstaje w wyniku połączenia ze sobą kilku atomów (np. tlenu i wodoru)?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 2,
+    "createdAt": "2026-06-30T12:10:57.927Z",
+    "updatedAt": "2026-07-06T11:24:43.098Z"
+  },
+  {
+    "id": 118,
+    "quizId": 20,
+    "questionText": "Zgodnie z tekstem materia nie jest ciągła. Jaką zatem ma budowę?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 3,
+    "createdAt": "2026-06-30T12:10:57.943Z",
+    "updatedAt": "2026-07-06T11:24:43.100Z"
+  },
+  {
+    "id": 119,
+    "quizId": 20,
+    "questionText": "W którym stanie skupienia cząsteczki poruszają się najszybciej i panuje wśród nich „totalny chaos”?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 4,
+    "createdAt": "2026-06-30T12:10:57.960Z",
+    "updatedAt": "2026-07-06T11:24:43.103Z"
+  },
+  {
+    "id": 120,
+    "quizId": 20,
+    "questionText": "Jaka jest złota zasada fizyki dotycząca temperatury i ruchu cząsteczek?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 5,
+    "createdAt": "2026-06-30T12:10:57.979Z",
+    "updatedAt": "2026-07-06T11:24:43.104Z"
+  },
+  {
+    "id": 121,
+    "quizId": 20,
+    "questionText": "Dzięki jakiej sile krople deszczu trzymają się szyby okna lub pajęczyny?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 6,
+    "createdAt": "2026-06-30T12:10:57.993Z",
+    "updatedAt": "2026-07-06T11:24:43.109Z"
+  },
+  {
+    "id": 122,
+    "quizId": 20,
+    "questionText": "Siły spójności można opisać jako:",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 7,
+    "createdAt": "2026-06-30T12:10:58.008Z",
+    "updatedAt": "2026-07-06T11:24:43.111Z"
+  },
+  {
+    "id": 123,
+    "quizId": 20,
+    "questionText": "Jak nazywa się zjawisko samorzutnego mieszania się cząsteczek różnych substancji (np. zapachu perfum w powietrzu lub herbaty w wodzie)?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 8,
+    "createdAt": "2026-06-30T12:10:58.022Z",
+    "updatedAt": "2026-07-06T11:24:43.113Z"
+  },
+  {
+    "id": 124,
+    "quizId": 20,
+    "questionText": "Dlaczego owady wodne potrafią spacerować po powierzchni stawu i nie toną, a spinacz unosi się na wodzie?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 9,
+    "createdAt": "2026-06-30T12:10:58.036Z",
+    "updatedAt": "2026-07-06T11:24:43.115Z"
+  },
+  {
+    "id": 125,
+    "quizId": 20,
+    "questionText": "Jak działają detergenty (np. płyn do naczyń) na wodę?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 10,
+    "createdAt": "2026-06-30T12:10:58.051Z",
+    "updatedAt": "2026-07-06T11:24:43.119Z"
+  },
+  {
+    "id": 126,
+    "quizId": 21,
+    "questionText": "Jak zachowują się cząsteczki w ciele stałym (np. w lodzie)?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 1,
+    "createdAt": "2026-06-30T12:10:58.078Z",
+    "updatedAt": "2026-07-06T11:24:43.121Z"
+  },
+  {
+    "id": 127,
+    "quizId": 21,
+    "questionText": "Dlaczego woda w szklance może się przelewać i dopasowywać do jej kształtu?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 2,
+    "createdAt": "2026-06-30T12:10:58.101Z",
+    "updatedAt": "2026-07-06T11:24:43.124Z"
+  },
+  {
+    "id": 128,
+    "quizId": 21,
+    "questionText": "W którym stanie skupienia cząsteczki mają najwięcej energii i nic ich nie ogranicza?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 3,
+    "createdAt": "2026-06-30T12:10:58.116Z",
+    "updatedAt": "2026-07-06T11:24:43.125Z"
+  },
+  {
+    "id": 129,
+    "quizId": 21,
+    "questionText": "Co charakteryzuje ciała stałe pod względem ich formy?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 4,
+    "createdAt": "2026-06-30T12:10:58.137Z",
+    "updatedAt": "2026-07-06T11:24:43.128Z"
+  },
+  {
+    "id": 130,
+    "quizId": 21,
+    "questionText": "Jak nazywamy ciała stałe (np. czerwoną sprężynę z tekstu), które po rozciągnięciu lub wygięciu wracają do swojego pierwotnego kształtu?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 5,
+    "createdAt": "2026-06-30T12:10:58.151Z",
+    "updatedAt": "2026-07-06T11:24:43.130Z"
+  },
+  {
+    "id": 131,
+    "quizId": 21,
+    "questionText": "Czym charakteryzują się ciała plastyczne, takie jak klockowa plastelina?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 6,
+    "createdAt": "2026-06-30T12:10:58.165Z",
+    "updatedAt": "2026-07-06T11:24:43.131Z"
+  },
+  {
+    "id": 132,
+    "quizId": 21,
+    "questionText": "Co się dzieje z cieczą (np. wodą), gdy przelejemy ją z wysokiej wieży do okrągłej misy?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 7,
+    "createdAt": "2026-06-30T12:10:58.247Z",
+    "updatedAt": "2026-07-06T11:24:43.133Z"
+  },
+  {
+    "id": 133,
+    "quizId": 21,
+    "questionText": "Dlaczego ciała stałe i ciecze są trudno ściśliwe?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 8,
+    "createdAt": "2026-06-30T12:10:58.266Z",
+    "updatedAt": "2026-07-06T11:24:43.135Z"
+  },
+  {
+    "id": 134,
+    "quizId": 21,
+    "questionText": "Dlaczego nasz bohater bez problemu może zgnieść pustą butelkę wypełnioną gazem (powietrzem)?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 9,
+    "createdAt": "2026-06-30T12:10:58.280Z",
+    "updatedAt": "2026-07-06T11:24:43.137Z"
+  },
+  {
+    "id": 135,
+    "quizId": 21,
+    "questionText": "Czym jest powierzchnia swobodna cieczy?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 10,
+    "createdAt": "2026-06-30T12:10:58.293Z",
+    "updatedAt": "2026-07-06T11:24:43.139Z"
+  },
+  {
+    "id": 136,
+    "quizId": 22,
+    "questionText": "Czym według tekstu jest masa (oznaczana literą m)?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 1,
+    "createdAt": "2026-06-30T12:10:58.325Z",
+    "updatedAt": "2026-07-06T11:24:43.141Z"
+  },
+  {
+    "id": 137,
+    "quizId": 22,
+    "questionText": "W jakich jednostkach mierzymy siłę ciężkości (oznaczaną literą F)?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 2,
+    "createdAt": "2026-06-30T12:10:58.341Z",
+    "updatedAt": "2026-07-06T11:24:43.142Z"
+  },
+  {
+    "id": 138,
+    "quizId": 22,
+    "questionText": "Ile wynosi w przybliżeniu współczynnik proporcjonalności (g) na Ziemi?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 3,
+    "createdAt": "2026-06-30T12:10:58.356Z",
+    "updatedAt": "2026-07-06T11:24:43.144Z"
+  },
+  {
+    "id": 139,
+    "quizId": 22,
+    "questionText": "Klockowa sztanga ma masę 2 kg. Z jaką siłą (ciężarem) przyciąga ją Ziemia?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 4,
+    "createdAt": "2026-06-30T12:10:58.369Z",
+    "updatedAt": "2026-07-06T11:24:43.147Z"
+  },
+  {
+    "id": 140,
+    "quizId": 22,
+    "questionText": "Duży materac i mały odważnik mają taką samą masę (2 kg). Który z nich Ziemia przyciąga mocniej?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 5,
+    "createdAt": "2026-06-30T12:10:58.382Z",
+    "updatedAt": "2026-07-06T11:24:43.149Z"
+  },
+  {
+    "id": 141,
+    "quizId": 22,
+    "questionText": "Co się stanie z masą i ciężarem Jasia, gdy poleci na Księżyc, gdzie grawitacja jest słabsza?",
+    "explanation": null,
+    "points": 1,
+    "sortOrder": 6,
+    "createdAt": "2026-06-30T12:10:58.395Z",
+    "updatedAt": "2026-07-06T11:24:43.151Z"
   },
   {
     "id": 150,
@@ -597,7 +687,7 @@
     "points": 1,
     "sortOrder": 5,
     "createdAt": "2026-06-30T12:10:58.560Z",
-    "updatedAt": "2026-06-30T12:10:58.560Z"
+    "updatedAt": "2026-07-06T11:24:43.176Z"
   },
   {
     "id": 151,
@@ -607,7 +697,7 @@
     "points": 1,
     "sortOrder": 6,
     "createdAt": "2026-06-30T12:10:58.573Z",
-    "updatedAt": "2026-06-30T12:10:58.573Z"
+    "updatedAt": "2026-07-06T11:24:43.179Z"
   },
   {
     "id": 152,
@@ -617,7 +707,7 @@
     "points": 1,
     "sortOrder": 7,
     "createdAt": "2026-06-30T12:10:58.586Z",
-    "updatedAt": "2026-06-30T12:10:58.586Z"
+    "updatedAt": "2026-07-06T11:24:43.181Z"
   },
   {
     "id": 153,
@@ -627,7 +717,7 @@
     "points": 1,
     "sortOrder": 8,
     "createdAt": "2026-06-30T12:10:58.599Z",
-    "updatedAt": "2026-06-30T12:10:58.599Z"
+    "updatedAt": "2026-07-06T11:24:43.183Z"
   },
   {
     "id": 154,
@@ -637,7 +727,7 @@
     "points": 1,
     "sortOrder": 9,
     "createdAt": "2026-06-30T12:10:58.612Z",
-    "updatedAt": "2026-06-30T12:10:58.612Z"
+    "updatedAt": "2026-07-06T11:24:43.185Z"
   },
   {
     "id": 155,
@@ -647,7 +737,7 @@
     "points": 1,
     "sortOrder": 10,
     "createdAt": "2026-06-30T12:10:58.627Z",
-    "updatedAt": "2026-06-30T12:10:58.627Z"
+    "updatedAt": "2026-07-06T11:24:43.187Z"
   },
   {
     "id": 156,
@@ -657,7 +747,7 @@
     "points": 1,
     "sortOrder": 1,
     "createdAt": "2026-06-30T12:10:58.698Z",
-    "updatedAt": "2026-06-30T12:10:58.698Z"
+    "updatedAt": "2026-07-06T11:24:43.189Z"
   },
   {
     "id": 157,
@@ -667,7 +757,7 @@
     "points": 1,
     "sortOrder": 2,
     "createdAt": "2026-06-30T12:10:58.710Z",
-    "updatedAt": "2026-06-30T12:10:58.710Z"
+    "updatedAt": "2026-07-06T11:24:43.191Z"
   },
   {
     "id": 158,
@@ -677,7 +767,7 @@
     "points": 1,
     "sortOrder": 3,
     "createdAt": "2026-06-30T12:10:58.722Z",
-    "updatedAt": "2026-06-30T12:10:58.722Z"
+    "updatedAt": "2026-07-06T11:24:43.193Z"
   },
   {
     "id": 159,
@@ -687,7 +777,7 @@
     "points": 1,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:58.737Z",
-    "updatedAt": "2026-06-30T12:10:58.737Z"
+    "updatedAt": "2026-07-06T11:24:43.195Z"
   },
   {
     "id": 160,
@@ -697,7 +787,7 @@
     "points": 1,
     "sortOrder": 5,
     "createdAt": "2026-06-30T12:10:58.749Z",
-    "updatedAt": "2026-06-30T12:10:58.749Z"
+    "updatedAt": "2026-07-06T11:24:43.201Z"
   },
   {
     "id": 161,
@@ -707,7 +797,7 @@
     "points": 1,
     "sortOrder": 1,
     "createdAt": "2026-06-30T12:10:58.798Z",
-    "updatedAt": "2026-06-30T12:10:58.798Z"
+    "updatedAt": "2026-07-06T11:24:43.202Z"
   },
   {
     "id": 162,
@@ -717,7 +807,7 @@
     "points": 1,
     "sortOrder": 2,
     "createdAt": "2026-06-30T12:10:58.812Z",
-    "updatedAt": "2026-06-30T12:10:58.812Z"
+    "updatedAt": "2026-07-06T11:24:43.204Z"
   },
   {
     "id": 163,
@@ -727,7 +817,7 @@
     "points": 1,
     "sortOrder": 3,
     "createdAt": "2026-06-30T12:10:58.823Z",
-    "updatedAt": "2026-06-30T12:10:58.823Z"
+    "updatedAt": "2026-07-06T11:24:43.205Z"
   },
   {
     "id": 164,
@@ -737,7 +827,7 @@
     "points": 1,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:58.833Z",
-    "updatedAt": "2026-06-30T12:10:58.833Z"
+    "updatedAt": "2026-07-06T11:24:43.207Z"
   },
   {
     "id": 165,
@@ -747,7 +837,7 @@
     "points": 1,
     "sortOrder": 5,
     "createdAt": "2026-06-30T12:10:58.843Z",
-    "updatedAt": "2026-06-30T12:10:58.843Z"
+    "updatedAt": "2026-07-06T11:24:43.209Z"
   },
   {
     "id": 166,
@@ -757,7 +847,7 @@
     "points": 1,
     "sortOrder": 1,
     "createdAt": "2026-06-30T12:10:58.893Z",
-    "updatedAt": "2026-06-30T12:10:58.893Z"
+    "updatedAt": "2026-07-06T11:24:43.213Z"
   },
   {
     "id": 167,
@@ -767,7 +857,7 @@
     "points": 1,
     "sortOrder": 2,
     "createdAt": "2026-06-30T12:10:58.911Z",
-    "updatedAt": "2026-06-30T12:10:58.911Z"
+    "updatedAt": "2026-07-06T11:24:43.214Z"
   },
   {
     "id": 168,
@@ -777,7 +867,7 @@
     "points": 1,
     "sortOrder": 3,
     "createdAt": "2026-06-30T12:10:58.924Z",
-    "updatedAt": "2026-06-30T12:10:58.924Z"
+    "updatedAt": "2026-07-06T11:24:43.216Z"
   },
   {
     "id": 169,
@@ -787,7 +877,7 @@
     "points": 1,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:58.938Z",
-    "updatedAt": "2026-06-30T12:10:58.938Z"
+    "updatedAt": "2026-07-06T11:24:43.217Z"
   },
   {
     "id": 170,
@@ -797,7 +887,7 @@
     "points": 1,
     "sortOrder": 5,
     "createdAt": "2026-06-30T12:10:58.949Z",
-    "updatedAt": "2026-06-30T12:10:58.949Z"
+    "updatedAt": "2026-07-06T11:24:43.220Z"
   },
   {
     "id": 171,
@@ -807,7 +897,7 @@
     "points": 1,
     "sortOrder": 1,
     "createdAt": "2026-06-30T12:10:58.978Z",
-    "updatedAt": "2026-06-30T12:10:58.978Z"
+    "updatedAt": "2026-07-06T11:24:43.222Z"
   },
   {
     "id": 172,
@@ -817,7 +907,7 @@
     "points": 1,
     "sortOrder": 2,
     "createdAt": "2026-06-30T12:10:58.991Z",
-    "updatedAt": "2026-06-30T12:10:58.991Z"
+    "updatedAt": "2026-07-06T11:24:43.224Z"
   },
   {
     "id": 173,
@@ -827,7 +917,7 @@
     "points": 1,
     "sortOrder": 3,
     "createdAt": "2026-06-30T12:10:59.003Z",
-    "updatedAt": "2026-06-30T12:10:59.003Z"
+    "updatedAt": "2026-07-06T11:24:43.226Z"
   },
   {
     "id": 174,
@@ -837,7 +927,7 @@
     "points": 1,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:59.015Z",
-    "updatedAt": "2026-06-30T12:10:59.015Z"
+    "updatedAt": "2026-07-06T11:24:43.227Z"
   },
   {
     "id": 175,
@@ -847,7 +937,7 @@
     "points": 1,
     "sortOrder": 5,
     "createdAt": "2026-06-30T12:10:59.026Z",
-    "updatedAt": "2026-06-30T12:10:59.026Z"
+    "updatedAt": "2026-07-06T11:24:43.228Z"
   },
   {
     "id": 176,
@@ -857,7 +947,7 @@
     "points": 1,
     "sortOrder": 1,
     "createdAt": "2026-06-30T12:10:59.049Z",
-    "updatedAt": "2026-06-30T12:10:59.049Z"
+    "updatedAt": "2026-07-06T11:24:43.230Z"
   },
   {
     "id": 177,
@@ -867,7 +957,7 @@
     "points": 1,
     "sortOrder": 2,
     "createdAt": "2026-06-30T12:10:59.062Z",
-    "updatedAt": "2026-06-30T12:10:59.062Z"
+    "updatedAt": "2026-07-06T11:24:43.234Z"
   },
   {
     "id": 178,
@@ -877,7 +967,7 @@
     "points": 1,
     "sortOrder": 3,
     "createdAt": "2026-06-30T12:10:59.076Z",
-    "updatedAt": "2026-06-30T12:10:59.076Z"
+    "updatedAt": "2026-07-06T11:24:43.239Z"
   },
   {
     "id": 179,
@@ -887,7 +977,7 @@
     "points": 1,
     "sortOrder": 4,
     "createdAt": "2026-06-30T12:10:59.091Z",
-    "updatedAt": "2026-06-30T12:10:59.091Z"
+    "updatedAt": "2026-07-06T11:24:43.241Z"
   },
   {
     "id": 180,
@@ -897,6 +987,6 @@
     "points": 1,
     "sortOrder": 5,
     "createdAt": "2026-06-30T12:10:59.108Z",
-    "updatedAt": "2026-06-30T12:10:59.108Z"
+    "updatedAt": "2026-07-06T11:24:43.243Z"
   }
 ]

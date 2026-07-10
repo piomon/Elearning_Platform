@@ -1,28 +1,5 @@
 [
   {
-    "id": 1,
-    "key": "hero",
-    "title": "Sekcja powitalna (Hero)",
-    "sortOrder": 1,
-    "isEnabled": true,
-    "content": {
-      "badges": [
-        "AI sprawdza zadania",
-        "Quizy po każdej lekcji",
-        "Interaktywna tablica"
-      ],
-      "ctaPrimary": "Kup dostęp",
-      "paragraph1": "Fizyka w 7 klasie to nowość i spore wyzwanie. Chcesz, żeby Twoje dziecko od razu polubiło ten przedmiot, zamiast stresować się na pierwszych lekcjach? Wybierzcie innowacyjny kurs na start!",
-      "paragraph2": "Zamieniliśmy nudny podręcznik w niezwykłą przygodę. Nowoczesna platforma edukacyjna, która uczy fizyki przez interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.",
-      "ratingText": "Zaufali nam rodzice i uczniowie",
-      "titleLine1": "Fizyka w 7 klasie",
-      "titleLine2": "zrozumiała jak nigdy.",
-      "ctaSecondary": "Zobacz jak działa"
-    },
-    "createdAt": "2026-06-16T10:48:37.250Z",
-    "updatedAt": "2026-06-16T10:48:37.250Z"
-  },
-  {
     "id": 2,
     "key": "benefits",
     "title": "Pasek korzyści",
@@ -49,7 +26,7 @@
       ]
     },
     "createdAt": "2026-06-16T10:48:37.254Z",
-    "updatedAt": "2026-06-16T10:48:37.254Z"
+    "updatedAt": "2026-07-06T11:24:43.987Z"
   },
   {
     "id": 3,
@@ -85,7 +62,7 @@
       "subheading": "Zaprojektowaliśmy cykl lekcji tak, aby budował pewność siebie i gwarantował zrozumienie każdego tematu."
     },
     "createdAt": "2026-06-16T10:48:37.256Z",
-    "updatedAt": "2026-06-16T10:48:37.256Z"
+    "updatedAt": "2026-07-06T11:24:43.989Z"
   },
   {
     "id": 4,
@@ -99,7 +76,7 @@
       "subheading": "Kompleksowy kurs podzielony na przystępne moduły. Każdy dział to krok do pełnego zrozumienia fizyki."
     },
     "createdAt": "2026-06-16T10:48:37.263Z",
-    "updatedAt": "2026-06-16T10:48:37.263Z"
+    "updatedAt": "2026-07-06T11:24:43.991Z"
   },
   {
     "id": 5,
@@ -117,7 +94,7 @@
       "card2Title": "Śledzi postępy"
     },
     "createdAt": "2026-06-16T10:48:37.265Z",
-    "updatedAt": "2026-06-16T10:48:37.265Z"
+    "updatedAt": "2026-07-06T11:24:43.994Z"
   },
   {
     "id": 6,
@@ -130,7 +107,30 @@
       "subheading": "Nie musisz być ekspertem z fizyki, aby wspierać swoje dziecko. Nasza platforma zadba o jakość i systematyczność edukacji."
     },
     "createdAt": "2026-06-16T10:48:37.268Z",
-    "updatedAt": "2026-06-16T10:48:37.268Z"
+    "updatedAt": "2026-07-06T11:24:43.996Z"
+  },
+  {
+    "id": 1,
+    "key": "hero",
+    "title": "Sekcja powitalna (Hero)",
+    "sortOrder": 1,
+    "isEnabled": true,
+    "content": {
+      "badges": [
+        "AI sprawdza zadania",
+        "Quizy po każdej lekcji",
+        "Interaktywna tablica"
+      ],
+      "ctaPrimary": "Kup dostęp",
+      "paragraph1": "Fizyka w 7 klasie to nowość i spore wyzwanie. Chcesz, żeby Twoje dziecko od razu polubiło ten przedmiot, zamiast stresować się na pierwszych lekcjach? Wybierzcie innowacyjny kurs na start!",
+      "paragraph2": "Zamieniliśmy nudny podręcznik w niezwykłą przygodę. Nowoczesna platforma edukacyjna, która uczy fizyki przez interaktywne wideo, quizy i zadania z natychmiastową pomocą AI.",
+      "ratingText": "Zaufali nam rodzice i uczniowie",
+      "titleLine1": "Fizyka w 7 klasie",
+      "titleLine2": "zrozumiała jak nigdy.",
+      "ctaSecondary": "Zobacz jak działa"
+    },
+    "createdAt": "2026-06-16T10:48:37.250Z",
+    "updatedAt": "2026-07-06T11:24:43.985Z"
   },
   {
     "id": 7,
@@ -152,7 +152,7 @@
       "subheading": "Wszystko, czego potrzebuje uczeń klasy 7."
     },
     "createdAt": "2026-06-16T10:48:37.272Z",
-    "updatedAt": "2026-06-16T10:48:37.272Z"
+    "updatedAt": "2026-07-06T11:24:44.000Z"
   },
   {
     "id": 8,
@@ -165,7 +165,7 @@
       "subheading": "Masz wątpliwości? Oto odpowiedzi na najpopularniejsze pytania."
     },
     "createdAt": "2026-06-16T10:48:37.274Z",
-    "updatedAt": "2026-06-16T10:48:37.274Z"
+    "updatedAt": "2026-07-06T11:24:44.002Z"
   },
   {
     "id": 9,
@@ -180,6 +180,6 @@
       "quickContactValue": "Odpowiadamy w ciągu 24h"
     },
     "createdAt": "2026-06-16T10:48:37.479Z",
-    "updatedAt": "2026-06-16T10:48:37.479Z"
+    "updatedAt": "2026-07-06T11:24:44.004Z"
   }
 ]
