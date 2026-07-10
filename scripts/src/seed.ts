@@ -514,34 +514,72 @@ async function seed() {
       // usuwa wierszy postępu, które wskazują na istniejące filmy/quizy.
       const [hasVideo] = await db.select({ id: videos.id }).from(videos).where(eq(videos.topicId, topic.id)).limit(1);
       if (!hasVideo) {
-        const vids = videosForLesson(lesson.code, bunnyVideos);
-        let filmIndex = 0;
-        for (const v of vids) {
-          filmIndex += 1;
-          await db.insert(videos).values({
-            topicId: topic.id,
-            bunnyVideoId: v.bunnyVideoId,
-            bunnyTitle: v.bunnyTitle,
-            videoUrl: null,
-            title: vids.length > 1 ? `Film ${filmIndex}` : "Film lekcji",
-            durationSeconds: v.durationSeconds,
-            sortOrder: v.sortOrder,
-          });
-          videoCount += 1;
+        if (lesson.videos) {
+          // Explicit list (Dział 4): source names repeat across lessons, so the
+          // derive-by-code path would dedup distinct clips. Resolve each GUID +
+          // duration from the Bunny map by exact filename.
+          for (const def of lesson.videos) {
+            const entry = bunnyVideos.find((e) => e.title === def.file);
+            if (!entry) throw new Error(`Brak filmu w mapie Bunny dla ${def.file} (lekcja ${lesson.code}).`);
+            await db.insert(videos).values({
+              topicId: topic.id,
+              bunnyVideoId: entry.guid,
+              bunnyTitle: entry.title.replace(/\.[^.]+$/, ""),
+              videoUrl: null,
+              title: def.title,
+              durationSeconds: typeof entry.length === "number" && entry.length > 0 ? entry.length : null,
+              sortOrder: def.sortOrder,
+            });
+            videoCount += 1;
+          }
+        } else {
+          const vids = videosForLesson(lesson.code, bunnyVideos);
+          let filmIndex = 0;
+          for (const v of vids) {
+            filmIndex += 1;
+            await db.insert(videos).values({
+              topicId: topic.id,
+              bunnyVideoId: v.bunnyVideoId,
+              bunnyTitle: v.bunnyTitle,
+              videoUrl: null,
+              title: vids.length > 1 ? `Film ${filmIndex}` : "Film lekcji",
+              durationSeconds: v.durationSeconds,
+              sortOrder: v.sortOrder,
+            });
+            videoCount += 1;
+          }
         }
       }
 
       const [hasImage] = await db.select({ id: lessonImages.id }).from(lessonImages).where(eq(lessonImages.topicId, topic.id)).limit(1);
       if (!hasImage) {
-        const imgs = imagesForLesson(lesson.code, imageFiles);
-        for (const img of imgs) {
-          await db.insert(lessonImages).values({
-            topicId: topic.id,
-            imageUrl: img.imageUrl,
-            alt: img.alt,
-            sortOrder: img.sortOrder,
-          });
-          imageCount += 1;
+        if (lesson.images) {
+          // Explicit task cards (Dział 4): answer + full solution are stored but
+          // hidden client-side; relatedVideoTitle is kept WITHOUT extension so the
+          // topic API resolves it to the preceding worked-example video id.
+          for (const def of lesson.images) {
+            await db.insert(lessonImages).values({
+              topicId: topic.id,
+              imageUrl: `course-assets/${def.file}`,
+              alt: def.alt,
+              answer: def.answer,
+              solution: def.solution,
+              relatedVideoTitle: def.relatedVideo.replace(/\.[^.]+$/, ""),
+              sortOrder: def.sortOrder,
+            });
+            imageCount += 1;
+          }
+        } else {
+          const imgs = imagesForLesson(lesson.code, imageFiles);
+          for (const img of imgs) {
+            await db.insert(lessonImages).values({
+              topicId: topic.id,
+              imageUrl: img.imageUrl,
+              alt: img.alt,
+              sortOrder: img.sortOrder,
+            });
+            imageCount += 1;
+          }
         }
       }
 

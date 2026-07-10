@@ -156,6 +156,10 @@ export const GetTopicResponse = zod.object({
   "topicId": zod.number(),
   "imageUrl": zod.string(),
   "alt": zod.string().nullish(),
+  "answer": zod.string().nullish(),
+  "solution": zod.string().nullish(),
+  "relatedVideoTitle": zod.string().nullish(),
+  "relatedVideoId": zod.number().nullish(),
   "sortOrder": zod.number()
 })),
   "quiz": zod.union([zod.object({
@@ -806,6 +810,10 @@ export const ListAdminCoursesResponseItem = zod.object({
   "topicId": zod.number(),
   "imageUrl": zod.string(),
   "alt": zod.string().nullish(),
+  "answer": zod.string().nullish(),
+  "solution": zod.string().nullish(),
+  "relatedVideoTitle": zod.string().nullish(),
+  "relatedVideoId": zod.number().nullish(),
   "sortOrder": zod.number()
 })).optional(),
   "video": zod.union([zod.object({
@@ -1733,6 +1741,10 @@ export const PreviewTopicResponse = zod.object({
   "topicId": zod.number(),
   "imageUrl": zod.string(),
   "alt": zod.string().nullish(),
+  "answer": zod.string().nullish(),
+  "solution": zod.string().nullish(),
+  "relatedVideoTitle": zod.string().nullish(),
+  "relatedVideoId": zod.number().nullish(),
   "sortOrder": zod.number()
 })),
   "quiz": zod.union([zod.object({
@@ -1822,6 +1834,10 @@ export const ListLessonImagesResponseItem = zod.object({
   "topicId": zod.number(),
   "imageUrl": zod.string(),
   "alt": zod.string().nullish(),
+  "answer": zod.string().nullish(),
+  "solution": zod.string().nullish(),
+  "relatedVideoTitle": zod.string().nullish(),
+  "relatedVideoId": zod.number().nullish(),
   "sortOrder": zod.number()
 })
 export const ListLessonImagesResponse = zod.array(ListLessonImagesResponseItem)
@@ -1859,6 +1875,10 @@ export const UpdateLessonImageResponse = zod.object({
   "topicId": zod.number(),
   "imageUrl": zod.string(),
   "alt": zod.string().nullish(),
+  "answer": zod.string().nullish(),
+  "solution": zod.string().nullish(),
+  "relatedVideoTitle": zod.string().nullish(),
+  "relatedVideoId": zod.number().nullish(),
   "sortOrder": zod.number()
 })
 

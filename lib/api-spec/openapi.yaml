@@ -2644,6 +2644,14 @@ components:
           type: string
         alt:
           type: ["string", "null"]
+        answer:
+          type: ["string", "null"]
+        solution:
+          type: ["string", "null"]
+        relatedVideoTitle:
+          type: ["string", "null"]
+        relatedVideoId:
+          type: ["integer", "null"]
         sortOrder:
           type: integer
 

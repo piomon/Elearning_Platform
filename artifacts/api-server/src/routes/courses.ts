@@ -199,6 +199,16 @@ router.get(
         ? siblings[currentIndex + 1].id
         : null;
 
+    // Exercise cards (Dział 4) link to a preceding worked-example video by its
+    // bunnyTitle; resolve that to a concrete video id so the client can jump to
+    // it without knowing Bunny internals. Null when there is no paired video.
+    const imagesDto = imageList.map((img) => {
+      const related = img.relatedVideoTitle
+        ? videoList.find((v) => v.bunnyTitle === img.relatedVideoTitle)
+        : undefined;
+      return { ...img, relatedVideoId: related?.id ?? null };
+    });
+
     res.json({
       ...topic,
       courseId: section?.courseId ?? null,
@@ -210,7 +220,7 @@ router.get(
         ? { ...video, embedUrl: buildVideoEmbedUrl(video) }
         : null,
       videos: videoList.map((v) => ({ ...v, embedUrl: buildVideoEmbedUrl(v) })),
-      images: imageList,
+      images: imagesDto,
       quiz: quizWithQuestions,
       tasks: publicTasks,
     });

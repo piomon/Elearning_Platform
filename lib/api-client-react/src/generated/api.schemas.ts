@@ -142,6 +142,14 @@ export interface LessonImage {
   imageUrl: string;
   /** @nullable */
   alt?: string | null;
+  /** @nullable */
+  answer?: string | null;
+  /** @nullable */
+  solution?: string | null;
+  /** @nullable */
+  relatedVideoTitle?: string | null;
+  /** @nullable */
+  relatedVideoId?: number | null;
   sortOrder: number;
 }
 

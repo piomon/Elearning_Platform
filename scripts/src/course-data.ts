@@ -10,6 +10,36 @@ export type QuizOption = { label: string; text: string };
 export type QuizQuestion = { q: string; options: QuizOption[]; correct: string };
 export type Quiz = { questions: QuizQuestion[] };
 
+// Explicit lesson material (used by Dział 4). Dział 1–3 derive videos/images
+// from the Bunny map + PNG folder by lesson code; Dział 4 cannot, because its
+// videos reuse "ScreenRecorderProject" source names across lessons (the seed's
+// dedup-by-source would collapse distinct clips) and its PNG cards carry
+// answer/solution/related-video metadata. When a lesson lists these arrays the
+// seed uses them verbatim instead of deriving materials by code.
+export type VideoDef = {
+  // Exact Bunny upload filename (WITH extension) — resolves GUID + duration
+  // from scripts/data/bunny-videos.json at seed time.
+  file: string;
+  title: string;
+  sortOrder: number;
+};
+
+export type ImageDef = {
+  // PNG filename copied into artifacts/physics-platform/public/course-assets.
+  file: string;
+  // Task/question text — rendered as the visible caption AND the image alt.
+  alt: string;
+  // Answer + full worked solution: stored but HIDDEN client-side until the
+  // student chooses to reveal them.
+  answer: string;
+  solution: string;
+  // Filename (WITH extension) of the preceding worked-example video this card
+  // refers to; the seed stores it WITHOUT extension so the API resolves it to a
+  // concrete video id for the "see the worked example" link.
+  relatedVideo: string;
+  sortOrder: number;
+};
+
 export type LessonDef = {
   code: string; // matches Bunny/asset tokens, e.g. "D1_L01"
   title: string;
@@ -18,6 +48,9 @@ export type LessonDef = {
   isPreview?: boolean;
   description?: string;
   quiz?: Quiz;
+  // Optional explicit materials (see VideoDef/ImageDef). Only Dział 4 uses them.
+  videos?: VideoDef[];
+  images?: ImageDef[];
 };
 
 export type SectionDef = {
@@ -986,6 +1019,107 @@ const quizD3L05: Quiz = {
   ],
 };
 
+// ── Dział 4 quizzes (single-choice; keys hidden until submit, per quiz UI) ────
+const quizD4L01: Quiz = {
+  questions: [
+    {
+      q: "Dlaczego według tekstu w fizyce nie ma czegoś takiego jak absolutny ruch?",
+      options: [
+        o("A", "Ponieważ pociągi poruszają się z różnymi prędkościami."),
+        o("B", "Ponieważ wszystko zależy od wybranego na początku punktu odniesienia."),
+        o("C", "Ponieważ każdy obiekt na Ziemi ostatecznie stoi w miejscu."),
+        o("D", "Ponieważ peron zawsze porusza się względem pociągu."),
+      ],
+      correct: "B",
+    },
+    {
+      q: "Jakie pytanie pozwala najłatwiej sprawdzić, czy jedno ciało porusza się względem drugiego?",
+      options: [
+        o("A", "Czy obiekty znajdują się w tym samym pojeździe?"),
+        o("B", "Czy mają taką samą masę?"),
+        o("C", "Czy odległość między nimi się zmienia?"),
+        o("D", "Kto porusza się szybciej?"),
+      ],
+      correct: "C",
+    },
+    {
+      q: "Ile liczb (współrzędnych) jest potrzebnych, aby namierzyć obiekt w pełnym układzie trójwymiarowym (3D), np. latający w niebie balon?",
+      options: [
+        o("A", "Jedna"),
+        o("B", "Dwie"),
+        o("C", "Trzy"),
+        o("D", "Cztery"),
+      ],
+      correct: "C",
+    },
+    {
+      q: "Jaka jest różnica między torem ruchu a drogą?",
+      options: [
+        o("A", "Tor to narysowany kształt śladu, a droga to jego mierzona długość."),
+        o("B", "Tor to czas podróży, a droga to miejsce startu."),
+        o("C", "Tor to mierzona odległość, a droga to wydeptana ścieżka."),
+        o("D", "W fizyce tor i droga oznaczają dokładnie to samo."),
+      ],
+      correct: "A",
+    },
+    {
+      q: "Piłka rzucona przez koszykarza wpada do obręczy wygiętym łukiem. Jaki to rodzaj ruchu?",
+      options: [
+        o("A", "Ruch prostoliniowy"),
+        o("B", "Ruch krzywoliniowy"),
+        o("C", "Spoczynek względny"),
+        o("D", "Ruch jednowymiarowy"),
+      ],
+      correct: "B",
+    },
+  ],
+};
+
+const quizD4L02: Quiz = {
+  questions: [
+    {
+      q: 'Co to znaczy, że ruch jest "jednostajny"?',
+      options: [
+        o("A", "Auto pokonuje różne odległości w zależności od czasu podróży."),
+        o("B", "W takich samych odstępach czasu pojazd pokonuje dokładnie te same odległości."),
+        o("C", "Samochód cały czas przyspiesza na prostej drodze."),
+        o("D", "Prędkość auta zmienia się co kilka sekund."),
+      ],
+      correct: "B",
+    },
+    {
+      q: "Co oznaczają litery we wzorze na prędkość v = s / t?",
+      options: [
+        o("A", "v to czas, s to prędkość, t to droga"),
+        o("B", "v to droga, s to czas, t to prędkość"),
+        o("C", "v to prędkość, s to droga, t to czas"),
+        o("D", "v to przyspieszenie, s to droga, t to czas"),
+      ],
+      correct: "C",
+    },
+    {
+      q: "Jak zamienić wielkie jednostki (kilometry na godzinę) na mniejsze (metry na sekundę)?",
+      options: [
+        o("A", "Należy pomnożyć wynik przez 3,6"),
+        o("B", "Należy podzielić wynik przez 3,6"),
+        o("C", "Należy pomnożyć wynik przez 10"),
+        o("D", "Należy podzielić wynik przez 10"),
+      ],
+      correct: "B",
+    },
+    {
+      q: "Ile wynosi przyspieszenie w ruchu jednostajnym prostoliniowym (np. podczas jazdy z włączonym tempomatem)?",
+      options: [
+        o("A", "Jest zawsze większe od zera"),
+        o("B", "Stale rośnie w miarę upływu czasu"),
+        o("C", "Zależy od długości trasy"),
+        o("D", "Wynosi równe zero"),
+      ],
+      correct: "D",
+    },
+  ],
+};
+
 export const COURSE: {
   title: string;
   slug: string;
@@ -1040,6 +1174,119 @@ export const COURSE: {
         { code: "D3_L03", title: "Prasa hydrauliczna i prawo Pascala", slug: "lekcja-03", sortOrder: 3, quiz: quizD3L03 },
         { code: "D3_L04", title: "Siła wyporu i prawo Archimedesa", slug: "lekcja-04", sortOrder: 4, quiz: quizD3L04 },
         { code: "D3_L05", title: "Pływanie, tonięcie i gęstość", slug: "lekcja-05", sortOrder: 5, quiz: quizD3L05 },
+      ],
+    },
+    {
+      title: "Dział 4",
+      slug: "dzial-4",
+      sortOrder: 4,
+      bunnyCollectionId: "47ce0c3d-d330-40e6-b734-d4a38f964dff",
+      lessons: [
+        {
+          code: "D4_L01",
+          title: "Względność ruchu, układ odniesienia, układ współrzędnych, tor i droga",
+          slug: "lekcja-01",
+          sortOrder: 1,
+          quiz: quizD4L01,
+          videos: [
+            { file: "D4_L01_01_VIDEO_ScreenRecorderProject86.mkv", title: "Materiał główny lekcji 1", sortOrder: 1 },
+          ],
+        },
+        {
+          code: "D4_L02",
+          title: "Ruch jednostajny prostoliniowy - prędkość, droga i czas",
+          slug: "lekcja-02",
+          sortOrder: 2,
+          quiz: quizD4L02,
+          videos: [
+            { file: "D4_L02_01_VIDEO_ScreenRecorderProject87.mkv", title: "Materiał główny lekcji 2", sortOrder: 1 },
+            { file: "D4_L02_03_VIDEO_ScreenRecorderProject86.mkv", title: "Przykład rozwiązany: droga motocyklisty", sortOrder: 3 },
+            { file: "D4_L02_05_VIDEO_ScreenRecorderProject87.mkv", title: "Przykład rozwiązany: prędkość autokaru", sortOrder: 5 },
+          ],
+          images: [
+            {
+              file: "D4_L02_04_PNG_ZADANIE_DROGA_SAMOCHOD_15MIN_60KMH.png",
+              alt: "Oblicz drogę, jaką pokona samochód w ciągu 15 minut, jeżeli porusza się ze stałą prędkością 60 km/h.",
+              answer: "15 km",
+              solution: "15 min = 0,25 h; s = v·t = 60 km/h · 0,25 h = 15 km.",
+              relatedVideo: "D4_L02_03_VIDEO_ScreenRecorderProject86.mkv",
+              sortOrder: 4,
+            },
+            {
+              file: "D4_L02_06_PNG_ZADANIE_PREDKOSC_POCIAG_360KM_4H.png",
+              alt: "Oblicz prędkość pociągu, który jadąc ruchem jednostajnym, w ciągu 4 godzin przebył drogę 360 km.",
+              answer: "90 km/h",
+              solution: "v = s/t = 360 km / 4 h = 90 km/h.",
+              relatedVideo: "D4_L02_05_VIDEO_ScreenRecorderProject87.mkv",
+              sortOrder: 6,
+            },
+          ],
+        },
+        {
+          code: "D4_L03",
+          title: "Ruch jednostajnie przyspieszony - przyspieszenie, zmiana prędkości i droga",
+          slug: "lekcja-03",
+          sortOrder: 3,
+          videos: [
+            { file: "D4_L03_01_VIDEO_ScreenRecorderProject87.mkv", title: "Materiał główny lekcji 3", sortOrder: 1 },
+            { file: "D4_L03_02_VIDEO_ScreenRecorderProject88.mkv", title: "Przykład rozwiązany: przyspieszenie samochodu", sortOrder: 2 },
+            { file: "D4_L03_04_VIDEO_ScreenRecorderProject89.mkv", title: "Przykład rozwiązany: przyrost prędkości wyścigówki", sortOrder: 4 },
+            { file: "D4_L03_06_VIDEO_ScreenRecorderProject90.mkv", title: "Przykład rozwiązany: przyspieszenie hulajnogi", sortOrder: 6 },
+            { file: "D4_L03_08_VIDEO_ScreenRecorderProject91.mkv", title: "Przykład rozwiązany: droga deskorolki", sortOrder: 8 },
+          ],
+          images: [
+            {
+              file: "D4_L03_03_PNG_ZADANIE_PRZYSPIESZENIE_MOTOCYKLISTA_36_72KMH.png",
+              alt: "Podczas wyprzedzania motocyklista zwiększył swoją prędkość w stałym tempie od 36 km/h do 72 km/h. Cały manewr trwał 5 sekund. Oblicz przyspieszenie tego motocykla. Wynik podaj w m/s².",
+              answer: "2 m/s²",
+              solution: "36 km/h = 10 m/s; 72 km/h = 20 m/s; a = (20 - 10) / 5 = 2 m/s².",
+              relatedVideo: "D4_L03_02_VIDEO_ScreenRecorderProject88.mkv",
+              sortOrder: 3,
+            },
+            {
+              file: "D4_L03_05_PNG_ZADANIE_PRZYROST_PREDKOSCI_MOTOCYKL_4MS2.png",
+              alt: "Oblicz, o ile wzrosła prędkość motocykla poruszającego się ze stałym przyspieszeniem 4 m/s²: a) w piątej sekundzie ruchu; b) w ciągu pierwszych pięciu sekund ruchu.",
+              answer: "a) 4 m/s; b) 20 m/s",
+              solution: "W każdej sekundzie prędkość rośnie o 4 m/s. W ciągu 5 s: Δv = a·t = 4·5 = 20 m/s.",
+              relatedVideo: "D4_L03_04_VIDEO_ScreenRecorderProject89.mkv",
+              sortOrder: 5,
+            },
+            {
+              file: "D4_L03_07_PNG_ZADANIE_PRZYSPIESZENIE_ROWERZYSTA_18KMH.png",
+              alt: "Oblicz przyspieszenie rowerzysty, który ruszając z miejsca, w ciągu 5 sekund osiągnął prędkość 18 km/h. Wynik podaj w m/s².",
+              answer: "1 m/s²",
+              solution: "18 km/h = 5 m/s; a = 5/5 = 1 m/s².",
+              relatedVideo: "D4_L03_06_VIDEO_ScreenRecorderProject90.mkv",
+              sortOrder: 7,
+            },
+            {
+              file: "D4_L03_09_PNG_ZADANIE_DROGA_ROBOT_2MS2_5S.png",
+              alt: "Robot kuchenny na kołach (zabawka) rusza z miejsca ze stałym przyspieszeniem 2 m/s². Oblicz, jaką drogę pokona ten robot w ciągu 5 s ruchu.",
+              answer: "25 m",
+              solution: "s = 1/2·a·t² = 1/2·2·5² = 25 m.",
+              relatedVideo: "D4_L03_08_VIDEO_ScreenRecorderProject91.mkv",
+              sortOrder: 9,
+            },
+          ],
+        },
+        {
+          code: "D4_L04",
+          title: "Odczytywanie wykresów ruchu v(t), s(t) i a(t)",
+          slug: "lekcja-04",
+          sortOrder: 4,
+          videos: [
+            { file: "D4_L04_01_VIDEO_ScreenRecorderProject86.mkv", title: "Materiał główny lekcji 4 - część 1 nagrania 04.05", sortOrder: 1 },
+          ],
+        },
+        {
+          code: "D4_L05",
+          title: "Zadania z wykresów ruchu",
+          slug: "lekcja-05",
+          sortOrder: 5,
+          videos: [
+            { file: "D4_L05_01_VIDEO_ScreenRecorderProject86.mkv", title: "Materiał główny lekcji 5 - część 2 nagrania 04.05", sortOrder: 1 },
+          ],
+        },
       ],
     },
   ],

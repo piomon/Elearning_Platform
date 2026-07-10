@@ -100,7 +100,17 @@ export const lessonImages = pgTable("lesson_images", {
   id: serial("id").primaryKey(),
   topicId: integer("topic_id").notNull().references(() => topics.id, { onDelete: "cascade" }),
   imageUrl: text("image_url").notNull(),
+  // The task/question text (used both as the img alt and the visible caption).
   alt: text("alt"),
+  // Task-card fields for exercise images (e.g. Dział 4). The answer and full
+  // worked solution are HIDDEN client-side until the student chooses to reveal
+  // them, so they must be nullable and are only set for exercise cards.
+  answer: text("answer"),
+  solution: text("solution"),
+  // Bunny title (WITHOUT file extension) of the preceding worked-example video
+  // this card refers to. The topic API resolves it to a concrete video id for
+  // the "see the worked example" link. Null when the card has no paired video.
+  relatedVideoTitle: text("related_video_title"),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

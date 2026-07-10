@@ -150,6 +150,7 @@ export const config = {
       dzial1: readOptional("BUNNY_COLLECTION_DZIAL_1"),
       dzial2: readOptional("BUNNY_COLLECTION_DZIAL_2"),
       dzial3: readOptional("BUNNY_COLLECTION_DZIAL_3"),
+      dzial4: readOptional("BUNNY_COLLECTION_DZIAL_4"),
     },
   },
 } as const;

@@ -32,6 +32,9 @@ import {
   Lock,
   RotateCcw,
   Clock,
+  Eye,
+  EyeOff,
+  Lightbulb,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -224,6 +227,10 @@ export default function TopicDetail() {
   const [notes, setNotes] = useState("");
   const [notesSaved, setNotesSaved] = useState(true);
   const [programOpen, setProgramOpen] = useState(false);
+  // Per-task-card reveal toggles (Dział 4): answers/solutions stay hidden until
+  // the student opts in. Keyed by lesson image id.
+  const [revealedAnswers, setRevealedAnswers] = useState<Record<number, boolean>>({});
+  const [revealedSolutions, setRevealedSolutions] = useState<Record<number, boolean>>({});
 
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const notesTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -245,6 +252,8 @@ export default function TopicDetail() {
     setTimeExpired(false);
     setChatMessages([]);
     setChatInput("");
+    setRevealedAnswers({});
+    setRevealedSolutions({});
   }, [topicId]);
 
   // Pick the first video as the active one once the topic loads.
@@ -478,6 +487,12 @@ export default function TopicDetail() {
   const images: LessonImage[] = topic.images ?? [];
   const activeVideo = videos.find((v) => v.id === activeVideoId) ?? videos[0] ?? null;
 
+  // Jump to the worked-example video a task card refers to (Dział 4).
+  const goToRelatedVideo = (videoId: number) => {
+    setActiveVideoId(videoId);
+    document.getElementById("lesson-video")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const orderedSiblings = [...(siblingTopics ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
 
   const isSiblingDone = (t: (typeof orderedSiblings)[number]) => {
@@ -691,7 +706,7 @@ export default function TopicDetail() {
         <div className="space-y-10 min-w-0">
           {/* Video */}
           {activeVideo ? (
-            <section className="space-y-4">
+            <section id="lesson-video" className="space-y-4">
               <LessonVideoPlayer video={activeVideo} onReport={handleVideoReport} />
               {currentProgress?.videoCompleted && (
                 <p className="flex items-center gap-2 text-sm font-medium text-success">
@@ -747,6 +762,62 @@ export default function TopicDetail() {
                       <figcaption className="px-5 py-3 text-sm text-muted-foreground border-t">
                         {img.alt}
                       </figcaption>
+                    )}
+                    {(img.answer || img.solution || img.relatedVideoId != null) && (
+                      <div className="px-5 py-4 border-t space-y-3">
+                        <div className="flex flex-wrap gap-2">
+                          {img.answer && (
+                            <button
+                              onClick={() =>
+                                setRevealedAnswers((s) => ({ ...s, [img.id]: !s[img.id] }))
+                              }
+                              className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold hover:bg-muted transition-colors"
+                            >
+                              {revealedAnswers[img.id] ? (
+                                <EyeOff className="w-4 h-4" />
+                              ) : (
+                                <Eye className="w-4 h-4" />
+                              )}
+                              {revealedAnswers[img.id] ? "Ukryj odpowiedź" : "Pokaż odpowiedź"}
+                            </button>
+                          )}
+                          {img.solution && (
+                            <button
+                              onClick={() =>
+                                setRevealedSolutions((s) => ({ ...s, [img.id]: !s[img.id] }))
+                              }
+                              className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold hover:bg-muted transition-colors"
+                            >
+                              {revealedSolutions[img.id] ? (
+                                <EyeOff className="w-4 h-4" />
+                              ) : (
+                                <Lightbulb className="w-4 h-4" />
+                              )}
+                              {revealedSolutions[img.id] ? "Ukryj rozwiązanie" : "Pokaż rozwiązanie"}
+                            </button>
+                          )}
+                          {img.relatedVideoId != null && (
+                            <button
+                              onClick={() => goToRelatedVideo(img.relatedVideoId!)}
+                              className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10 transition-colors"
+                            >
+                              <PlayCircle className="w-4 h-4" /> Zobacz przykład rozwiązany
+                            </button>
+                          )}
+                        </div>
+                        {revealedAnswers[img.id] && img.answer && (
+                          <div className="rounded-2xl bg-success/10 px-4 py-3 text-sm">
+                            <span className="font-semibold text-success">Odpowiedź: </span>
+                            <span className="text-foreground">{img.answer}</span>
+                          </div>
+                        )}
+                        {revealedSolutions[img.id] && img.solution && (
+                          <div className="rounded-2xl bg-muted px-4 py-3 text-sm whitespace-pre-line text-foreground">
+                            <span className="font-semibold">Rozwiązanie: </span>
+                            {img.solution}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </figure>
                 ))}

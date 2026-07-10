@@ -333,6 +333,9 @@ async function main() {
           topicId,
           imageUrl: img.imageUrl,
           alt: img.alt ?? null,
+          answer: img.answer ?? null,
+          solution: img.solution ?? null,
+          relatedVideoTitle: img.relatedVideoTitle ?? null,
           sortOrder: img.sortOrder ?? 0,
         };
         if (existing) {
