@@ -1,4 +1,4 @@
-// Authoritative definition of the "Łatwa Fizyka" course: 3 działy, 21 lekcje and
+// Authoritative definition of the "Łatwa Fizyka" course: 4 działy, 26 lekcje and
 // the 14 quizzes (verbatim questions/options + correct answers). Videos and
 // images are NOT listed here — they are derived at seed time from the Bunny
 // video map (scripts/data/bunny-videos.json) and the copied PNG assets, matched
@@ -1129,7 +1129,7 @@ export const COURSE: {
   title: "Łatwa Fizyka — klasa 7",
   slug: "latwa-fizyka",
   description:
-    "Kompletny kurs fizyki dla klasy 7: trzy działy, 21 lekcji wideo, ćwiczenia i quizy. Ucz się we własnym tempie z filmami, materiałami pomocniczymi i asystentem AI przy każdej lekcji.",
+    "Kompletny kurs fizyki dla klasy 7: cztery działy, 26 lekcji wideo, ćwiczenia i quizy. Ucz się we własnym tempie z filmami, materiałami pomocniczymi i asystentem AI przy każdej lekcji.",
   sections: [
     {
       title: "Dział 1 — podstawy fizyki",
