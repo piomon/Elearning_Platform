@@ -1,0 +1,12 @@
+/* Ukrywamy natywny, boczny panel właściwości Excalidraw (kolor, wypełnienie,
+   grubość, styl linii, warstwy, akcje). Na desktopie/laptopie/tablecie w
+   poziomie panel ten ma szerokość 12.5rem (~200 px) i jest pozycjonowany
+   absolutnie NAD płótnem z lewej strony — zasłaniał ~1/3 obszaru roboczego.
+   Kolor i grubość pisaka udostępniamy w kompaktowym pasku POD tablicą, dzięki
+   czemu całe płótno jest wolne do pisania. Górny pasek narzędzi, sterowanie
+   zoomem oraz cofanie/ponawianie (lewy dolny róg) pozostają nienaruszone.
+   Na telefonie Excalidraw używa innego układu (zwijany dolny arkusz
+   `.App-mobile-menu`), który nie zabiera szerokości — nie ruszamy go. */
+.excalidraw .App-menu__left {
+  display: none !important;
+}

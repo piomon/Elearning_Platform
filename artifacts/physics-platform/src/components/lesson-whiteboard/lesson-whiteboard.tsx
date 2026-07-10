@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ComponentProps } from "react";
 import "@excalidraw/excalidraw/index.css";
+import "./lesson-whiteboard.css";
 import { Excalidraw, exportToBlob } from "@excalidraw/excalidraw";
 import type { NormalizedZoomValue } from "@excalidraw/excalidraw/types";
 import type { Task } from "@workspace/api-client-react";
@@ -46,21 +47,35 @@ function loadSketch(taskId: number): SketchElements | undefined {
 }
 
 // Grubości pisaka (strokeWidth w jednostkach sceny Excalidraw). Wartości są
-// celowo niższe niż standardowe 1/2/4 — „Cienki” ma być realnie cienki do cyfr,
-// wzorów i jednostek, ale przy eksporcie do 1600 px nadal czytelny dla Gemini
-// AI. „Gruby” służy głównie do podkreśleń i zaznaczeń.
-type PenWidth = 0.75 | 1.5 | 3;
-const DEFAULT_PEN: PenWidth = 0.75;
+// dobrane tak, aby przy domyślnym oddaleniu (zoom 0.5) linia „Cienki” była na
+// ekranie realnie cienka (~0,75 px), ale nadal dobrze widoczna podczas pisania,
+// a przy eksporcie do 1600 px czytelna dla Gemini AI. „Gruby” służy głównie do
+// podkreśleń i zaznaczeń.
+type PenWidth = 1.5 | 3 | 6;
+const DEFAULT_PEN: PenWidth = 1.5;
 const PEN_OPTIONS: { label: string; value: PenWidth; preview: number }[] = [
-  { label: "Cienki pisak", value: 0.75, preview: 1.5 },
-  { label: "Normalny pisak", value: 1.5, preview: 3 },
-  { label: "Gruby pisak", value: 3, preview: 5 },
+  { label: "Cienki pisak", value: 1.5, preview: 2 },
+  { label: "Normalny pisak", value: 3, preview: 4 },
+  { label: "Gruby pisak", value: 6, preview: 6 },
 ];
 
-// Tablica startuje lekko oddalona (zoom 0.8 = oddalenie o ~20%): linie wyglądają
-// optycznie cieniej, a uczeń od razu ma więcej miejsca na obliczenia. Eksport do
-// AI bazuje na elementach sceny, więc zoom nie wpływa na obraz wysyłany do Gemini.
-const DEFAULT_ZOOM = 0.8 as NormalizedZoomValue;
+// Kolory pisaka udostępnione w kompaktowym pasku pod tablicą — natywny boczny
+// panel kolorów Excalidraw (~1/3 szerokości) jest ukryty (lesson-whiteboard.css).
+const DEFAULT_COLOR = "#1e1e1e";
+const PEN_COLORS: { label: string; value: string }[] = [
+  { label: "Czarny", value: "#1e1e1e" },
+  { label: "Czerwony", value: "#e03131" },
+  { label: "Niebieski", value: "#1971c2" },
+  { label: "Zielony", value: "#2f9e44" },
+  { label: "Pomarańczowy", value: "#f08c00" },
+];
+
+// Tablica startuje mocno oddalona (zoom 0.5 = widok pomniejszony do 50%): uczeń
+// od razu widzi znacznie większą część tablicy i ma dużo miejsca na obliczenia.
+// Testowano też wariant 0.2 (20%) — odrzucony jako zbyt mało czytelny do pisania
+// odręcznego. Eksport do AI bazuje na elementach sceny, więc zoom nie wpływa na
+// obraz wysyłany do Gemini.
+const DEFAULT_ZOOM = 0.5 as NormalizedZoomValue;
 
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -106,6 +121,7 @@ function WhiteboardTask({ task }: { task: Task }) {
   const [isPreparing, setIsPreparing] = useState(false);
   const [showTask, setShowTask] = useState(true);
   const [penWidth, setPenWidth] = useState<PenWidth>(DEFAULT_PEN);
+  const [penColor, setPenColor] = useState<string>(DEFAULT_COLOR);
   const checkMutation = useCheckTask();
   const busyRef = useRef(false);
   const isBusy = isPreparing || checkMutation.isPending;
@@ -180,10 +196,21 @@ function WhiteboardTask({ task }: { task: Task }) {
       api.updateScene({
         appState: {
           currentItemStrokeWidth: width,
-          currentItemStrokeColor: "#1e1e1e",
           currentItemOpacity: 100,
         },
       });
+      api.setActiveTool({ type: "freedraw" });
+    },
+    [api],
+  );
+
+  // Szybki wybór koloru pisaka — zastępuje ukryty natywny panel kolorów.
+  // Zmienia kolor nowych elementów i od razu aktywuje pisak odręczny.
+  const setColor = useCallback(
+    (color: string) => {
+      setPenColor(color);
+      if (!api) return;
+      api.updateScene({ appState: { currentItemStrokeColor: color } });
       api.setActiveTool({ type: "freedraw" });
     },
     [api],
@@ -265,7 +292,7 @@ function WhiteboardTask({ task }: { task: Task }) {
 
   return (
     <article className="rounded-3xl border bg-card shadow-sm overflow-hidden">
-      <div className="relative w-full h-[72vh] min-h-[500px] max-h-[560px] sm:h-[74vh] sm:min-h-[600px] sm:max-h-[680px] lg:h-[78vh] lg:min-h-[620px] lg:max-h-[780px] xl:max-h-[800px]">
+      <div className="relative w-full h-[74vh] min-h-[520px] max-h-[600px] sm:h-[76vh] sm:min-h-[620px] sm:max-h-[720px] lg:h-[80vh] lg:min-h-[660px] lg:max-h-[820px] xl:max-h-[880px]">
         <Excalidraw
           excalidrawAPI={(instance) => setApi(instance)}
           langCode="pl-PL"
@@ -276,7 +303,7 @@ function WhiteboardTask({ task }: { task: Task }) {
             appState: {
               viewBackgroundColor: "#ffffff",
               currentItemStrokeWidth: DEFAULT_PEN,
-              currentItemStrokeColor: "#1e1e1e",
+              currentItemStrokeColor: DEFAULT_COLOR,
               currentItemOpacity: 100,
               currentItemRoughness: 0,
               zoom: { value: DEFAULT_ZOOM },
@@ -370,9 +397,40 @@ function WhiteboardTask({ task }: { task: Task }) {
               })}
             </div>
           </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="text-sm font-semibold text-muted-foreground">
+              Kolor pisaka:
+            </span>
+            <div
+              className="flex flex-wrap items-center gap-2"
+              role="group"
+              aria-label="Wybór koloru pisaka"
+            >
+              {PEN_COLORS.map((c) => {
+                const active = penColor === c.value;
+                return (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => setColor(c.value)}
+                    aria-pressed={active}
+                    aria-label={c.label}
+                    title={c.label}
+                    className={`h-9 w-9 rounded-full border border-black/10 transition-transform ${
+                      active
+                        ? "ring-2 ring-sky-500 ring-offset-2 ring-offset-card scale-110"
+                        : "hover:scale-105"
+                    }`}
+                    style={{ backgroundColor: c.value }}
+                  />
+                );
+              })}
+            </div>
+          </div>
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Info className="h-3.5 w-3.5 shrink-0" />
-            Do obliczeń najlepiej używać cienkiego pisaka i lekko oddalonego widoku.
+            Do obliczeń najlepiej używać cienkiego pisaka i oddalonego widoku. Kolor i
+            grubość pisaka zmienisz w pasku powyżej.
           </p>
         </div>
 

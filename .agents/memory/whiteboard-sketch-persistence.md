@@ -27,16 +27,33 @@ switching hosts would otherwise get split sketches, split cache, and split sessi
 Both hosts still need DNS records so Let's Encrypt can issue the cert for each.
 
 ## Excalidraw 0.18 view/zoom lessons (verified against bundled source)
-- `initialData.appState.zoom = { value: 0.8 }` IS honored — `restoreAppState`
-  clamps via `getNormalizedZoom` (0.1–30) and does not reset to 1. The board
-  starts zoomed out ~20% by design (lines look thinner, more writing room).
+- `initialData.appState.zoom = { value: N }` IS honored — `restoreAppState`
+  clamps via `getNormalizedZoom` (0.1–30), no reset to 1. Board default is
+  **0.5** (50%, big overview); 0.2 rejected as too small for handwriting.
 - Type `NormalizedZoomValue` imports from `@excalidraw/excalidraw/types`
   (exports map `"./*"` → dist type files); type-only, safe at runtime.
 - `api.scrollToContent(els, { fitToViewport: false, animate: false })` only
   recomputes scroll — zoom is untouched unless `fitToContent`/`fitToViewport`
   is truthy. Used to center a restored sketch at the default zoom.
-- Zoom is intentionally NOT persisted with the sketch — every load starts 0.8.
-- Pen strokeWidths are fractional (0.75/1.5/3, thin is default). AI export
-  (`exportToBlob`, `maxWidthOrHeight: 1600`) scales by element bbox, not zoom:
-  very large sketches downscale thin strokes (~0.37px at bbox 3200). If Gemini
-  readability degrades, raise maxWidthOrHeight or bump thin pen to 1.
+- Zoom is intentionally NOT persisted with the sketch — every load starts 0.5.
+- On-screen stroke thickness = strokeWidth × zoom. Pens are 1.5/3/6 (thin
+  default) so the thin pen stays visible (~0.75px) at 0.5 zoom. AI export
+  (`exportToBlob`, `maxWidthOrHeight: 1600`) is bbox-based / zoom-independent,
+  so thicker scene widths also export more readably. If the pen looks too faint,
+  bump DEFAULT_ZOOM to ~0.6 rather than re-tuning pen widths.
+
+## Hiding Excalidraw's native side panels (keep canvas full width)
+- The desktop properties/colors panel is `.App-menu__left` (Excalidraw const
+  `CLASSES.SHAPE_ACTIONS_MENU`): width 12.5rem, `position:absolute`, it OVERLAYS
+  the left ~1/3 of the canvas. Hide it with a scoped CSS rule
+  `.excalidraw .App-menu__left { display:none !important }` imported only by the
+  whiteboard component. Top toolbar, bottom zoom, and undo/redo are in separate
+  containers (`.App-toolbar`, `.App-menu_bottom`) — unaffected. Mobile uses a
+  different collapsible `.App-mobile-menu` bottom sheet — leave it alone.
+  **Why:** users complained the color panel ate 1/3 of the board width.
+  **Trade-off:** hiding it also removes desktop delete/duplicate/group/font-size
+  affordances; delete still works via eraser/Delete key/context menu, so nothing
+  is irrecoverably lost for a calc whiteboard. Provide color/width via a custom
+  compact bar below the board (`api.updateScene({appState:{currentItemStrokeColor
+  /Width}})`). `updateScene` partial-merges appState — do NOT re-set unrelated
+  fields (e.g. don't force color back to black inside a set-pen-width handler).
