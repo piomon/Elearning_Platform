@@ -43,6 +43,9 @@ import { BuyAccessButton } from "@/components/buy-access-button";
 const LessonWhiteboard = lazy(
   () => import("@/components/lesson-whiteboard/lesson-whiteboard"),
 );
+const TaskCardsBoard = lazy(
+  () => import("@/components/lesson-whiteboard/task-cards-board"),
+);
 
 function formatRemaining(ms: number): string {
   const total = Math.max(0, Math.ceil(ms / 1000));
@@ -256,10 +259,24 @@ export default function TopicDetail() {
     setRevealedSolutions({});
   }, [topicId]);
 
-  // Pick the first video as the active one once the topic loads.
+  // Pick the active video once the topic loads: prefer the video requested via
+  // the ?video= query param (cross-lesson jump from a task card's "Zobacz
+  // przykład rozwiązany"), otherwise fall back to the first video.
   useEffect(() => {
     if (topic?.videos?.length && activeVideoId === null) {
-      setActiveVideoId(topic.videos[0].id);
+      const wanted = Number(
+        new URLSearchParams(window.location.search).get("video"),
+      );
+      const requested = topic.videos.find((v) => v.id === wanted);
+      setActiveVideoId((requested ?? topic.videos[0]).id);
+      if (requested) {
+        // Po nawigacji z innej lekcji przewiń do odtwarzacza (po renderze).
+        setTimeout(() => {
+          document
+            .getElementById("lesson-video")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
+      }
     }
   }, [topic, activeVideoId]);
 
@@ -485,6 +502,11 @@ export default function TopicDetail() {
 
   const videos = topic.videos ?? [];
   const images: LessonImage[] = topic.images ?? [];
+  // Karty-zadania (obrazy z ukrytą odpowiedzią/rozwiązaniem) trafiają na
+  // wspólną tablicę z akordeonem (dział „Kinematyka”); pozostałe obrazy to
+  // zwykłe materiały do lekcji.
+  const taskCards = images.filter((img) => Boolean(img.answer || img.solution));
+  const materialImages = images.filter((img) => !(img.answer || img.solution));
   const activeVideo = videos.find((v) => v.id === activeVideoId) ?? videos[0] ?? null;
 
   // Jump to the worked-example video a task card refers to (Dział 4).
@@ -741,7 +763,7 @@ export default function TopicDetail() {
           )}
 
           {/* Materials (images) */}
-          {images.length > 0 && (
+          {materialImages.length > 0 && (
             <section className="space-y-5">
               <h2 className="flex items-center gap-3 text-2xl font-bold font-display">
                 <span className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
@@ -750,7 +772,7 @@ export default function TopicDetail() {
                 Materiały do lekcji
               </h2>
               <div className="space-y-6">
-                {images.map((img) => (
+                {materialImages.map((img) => (
                   <figure key={img.id} className="rounded-3xl border bg-card overflow-hidden shadow-sm">
                     <img
                       src={img.imageUrl}
@@ -1032,6 +1054,29 @@ export default function TopicDetail() {
           </Card>
         </aside>
       </div>
+
+      {/* Wspólna tablica z akordeonem kart-zadań (dział „Kinematyka”) — poniżej
+          gridu, aby tablica zajmowała pełną szerokość kontenera. Klucz topicId
+          resetuje stan (aktywne/rozwinięte zadania) przy zmianie lekcji. */}
+      {taskCards.length > 0 && (
+        <div className="mt-10">
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center gap-2 rounded-3xl border bg-card p-10 text-muted-foreground">
+                <Loader2 className="w-5 h-5 animate-spin" /> Wczytywanie tablicy…
+              </div>
+            }
+          >
+            <TaskCardsBoard
+              key={topicId}
+              cards={taskCards}
+              topicId={topicId}
+              numberOffset={topic.taskCardNumberOffset ?? 0}
+              onGoToLocalVideo={goToRelatedVideo}
+            />
+          </Suspense>
+        </div>
+      )}
 
       {/* Interactive whiteboard — placed below the grid on purpose so the board
           spans the full container width (more horizontal room to write). */}

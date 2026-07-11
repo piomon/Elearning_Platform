@@ -160,8 +160,10 @@ export const GetTopicResponse = zod.object({
   "solution": zod.string().nullish(),
   "relatedVideoTitle": zod.string().nullish(),
   "relatedVideoId": zod.number().nullish(),
+  "relatedVideoTopicId": zod.number().nullish(),
   "sortOrder": zod.number()
 })),
+  "taskCardNumberOffset": zod.number().optional().describe('Liczba kart-zadań (obrazów z ukrytą odpowiedzią\/rozwiązaniem) we wcześniejszych lekcjach tego działu. Klient używa jej do ciągłej numeracji zadań przy tablicach (np. druga tablica zaczyna od \"Zadanie 4\").'),
   "quiz": zod.union([zod.object({
   "passThreshold": zod.number().optional(),
   "maxAttempts": zod.number().nullish(),
@@ -814,6 +816,7 @@ export const ListAdminCoursesResponseItem = zod.object({
   "solution": zod.string().nullish(),
   "relatedVideoTitle": zod.string().nullish(),
   "relatedVideoId": zod.number().nullish(),
+  "relatedVideoTopicId": zod.number().nullish(),
   "sortOrder": zod.number()
 })).optional(),
   "video": zod.union([zod.object({
@@ -1745,8 +1748,10 @@ export const PreviewTopicResponse = zod.object({
   "solution": zod.string().nullish(),
   "relatedVideoTitle": zod.string().nullish(),
   "relatedVideoId": zod.number().nullish(),
+  "relatedVideoTopicId": zod.number().nullish(),
   "sortOrder": zod.number()
 })),
+  "taskCardNumberOffset": zod.number().optional().describe('Liczba kart-zadań (obrazów z ukrytą odpowiedzią\/rozwiązaniem) we wcześniejszych lekcjach tego działu. Klient używa jej do ciągłej numeracji zadań przy tablicach (np. druga tablica zaczyna od \"Zadanie 4\").'),
   "quiz": zod.union([zod.object({
   "passThreshold": zod.number().optional(),
   "maxAttempts": zod.number().nullish(),
@@ -1838,6 +1843,7 @@ export const ListLessonImagesResponseItem = zod.object({
   "solution": zod.string().nullish(),
   "relatedVideoTitle": zod.string().nullish(),
   "relatedVideoId": zod.number().nullish(),
+  "relatedVideoTopicId": zod.number().nullish(),
   "sortOrder": zod.number()
 })
 export const ListLessonImagesResponse = zod.array(ListLessonImagesResponseItem)
@@ -1879,6 +1885,7 @@ export const UpdateLessonImageResponse = zod.object({
   "solution": zod.string().nullish(),
   "relatedVideoTitle": zod.string().nullish(),
   "relatedVideoId": zod.number().nullish(),
+  "relatedVideoTopicId": zod.number().nullish(),
   "sortOrder": zod.number()
 })
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { courses, sections, topics, videos, lessonImages, quizzes, quizQuestions, quizAnswers, tasks } from "@workspace/db";
-import { eq, asc, and, inArray } from "drizzle-orm";
+import { eq, asc, and, inArray, or, isNotNull, ne } from "drizzle-orm";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import {
   requireCourseAccess,
@@ -201,13 +201,79 @@ router.get(
 
     // Exercise cards (Dział 4) link to a preceding worked-example video by its
     // bunnyTitle; resolve that to a concrete video id so the client can jump to
-    // it without knowing Bunny internals. Null when there is no paired video.
+    // it without knowing Bunny internals. A card may live in a different lesson
+    // than its paired video (boards group tasks 3+3 across lessons), so titles
+    // not found in this lesson are resolved against the section's published
+    // lessons and returned together with the owning topic id, letting the
+    // client navigate cross-lesson. Null when there is no paired video.
+    const siblingIds = siblings.map((s) => s.id);
+    const unresolvedTitles = [
+      ...new Set(
+        imageList
+          .map((img) => img.relatedVideoTitle)
+          .filter(
+            (t): t is string =>
+              !!t && !videoList.some((v) => v.bunnyTitle === t)
+          )
+      ),
+    ];
+    const sectionVideos =
+      unresolvedTitles.length > 0 && siblingIds.length > 0
+        ? await db
+            .select({
+              id: videos.id,
+              topicId: videos.topicId,
+              bunnyTitle: videos.bunnyTitle,
+            })
+            .from(videos)
+            .where(
+              and(
+                inArray(videos.topicId, siblingIds),
+                inArray(videos.bunnyTitle, unresolvedTitles)
+              )
+            )
+        : [];
     const imagesDto = imageList.map((img) => {
-      const related = img.relatedVideoTitle
+      const local = img.relatedVideoTitle
         ? videoList.find((v) => v.bunnyTitle === img.relatedVideoTitle)
         : undefined;
-      return { ...img, relatedVideoId: related?.id ?? null };
+      const remote =
+        !local && img.relatedVideoTitle
+          ? sectionVideos.find((v) => v.bunnyTitle === img.relatedVideoTitle)
+          : undefined;
+      return {
+        ...img,
+        relatedVideoId: local?.id ?? remote?.id ?? null,
+        relatedVideoTopicId: local ? topic.id : (remote?.topicId ?? null),
+      };
     });
+
+    // Continuous task numbering across the section's boards: count task cards
+    // (images carrying a hidden answer/solution) in earlier lessons so the
+    // client can label this lesson's tasks e.g. "Zadanie 4" on the second board.
+    const hasTaskCards = imageList.some((img) => img.answer || img.solution);
+    const earlierIds = currentIndex > 0 ? siblingIds.slice(0, currentIndex) : [];
+    let taskCardNumberOffset = 0;
+    if (hasTaskCards && earlierIds.length > 0) {
+      const earlierCards = await db
+        .select({ id: lessonImages.id })
+        .from(lessonImages)
+        .where(
+          and(
+            inArray(lessonImages.topicId, earlierIds),
+            // Matches the client's task-card predicate (non-empty answer OR
+            // solution) so server numbering and client partitioning agree.
+            or(
+              and(isNotNull(lessonImages.answer), ne(lessonImages.answer, "")),
+              and(
+                isNotNull(lessonImages.solution),
+                ne(lessonImages.solution, "")
+              )
+            )
+          )
+        );
+      taskCardNumberOffset = earlierCards.length;
+    }
 
     res.json({
       ...topic,
@@ -221,6 +287,7 @@ router.get(
         : null,
       videos: videoList.map((v) => ({ ...v, embedUrl: buildVideoEmbedUrl(v) })),
       images: imagesDto,
+      taskCardNumberOffset,
       quiz: quizWithQuestions,
       tasks: publicTasks,
     });

@@ -48,7 +48,7 @@
     {
       "id": 7,
       "courseId": 2,
-      "title": "Dział 4",
+      "title": "Kinematyka",
       "slug": "dzial-4",
       "sortOrder": 4,
       "bunnyCollectionId": "47ce0c3d-d330-40e6-b734-d4a38f964dff",
@@ -1651,18 +1651,6 @@
       "updatedAt": "2026-07-10T14:13:31.192Z"
     },
     {
-      "id": 71,
-      "topicId": 45,
-      "imageUrl": "course-assets/D4_L03_03_PNG_ZADANIE_PRZYSPIESZENIE_MOTOCYKLISTA_36_72KMH.png",
-      "alt": "Podczas wyprzedzania motocyklista zwiększył swoją prędkość w stałym tempie od 36 km/h do 72 km/h. Cały manewr trwał 5 sekund. Oblicz przyspieszenie tego motocykla. Wynik podaj w m/s².",
-      "answer": "2 m/s²",
-      "solution": "36 km/h = 10 m/s; 72 km/h = 20 m/s; a = (20 - 10) / 5 = 2 m/s².",
-      "relatedVideoTitle": "D4_L03_02_VIDEO_ScreenRecorderProject88",
-      "sortOrder": 3,
-      "createdAt": "2026-07-10T14:13:31.282Z",
-      "updatedAt": "2026-07-10T14:13:31.282Z"
-    },
-    {
       "id": 72,
       "topicId": 45,
       "imageUrl": "course-assets/D4_L03_05_PNG_ZADANIE_PRZYROST_PREDKOSCI_MOTOCYKL_4MS2.png",
@@ -1697,6 +1685,18 @@
       "sortOrder": 9,
       "createdAt": "2026-07-10T14:13:31.290Z",
       "updatedAt": "2026-07-10T14:13:31.290Z"
+    },
+    {
+      "id": 71,
+      "topicId": 44,
+      "imageUrl": "course-assets/D4_L03_03_PNG_ZADANIE_PRZYSPIESZENIE_MOTOCYKLISTA_36_72KMH.png",
+      "alt": "Podczas wyprzedzania motocyklista zwiększył swoją prędkość w stałym tempie od 36 km/h do 72 km/h. Cały manewr trwał 5 sekund. Oblicz przyspieszenie tego motocykla. Wynik podaj w m/s².",
+      "answer": "2 m/s²",
+      "solution": "36 km/h = 10 m/s; 72 km/h = 20 m/s; a = (20 - 10) / 5 = 2 m/s².",
+      "relatedVideoTitle": "D4_L03_02_VIDEO_ScreenRecorderProject88",
+      "sortOrder": 7,
+      "createdAt": "2026-07-10T14:13:31.282Z",
+      "updatedAt": "2026-07-10T14:13:31.282Z"
     },
     {
       "id": 65,
@@ -7208,7 +7208,7 @@
   ],
   "platform_settings": [],
   "meta": {
-    "exportedAt": "2026-07-10T14:27:33.939Z",
+    "exportedAt": "2026-07-11T07:37:01.053Z",
     "source": "replit-database",
     "counts": {
       "courses": 1,

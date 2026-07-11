@@ -2652,6 +2652,8 @@ components:
           type: ["string", "null"]
         relatedVideoId:
           type: ["integer", "null"]
+        relatedVideoTopicId:
+          type: ["integer", "null"]
         sortOrder:
           type: integer
 
@@ -2712,6 +2714,13 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/LessonImage"
+            taskCardNumberOffset:
+              type: integer
+              description: >-
+                Liczba kart-zadań (obrazów z ukrytą odpowiedzią/rozwiązaniem)
+                we wcześniejszych lekcjach tego działu. Klient używa jej do
+                ciągłej numeracji zadań przy tablicach (np. druga tablica
+                zaczyna od "Zadanie 4").
             quiz:
               oneOf:
                 - $ref: "#/components/schemas/QuizPublic"

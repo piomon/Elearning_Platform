@@ -1177,7 +1177,7 @@ export const COURSE: {
       ],
     },
     {
-      title: "Dział 4",
+      title: "Kinematyka",
       slug: "dzial-4",
       sortOrder: 4,
       bunnyCollectionId: "47ce0c3d-d330-40e6-b734-d4a38f964dff",
@@ -1220,6 +1220,18 @@ export const COURSE: {
               relatedVideo: "D4_L02_05_VIDEO_ScreenRecorderProject87.mkv",
               sortOrder: 6,
             },
+            {
+              // Zadanie 3 — przeniesione do grupy tablicy 1 (lekcja 2), aby obie
+              // tablice działu miały po dokładnie trzy zadania (wymóg 3+3).
+              // Powiązany film-przykład pozostaje w lekcji 3 — API zwraca
+              // relatedVideoTopicId, a klient nawiguje między lekcjami.
+              file: "D4_L03_03_PNG_ZADANIE_PRZYSPIESZENIE_MOTOCYKLISTA_36_72KMH.png",
+              alt: "Podczas wyprzedzania motocyklista zwiększył swoją prędkość w stałym tempie od 36 km/h do 72 km/h. Cały manewr trwał 5 sekund. Oblicz przyspieszenie tego motocykla. Wynik podaj w m/s².",
+              answer: "2 m/s²",
+              solution: "36 km/h = 10 m/s; 72 km/h = 20 m/s; a = (20 - 10) / 5 = 2 m/s².",
+              relatedVideo: "D4_L03_02_VIDEO_ScreenRecorderProject88.mkv",
+              sortOrder: 7,
+            },
           ],
         },
         {
@@ -1235,14 +1247,6 @@ export const COURSE: {
             { file: "D4_L03_08_VIDEO_ScreenRecorderProject91.mkv", title: "Przykład rozwiązany: droga deskorolki", sortOrder: 8 },
           ],
           images: [
-            {
-              file: "D4_L03_03_PNG_ZADANIE_PRZYSPIESZENIE_MOTOCYKLISTA_36_72KMH.png",
-              alt: "Podczas wyprzedzania motocyklista zwiększył swoją prędkość w stałym tempie od 36 km/h do 72 km/h. Cały manewr trwał 5 sekund. Oblicz przyspieszenie tego motocykla. Wynik podaj w m/s².",
-              answer: "2 m/s²",
-              solution: "36 km/h = 10 m/s; 72 km/h = 20 m/s; a = (20 - 10) / 5 = 2 m/s².",
-              relatedVideo: "D4_L03_02_VIDEO_ScreenRecorderProject88.mkv",
-              sortOrder: 3,
-            },
             {
               file: "D4_L03_05_PNG_ZADANIE_PRZYROST_PREDKOSCI_MOTOCYKL_4MS2.png",
               alt: "Oblicz, o ile wzrosła prędkość motocykla poruszającego się ze stałym przyspieszeniem 4 m/s²: a) w piątej sekundzie ruchu; b) w ciągu pierwszych pięciu sekund ruchu.",

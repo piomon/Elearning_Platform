@@ -20,5 +20,7 @@ export interface LessonImage {
   relatedVideoTitle?: string | null;
   /** @nullable */
   relatedVideoId?: number | null;
+  /** @nullable */
+  relatedVideoTopicId?: number | null;
   sortOrder: number;
 }

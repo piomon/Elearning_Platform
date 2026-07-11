@@ -29,6 +29,8 @@ export type TopicDetail = LessonMeta & ({
   video?: Video | null;
   videos: Video[];
   images: LessonImage[];
+  /** Liczba kart-zadań (obrazów z ukrytą odpowiedzią/rozwiązaniem) we wcześniejszych lekcjach tego działu. Klient używa jej do ciągłej numeracji zadań przy tablicach (np. druga tablica zaczyna od "Zadanie 4"). */
+  taskCardNumberOffset?: number;
   quiz?: QuizPublic | null;
   tasks: Task[];
 });
