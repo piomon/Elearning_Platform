@@ -13,6 +13,7 @@
 - [Async-before-mutation busy lock](async-pre-mutation-lock.md) — if a handler does async work before calling mutate(), guard with a synchronous ref lock; mutation.isPending flips too late to stop double-submits.
 - [Quiz time-limit](quiz-time-limit.md) — timed quizzes use a signed start-ticket; server rejects late/forged submissions, client countdown is UX only.
 - [Discount redemption idempotency](discount-redemption-idempotency.md) — use a PLAIN unique index + ON CONFLICT for "record once" guards; partial indexes break ON CONFLICT and this drizzle version drops targetWhere.
+- [Excalidraw init race](excalidraw-init-race.md) — excalidrawAPI is ready before initialData applies; one-shot setup gets clobbered, re-apply idempotently for ~500ms after mount.
 - [Task-card predicate parity](task-card-predicate.md) — "task card" = image with NON-EMPTY answer/solution; server numbering offset and client partition must use the identical predicate.
 - [Additive content seed & diff](content-additive-seed-and-diff.md) — SEED_FORCE (no SEED_RESET) adds content without wiping; prove existing działy untouched via order-independent semantic diff (export has no ORDER BY).
 - [Bunny playback in prod](bunny-playback-prod.md) — "plays in dev, not on VPS": either BUNNY_LIBRARY_ID missing in that env's .env (→ placeholder) or Bunny dashboard Allowed-Referrers/embed-token blocks the domain (→ 403 inside player). Split by symptom.

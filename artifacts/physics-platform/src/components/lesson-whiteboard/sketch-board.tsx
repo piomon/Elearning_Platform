@@ -53,11 +53,11 @@ function loadSketch(sketchKey: string): SketchElements | undefined {
   }
 }
 
-// Grubości pisaka (strokeWidth w jednostkach sceny Excalidraw). Wartości są
-// dobrane tak, aby przy domyślnym oddaleniu (zoom 0.5) linia „Cienki” była na
-// ekranie realnie cienka (~0,75 px), ale nadal dobrze widoczna podczas pisania,
-// a przy eksporcie do 1600 px czytelna dla Gemini AI. „Gruby” służy głównie do
-// podkreśleń i zaznaczeń.
+// Grubości pisaka (strokeWidth w jednostkach sceny Excalidraw). Widoczna na
+// ekranie grubość to strokeWidth × zoom, więc przy domyślnym oddaleniu 30%
+// linia „Cienki” (1.5) ma na ekranie ~0,5 px — bardzo cienka, ale wciąż
+// widoczna; przy eksporcie do 1600 px pozostaje czytelna dla Gemini AI.
+// „Gruby” służy głównie do podkreśleń i zaznaczeń.
 type PenWidth = 1.5 | 3 | 6;
 const DEFAULT_PEN: PenWidth = 1.5;
 const PEN_OPTIONS: { label: string; value: PenWidth; preview: number }[] = [
@@ -77,12 +77,13 @@ const PEN_COLORS: { label: string; value: string }[] = [
   { label: "Pomarańczowy", value: "#f08c00" },
 ];
 
-// Tablica startuje mocno oddalona (zoom 0.5 = widok pomniejszony do 50%): uczeń
-// od razu widzi znacznie większą część tablicy i ma dużo miejsca na obliczenia.
-// Testowano też wariant 0.2 (20%) — odrzucony jako zbyt mało czytelny do pisania
-// odręcznego. Eksport do AI bazuje na elementach sceny, więc zoom nie wpływa na
+// Tablica startuje mocno oddalona (zoom 0.3 = widok pomniejszony do ~30%,
+// zgodnie z wymaganiem użytkownika): uczeń od razu widzi duży obszar roboczy,
+// a pisak nie wygląda na gruby. Zoom jest dodatkowo wymuszany po inicjalizacji
+// Excalidraw (patrz efekt niżej), aby żadna wewnętrzna inicjalizacja go nie
+// nadpisała. Eksport do AI bazuje na elementach sceny, więc zoom nie wpływa na
 // obraz wysyłany do Gemini.
-const DEFAULT_ZOOM = 0.5 as NormalizedZoomValue;
+const DEFAULT_ZOOM = 0.3 as NormalizedZoomValue;
 
 export type SketchBoardHandle = {
   api: ExcalidrawAPI;
@@ -126,16 +127,35 @@ export default function SketchBoard({
   );
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Domyślnie wybierz cienki pisak (odręczny), aby od razu można było pisać
-  // rozwiązanie bez szukania narzędzia. Jeżeli przywrócono zapisany szkic,
-  // wycentruj widok na notatkach ucznia (bez zmiany startowego oddalenia).
+  // Konfiguracja startowa tablicy: cienki pisak odręczny jako aktywne
+  // narzędzie, wymuszone oddalenie ~30% i wycentrowanie na przywróconym
+  // szkicu (scrollToContent z fitToViewport: false nie zmienia zoomu).
+  //
+  // UWAGA (race): callback `excalidrawAPI` odpala się ZANIM Excalidraw
+  // asynchronicznie zastosuje `initialData` — pojedyncze wywołanie tuż po
+  // uzyskaniu API było nadpisywane przez późniejsze przywrócenie sceny
+  // (narzędzie wracało do "selection", a scrollToContent widział pustą
+  // scenę). Dlatego konfigurację ponawiamy idempotentnie przez krótką
+  // chwilę po montażu; potem już nigdy nie ruszamy zoomu ani narzędzia,
+  // aby nie nadpisywać wyborów ucznia.
   useEffect(() => {
     if (!api) return;
-    api.setActiveTool({ type: "freedraw" });
-    const elements = api.getSceneElements();
-    if (elements.length > 0) {
-      api.scrollToContent(elements, { fitToViewport: false, animate: false });
-    }
+    let cancelled = false;
+    const apply = () => {
+      if (cancelled) return;
+      api.setActiveTool({ type: "freedraw" });
+      api.updateScene({ appState: { zoom: { value: DEFAULT_ZOOM } } });
+      const elements = api.getSceneElements();
+      if (elements.length > 0) {
+        api.scrollToContent(elements, { fitToViewport: false, animate: false });
+      }
+    };
+    apply();
+    const timers = [60, 200, 500].map((ms) => setTimeout(apply, ms));
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
   }, [api]);
 
   const clear = useCallback(() => {

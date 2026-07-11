@@ -36,6 +36,15 @@ import Regulamin from "@/pages/regulamin";
 import Privacy from "@/pages/privacy";
 import NotFound from "@/pages/not-found";
 import { PurchaseResume } from "@/hooks/use-purchase";
+import { lazy, Suspense } from "react";
+
+// Strona podglądowa tablicy — dostępna wyłącznie w trybie deweloperskim
+// (weryfikacja wizualna zoomu/pisaka bez logowania). Warunek na poziomie
+// deklaracji sprawia, że w buildzie produkcyjnym dynamiczny import jest
+// martwym kodem — chunk strony DEV nie trafia do bundla ani do cache PWA.
+const DevWhiteboard = import.meta.env.DEV
+  ? lazy(() => import("@/pages/dev-whiteboard"))
+  : null;
 
 const queryClient = new QueryClient();
 
@@ -63,6 +72,16 @@ function Router() {
         <Route path="/topics/:topicId">
           {() => <ProtectedRoute><TopicDetail /></ProtectedRoute>}
         </Route>
+
+        {DevWhiteboard && (
+          <Route path="/dev/whiteboard">
+            {() => (
+              <Suspense fallback={null}>
+                <DevWhiteboard />
+              </Suspense>
+            )}
+          </Route>
+        )}
 
         <Route path="/admin">
           {() => <AdminPage><AdminDashboard /></AdminPage>}
