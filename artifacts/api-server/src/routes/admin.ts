@@ -50,7 +50,10 @@ import { getAiSettings, resolveAiModel, DEFAULT_AI_SETTINGS } from "../lib/ai-se
 
 const router = Router();
 
-router.use(requireAuth as any, requireAdmin as any);
+// Guard ONLY the /admin/* subtree. This router is mounted last in routes/index.ts,
+// so an unscoped router.use() would swallow every unmatched /api/* request and
+// return 401/403 instead of letting the global 404 handler answer.
+router.use("/admin", requireAuth as any, requireAdmin as any);
 
 async function logAdminAction(
   adminId: number,

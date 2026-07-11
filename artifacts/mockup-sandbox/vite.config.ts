@@ -1,33 +1,41 @@
-import { defineConfig } from "vite";
+import { defineConfig, type UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import { mockupPreviewPlugin } from "./mockupPreviewPlugin";
 
-const rawPort = process.env.PORT;
-
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
+// PORT/BASE_PATH są potrzebne tylko serwerowi dev (command === "serve").
+// `vite build` nie otwiera portu — wymaganie ich przy buildzie psuło
+// zbiorczy `pnpm build` w katalogu głównym repo.
+function requirePort(): number {
+  const rawPort = process.env.PORT;
+  if (!rawPort) {
+    throw new Error(
+      "PORT environment variable is required but was not provided.",
+    );
+  }
+  const port = Number(rawPort);
+  if (Number.isNaN(port) || port <= 0) {
+    throw new Error(`Invalid PORT value: "${rawPort}"`);
+  }
+  return port;
 }
 
-const port = Number(rawPort);
-
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-
-const basePath = process.env.BASE_PATH;
-
-if (!basePath) {
+function resolveBasePath(command: "build" | "serve"): string {
+  const basePath = process.env.BASE_PATH;
+  if (basePath) return basePath;
+  if (command === "build") return "/";
   throw new Error(
     "BASE_PATH environment variable is required but was not provided.",
   );
 }
 
-export default defineConfig({
+export default defineConfig(async ({ command }): Promise<UserConfig> => {
+  const basePath = resolveBasePath(command);
+  const port = command === "serve" ? requirePort() : undefined;
+
+  return {
   base: basePath,
   plugins: [
     mockupPreviewPlugin(),
@@ -68,4 +76,5 @@ export default defineConfig({
     host: "0.0.0.0",
     allowedHosts: true,
   },
+  };
 });

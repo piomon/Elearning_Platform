@@ -32,16 +32,19 @@ fork. Routes are mounted under `/api`. Adding a schema column requires a real
 drizzle migration (`pnpm --filter @workspace/db run generate`) so the test
 harness picks it up — `push` alone won't create the versioned migration file.
 
-# Vite artifacts throw at config-load if PORT/BASE_PATH are unset (even for `build`)
-`physics-platform` and `mockup-sandbox` `vite.config.ts` throw "PORT/BASE_PATH
-environment variable is required" while *loading the config*, so a bare
-`pnpm -w run build` fails on them even though nothing is wrong with the code.
-**Why:** the configs read `process.env.PORT`/`BASE_PATH` at module top-level; the
-dev workflow and the deployment inject these, a plain shell does not.
-**How to apply:** to validate a production build locally, run
-`PORT=5000 BASE_PATH=/ pnpm --filter @workspace/physics-platform run build`.
-`mockup-sandbox` is the Canvas dev tool (not a product artifact) — its build
-failing in CI-style runs is expected/irrelevant.
+# Vite configs: PORT/BASE_PATH required only for `serve`; bare `pnpm build` works
+Both `physics-platform` and `mockup-sandbox` use functional
+`defineConfig(async ({command}) => …)`: PORT is required only when
+`command === "serve"`, BASE_PATH defaults to "/" on build (still required for
+serve). A bare root `pnpm run build` passes with no env vars.
+**Why:** the old top-level env reads made every CI-style build fail; build opens
+no port, and the Docker/deploy path sets BASE_PATH explicitly anyway.
+**Watch out:** a sub-path deployment that forgets BASE_PATH now gets a
+broken-asset bundle instead of a fail-fast build error.
+**TS gotcha:** a functional config returned from an async fn loses contextual
+typing — literals like `allowedHosts: true` widen to `boolean` and typecheck
+fails with a confusing "no overload matches" TS2769. Annotate the callback as
+`(): Promise<UserConfig>` (import `type UserConfig` from "vite").
 
 # Root-alias arg forwarding: no `--` separator
 Root package.json aliases like `import:content` = `pnpm --filter @workspace/scripts
