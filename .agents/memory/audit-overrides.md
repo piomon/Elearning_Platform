@@ -34,3 +34,11 @@ same `<db>_test` database → phantom FK violations (e.g. "section_id=(1) not
 present") in seedCourse. Kill leftover vitest PIDs before re-running, and run
 the 15-file suite in batches of ~4-6 files to stay under the 120s tool timeout
 (full suite takes ~105s+ and gets killed).
+
+# Second instance of the uncapped-override pitfall: js-yaml
+The `js-yaml@>=4.0.0 <4.2.0: '>=4.2.0'` override silently pulled js-yaml 5.x,
+which drops the default export — orval codegen then crashes with
+"does not provide an export named 'default'". Fixed by capping to
+`'>=4.2.0 <5'` (4.2.0 exists and patches the merge-key DoS).
+**How to apply:** if orval/codegen suddenly fails on an import error from a
+common transitive dep, check the overrides block first for an uncapped range.

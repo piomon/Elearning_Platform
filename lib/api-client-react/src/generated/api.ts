@@ -43,6 +43,7 @@ import type {
   ContactInput,
   ContactMessage,
   ContactMessageList,
+  ContactMessageNewCount,
   ContactMessageUpdate,
   ContinueProgress,
   Course,
@@ -2624,6 +2625,77 @@ export function useListContactMessages<TData = Awaited<ReturnType<typeof listCon
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getListContactMessagesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetContactMessagesNewCountUrl = () => {
+
+
+
+
+  return `/api/admin/contact-messages/new-count`
+}
+
+export const getContactMessagesNewCount = async ( options?: RequestInit): Promise<ContactMessageNewCount> => {
+
+  return customFetch<ContactMessageNewCount>(getGetContactMessagesNewCountUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetContactMessagesNewCountQueryKey = () => {
+    return [
+    `/api/admin/contact-messages/new-count`
+    ] as const;
+    }
+
+
+export const getGetContactMessagesNewCountQueryOptions = <TData = Awaited<ReturnType<typeof getContactMessagesNewCount>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getContactMessagesNewCount>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetContactMessagesNewCountQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getContactMessagesNewCount>>> = ({ signal }) => getContactMessagesNewCount({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getContactMessagesNewCount>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetContactMessagesNewCountQueryResult = NonNullable<Awaited<ReturnType<typeof getContactMessagesNewCount>>>
+export type GetContactMessagesNewCountQueryError = ErrorType<unknown>
+
+
+
+export function useGetContactMessagesNewCount<TData = Awaited<ReturnType<typeof getContactMessagesNewCount>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getContactMessagesNewCount>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetContactMessagesNewCountQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

@@ -739,6 +739,19 @@ router.post("/admin/payments/:paymentId/refund", async (req: AuthRequest, res) =
 
 // ── Contact Messages ──────────────────────────────────────────────────────────
 
+router.get("/admin/contact-messages/new-count", async (req: AuthRequest, res) => {
+  try {
+    const [{ newCount }] = await db
+      .select({ newCount: count() })
+      .from(contactMessages)
+      .where(eq(contactMessages.status, "new"));
+    res.json({ count: newCount });
+  } catch (err) {
+    req.log.error({ err }, "Contact messages new-count error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
 router.get("/admin/contact-messages", async (req: AuthRequest, res) => {
   try {
     const { status } = req.query as { status?: string };

@@ -497,6 +497,7 @@ export const GetAdminDashboardResponse = zod.object({
   "subject": zod.string(),
   "message": zod.string(),
   "status": zod.enum(['new', 'read', 'replied', 'closed']),
+  "emailStatus": zod.enum(['sent', 'failed', 'skipped']).nullish().describe('Delivery status of the admin e-mail notification for this message'),
   "createdAt": zod.string()
 })),
   "recentPayments": zod.array(zod.object({
@@ -720,11 +721,17 @@ export const ListContactMessagesResponse = zod.object({
   "subject": zod.string(),
   "message": zod.string(),
   "status": zod.enum(['new', 'read', 'replied', 'closed']),
+  "emailStatus": zod.enum(['sent', 'failed', 'skipped']).nullish().describe('Delivery status of the admin e-mail notification for this message'),
   "createdAt": zod.string()
 })),
   "total": zod.number(),
   "page": zod.number(),
   "limit": zod.number()
+})
+
+
+export const GetContactMessagesNewCountResponse = zod.object({
+  "count": zod.number().describe('Number of contact messages with status \"new\"')
 })
 
 
@@ -743,6 +750,7 @@ export const UpdateContactMessageResponse = zod.object({
   "subject": zod.string(),
   "message": zod.string(),
   "status": zod.enum(['new', 'read', 'replied', 'closed']),
+  "emailStatus": zod.enum(['sent', 'failed', 'skipped']).nullish().describe('Delivery status of the admin e-mail notification for this message'),
   "createdAt": zod.string()
 })
 

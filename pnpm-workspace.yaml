@@ -115,7 +115,7 @@ overrides:
   # dompurify ALLOWED_ATTR pollution + Trusted Types issues (moderate/low), via @excalidraw
   dompurify@<3.4.11: '>=3.4.11'
   # js-yaml merge-key DoS (moderate), via orval (dev-only)
-  js-yaml@>=4.0.0 <4.2.0: '>=4.2.0'
+  js-yaml@>=4.0.0 <4.2.0: '>=4.2.0 <5'
   # @babel/core sourceMappingURL file read (low), via @vitejs/plugin-react (dev-only)
   '@babel/core@<7.29.6': '>=7.29.6 <8'
   rollup>@rollup/rollup-android-arm-eabi: '-'

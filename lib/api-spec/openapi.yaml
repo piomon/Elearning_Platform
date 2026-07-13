@@ -765,6 +765,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/ContactMessageList"
 
+  /admin/contact-messages/new-count:
+    get:
+      operationId: getContactMessagesNewCount
+      tags: [admin]
+      responses:
+        "200":
+          description: Count of new (unread) contact messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactMessageNewCount"
+
   /admin/contact-messages/{id}:
     patch:
       operationId: updateContactMessage
@@ -3637,8 +3649,21 @@ components:
         status:
           type: string
           enum: [new, read, replied, closed]
+        emailStatus:
+          type: string
+          enum: [sent, failed, skipped]
+          nullable: true
+          description: Delivery status of the admin e-mail notification for this message
         createdAt:
           type: string
+
+    ContactMessageNewCount:
+      type: object
+      required: [count]
+      properties:
+        count:
+          type: integer
+          description: Number of contact messages with status "new"
 
     ContactMessageUpdate:
       type: object

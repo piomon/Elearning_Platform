@@ -99,6 +99,13 @@
       "when": 1783690497526,
       "tag": "0013_high_exiles",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1783952039964,
+      "tag": "0014_chemical_polaris",
+      "breakpoints": true
     }
   ]
 }

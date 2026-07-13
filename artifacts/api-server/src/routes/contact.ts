@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { eq } from "drizzle-orm";
 import { db } from "@workspace/db";
 import { contactMessages } from "@workspace/db";
 import { logger } from "../lib/logger";
@@ -25,16 +26,20 @@ router.post("/contact", contactLimiter, async (req, res) => {
       return;
     }
 
-    await db.insert(contactMessages).values({
-      name,
-      email,
-      subject,
-      message,
-      status: "new",
-      consent: true,
-      consentAt: new Date(),
-    });
+    const [saved] = await db
+      .insert(contactMessages)
+      .values({
+        name,
+        email,
+        subject,
+        message,
+        status: "new",
+        consent: true,
+        consentAt: new Date(),
+      })
+      .returning({ id: contactMessages.id });
 
+    let emailStatus: "sent" | "failed" | "skipped" = "skipped";
     if (isSmtpConfigured()) {
       try {
         const { createTransport } = await import("nodemailer");
@@ -50,9 +55,23 @@ router.post("/contact", contactLimiter, async (req, res) => {
           subject: `[Fizyka] Nowa wiadomość: ${subject}`,
           text: `Od: ${name} <${email}>\n\n${message}`,
         });
+        emailStatus = "sent";
       } catch (mailErr) {
-        logger.warn({ mailErr }, "Email notification failed (non-critical)");
+        emailStatus = "failed";
+        logger.warn(
+          { mailErr, contactMessageId: saved.id },
+          "Email notification failed (non-critical); message saved in DB",
+        );
       }
+    }
+
+    try {
+      await db
+        .update(contactMessages)
+        .set({ emailStatus })
+        .where(eq(contactMessages.id, saved.id));
+    } catch (updateErr) {
+      logger.warn({ updateErr, contactMessageId: saved.id }, "Failed to record email status");
     }
 
     res.status(201).json({ message: "Wiadomość została wysłana. Skontaktujemy się wkrótce!" });

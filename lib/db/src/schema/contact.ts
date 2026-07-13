@@ -8,6 +8,7 @@ export const contactMessages = pgTable("contact_messages", {
   subject: text("subject").notNull(),
   message: text("message").notNull(),
   status: text("status").notNull().default("new"),
+  emailStatus: text("email_status"),
   consent: boolean("consent").notNull().default(false),
   consentAt: timestamp("consent_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),

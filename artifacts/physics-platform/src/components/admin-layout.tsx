@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { AdminRoute } from "@/hooks/use-auth";
+import { useGetContactMessagesNewCount } from "@workspace/api-client-react";
 
 type NavItem = { href: string; label: string; icon: ReactNode; soon?: boolean };
 type NavGroup = { heading: string; items: NavItem[] };
@@ -122,7 +123,15 @@ function resolveCrumbs(location: string): { label: string; href?: string }[] {
   return [{ label: "Kokpit", href: "/admin" }];
 }
 
-function SidebarNav({ location, onNavigate }: { location: string; onNavigate?: () => void }) {
+function SidebarNav({
+  location,
+  onNavigate,
+  newMessagesCount = 0,
+}: {
+  location: string;
+  onNavigate?: () => void;
+  newMessagesCount?: number;
+}) {
   return (
     <nav className="flex flex-col gap-6 p-4">
       {NAV.map((group) => (
@@ -163,6 +172,17 @@ function SidebarNav({ location, onNavigate }: { location: string; onNavigate?: (
               >
                 <span className="shrink-0">{item.icon}</span>
                 <span className="truncate">{item.label}</span>
+                {item.href === "/admin/contact" && newMessagesCount > 0 && (
+                  <span
+                    className={cn(
+                      "ml-auto shrink-0 inline-flex items-center justify-center min-w-[1.375rem] h-[1.375rem] px-1.5 rounded-full text-[11px] font-bold",
+                      active ? "bg-primary-foreground text-primary" : "bg-primary text-primary-foreground",
+                    )}
+                    aria-label={`${newMessagesCount} nowych wiadomości`}
+                  >
+                    {newMessagesCount > 99 ? "99+" : newMessagesCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -190,6 +210,10 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const crumbs = resolveCrumbs(location);
+  const { data: newCountData } = useGetContactMessagesNewCount({
+    query: { refetchInterval: 60_000, staleTime: 30_000 },
+  } as never);
+  const newMessagesCount = newCountData?.count ?? 0;
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-muted/20">
@@ -197,7 +221,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         {/* Desktop sidebar */}
         <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] border-r border-border bg-card overflow-y-auto">
           <SidebarBrand />
-          <SidebarNav location={location} />
+          <SidebarNav location={location} newMessagesCount={newMessagesCount} />
         </aside>
 
         {/* Mobile drawer */}
@@ -206,7 +230,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
             <SheetTitle className="sr-only">Nawigacja panelu administratora</SheetTitle>
             <SidebarBrand />
             <div className="overflow-y-auto">
-              <SidebarNav location={location} onNavigate={() => setMobileOpen(false)} />
+              <SidebarNav location={location} onNavigate={() => setMobileOpen(false)} newMessagesCount={newMessagesCount} />
             </div>
           </SheetContent>
         </Sheet>

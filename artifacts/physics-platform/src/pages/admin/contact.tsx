@@ -7,7 +7,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageSquare, CheckCircle2, Inbox, Reply, ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { MessageSquare, CheckCircle2, Inbox, Reply, ChevronLeft, ChevronRight, Filter, MailCheck, MailWarning, MailX } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +28,31 @@ const STATUS_BADGE: Record<string, string> = {
   replied: "bg-success/20 text-success",
   closed: "bg-muted text-muted-foreground",
 };
+
+function EmailStatusBadge({ emailStatus }: { emailStatus?: string | null }) {
+  if (emailStatus === "sent") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-success/10 text-success" title="Powiadomienie e-mail zostało wysłane">
+        <MailCheck className="w-3.5 h-3.5" /> E-mail wysłany
+      </span>
+    );
+  }
+  if (emailStatus === "failed") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-destructive/10 text-destructive" title="Wysyłka powiadomienia e-mail nie powiodła się — wiadomość jest tylko tutaj">
+        <MailX className="w-3.5 h-3.5" /> E-mail nie wysłany
+      </span>
+    );
+  }
+  if (emailStatus === "skipped") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600" title="Serwer poczty nie jest skonfigurowany — powiadomienie e-mail pominięto">
+        <MailWarning className="w-3.5 h-3.5" /> Bez e-maila
+      </span>
+    );
+  }
+  return null;
+}
 
 export default function AdminContact() {
   const { toast } = useToast();
@@ -104,6 +129,7 @@ export default function AdminContact() {
                         <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shrink-0 ${STATUS_BADGE[msg.status] ?? STATUS_BADGE.closed}`}>
                           {STATUS_LABEL[msg.status] ?? msg.status}
                         </span>
+                        <EmailStatusBadge emailStatus={msg.emailStatus} />
                         <h3 className="text-xl font-bold font-display">{msg.subject}</h3>
                       </div>
                       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground font-medium">

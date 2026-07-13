@@ -5,6 +5,7 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { ContactMessageEmailStatus } from './contactMessageEmailStatus';
 import type { ContactMessageStatus } from './contactMessageStatus';
 
 export interface ContactMessage {
@@ -14,5 +15,7 @@ export interface ContactMessage {
   subject: string;
   message: string;
   status: ContactMessageStatus;
+  /** Delivery status of the admin e-mail notification for this message */
+  emailStatus?: ContactMessageEmailStatus;
   createdAt: string;
 }

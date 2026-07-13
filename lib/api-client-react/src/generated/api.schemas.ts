@@ -845,6 +845,18 @@ export const ContactMessageStatus = {
   closed: 'closed',
 } as const;
 
+/**
+ * Delivery status of the admin e-mail notification for this message
+ */
+export type ContactMessageEmailStatus = typeof ContactMessageEmailStatus[keyof typeof ContactMessageEmailStatus] | null;
+
+
+export const ContactMessageEmailStatus = {
+  sent: 'sent',
+  failed: 'failed',
+  skipped: 'skipped',
+} as const;
+
 export interface ContactMessage {
   id: number;
   name: string;
@@ -852,7 +864,14 @@ export interface ContactMessage {
   subject: string;
   message: string;
   status: ContactMessageStatus;
+  /** Delivery status of the admin e-mail notification for this message */
+  emailStatus?: ContactMessageEmailStatus;
   createdAt: string;
+}
+
+export interface ContactMessageNewCount {
+  /** Number of contact messages with status "new" */
+  count: number;
 }
 
 export type ContactMessageUpdateStatus = typeof ContactMessageUpdateStatus[keyof typeof ContactMessageUpdateStatus];
