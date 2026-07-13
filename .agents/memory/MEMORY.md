@@ -26,3 +26,4 @@
 - [PWA setup](pwa-setup.md) — vite-plugin-pwa (Workbox); devOptions.enabled MUST be false (SW would break Replit dev preview); plugin owns manifest, no static one.
 - [Contact email verification](contact-email-verification.md) — SMTP secrets exist only on the VPS; verify contact-form delivery via Ethereal SMTP + IMAP check in one bash call.
 - [Docker / VPS self-host deploy](docker-vps-deploy.md) — compose+Traefik one-command deploy; migrations auto-run but seed.ts is destructive (manual only); workspace dep changes need a fresh frozen lockfile.
+- [E2E login with external Clerk](e2e-clerk-login-testing.md) — testClerkAuth fails on external Clerk; use FAPI dev_browser + +clerk_test OTP 424242 + `?__clerk_db_jwt=` URL; ignore headless HLS codec error.
