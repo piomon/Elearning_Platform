@@ -24,4 +24,5 @@
 - [Mobile purchase visibility & no-access loop](mobile-purchase-visibility.md) — one central sticky bottom bar (learn-nav vs buy-bar, exclusive); no-access paths must end at a purchase panel; show buy CTA instantly; resume purchase via dashboard so discount stays reachable.
 - [DB backups vs .gitignore](backups-gitignore.md) — ignore the `backups/` dir (PII/payment dumps); never add global `*.sql` ignore — drizzle migrations are tracked .sql files.
 - [PWA setup](pwa-setup.md) — vite-plugin-pwa (Workbox); devOptions.enabled MUST be false (SW would break Replit dev preview); plugin owns manifest, no static one.
+- [Contact email verification](contact-email-verification.md) — SMTP secrets exist only on the VPS; verify contact-form delivery via Ethereal SMTP + IMAP check in one bash call.
 - [Docker / VPS self-host deploy](docker-vps-deploy.md) — compose+Traefik one-command deploy; migrations auto-run but seed.ts is destructive (manual only); workspace dep changes need a fresh frozen lockfile.
