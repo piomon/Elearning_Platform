@@ -22,7 +22,9 @@ Consequences for browser testing (`runTest`):
    `prepare_second_factor` (email_code) then `attempt_second_factor` with code 424242
    → `status: complete`.
 3. In the test plan, navigate to `/dashboard?__clerk_db_jwt=<jwt>` — clerk-js adopts
-   the signed-in client. Tell the agent to NEVER open /login.
+   the signed-in client. Tell the agent to NEVER open /login. Do NOT land directly on
+   a guarded route like `/admin` — the route guard redirects to /login before clerk-js
+   adopts the session; land on /dashboard first, then navigate normally.
 4. The local `users` row is created JIT on the first authenticated request — insert
    `access_grants` only AFTER the browser confirms logged-in state.
 5. Clean up afterwards: delete the Clerk users (Backend API) and the local user rows.
