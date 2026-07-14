@@ -8,6 +8,13 @@ export const GEMINI_TIMEOUT_MS = 55_000;
 
 export type MappedGeminiError = { status: number; error: string };
 
+// True when Gemini rejected the model name itself (retired, gated for new
+// users, or misspelled) — the one failure that retrying with a different
+// model can fix. The SDK surfaces the upstream HTTP status on the error.
+export function isModelUnavailable(err: unknown): boolean {
+  return (err as { status?: number } | null)?.status === 404;
+}
+
 // Distinguish the causes a student (or admin) can actually act on instead of
 // collapsing everything into one generic error. The technical detail is logged
 // server-side by the caller; the returned message is safe to show users.

@@ -156,7 +156,7 @@ niej) · — = opcjonalna.
 | `PAYNOW_API_URL` / `PAYNOW_RETURN_URL` / `PAYNOW_NOTIFICATION_URL` | — | Opcjonalne nadpisania (domyślnie dobierane wg `PAYNOW_ENV`). |
 | `BUNNY_LIBRARY_ID` / `BUNNY_CDN_HOSTNAME` | prod | Hosting wideo Bunny.net. |
 | `GEMINI_API_KEY` | prod | Sprawdzanie zadań przez AI. Bez klucza w dev działa tryb demonstracyjny. |
-| `GEMINI_MODEL` | — | Model Gemini (puste = domyślny `gemini-2.5-flash`; wycofane modele są automatycznie zastępowane). |
+| `GEMINI_MODEL` | — | Model Gemini (puste = alias `gemini-flash-latest`, zawsze aktualny; wycofane modele są automatycznie zastępowane). |
 | `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` | prod | Serwer SMTP do wysyłki e-mail. |
 | `SMTP_PORT` | — | Port SMTP (domyślnie `587`). |
 | `CONTACT_FROM_EMAIL` | prod | Adres nadawcy (From) wiadomości. |

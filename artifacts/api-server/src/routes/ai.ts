@@ -13,8 +13,8 @@ import {
   isTopicPublished,
 } from "../lib/access";
 import { config, isGeminiConfigured } from "../config/env";
-import { getAiSettings, resolveAiModel } from "../lib/ai-settings";
-import { GEMINI_TIMEOUT_MS, mapGeminiError } from "../lib/gemini";
+import { getAiSettings, resolveAiModel, FALLBACK_AI_MODEL } from "../lib/ai-settings";
+import { GEMINI_TIMEOUT_MS, isModelUnavailable, mapGeminiError } from "../lib/gemini";
 
 const router = Router();
 
@@ -63,7 +63,8 @@ Odpowiedz po polsku, krótko i przyjaźnie.
 - Nie wyśmiewaj ucznia
 - Używaj prostego języka dla ucznia 7. klasy
 - Bądź konkretny i pomocny
-- Odpowiedź powinna być max 3-4 zdania`;
+- Odpowiedź powinna być max 3-4 zdania
+- Pisz zwykłym tekstem, bez notacji LaTeX i Markdown (żadnych $...$, \\cdot, \\text, gwiazdek). Wzory zapisuj jak w zeszycie, np. Fc = m · g, wynik: 50 N`;
 
 // Per-task overrides stored by the admin. Only a string `systemPrompt` is
 // honored; anything else is ignored. The merged prompt stays server-side.
@@ -176,7 +177,7 @@ router.post(
         return;
       }
 
-      const model = isGeminiConfigured() ? resolveAiModel(aiCfg) : "demo";
+      let model = isGeminiConfigured() ? resolveAiModel(aiCfg) : "demo";
 
       // Layer the global admin-configured guidance (extra system prompt, eval
       // instruction, tone) on top of the per-task prompt. All stays server-side.
@@ -226,13 +227,35 @@ router.post(
           "Sprawdzanie AI działa w trybie demonstracyjnym. Skonfiguruj GEMINI_API_KEY, aby włączyć prawdziwe sprawdzanie. Twoje rozwiązanie wygląda na staranne!";
       } else {
         try {
-          feedback = await checkWithGemini(
-            image.data,
-            image.mimeType,
-            task.description ?? task.title,
-            composedPrompt,
-            model,
-          );
+          try {
+            feedback = await checkWithGemini(
+              image.data,
+              image.mimeType,
+              task.description ?? task.title,
+              composedPrompt,
+              model,
+            );
+          } catch (aiErr) {
+            // Self-healing: when Google rejects the configured model name
+            // (retired or gated — exactly how gemini-1.5-flash broke this
+            // feature in production), retry once with the rolling fallback
+            // alias instead of failing the student.
+            if (!isModelUnavailable(aiErr) || model === FALLBACK_AI_MODEL) {
+              throw aiErr;
+            }
+            req.log.warn(
+              { model, err: aiErr },
+              "Gemini model unavailable — retrying with fallback model",
+            );
+            model = FALLBACK_AI_MODEL;
+            feedback = await checkWithGemini(
+              image.data,
+              image.mimeType,
+              task.description ?? task.title,
+              composedPrompt,
+              model,
+            );
+          }
         } catch (aiErr) {
           req.log.error({ err: aiErr }, "Gemini check failed");
           await logCheck("failed", {
@@ -294,7 +317,8 @@ const CHAT_SYSTEM_PROMPT = `Jesteś przyjaznym korepetytorem fizyki dla ucznia 7
 - Trzymaj się tematu bieżącej lekcji, ale możesz odwoływać się do podstaw fizyki.
 - Nie podawaj gotowych rozwiązań zadań domowych wprost — naprowadzaj ucznia.
 - Bądź cierpliwy, zachęcający i konkretny. Odpowiedź maksymalnie 6 zdań.
-- Jeśli pytanie nie dotyczy fizyki ani nauki, grzecznie wróć do tematu lekcji.`;
+- Jeśli pytanie nie dotyczy fizyki ani nauki, grzecznie wróć do tematu lekcji.
+- Pisz zwykłym tekstem, bez notacji LaTeX i Markdown (żadnych $...$, \\cdot, \\text, gwiazdek). Wzory zapisuj jak w zeszycie, np. Fc = m · g, wynik: 50 N.`;
 
 const MAX_CHAT_MESSAGE = 2000;
 const MAX_HISTORY = 12;
@@ -393,12 +417,22 @@ router.post(
       }`;
 
       try {
-        const reply = await chatWithGemini(
-          contextPrompt,
-          history ?? [],
-          message,
-          resolveAiModel(aiCfg),
-        );
+        let reply: string;
+        const chatModel = resolveAiModel(aiCfg);
+        try {
+          reply = await chatWithGemini(contextPrompt, history ?? [], message, chatModel);
+        } catch (aiErr) {
+          // Same self-healing as the task check: a rejected model name is
+          // retried once with the rolling fallback alias.
+          if (!isModelUnavailable(aiErr) || chatModel === FALLBACK_AI_MODEL) {
+            throw aiErr;
+          }
+          req.log.warn(
+            { model: chatModel, err: aiErr },
+            "Gemini model unavailable — retrying with fallback model",
+          );
+          reply = await chatWithGemini(contextPrompt, history ?? [], message, FALLBACK_AI_MODEL);
+        }
         res.json({ reply });
       } catch (aiErr) {
         req.log.error({ err: aiErr }, "Gemini lesson chat failed");

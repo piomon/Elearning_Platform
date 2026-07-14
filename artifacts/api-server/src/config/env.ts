@@ -118,10 +118,12 @@ export const config = {
   currency: "PLN",
   gemini: {
     apiKey: readOptional("GEMINI_API_KEY"),
-    // Blank/unset GEMINI_MODEL falls back to the current stable multimodal
-    // model. Retired names (e.g. gemini-1.5-flash) are additionally remapped
-    // at call time — see resolveAiModel() in lib/ai-settings.ts.
-    model: process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash",
+    // Blank/unset GEMINI_MODEL falls back to Google's rolling alias for the
+    // newest stable Flash model. A pinned model name rots when Google retires
+    // it (gemini-1.5-flash died this way, then gemini-2.5-flash was gated for
+    // new API users) — the alias never does. Retired names are additionally
+    // remapped at call time — see resolveAiModel() in lib/ai-settings.ts.
+    model: process.env.GEMINI_MODEL?.trim() || "gemini-flash-latest",
   },
   paynow: {
     apiKey: readOptional("PAYNOW_API_KEY"),

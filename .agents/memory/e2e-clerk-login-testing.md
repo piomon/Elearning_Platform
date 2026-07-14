@@ -32,3 +32,12 @@ Consequences for browser testing (`runTest`):
 **Also:** the headless test browser lacks proprietary H.264 codecs, so lesson pages
 with Bunny videos always log a fatal `manifestIncompatibleCodecsError` HLS console
 error — environmental, not an app bug; don't fail tests on it.
+
+**curl-only API testing variant** (no browser needed): the same FAPI flow works from
+bash — but `+clerk_test` emails MUST be sent with `--data-urlencode` (plain `-d` turns
+`+` into a space → "Identifier is invalid"). After `attempt_second_factor` completes,
+mint short-lived (60s) session JWTs on demand via
+`POST /v1/client/sessions/<sess_id>/tokens?__clerk_db_jwt=<dev_browser_jwt>` and call
+the API with `Authorization: Bearer <jwt>`. The FAPI domain is base64-decoded from the
+`pk_test_` key suffix. Grant course access by inserting into `access_grants`
+(user_id, course_id, source, status='active') after the JIT user row exists.

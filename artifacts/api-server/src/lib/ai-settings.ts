@@ -46,13 +46,18 @@ export async function getAiSettings(): Promise<AiSettingsValue> {
   };
 }
 
-// Model families Google has retired ("gemini-pro", 1.0, 1.5 and 2.0-flash).
-// Requests to them fail with 404 NOT_FOUND, which used to surface to students
-// as a generic "AI error". A stale name can linger in the ai_settings row or
-// in a GEMINI_MODEL env var of an older deployment, so remap it at the last
-// moment instead of trusting either source.
-const RETIRED_MODEL_RE = /^(models\/)?gemini-(pro|1\.[05]|2\.0-flash)/i;
-export const FALLBACK_AI_MODEL = "gemini-2.5-flash";
+// Model families Google has retired or gated for new API users (legacy
+// "gemini-pro", 1.0/1.5, 2.0-flash, 2.5-flash). Requests to them fail with
+// 404 NOT_FOUND, which used to surface to students as a generic "AI error".
+// A stale name can linger in the ai_settings row or in a GEMINI_MODEL env var
+// of an older deployment, so remap it at the last moment instead of trusting
+// either source. NOTE: "gemini-pro-latest" is a VALID rolling alias — the
+// legacy-pro branch must anchor at the end so it is not caught.
+const RETIRED_MODEL_RE =
+  /^(models\/)?gemini-(pro(-vision)?$|1\.[05]|2\.0-flash|2\.5-flash)/i;
+// Google's rolling alias for the newest stable Flash model — never retired,
+// unlike pinned names. Used when config points at a dead model.
+export const FALLBACK_AI_MODEL = "gemini-flash-latest";
 
 // The model actually sent to Gemini: the admin override when set, otherwise the
 // environment default. Keeps a blank "model" field meaning "use env default".
