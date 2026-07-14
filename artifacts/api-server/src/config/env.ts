@@ -118,7 +118,10 @@ export const config = {
   currency: "PLN",
   gemini: {
     apiKey: readOptional("GEMINI_API_KEY"),
-    model: process.env.GEMINI_MODEL ?? "gemini-1.5-flash",
+    // Blank/unset GEMINI_MODEL falls back to the current stable multimodal
+    // model. Retired names (e.g. gemini-1.5-flash) are additionally remapped
+    // at call time — see resolveAiModel() in lib/ai-settings.ts.
+    model: process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash",
   },
   paynow: {
     apiKey: readOptional("PAYNOW_API_KEY"),

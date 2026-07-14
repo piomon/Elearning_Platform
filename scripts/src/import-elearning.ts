@@ -521,7 +521,9 @@ async function main() {
           {
             id: 1,
             enabled: ai.enabled ?? true,
-            model: ai.model ?? "gemini-1.5-flash",
+            // Blank = follow the server env default; never pin a model name
+            // during import (pinned names rot when Google retires the model).
+            model: ai.model ?? "",
             systemPrompt: ai.systemPrompt ?? "",
             evalInstruction: ai.evalInstruction ?? "",
             tone: ai.tone ?? "",

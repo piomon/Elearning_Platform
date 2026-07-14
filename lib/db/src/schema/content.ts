@@ -47,7 +47,9 @@ export const seoSettings = pgTable("seo_settings", {
 export const aiSettings = pgTable("ai_settings", {
   id: integer("id").primaryKey().default(1),
   enabled: boolean("enabled").notNull().default(true),
-  model: text("model").notNull().default("gemini-1.5-flash"),
+  // Blank = follow the server's env default (config.gemini.model). Never store
+  // a hardcoded model here — pinned names rot when Google retires the model.
+  model: text("model").notNull().default(""),
   systemPrompt: text("system_prompt").notNull().default(""),
   evalInstruction: text("eval_instruction").notNull().default(""),
   tone: text("tone").notNull().default(""),

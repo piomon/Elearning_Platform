@@ -46,8 +46,19 @@ export async function getAiSettings(): Promise<AiSettingsValue> {
   };
 }
 
+// Model families Google has retired ("gemini-pro", 1.0, 1.5 and 2.0-flash).
+// Requests to them fail with 404 NOT_FOUND, which used to surface to students
+// as a generic "AI error". A stale name can linger in the ai_settings row or
+// in a GEMINI_MODEL env var of an older deployment, so remap it at the last
+// moment instead of trusting either source.
+const RETIRED_MODEL_RE = /^(models\/)?gemini-(pro|1\.[05]|2\.0-flash)/i;
+export const FALLBACK_AI_MODEL = "gemini-2.5-flash";
+
 // The model actually sent to Gemini: the admin override when set, otherwise the
 // environment default. Keeps a blank "model" field meaning "use env default".
+// Retired models are silently upgraded to FALLBACK_AI_MODEL so the feature
+// keeps working even with an outdated configuration.
 export function resolveAiModel(settings: AiSettingsValue): string {
-  return settings.model.trim() || config.gemini.model;
+  const candidate = settings.model.trim() || config.gemini.model;
+  return RETIRED_MODEL_RE.test(candidate) ? FALLBACK_AI_MODEL : candidate;
 }

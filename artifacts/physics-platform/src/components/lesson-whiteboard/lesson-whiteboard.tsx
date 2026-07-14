@@ -27,26 +27,28 @@ function blobToDataUrl(blob: Blob): Promise<string> {
 
 function mapCheckError(err: unknown): string {
   const status = (err as { status?: number } | null)?.status;
+  // The backend sends specific, student-friendly Polish messages (quota hit,
+  // AI overloaded, config problem, timeout…) — prefer them over generic text.
+  const backendRaw = (err as { data?: { error?: string } } | null)?.data?.error;
+  const backend =
+    typeof backendRaw === "string" && backendRaw.trim() ? backendRaw : null;
   switch (status) {
     case 400:
       return "Nie udało się wysłać rozwiązania. Upewnij się, że na tablicy jest Twoje rozwiązanie i spróbuj ponownie.";
     case 401:
       return "Twoja sesja wygasła. Zaloguj się ponownie.";
-    case 403: {
-      const backend = (err as { data?: { error?: string } } | null)?.data?.error;
-      return typeof backend === "string" && backend.trim()
-        ? backend
-        : "Nie masz dostępu do tej lekcji.";
-    }
+    case 403:
+      return backend ?? "Nie masz dostępu do tej lekcji.";
     case 404:
       return "Nie znaleziono zadania. Odśwież stronę i spróbuj ponownie.";
     case 413:
       return "Obraz tablicy jest zbyt duży. Usuń część elementów albo wyczyść tablicę i spróbuj ponownie.";
     case 429:
-      return "Wykorzystano limit sprawdzeń AI. Spróbuj ponownie później.";
+      return backend ?? "Wykorzystano limit sprawdzeń AI. Spróbuj ponownie później.";
     case 502:
     case 503:
-      return "Sprawdzanie AI jest chwilowo niedostępne. Spróbuj ponownie za chwilę.";
+    case 504:
+      return backend ?? "Sprawdzanie AI jest chwilowo niedostępne. Spróbuj ponownie za chwilę.";
     default:
       return "Nie udało się teraz sprawdzić zadania. Spróbuj ponownie za chwilę.";
   }

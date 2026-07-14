@@ -14,6 +14,7 @@ import {
 } from "../lib/access";
 import { config, isGeminiConfigured } from "../config/env";
 import { getAiSettings, resolveAiModel } from "../lib/ai-settings";
+import { GEMINI_TIMEOUT_MS, mapGeminiError } from "../lib/gemini";
 
 const router = Router();
 
@@ -89,7 +90,10 @@ async function checkWithGemini(
 ): Promise<string> {
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const genAI = new GoogleGenerativeAI(config.gemini.apiKey as string);
-  const model = genAI.getGenerativeModel({ model: modelName });
+  const model = genAI.getGenerativeModel(
+    { model: modelName },
+    { timeout: GEMINI_TIMEOUT_MS },
+  );
 
   const result = await model.generateContent([
     systemPrompt,
@@ -180,6 +184,9 @@ router.post(
         aiCfg.systemPrompt.trim(),
         aiCfg.evalInstruction.trim(),
         aiCfg.tone.trim() ? `Ton wypowiedzi: ${aiCfg.tone.trim()}` : "",
+        aiCfg.maxResponseLength > 0
+          ? `Ogranicz odpowiedź do około ${aiCfg.maxResponseLength} znaków.`
+          : "",
       ]
         .filter(Boolean)
         .join("\n");
@@ -231,8 +238,20 @@ router.post(
           await logCheck("failed", {
             errorMessage: aiErr instanceof Error ? aiErr.message : "Unknown AI error",
           });
+          const mapped = mapGeminiError(
+            aiErr,
+            "Wystąpił błąd podczas sprawdzania przez AI. Spróbuj ponownie.",
+          );
+          res.status(mapped.status).json({ error: mapped.error });
+          return;
+        }
+        // A blocked or truncated response can come back technically "OK" but
+        // with no text — treat it as a failure instead of showing an empty box.
+        if (!feedback.trim()) {
+          req.log.error("Gemini check returned an empty response");
+          await logCheck("failed", { errorMessage: "Empty AI response" });
           res.status(502).json({
-            error: "Wystąpił błąd podczas sprawdzania przez AI. Spróbuj ponownie.",
+            error: "AI nie zwróciło odpowiedzi. Spróbuj ponownie za chwilę.",
           });
           return;
         }
@@ -302,10 +321,13 @@ async function chatWithGemini(
 ): Promise<string> {
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const genAI = new GoogleGenerativeAI(config.gemini.apiKey as string);
-  const model = genAI.getGenerativeModel({
-    model: modelName,
-    systemInstruction: systemPrompt,
-  });
+  const model = genAI.getGenerativeModel(
+    {
+      model: modelName,
+      systemInstruction: systemPrompt,
+    },
+    { timeout: GEMINI_TIMEOUT_MS },
+  );
 
   const chat = model.startChat({
     history: history.map((m) => ({
@@ -380,9 +402,11 @@ router.post(
         res.json({ reply });
       } catch (aiErr) {
         req.log.error({ err: aiErr }, "Gemini lesson chat failed");
-        res.status(502).json({
-          error: "Wystąpił błąd podczas rozmowy z AI. Spróbuj ponownie za chwilę.",
-        });
+        const mapped = mapGeminiError(
+          aiErr,
+          "Wystąpił błąd podczas rozmowy z AI. Spróbuj ponownie za chwilę.",
+        );
+        res.status(mapped.status).json({ error: mapped.error });
       }
     } catch (err) {
       req.log.error({ err }, "Lesson chat error");

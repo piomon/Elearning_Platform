@@ -47,6 +47,7 @@ import { isBunnyConfigured, isGeminiConfigured, config } from "../config/env";
 import { buildVideoEmbedUrl } from "../lib/video";
 import { getPricingSettings, getSeoSettings } from "../lib/settings";
 import { getAiSettings, resolveAiModel, DEFAULT_AI_SETTINGS } from "../lib/ai-settings";
+import { GEMINI_TIMEOUT_MS, mapGeminiError } from "../lib/gemini";
 
 const router = Router();
 
@@ -2490,15 +2491,22 @@ router.post("/admin/ai-settings/test", async (req: AuthRequest, res) => {
     try {
       const { GoogleGenerativeAI } = await import("@google/generative-ai");
       const genAI = new GoogleGenerativeAI(config.gemini.apiKey as string);
-      const gModel = genAI.getGenerativeModel({
-        model,
-        ...(systemPrompt.trim() ? { systemInstruction: systemPrompt } : {}),
-      });
+      const gModel = genAI.getGenerativeModel(
+        {
+          model,
+          ...(systemPrompt.trim() ? { systemInstruction: systemPrompt } : {}),
+        },
+        { timeout: GEMINI_TIMEOUT_MS },
+      );
       const result = await gModel.generateContent(prompt);
       res.json({ reply: result.response.text(), model, demo: false });
     } catch (aiErr) {
       req.log.error({ err: aiErr }, "AI test failed");
-      res.status(502).json({ error: "Błąd podczas testu AI. Sprawdź konfigurację i spróbuj ponownie." });
+      const mapped = mapGeminiError(
+        aiErr,
+        "Błąd podczas testu AI. Sprawdź konfigurację i spróbuj ponownie.",
+      );
+      res.status(mapped.status).json({ error: mapped.error });
     }
   } catch (err) {
     req.log.error({ err }, "AI test error");
