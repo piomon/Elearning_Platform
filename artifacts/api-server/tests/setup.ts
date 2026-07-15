@@ -10,6 +10,13 @@ import { pool } from "@workspace/db";
 delete process.env.PAYNOW_API_KEY;
 delete process.env.PAYNOW_SIGNATURE_KEY;
 
+// Gemini: tests must never talk to the real API nor inherit host-injected
+// models/keys. AI suites mock the SDK and set a fake key via vi.hoisted.
+delete process.env.GEMINI_API_KEY;
+delete process.env.GEMINI_MODEL;
+delete process.env.GEMINI_CHAT_MODEL;
+delete process.env.AI_FAKE_TRANSIENT_ERRORS;
+
 // The suite exercises the real Express app, so Clerk's Express SDK is mocked
 // here once — a vi.mock in a setup file applies to every test file. Tests
 // authenticate with `Authorization: Bearer <clerkUserId>`; the mock turns that
@@ -46,6 +53,7 @@ const TABLES = [
   "seo_settings",
   "pricing_settings",
   "ai_checks",
+  "ai_usage_log",
   "quiz_attempt_answers",
   "quiz_attempts",
   "learning_progress",

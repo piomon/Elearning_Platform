@@ -9,4 +9,9 @@
 export interface TaskCheckInput {
   taskId: number;
   imageBase64: string;
+  /**
+     * Optional client-generated id for polling live retry progress.
+     * @maxLength 64
+     */
+  requestId?: string;
 }

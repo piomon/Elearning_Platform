@@ -8,9 +8,14 @@ import {
   useSubmitQuizAttempt,
   useStartQuizAttempt,
   useLessonChat,
+  useGetAiProgress,
   useListTopics,
 } from "@workspace/api-client-react";
-import type { Video, LessonImage, ChatMessage } from "@workspace/api-client-react";
+import type { Video, LessonImage } from "@workspace/api-client-react";
+
+// Chat bubbles are UI state: error bubbles carry a flag so they can be styled
+// distinctly, offer a retry button and stay OUT of the history sent to the AI.
+type LocalChatMessage = { role: "user" | "assistant"; content: string; isError?: boolean };
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -225,7 +230,7 @@ export default function TopicDetail() {
   const [remainingMs, setRemainingMs] = useState<number | null>(null);
   const [timeExpired, setTimeExpired] = useState(false);
   const startQuizMutation = useStartQuizAttempt();
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatMessages, setChatMessages] = useState<LocalChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [notes, setNotes] = useState("");
   const [notesSaved, setNotesSaved] = useState(true);
@@ -234,6 +239,26 @@ export default function TopicDetail() {
   // the student opts in. Keyed by lesson image id.
   const [revealedAnswers, setRevealedAnswers] = useState<Record<number, boolean>>({});
   const [revealedSolutions, setRevealedSolutions] = useState<Record<number, boolean>>({});
+
+  // Live retry status for the AI assistant: each chat request carries a
+  // client-generated id; while it is pending we poll the progress endpoint so
+  // the student sees "ponawiam próbę 2 z 4…" when the server retries for them.
+  const [chatRequestId, setChatRequestId] = useState<string | null>(null);
+  const [lastFailedChat, setLastFailedChat] = useState<string | null>(null);
+  const chatProgressQuery = useGetAiProgress(chatRequestId ?? "", {
+    query: {
+      enabled: !!chatRequestId && lessonChatMutation.isPending,
+      refetchInterval: 1000,
+      retry: false,
+      gcTime: 0,
+    } as any,
+  });
+  const chatProgress =
+    chatRequestId && lessonChatMutation.isPending ? chatProgressQuery.data : undefined;
+  const chatRetryStatus =
+    chatProgress && chatProgress.attempt > 1
+      ? `Chwilowe przeciążenie AI — ponawiam próbę ${Math.min(chatProgress.attempt, chatProgress.maxAttempts)} z ${chatProgress.maxAttempts}…`
+      : null;
 
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const notesTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -416,30 +441,61 @@ export default function TopicDetail() {
     );
   };
 
-  const handleSendChat = () => {
-    const message = chatInput.trim();
+  const sendChatMessage = (message: string) => {
     if (!message || lessonChatMutation.isPending) return;
-    const history = chatMessages.slice(-10);
-    setChatMessages((prev) => [...prev, { role: "user", content: message }]);
-    setChatInput("");
+    // Working copy without error bubbles; on a retry also drop the duplicate
+    // trailing user message so it is neither shown nor sent twice.
+    const cleaned = chatMessages.filter((m) => !m.isError);
+    const last = cleaned[cleaned.length - 1];
+    const base =
+      last?.role === "user" && last.content === message ? cleaned.slice(0, -1) : cleaned;
+    // The backend keeps only the last few (clipped) turns anyway — sending
+    // more would just be paid, ignored payload.
+    const history = base.slice(-6).map((m) => ({ role: m.role, content: m.content }));
+    setChatMessages([...base, { role: "user", content: message }]);
+    setLastFailedChat(null);
+    const rid = crypto.randomUUID();
+    setChatRequestId(rid);
     lessonChatMutation.mutate(
-      { data: { topicId, message, history } },
+      { data: { topicId, message, history, requestId: rid } },
       {
         onSuccess: (res) => {
           setChatMessages((prev) => [...prev, { role: "assistant", content: res.reply }]);
         },
-        onError: () => {
+        onError: (err) => {
+          // Prefer the backend's specific Polish message (limit hit, AI
+          // disabled, overload after retries…); never show a raw error.
+          const backendRaw = (err as { data?: { error?: string } } | null)?.data?.error;
+          const backend =
+            typeof backendRaw === "string" && backendRaw.trim() ? backendRaw.trim() : null;
           setChatMessages((prev) => [
             ...prev,
             {
               role: "assistant",
+              isError: true,
               content:
-                "Przepraszam, nie udało mi się teraz odpowiedzieć. Spróbuj ponownie za chwilę.",
+                backend ?? "Usługa AI jest chwilowo niedostępna. Spróbuj ponownie za chwilę.",
             },
           ]);
+          setLastFailedChat(message);
+        },
+        onSettled: () => {
+          setChatRequestId(null);
         },
       },
     );
+  };
+
+  const handleSendChat = () => {
+    const message = chatInput.trim();
+    if (!message || lessonChatMutation.isPending) return;
+    setChatInput("");
+    sendChatMessage(message);
+  };
+
+  const handleRetryChat = () => {
+    if (!lastFailedChat || lessonChatMutation.isPending) return;
+    sendChatMessage(lastFailedChat);
   };
 
   if (isLoading) {
@@ -590,17 +646,41 @@ export default function TopicDetail() {
               className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
                 m.role === "user"
                   ? "bg-primary text-primary-foreground rounded-br-md"
-                  : "bg-muted text-foreground rounded-bl-md"
+                  : m.isError
+                    ? "bg-destructive/10 text-destructive rounded-bl-md"
+                    : "bg-muted text-foreground rounded-bl-md"
               }`}
             >
               {m.content}
+              {m.isError &&
+                lastFailedChat &&
+                i === chatMessages.length - 1 &&
+                !lessonChatMutation.isPending && (
+                  <div className="mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 rounded-full text-xs font-semibold"
+                      onClick={handleRetryChat}
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 mr-1.5" /> Spróbuj ponownie
+                    </Button>
+                  </div>
+                )}
             </div>
           </div>
         ))}
         {lessonChatMutation.isPending && (
           <div className="flex justify-start">
             <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
-              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              {chatRetryStatus ? (
+                <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0" /> {chatRetryStatus}
+                </span>
+              ) : (
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              )}
             </div>
           </div>
         )}

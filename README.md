@@ -156,7 +156,9 @@ niej) · — = opcjonalna.
 | `PAYNOW_API_URL` / `PAYNOW_RETURN_URL` / `PAYNOW_NOTIFICATION_URL` | — | Opcjonalne nadpisania (domyślnie dobierane wg `PAYNOW_ENV`). |
 | `BUNNY_LIBRARY_ID` / `BUNNY_CDN_HOSTNAME` | prod | Hosting wideo Bunny.net. |
 | `GEMINI_API_KEY` | prod | Sprawdzanie zadań przez AI. Bez klucza w dev działa tryb demonstracyjny. |
-| `GEMINI_MODEL` | — | Model Gemini (puste = alias `gemini-flash-latest`, zawsze aktualny; wycofane modele są automatycznie zastępowane). |
+| `GEMINI_MODEL` | — | Model Gemini do **sprawdzania zadań** (puste = alias `gemini-flash-latest`, zawsze aktualny; wycofane modele są automatycznie zastępowane). |
+| `GEMINI_CHAT_MODEL` | — | Model Gemini dla **asystenta tekstowego** lekcji (puste = tani `gemini-flash-lite-latest`; wycofane modele są automatycznie zastępowane). |
+| `AI_USD_PLN_RATE` | — | Kurs USD→PLN do szacowania kosztów AI w statystykach admina (domyślnie `4.0`). |
 | `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` | prod | Serwer SMTP do wysyłki e-mail. |
 | `SMTP_PORT` | — | Port SMTP (domyślnie `587`). |
 | `CONTACT_FROM_EMAIL` | prod | Adres nadawcy (From) wiadomości. |
@@ -334,6 +336,16 @@ Endpointy: `GET /api/admin/video-health` oraz `GET /api/admin/video-health/:vide
   Klient nie może samodzielnie oznaczyć lekcji jako ukończonej.
 - **Asystent AI lekcji** (`POST /api/ai/lesson-chat`) korzysta z modelu **Gemini** skonfigurowanego
   przez `GEMINI_API_KEY` i odpowiada w języku polskim w kontekście danej lekcji.
+- **Podział modeli AI:** sprawdzanie zadań (obraz z tablicy) używa modelu jakościowego
+  (`GEMINI_MODEL` / ustawienie admina), a asystent tekstowy — taniego modelu
+  (`GEMINI_CHAT_MODEL`, domyślnie `gemini-flash-lite-latest`) z krótkim promptem,
+  przyciętą historią (6 ostatnich wiadomości) i limitem długości odpowiedzi.
+  Ustawienie „Model" w panelu admina dotyczy wyłącznie sprawdzania zadań.
+- **Ponawianie zapytań AI:** chwilowe błędy Gemini (429/5xx/timeout) są automatycznie
+  ponawiane (do 4 prób, rosnące odstępy z jitterem, wskazówki `RetryInfo` serwera).
+  Uczeń widzi na żywo status „Ponawiam próbę X z Y…" (`GET /api/ai/progress/:requestId`),
+  a każde zapytanie trafia do `ai_usage_log` (tokeny, szacunkowy koszt, liczba prób).
+  Statystyki: `GET /api/admin/ai-usage/stats` i karta „Statystyki użycia AI" w panelu admina.
 
 ---
 

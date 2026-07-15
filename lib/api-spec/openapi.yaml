@@ -367,6 +367,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /ai/progress/{requestId}:
+    get:
+      operationId: getAiProgress
+      tags: [ai]
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Live status of an in-flight AI request (retry attempts).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiProgress"
+        "404":
+          description: Unknown or expired requestId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   # ─── PAYMENTS ────────────────────────────────────────────────────────────────
   /payments/price:
     get:
@@ -2084,6 +2108,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/AiTestResult"
 
+  /admin/ai-usage/stats:
+    get:
+      operationId: getAiUsageStats
+      tags: [admin]
+      parameters:
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 90
+            default: 7
+      responses:
+        "200":
+          description: Per-operation AI usage, retry and cost statistics.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiUsageStats"
+
   # ─── DISCOUNT CODES ────────────────────────────────────────────────────────
   /admin/discounts:
     get:
@@ -3089,6 +3134,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ChatMessage"
+        requestId:
+          type: string
+          maxLength: 64
+          description: Optional client-generated id for polling live retry progress.
 
     LessonChatResult:
       type: object
@@ -3252,6 +3301,24 @@ components:
         taskId:
           type: integer
         imageBase64:
+          type: string
+        requestId:
+          type: string
+          maxLength: 64
+          description: Optional client-generated id for polling live retry progress.
+
+    AiProgress:
+      type: object
+      required: [phase, attempt, maxAttempts, operation]
+      properties:
+        phase:
+          type: string
+          enum: [queued, calling, retry-scheduled, done, failed]
+        attempt:
+          type: integer
+        maxAttempts:
+          type: integer
+        operation:
           type: string
 
     TaskCheckResult:
@@ -4376,9 +4443,52 @@ components:
           items:
             type: integer
 
+    AiUsageOperationStats:
+      type: object
+      required: [operation, total, completed, rescuedByRetry, errors429, errors503, avgAttempts]
+      properties:
+        operation:
+          type: string
+        total:
+          type: integer
+        completed:
+          type: integer
+        rescuedByRetry:
+          type: integer
+          description: Requests that failed at least once but succeeded on a retry.
+        errors429:
+          type: integer
+        errors503:
+          type: integer
+        avgAttempts:
+          type: number
+        avgInputTokens:
+          type: ["integer", "null"]
+        avgOutputTokens:
+          type: ["integer", "null"]
+        avgCostGrosz:
+          type: ["number", "null"]
+        totalCostGrosz:
+          type: ["number", "null"]
+        avgLatencyMs:
+          type: ["integer", "null"]
+
+    AiUsageStats:
+      type: object
+      required: [days, since, operations]
+      properties:
+        days:
+          type: integer
+        since:
+          type: string
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/AiUsageOperationStats"
+
     AiSettings:
       type: object
-      required: [enabled, model, systemPrompt, evalInstruction, tone, maxResponseLength, errorMessage, keyConfigured, envModel]
+      required: [enabled, model, systemPrompt, evalInstruction, tone, maxResponseLength, errorMessage, keyConfigured, envModel, fallbackAlert]
       properties:
         enabled:
           type: boolean
@@ -4398,6 +4508,24 @@ components:
           type: boolean
         envModel:
           type: string
+        fallbackAlert:
+          description: >-
+            Non-null when checks in the last 24 hours ran on the fallback model
+            while the configuration points at a different one — i.e. the
+            configured model stopped working and the safety net engaged.
+          type: object
+          nullable: true
+          required: [count, lastAt, configuredModel, fallbackModel]
+          properties:
+            count:
+              type: integer
+            lastAt:
+              type: string
+              nullable: true
+            configuredModel:
+              type: string
+            fallbackModel:
+              type: string
 
     AiSettingsInput:
       type: object

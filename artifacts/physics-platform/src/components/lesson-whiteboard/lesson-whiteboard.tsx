@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { exportToBlob } from "@excalidraw/excalidraw";
 import type { Task } from "@workspace/api-client-react";
-import { useCheckTask } from "@workspace/api-client-react";
+import { useCheckTask, useGetAiProgress } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import SketchBoard, { type SketchBoardHandle } from "./sketch-board";
 import {
@@ -66,6 +66,26 @@ function WhiteboardTask({ task }: { task: Task }) {
   const busyRef = useRef(false);
   const isBusy = isPreparing || checkMutation.isPending;
 
+  // Live retry status: the check request carries a client-generated id and,
+  // while it is in flight, we poll the progress endpoint — so the student sees
+  // an honest "Ponawiam próbę 2 z 4…" instead of a mute spinner when Gemini
+  // hiccups and the server retries for them.
+  const [requestId, setRequestId] = useState<string | null>(null);
+  const progressQuery = useGetAiProgress(requestId ?? "", {
+    query: {
+      enabled: !!requestId && checkMutation.isPending,
+      refetchInterval: 1000,
+      retry: false,
+      gcTime: 0,
+    } as any,
+  });
+  const progress =
+    requestId && checkMutation.isPending ? progressQuery.data : undefined;
+  const retryStatus =
+    progress && progress.attempt > 1
+      ? `Usługa AI jest chwilowo przeciążona. Ponawiam próbę ${Math.min(progress.attempt, progress.maxAttempts)} z ${progress.maxAttempts}…`
+      : null;
+
   const handleClear = useCallback(() => {
     board?.clear();
     setFeedback(null);
@@ -125,8 +145,10 @@ function WhiteboardTask({ task }: { task: Task }) {
       return;
     }
 
+    const rid = crypto.randomUUID();
+    setRequestId(rid);
     checkMutation.mutate(
-      { data: { taskId: task.id, imageBase64 } },
+      { data: { taskId: task.id, imageBase64, requestId: rid } },
       {
         onSuccess: (res) => {
           const text = (res?.feedback ?? "").trim();
@@ -142,6 +164,7 @@ function WhiteboardTask({ task }: { task: Task }) {
         },
         onSettled: () => {
           release();
+          setRequestId(null);
         },
       },
     );
@@ -183,14 +206,25 @@ function WhiteboardTask({ task }: { task: Task }) {
 
       {isBusy && (
         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Loader2 className="w-4 h-4 animate-spin" /> AI analizuje Twoje rozwiązanie…
+          <Loader2 className="w-4 h-4 animate-spin" />{" "}
+          {retryStatus ?? "AI analizuje Twoje rozwiązanie…"}
         </div>
       )}
 
       {errorMsg && !isBusy && (
-        <div className="flex items-start gap-2 rounded-2xl bg-destructive/10 px-5 py-4 text-sm font-medium text-destructive">
-          <AlertCircle className="w-5 h-5 shrink-0" />
-          <span>{errorMsg}</span>
+        <div className="rounded-2xl bg-destructive/10 px-5 py-4 space-y-3">
+          <div className="flex items-start gap-2 text-sm font-medium text-destructive">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full font-semibold"
+            onClick={handleCheck}
+          >
+            <RotateCcw className="w-4 h-4 mr-2" /> Spróbuj ponownie
+          </Button>
         </div>
       )}
 

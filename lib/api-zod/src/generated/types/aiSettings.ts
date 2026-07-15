@@ -5,6 +5,7 @@
  * Physics Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { AiSettingsFallbackAlert } from './aiSettingsFallbackAlert';
 
 export interface AiSettings {
   enabled: boolean;
@@ -16,4 +17,6 @@ export interface AiSettings {
   errorMessage: string;
   keyConfigured: boolean;
   envModel: string;
+  /** Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged. */
+  fallbackAlert: AiSettingsFallbackAlert;
 }

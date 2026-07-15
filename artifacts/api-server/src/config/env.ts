@@ -124,6 +124,18 @@ export const config = {
     // new API users) — the alias never does. Retired names are additionally
     // remapped at call time — see resolveAiModel() in lib/ai-settings.ts.
     model: process.env.GEMINI_MODEL?.trim() || "gemini-flash-latest",
+    // Text assistant runs on the economical Flash-Lite alias by default —
+    // simple text replies do not need (or want to pay for) the vision-grade
+    // model. Separate from `model`, which governs whiteboard checking.
+    chatModel: process.env.GEMINI_CHAT_MODEL?.trim() || "gemini-flash-lite-latest",
+  },
+  ai: {
+    // PLN per USD for the *estimated* cost column in ai_usage_log. Estimates
+    // only — Google's invoice is authoritative.
+    usdPlnRate: (() => {
+      const raw = Number(process.env.AI_USD_PLN_RATE);
+      return Number.isFinite(raw) && raw > 0 ? raw : 4.0;
+    })(),
   },
   paynow: {
     apiKey: readOptional("PAYNOW_API_KEY"),

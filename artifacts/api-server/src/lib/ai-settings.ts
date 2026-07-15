@@ -1,6 +1,6 @@
 import { db } from "@workspace/db";
-import { aiSettings } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { aiSettings, aiChecks } from "@workspace/db";
+import { and, eq, gte, sql } from "drizzle-orm";
 import { config } from "../config/env";
 
 // Global AI configuration is a singleton row (id = 1). The admin edits it in the
@@ -64,6 +64,56 @@ export const FALLBACK_AI_MODEL = "gemini-flash-latest";
 // Retired models are silently upgraded to FALLBACK_AI_MODEL so the feature
 // keeps working even with an outdated configuration.
 export function resolveAiModel(settings: AiSettingsValue): string {
-  const candidate = settings.model.trim() || config.gemini.model;
-  return RETIRED_MODEL_RE.test(candidate) ? FALLBACK_AI_MODEL : candidate;
+  return guardRetiredModel(settings.model.trim() || config.gemini.model, FALLBACK_AI_MODEL);
+}
+
+// Same retired-name protection for any other model source (e.g. the chat
+// model env var): blank or retired names collapse to the given fallback.
+export function guardRetiredModel(candidate: string, fallback: string): string {
+  const name = candidate.trim();
+  if (!name) return fallback;
+  return RETIRED_MODEL_RE.test(name) ? fallback : name;
+}
+
+// ─── Fallback-model alert ─────────────────────────────────────────────────────
+
+export type AiFallbackAlert = {
+  /** Checks that ran on the fallback model in the last 24 hours. */
+  count: number;
+  /** ISO timestamp of the most recent one. */
+  lastAt: string | null;
+  /** The model the configuration points at (admin override or env default). */
+  configuredModel: string;
+  /** The rolling alias those checks actually ran on. */
+  fallbackModel: string;
+};
+
+// Tells the admin that the retired-model safety net is doing the work: rows in
+// ai_checks from the last 24 h that ran on FALLBACK_AI_MODEL while the
+// configuration points elsewhere mean the configured model stopped working —
+// either a retired name was remapped up-front (resolveAiModel) or Google
+// answered 404 mid-request and the check was redone on the fallback. Both paths
+// record the fallback alias as the check's model. Comparing against the RAW
+// configured name (not the resolved one) makes the alert disappear the moment
+// the admin fixes the configuration, without waiting out the 24 h window.
+export async function getFallbackAlert(
+  rawConfiguredModel: string,
+): Promise<AiFallbackAlert | null> {
+  const configured = rawConfiguredModel.trim() || config.gemini.model;
+  if (configured === FALLBACK_AI_MODEL) return null;
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const [row] = await db
+    .select({
+      count: sql<number>`count(*)::int`,
+      lastAt: sql<Date | string | null>`max(${aiChecks.createdAt})`,
+    })
+    .from(aiChecks)
+    .where(and(eq(aiChecks.model, FALLBACK_AI_MODEL), gte(aiChecks.createdAt, since)));
+  if (!row || row.count === 0) return null;
+  return {
+    count: row.count,
+    lastAt: row.lastAt ? new Date(row.lastAt).toISOString() : null,
+    configuredModel: configured,
+    fallbackModel: FALLBACK_AI_MODEL,
+  };
 }

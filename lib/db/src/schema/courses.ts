@@ -1,4 +1,4 @@
-import { pgTable, serial, text, boolean, integer, timestamp, jsonb, pgEnum, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, boolean, integer, timestamp, jsonb, pgEnum, uniqueIndex, index, numeric } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 // Publication lifecycle for educational content. `published` is the only state
@@ -207,3 +207,35 @@ export const aiChecks = pgTable("ai_checks", {
   status: text("status").notNull().default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+// Diagnostics + cost accounting for EVERY Gemini call (checks, assistant chat,
+// admin tests): attempts, retry rescues, upstream error statuses, token counts
+// and estimated cost. Powers the admin AI-usage stats and answers "how many
+// requests died on 503 / were saved by retry / what did text queries cost".
+// Contains NO prompt or student content — only metadata.
+export const aiUsageLog = pgTable(
+  "ai_usage_log",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+    operation: text("operation").notNull(), // "check" | "chat" | "admin-test"
+    model: text("model").notNull(),
+    status: text("status").notNull(), // "completed" | "failed"
+    httpStatus: integer("http_status"), // upstream status of the final failure
+    attempts: integer("attempts").notNull().default(1),
+    rescuedByRetry: boolean("rescued_by_retry").notNull().default(false),
+    transient429: integer("transient_429").notNull().default(0),
+    transient503: integer("transient_503").notNull().default(0),
+    attemptLog: jsonb("attempt_log"), // [{attempt, ok, httpStatus?, ms, reason?}]
+    inputTokens: integer("input_tokens"),
+    outputTokens: integer("output_tokens"), // includes billed "thinking" tokens
+    totalTokens: integer("total_tokens"),
+    estCostGrosz: numeric("est_cost_grosz", { precision: 12, scale: 6 }),
+    latencyMs: integer("latency_ms").notNull().default(0),
+    errorMessage: text("error_message"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("ai_usage_log_operation_created_at_idx").on(table.operation, table.createdAt),
+  ],
+);

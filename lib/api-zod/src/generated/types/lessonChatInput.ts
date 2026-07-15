@@ -11,4 +11,9 @@ export interface LessonChatInput {
   topicId: number;
   message: string;
   history?: ChatMessage[];
+  /**
+     * Optional client-generated id for polling live retry progress.
+     * @maxLength 64
+     */
+  requestId?: string;
 }

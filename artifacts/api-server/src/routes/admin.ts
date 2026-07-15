@@ -23,6 +23,7 @@ import {
   pricingSettings,
   lessonImages,
   aiSettings,
+  aiUsageLog,
   discountCodes,
   discountCodeUses,
   platformSettings,
@@ -46,8 +47,14 @@ import {
 import { isBunnyConfigured, isGeminiConfigured, config } from "../config/env";
 import { buildVideoEmbedUrl } from "../lib/video";
 import { getPricingSettings, getSeoSettings } from "../lib/settings";
-import { getAiSettings, resolveAiModel, DEFAULT_AI_SETTINGS } from "../lib/ai-settings";
-import { GEMINI_TIMEOUT_MS, mapGeminiError } from "../lib/gemini";
+import { getAiSettings, resolveAiModel, getFallbackAlert, DEFAULT_AI_SETTINGS } from "../lib/ai-settings";
+import {
+  callGeminiWithRetry,
+  mapGeminiError,
+  AiCallFailure,
+  type AiCallOutcome,
+} from "../lib/gemini";
+import { recordAiUsage, extractUsage } from "../lib/ai-usage";
 
 const router = Router();
 
@@ -2434,6 +2441,9 @@ router.get("/admin/ai-settings", async (req: AuthRequest, res) => {
       ...s,
       keyConfigured: isGeminiConfigured(),
       envModel: config.gemini.model,
+      // Non-null when recent checks ran on the fallback model — the admin UI
+      // shows a "configured model stopped working" warning.
+      fallbackAlert: await getFallbackAlert(s.model),
     });
   } catch (err) {
     req.log.error({ err }, "Get AI settings error");
@@ -2460,7 +2470,14 @@ router.put("/admin/ai-settings", async (req: AuthRequest, res) => {
       .onConflictDoUpdate({ target: aiSettings.id, set: setValues })
       .returning();
     await logAdminAction(req.user!.id, "update", "ai_settings", 1);
-    res.json({ ...row, keyConfigured: isGeminiConfigured(), envModel: config.gemini.model });
+    res.json({
+      ...row,
+      keyConfigured: isGeminiConfigured(),
+      envModel: config.gemini.model,
+      // Recomputed against the NEW model value so the warning clears (or
+      // appears) immediately in the response to the save.
+      fallbackAlert: await getFallbackAlert(row.model),
+    });
   } catch (err) {
     req.log.error({ err }, "Update AI settings error");
     res.status(500).json({ error: "Błąd serwera" });
@@ -2488,20 +2505,58 @@ router.post("/admin/ai-settings/test", async (req: AuthRequest, res) => {
       return;
     }
 
+    const startedAt = Date.now();
     try {
-      const { GoogleGenerativeAI } = await import("@google/generative-ai");
-      const genAI = new GoogleGenerativeAI(config.gemini.apiKey as string);
-      const gModel = genAI.getGenerativeModel(
-        {
-          model,
-          ...(systemPrompt.trim() ? { systemInstruction: systemPrompt } : {}),
+      // Same central retry mechanism as the student routes, with a tighter
+      // profile (2 attempts): the admin is diagnosing, so fail fast and honest.
+      const outcome = (await callGeminiWithRetry({
+        operation: "admin-test",
+        log: req.log,
+        fn: async ({ timeoutMs }) => {
+          const { GoogleGenerativeAI } = await import("@google/generative-ai");
+          const genAI = new GoogleGenerativeAI(config.gemini.apiKey as string);
+          const gModel = genAI.getGenerativeModel(
+            {
+              model,
+              ...(systemPrompt.trim() ? { systemInstruction: systemPrompt } : {}),
+            },
+            { timeout: timeoutMs },
+          );
+          return gModel.generateContent(prompt, { timeout: timeoutMs });
         },
-        { timeout: GEMINI_TIMEOUT_MS },
-      );
-      const result = await gModel.generateContent(prompt);
-      res.json({ reply: result.response.text(), model, demo: false });
+      })) as AiCallOutcome<{ response: { text(): string } }>;
+      const reply = outcome.value.response.text();
+      await recordAiUsage({
+        userId: req.user!.id,
+        operation: "admin-test",
+        model,
+        status: "completed",
+        attemptLog: outcome.attemptLog,
+        usage: extractUsage(outcome.value.response),
+        latencyMs: Date.now() - startedAt,
+        sharedFromDedupe: outcome.sharedFromDedupe,
+      });
+      res.json({ reply, model, demo: false });
     } catch (aiErr) {
       req.log.error({ err: aiErr }, "AI test failed");
+      const attemptLog = aiErr instanceof AiCallFailure ? aiErr.attemptLog : [];
+      const cause = aiErr instanceof AiCallFailure ? aiErr.cause : aiErr;
+      // A shared deduped failure is logged only by its accounting owner.
+      if (!(aiErr instanceof AiCallFailure && aiErr.sharedFromDedupe)) {
+        await recordAiUsage({
+          userId: req.user!.id,
+          operation: "admin-test",
+          model,
+          status: "failed",
+          httpStatus:
+            typeof (cause as { status?: unknown })?.status === "number"
+              ? (cause as { status: number }).status
+              : undefined,
+          attemptLog,
+          latencyMs: Date.now() - startedAt,
+          errorMessage: aiErr instanceof Error ? aiErr.message : "Unknown AI error",
+        });
+      }
       const mapped = mapGeminiError(
         aiErr,
         "Błąd podczas testu AI. Sprawdź konfigurację i spróbuj ponownie.",
@@ -2510,6 +2565,43 @@ router.post("/admin/ai-settings/test", async (req: AuthRequest, res) => {
     }
   } catch (err) {
     req.log.error({ err }, "AI test error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// AI usage statistics (brief §10): per-operation request counts, success rate,
+// retries that rescued a request, upstream 429/503 pressure, token averages and
+// estimated cost — the "did the retry mechanism and the cheaper chat pay off"
+// dashboard. Reads only ai_usage_log metadata; no prompts, no student content.
+router.get("/admin/ai-usage/stats", async (req: AuthRequest, res) => {
+  try {
+    const daysRaw = Number(req.query.days);
+    const days = Number.isFinite(daysRaw) ? Math.min(Math.max(Math.round(daysRaw), 1), 90) : 7;
+    const since = new Date(Date.now() - days * 86_400_000);
+
+    const rows = await db
+      .select({
+        operation: aiUsageLog.operation,
+        total: sql<number>`count(*)::int`,
+        completed: sql<number>`count(*) filter (where ${aiUsageLog.status} = 'completed')::int`,
+        rescuedByRetry: sql<number>`count(*) filter (where ${aiUsageLog.rescuedByRetry} and ${aiUsageLog.status} = 'completed')::int`,
+        errors429: sql<number>`coalesce(sum(${aiUsageLog.transient429}), 0)::int`,
+        errors503: sql<number>`coalesce(sum(${aiUsageLog.transient503}), 0)::int`,
+        avgAttempts: sql<number>`coalesce(round(avg(${aiUsageLog.attempts})::numeric, 2), 0)::float`,
+        avgInputTokens: sql<number | null>`round(avg(${aiUsageLog.inputTokens}))::int`,
+        avgOutputTokens: sql<number | null>`round(avg(${aiUsageLog.outputTokens}))::int`,
+        avgCostGrosz: sql<number | null>`round(avg(${aiUsageLog.estCostGrosz})::numeric, 4)::float`,
+        totalCostGrosz: sql<number | null>`round(sum(${aiUsageLog.estCostGrosz})::numeric, 2)::float`,
+        avgLatencyMs: sql<number | null>`round(avg(${aiUsageLog.latencyMs}))::int`,
+      })
+      .from(aiUsageLog)
+      .where(gte(aiUsageLog.createdAt, since))
+      .groupBy(aiUsageLog.operation)
+      .orderBy(aiUsageLog.operation);
+
+    res.json({ days, since: since.toISOString(), operations: rows });
+  } catch (err) {
+    req.log.error({ err }, "AI usage stats error");
     res.status(500).json({ error: "Błąd serwera" });
   }
 });

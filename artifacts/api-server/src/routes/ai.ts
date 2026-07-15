@@ -1,8 +1,10 @@
 import { Router } from "express";
+import { createHash } from "node:crypto";
 import { db } from "@workspace/db";
 import { tasks, topics, aiChecks, learningProgress } from "@workspace/db";
 import { eq, and, gte, sql } from "drizzle-orm";
 import { z } from "zod/v4";
+import type { GenerateContentResult, GenerationConfig } from "@google/generative-ai";
 import { requireAuth, type AuthRequest } from "../middlewares/auth";
 import { aiLimiter } from "../middlewares/rate-limit";
 import {
@@ -14,7 +16,31 @@ import {
 } from "../lib/access";
 import { config, isGeminiConfigured } from "../config/env";
 import { getAiSettings, resolveAiModel, FALLBACK_AI_MODEL } from "../lib/ai-settings";
-import { GEMINI_TIMEOUT_MS, isModelUnavailable, mapGeminiError } from "../lib/gemini";
+import {
+  AI_PROFILES,
+  AiCallFailure,
+  AiOperationAborted,
+  callGeminiWithRetry,
+  isModelUnavailable,
+  mapGeminiError,
+  type AiAttemptLog,
+  type AiCallOutcome,
+  type AiProgressUpdate,
+} from "../lib/gemini";
+import {
+  beginAiProgress,
+  updateAiProgress,
+  finishAiProgress,
+  readAiProgress,
+  isValidRequestId,
+} from "../lib/ai-progress";
+import { recordAiUsage, extractUsage } from "../lib/ai-usage";
+import {
+  buildChatContext,
+  trimHistory,
+  resolveChatModel,
+  CHAT_MAX_OUTPUT_TOKENS,
+} from "../lib/ai-chat";
 
 const router = Router();
 
@@ -82,33 +108,49 @@ function buildSystemPrompt(aiPromptConfig: unknown): string {
   return SYSTEM_PROMPT;
 }
 
+// A blocked/filtered response makes .text() throw — treat it as empty instead
+// of bubbling a cryptic SDK error to the student.
+function safeResponseText(result: GenerateContentResult): string {
+  try {
+    return result.response.text();
+  } catch {
+    return "";
+  }
+}
+
+// Vision check: quality first — no thinking-budget cut and no output cap (a
+// cap could truncate the feedback mid-sentence when the model "thinks" long).
+// Cost control for this path is the daily per-user limit, not token limits.
 async function checkWithGemini(
   imageData: string,
   mimeType: string,
   taskDescription: string,
   systemPrompt: string,
   modelName: string,
-): Promise<string> {
+  timeoutMs: number,
+  signal?: AbortSignal,
+): Promise<GenerateContentResult> {
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const genAI = new GoogleGenerativeAI(config.gemini.apiKey as string);
-  const model = genAI.getGenerativeModel(
-    { model: modelName },
-    { timeout: GEMINI_TIMEOUT_MS },
-  );
+  const model = genAI.getGenerativeModel({ model: modelName }, { timeout: timeoutMs });
 
-  const result = await model.generateContent([
-    systemPrompt,
-    `Treść zadania: ${taskDescription}`,
-    {
-      inlineData: {
-        data: imageData,
-        mimeType,
+  return model.generateContent(
+    [
+      systemPrompt,
+      `Treść zadania: ${taskDescription}`,
+      {
+        inlineData: {
+          data: imageData,
+          mimeType,
+        },
       },
-    },
-    "Oceń to rozwiązanie ucznia:",
-  ]);
-  return result.response.text();
+      "Oceń to rozwiązanie ucznia:",
+    ],
+    { timeout: timeoutMs, signal },
+  );
 }
+
+// ─── STUDENT WHITEBOARD CHECK ────────────────────────────────────────────────
 
 router.post(
   "/ai/check",
@@ -125,6 +167,8 @@ router.post(
         res.status(400).json({ error: "taskId jest wymagane" });
         return;
       }
+      // Optional client-generated id for live retry progress (see /ai/progress).
+      const requestId = isValidRequestId(req.body?.requestId) ? req.body.requestId : null;
 
       const image = validateImageUpload(imageBase64);
       if (!image.ok) {
@@ -226,21 +270,55 @@ router.post(
         feedback =
           "Sprawdzanie AI działa w trybie demonstracyjnym. Skonfiguruj GEMINI_API_KEY, aby włączyć prawdziwe sprawdzanie. Twoje rozwiązanie wygląda na staranne!";
       } else {
+        // Cancel retries/waits the moment the student's connection goes away.
+        const abortController = new AbortController();
+        res.on("close", () => {
+          if (!res.writableEnded) abortController.abort();
+        });
+        if (requestId) beginAiProgress(requestId, userId, "check", AI_PROFILES.check.maxAttempts);
+        const onAttempt = requestId
+          ? (u: AiProgressUpdate) => updateAiProgress(requestId, u)
+          : undefined;
+        // Concurrent duplicates (double-click, second tab) of the SAME drawing
+        // for the SAME task share one upstream call instead of multiplying it.
+        const imageHash = createHash("sha256").update(image.data).digest("hex").slice(0, 16);
+
+        const runModel = (modelName: string) =>
+          callGeminiWithRetry<GenerateContentResult>({
+            operation: "check",
+            signal: abortController.signal,
+            dedupeKey: `check:${userId}:${taskId}:${imageHash}`,
+            onAttempt,
+            log: req.log,
+            fn: ({ timeoutMs, signal }) =>
+              checkWithGemini(
+                image.data,
+                image.mimeType,
+                task.description ?? task.title,
+                composedPrompt,
+                modelName,
+                timeoutMs,
+                signal,
+              ),
+          });
+
+        const earlierAttempts: AiAttemptLog[] = [];
+        let outcome: AiCallOutcome<GenerateContentResult>;
         try {
           try {
-            feedback = await checkWithGemini(
-              image.data,
-              image.mimeType,
-              task.description ?? task.title,
-              composedPrompt,
-              model,
-            );
+            outcome = await runModel(model);
           } catch (aiErr) {
+            if (aiErr instanceof AiCallFailure) earlierAttempts.push(...aiErr.attemptLog);
             // Self-healing: when Google rejects the configured model name
             // (retired or gated — exactly how gemini-1.5-flash broke this
             // feature in production), retry once with the rolling fallback
-            // alias instead of failing the student.
-            if (!isModelUnavailable(aiErr) || model === FALLBACK_AI_MODEL) {
+            // alias instead of failing the student. This is the ONLY 404 that
+            // gets a second chance; plain retry never touches 4xx.
+            if (
+              aiErr instanceof AiOperationAborted ||
+              !isModelUnavailable(aiErr) ||
+              model === FALLBACK_AI_MODEL
+            ) {
               throw aiErr;
             }
             req.log.warn(
@@ -248,16 +326,39 @@ router.post(
               "Gemini model unavailable — retrying with fallback model",
             );
             model = FALLBACK_AI_MODEL;
-            feedback = await checkWithGemini(
-              image.data,
-              image.mimeType,
-              task.description ?? task.title,
-              composedPrompt,
-              model,
-            );
+            outcome = await runModel(model);
           }
         } catch (aiErr) {
-          req.log.error({ err: aiErr }, "Gemini check failed");
+          if (requestId) finishAiProgress(requestId, "failed");
+          if (aiErr instanceof AiOperationAborted) {
+            req.log.info("AI check cancelled — client disconnected");
+            await logCheck("failed", { errorMessage: "Przerwane przez klienta" });
+            res.status(499).end();
+            return;
+          }
+          const attemptLog =
+            aiErr instanceof AiCallFailure
+              ? [...earlierAttempts, ...aiErr.attemptLog]
+              : earlierAttempts;
+          req.log.error({ err: aiErr, attempts: attemptLog.length }, "Gemini check failed");
+          const failStatus = aiErr instanceof AiCallFailure ? aiErr.cause : aiErr;
+          // A failure shared from a deduped in-flight call was already logged
+          // by its accounting owner — a second row would inflate failure stats.
+          if (!(aiErr instanceof AiCallFailure && aiErr.sharedFromDedupe)) {
+            await recordAiUsage({
+              userId,
+              operation: "check",
+              model,
+              status: "failed",
+              httpStatus:
+                typeof (failStatus as { status?: unknown })?.status === "number"
+                  ? ((failStatus as { status: number }).status)
+                  : undefined,
+              attemptLog,
+              latencyMs: Date.now() - startedAt,
+              errorMessage: aiErr instanceof Error ? aiErr.message : "Unknown AI error",
+            });
+          }
           await logCheck("failed", {
             errorMessage: aiErr instanceof Error ? aiErr.message : "Unknown AI error",
           });
@@ -268,9 +369,26 @@ router.post(
           res.status(mapped.status).json({ error: mapped.error });
           return;
         }
+
+        const combinedLog = [...earlierAttempts, ...outcome.attemptLog];
+        feedback = safeResponseText(outcome.value);
+        const usage = extractUsage(outcome.value.response);
         // A blocked or truncated response can come back technically "OK" but
         // with no text — treat it as a failure instead of showing an empty box.
-        if (!feedback.trim()) {
+        const empty = !feedback.trim();
+        if (requestId) finishAiProgress(requestId, empty ? "failed" : "done");
+        await recordAiUsage({
+          userId,
+          operation: "check",
+          model,
+          status: empty ? "failed" : "completed",
+          attemptLog: combinedLog,
+          usage,
+          latencyMs: Date.now() - startedAt,
+          errorMessage: empty ? "Empty AI response" : undefined,
+          sharedFromDedupe: outcome.sharedFromDedupe,
+        });
+        if (empty) {
           req.log.error("Gemini check returned an empty response");
           await logCheck("failed", { errorMessage: "Empty AI response" });
           res.status(502).json({
@@ -309,16 +427,30 @@ router.post(
   },
 );
 
-// ─── PER-LESSON AI CHAT ──────────────────────────────────────────────────────
+// ─── LIVE RETRY PROGRESS ─────────────────────────────────────────────────────
 
-const CHAT_SYSTEM_PROMPT = `Jesteś przyjaznym korepetytorem fizyki dla ucznia 7. klasy szkoły podstawowej w Polsce.
-- Odpowiadaj zawsze po polsku, prostym i zrozumiałym językiem.
-- Wyjaśniaj krok po kroku, podawaj przykłady z życia codziennego.
-- Trzymaj się tematu bieżącej lekcji, ale możesz odwoływać się do podstaw fizyki.
-- Nie podawaj gotowych rozwiązań zadań domowych wprost — naprowadzaj ucznia.
-- Bądź cierpliwy, zachęcający i konkretny. Odpowiedź maksymalnie 6 zdań.
-- Jeśli pytanie nie dotyczy fizyki ani nauki, grzecznie wróć do tematu lekcji.
-- Pisz zwykłym tekstem, bez notacji LaTeX i Markdown (żadnych $...$, \\cdot, \\text, gwiazdek). Wzory zapisuj jak w zeszycie, np. Fc = m · g, wynik: 50 N.`;
+// Polled by the frontend while an AI request is in flight, so the student sees
+// an honest "Ponawiam próbę 2 z 4…" instead of a mute spinner. Owner-only.
+router.get("/ai/progress/:requestId", requireAuth as any, async (req: AuthRequest, res) => {
+  const { requestId } = req.params;
+  if (!isValidRequestId(requestId)) {
+    res.status(400).json({ error: "Nieprawidłowy identyfikator zapytania" });
+    return;
+  }
+  const entry = readAiProgress(requestId, req.user!.id);
+  if (!entry) {
+    res.status(404).json({ error: "Nie znaleziono zapytania" });
+    return;
+  }
+  res.json({
+    phase: entry.phase,
+    attempt: entry.attempt,
+    maxAttempts: entry.maxAttempts,
+    operation: entry.operation,
+  });
+});
+
+// ─── PER-LESSON AI CHAT ──────────────────────────────────────────────────────
 
 const MAX_CHAT_MESSAGE = 2000;
 const MAX_HISTORY = 12;
@@ -335,22 +467,34 @@ const lessonChatSchema = z.object({
     )
     .max(MAX_HISTORY)
     .optional(),
+  requestId: z.string().max(64).optional(),
 });
 
+// Text assistant: cost first — economical model, short system prompt, trimmed
+// history (see lib/ai-chat.ts), capped output and no paid "thinking" tokens.
 async function chatWithGemini(
   systemPrompt: string,
   history: Array<{ role: "user" | "assistant"; content: string }>,
   message: string,
   modelName: string,
-): Promise<string> {
+  timeoutMs: number,
+  signal?: AbortSignal,
+): Promise<GenerateContentResult> {
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const genAI = new GoogleGenerativeAI(config.gemini.apiKey as string);
+  const generationConfig = {
+    maxOutputTokens: CHAT_MAX_OUTPUT_TOKENS,
+    // The SDK's types predate thinking control; the REST API accepts it and it
+    // removes billed reasoning tokens from simple text replies.
+    ...({ thinkingConfig: { thinkingBudget: 0 } } as Record<string, unknown>),
+  } as GenerationConfig;
   const model = genAI.getGenerativeModel(
     {
       model: modelName,
       systemInstruction: systemPrompt,
+      generationConfig,
     },
-    { timeout: GEMINI_TIMEOUT_MS },
+    { timeout: timeoutMs },
   );
 
   const chat = model.startChat({
@@ -359,8 +503,7 @@ async function chatWithGemini(
       parts: [{ text: m.content }],
     })),
   });
-  const result = await chat.sendMessage(message);
-  return result.response.text();
+  return chat.sendMessage(message, { timeout: timeoutMs, signal });
 }
 
 router.post(
@@ -369,6 +512,7 @@ router.post(
   requireTopicAccessOrPreview("topicId") as any,
   aiLimiter,
   async (req: AuthRequest, res) => {
+    const startedAt = Date.now();
     try {
       const parsed = lessonChatSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -376,6 +520,8 @@ router.post(
         return;
       }
       const { topicId, message, history } = parsed.data;
+      const requestId = isValidRequestId(parsed.data.requestId) ? parsed.data.requestId : null;
+      const userId = req.user!.id;
 
       const [topic] = await db
         .select({ title: topics.title, description: topics.description, aiEnabled: topics.aiEnabled })
@@ -412,36 +558,119 @@ router.post(
         return;
       }
 
-      const contextPrompt = `${CHAT_SYSTEM_PROMPT}\n\nBieżąca lekcja: "${topic.title}".${
-        topic.description ? `\nOpis lekcji: ${topic.description}` : ""
-      }`;
+      // Compact context: short system prompt + clipped lesson intro + only the
+      // last few (clipped) turns. This is where the ~10× token cut comes from.
+      const contextPrompt = buildChatContext(topic.title, topic.description);
+      const trimmedHistory = trimHistory(history ?? []);
 
+      const abortController = new AbortController();
+      res.on("close", () => {
+        if (!res.writableEnded) abortController.abort();
+      });
+      if (requestId) beginAiProgress(requestId, userId, "chat", AI_PROFILES.chat.maxAttempts);
+      const onAttempt = requestId
+        ? (u: AiProgressUpdate) => updateAiProgress(requestId, u)
+        : undefined;
+      const contentHash = createHash("sha256")
+        .update(JSON.stringify([topicId, message, trimmedHistory]))
+        .digest("hex")
+        .slice(0, 16);
+
+      let chatModel = resolveChatModel();
+      const runModel = (modelName: string) =>
+        callGeminiWithRetry<GenerateContentResult>({
+          operation: "chat",
+          signal: abortController.signal,
+          dedupeKey: `chat:${userId}:${contentHash}`,
+          onAttempt,
+          log: req.log,
+          fn: ({ timeoutMs, signal }) =>
+            chatWithGemini(contextPrompt, trimmedHistory, message, modelName, timeoutMs, signal),
+        });
+
+      const earlierAttempts: AiAttemptLog[] = [];
+      let outcome: AiCallOutcome<GenerateContentResult>;
       try {
-        let reply: string;
-        const chatModel = resolveAiModel(aiCfg);
         try {
-          reply = await chatWithGemini(contextPrompt, history ?? [], message, chatModel);
+          outcome = await runModel(chatModel);
         } catch (aiErr) {
+          if (aiErr instanceof AiCallFailure) earlierAttempts.push(...aiErr.attemptLog);
           // Same self-healing as the task check: a rejected model name is
           // retried once with the rolling fallback alias.
-          if (!isModelUnavailable(aiErr) || chatModel === FALLBACK_AI_MODEL) {
+          if (
+            aiErr instanceof AiOperationAborted ||
+            !isModelUnavailable(aiErr) ||
+            chatModel === FALLBACK_AI_MODEL
+          ) {
             throw aiErr;
           }
           req.log.warn(
             { model: chatModel, err: aiErr },
             "Gemini model unavailable — retrying with fallback model",
           );
-          reply = await chatWithGemini(contextPrompt, history ?? [], message, FALLBACK_AI_MODEL);
+          chatModel = FALLBACK_AI_MODEL;
+          outcome = await runModel(chatModel);
         }
-        res.json({ reply });
       } catch (aiErr) {
-        req.log.error({ err: aiErr }, "Gemini lesson chat failed");
+        if (requestId) finishAiProgress(requestId, "failed");
+        if (aiErr instanceof AiOperationAborted) {
+          req.log.info("Lesson chat cancelled — client disconnected");
+          res.status(499).end();
+          return;
+        }
+        const attemptLog =
+          aiErr instanceof AiCallFailure
+            ? [...earlierAttempts, ...aiErr.attemptLog]
+            : earlierAttempts;
+        req.log.error({ err: aiErr, attempts: attemptLog.length }, "Gemini lesson chat failed");
+        const failCause = aiErr instanceof AiCallFailure ? aiErr.cause : aiErr;
+        // A shared deduped failure is logged only by its accounting owner.
+        if (!(aiErr instanceof AiCallFailure && aiErr.sharedFromDedupe)) {
+          await recordAiUsage({
+            userId,
+            operation: "chat",
+            model: chatModel,
+            status: "failed",
+            httpStatus:
+              typeof (failCause as { status?: unknown })?.status === "number"
+                ? ((failCause as { status: number }).status)
+                : undefined,
+            attemptLog,
+            latencyMs: Date.now() - startedAt,
+            errorMessage: aiErr instanceof Error ? aiErr.message : "Unknown AI error",
+          });
+        }
         const mapped = mapGeminiError(
           aiErr,
           "Wystąpił błąd podczas rozmowy z AI. Spróbuj ponownie za chwilę.",
         );
         res.status(mapped.status).json({ error: mapped.error });
+        return;
       }
+
+      const reply = safeResponseText(outcome.value);
+      const usage = extractUsage(outcome.value.response);
+      const empty = !reply.trim();
+      if (requestId) finishAiProgress(requestId, empty ? "failed" : "done");
+      await recordAiUsage({
+        userId,
+        operation: "chat",
+        model: chatModel,
+        status: empty ? "failed" : "completed",
+        attemptLog: [...earlierAttempts, ...outcome.attemptLog],
+        usage,
+        latencyMs: Date.now() - startedAt,
+        errorMessage: empty ? "Empty AI response" : undefined,
+        sharedFromDedupe: outcome.sharedFromDedupe,
+      });
+      if (empty) {
+        req.log.error("Gemini lesson chat returned an empty response");
+        res.status(502).json({
+          error: "AI nie zwróciło odpowiedzi. Spróbuj ponownie za chwilę.",
+        });
+        return;
+      }
+      res.json({ reply });
     } catch (err) {
       req.log.error({ err }, "Lesson chat error");
       res.status(500).json({ error: "Błąd serwera" });

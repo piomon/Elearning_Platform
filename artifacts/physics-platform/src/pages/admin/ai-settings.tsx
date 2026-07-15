@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { useGetAiSettings, useUpdateAiSettings, useTestAiPrompt } from "@workspace/api-client-react";
+import {
+  useGetAiSettings,
+  useUpdateAiSettings,
+  useTestAiPrompt,
+  useGetAiUsageStats,
+} from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +14,30 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { opts } from "@/components/admin/shared";
-import { Sparkles, Save, CheckCircle2, AlertTriangle, Loader2, Play } from "lucide-react";
+import { Sparkles, Save, CheckCircle2, AlertTriangle, Loader2, Play, BarChart3 } from "lucide-react";
+
+const OPERATION_LABELS: Record<string, string> = {
+  check: "Sprawdzanie zadań (obraz)",
+  chat: "Asystent tekstowy",
+  "admin-test": "Test admina",
+};
+
+// Costs are stored in grosz; show fractions of a grosz for cheap chat calls
+// and switch to złote once a period's total grows past 1 zł.
+function formatGrosz(g: number | null | undefined): string {
+  if (g == null) return "—";
+  if (g >= 100) return `${(g / 100).toFixed(2).replace(".", ",")} zł`;
+  return `${g.toFixed(g < 1 ? 3 : 2).replace(".", ",")} gr`;
+}
+
+function StatItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-muted-foreground">{label}</p>
+      <p className="font-semibold tabular-nums">{value}</p>
+    </div>
+  );
+}
 
 export default function AdminAiSettings() {
   const { data, isLoading, refetch } = useGetAiSettings();
@@ -28,6 +56,13 @@ export default function AdminAiSettings() {
   const [testInput, setTestInput] = useState("Rozwiąż: ile wynosi 2+2?");
   const [testReply, setTestReply] = useState<string | null>(null);
   const [testDemo, setTestDemo] = useState(false);
+
+  const [statsDays, setStatsDays] = useState(7);
+  const statsQuery = useGetAiUsageStats(
+    { days: statsDays },
+    { query: { staleTime: 30_000 } as any },
+  );
+  const stats = statsQuery.data;
 
   useEffect(() => {
     if (!data) return;
@@ -76,6 +111,36 @@ export default function AdminAiSettings() {
         <div className="h-96 bg-muted animate-pulse rounded-3xl" />
       ) : (
         <>
+          {data?.fallbackAlert && (
+            <div className="flex items-start gap-3 rounded-2xl border-2 border-amber-500/30 bg-amber-500/5 p-5">
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="space-y-1.5 text-sm">
+                <p className="font-bold text-foreground">AI działa na modelu zapasowym</p>
+                <p className="text-muted-foreground">
+                  W ciągu ostatnich 24 godzin sprawdzanie zadań {data.fallbackAlert.count}× użyło modelu
+                  zapasowego <span className="font-mono text-foreground">{data.fallbackAlert.fallbackModel}</span> zamiast
+                  skonfigurowanego <span className="font-mono text-foreground">{data.fallbackAlert.configuredModel}</span>
+                  {data.fallbackAlert.lastAt && (
+                    <> (ostatnio: {new Date(data.fallbackAlert.lastAt).toLocaleString("pl-PL")})</>
+                  )}.
+                </p>
+                <p className="text-muted-foreground">
+                  Skonfigurowany model przestał działać — wyczyść pole modelu, aby używać zawsze aktualnego.
+                </p>
+                {model.trim() !== "" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-xl mt-1 border-amber-500/40 text-amber-700 hover:bg-amber-500/10"
+                    onClick={() => setModel("")}
+                  >
+                    Wyczyść pole modelu
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+
           <Card className="rounded-3xl border-border shadow-sm">
             <CardContent className="p-6 space-y-5">
               <div className="flex items-center gap-2 flex-wrap">
@@ -152,6 +217,80 @@ export default function AdminAiSettings() {
                   <p className="text-sm whitespace-pre-wrap">{testReply}</p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-3xl border-border shadow-sm">
+            <CardContent className="p-6 space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h2 className="font-bold text-lg flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-primary" />Statystyki użycia AI
+                </h2>
+                <div className="flex gap-1">
+                  {[7, 30, 90].map((d) => (
+                    <Button
+                      key={d}
+                      size="sm"
+                      variant={statsDays === d ? "default" : "outline"}
+                      className="rounded-xl h-8 px-3 text-xs"
+                      onClick={() => setStatsDays(d)}
+                    >
+                      {d} dni
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {statsQuery.isLoading ? (
+                <div className="h-24 bg-muted animate-pulse rounded-xl" />
+              ) : !stats || stats.operations.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Brak zapytań AI w wybranym okresie.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {stats.operations.map((op) => {
+                    const successPct =
+                      op.total > 0 ? Math.round((op.completed / op.total) * 100) : 0;
+                    return (
+                      <div key={op.operation} className="rounded-xl border border-border/60 p-4 space-y-3">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <span className="font-semibold text-sm">
+                            {OPERATION_LABELS[op.operation] ?? op.operation}
+                          </span>
+                          <Badge variant="outline" className="rounded text-[10px] font-mono">
+                            {op.operation}
+                          </Badge>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 text-xs">
+                          <StatItem label="Zapytania" value={String(op.total)} />
+                          <StatItem label="Udane" value={`${op.completed} (${successPct}%)`} />
+                          <StatItem label="Uratowane ponowieniem" value={String(op.rescuedByRetry)} />
+                          <StatItem label="Śr. liczba prób" value={String(op.avgAttempts)} />
+                          <StatItem label="Błędy 429 / 503" value={`${op.errors429} / ${op.errors503}`} />
+                          <StatItem
+                            label="Śr. tokeny (wej. / wyj.)"
+                            value={`${op.avgInputTokens ?? "—"} / ${op.avgOutputTokens ?? "—"}`}
+                          />
+                          <StatItem label="Śr. koszt zapytania" value={formatGrosz(op.avgCostGrosz)} />
+                          <StatItem label="Koszt łącznie" value={formatGrosz(op.totalCostGrosz)} />
+                        </div>
+                        {op.avgLatencyMs != null && (
+                          <p className="text-[11px] text-muted-foreground">
+                            Średni czas odpowiedzi: {(op.avgLatencyMs / 1000).toFixed(1).replace(".", ",")} s
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <p className="text-[11px] text-muted-foreground">
+                Koszt szacowany według cennika Gemini (kurs USD→PLN z konfiguracji serwera).
+                „Uratowane ponowieniem” to zapytania, które powiodły się dopiero po automatycznej
+                ponownej próbie — bez niej uczeń zobaczyłby błąd.
+              </p>
             </CardContent>
           </Card>
         </>

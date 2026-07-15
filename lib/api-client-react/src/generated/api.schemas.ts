@@ -425,6 +425,11 @@ export interface LessonChatInput {
   topicId: number;
   message: string;
   history?: ChatMessage[];
+  /**
+     * Optional client-generated id for polling live retry progress.
+     * @maxLength 64
+     */
+  requestId?: string;
 }
 
 export interface LessonChatResult {
@@ -540,6 +545,29 @@ export interface ProgressSummary {
 export interface TaskCheckInput {
   taskId: number;
   imageBase64: string;
+  /**
+     * Optional client-generated id for polling live retry progress.
+     * @maxLength 64
+     */
+  requestId?: string;
+}
+
+export type AiProgressPhase = typeof AiProgressPhase[keyof typeof AiProgressPhase];
+
+
+export const AiProgressPhase = {
+  queued: 'queued',
+  calling: 'calling',
+  'retry-scheduled': 'retry-scheduled',
+  done: 'done',
+  failed: 'failed',
+} as const;
+
+export interface AiProgress {
+  phase: AiProgressPhase;
+  attempt: number;
+  maxAttempts: number;
+  operation: string;
 }
 
 export interface TaskCheckResult {
@@ -1360,6 +1388,43 @@ export interface TopicReorderInput {
   ids: number[];
 }
 
+export interface AiUsageOperationStats {
+  operation: string;
+  total: number;
+  completed: number;
+  /** Requests that failed at least once but succeeded on a retry. */
+  rescuedByRetry: number;
+  errors429: number;
+  errors503: number;
+  avgAttempts: number;
+  /** @nullable */
+  avgInputTokens?: number | null;
+  /** @nullable */
+  avgOutputTokens?: number | null;
+  /** @nullable */
+  avgCostGrosz?: number | null;
+  /** @nullable */
+  totalCostGrosz?: number | null;
+  /** @nullable */
+  avgLatencyMs?: number | null;
+}
+
+export interface AiUsageStats {
+  days: number;
+  since: string;
+  operations: AiUsageOperationStats[];
+}
+
+/**
+ * Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged.
+ */
+export type AiSettingsFallbackAlert = {
+  count: number;
+  lastAt: string | null;
+  configuredModel: string;
+  fallbackModel: string;
+} | null;
+
 export interface AiSettings {
   enabled: boolean;
   model: string;
@@ -1370,6 +1435,8 @@ export interface AiSettings {
   errorMessage: string;
   keyConfigured: boolean;
   envModel: string;
+  /** Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged. */
+  fallbackAlert: AiSettingsFallbackAlert;
 }
 
 export interface AiSettingsInput {
@@ -1515,6 +1582,14 @@ action?: string;
 entityType?: string;
 page?: number;
 limit?: number;
+};
+
+export type GetAiUsageStatsParams = {
+/**
+ * @minimum 1
+ * @maximum 90
+ */
+days?: number;
 };
 
 export type ListAccessParams = {

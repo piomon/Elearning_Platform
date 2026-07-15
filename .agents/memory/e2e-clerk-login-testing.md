@@ -41,3 +41,18 @@ mint short-lived (60s) session JWTs on demand via
 the API with `Authorization: Bearer <jwt>`. The FAPI domain is base64-decoded from the
 `pk_test_` key suffix. Grant course access by inserting into `access_grants`
 (user_id, course_id, source, status='active') after the JIT user row exists.
+
+**curl target gotcha:** do NOT call the API through the path-routed
+`localhost:80/<artifact>/api/...` — the root SPA's vite catch-all answers those
+paths with index.html and HTTP 200, silently faking success. Hit the api-server
+on its own port instead: `PID=$(pgrep -f dist/index.mjs)` then read `^PORT=`
+from `/proc/$PID/environ` and use `localhost:$PORT/api/...`.
+
+**Second factor is nondeterministic:** the same test user may sign in with
+`status=complete` one run and `needs_second_factor` the next (fresh dev_browser
+= new device). Always script both branches (prepare → attempt with 424242).
+
+**Env-flag fault injection:** flags like AI_FAKE_TRANSIENT_ERRORS are read from
+process.env at call time, but the workflow process only picks env changes up on
+restart — and keeps them until the NEXT restart. Always restart after deleting
+the flag, or dev keeps injecting failures silently.

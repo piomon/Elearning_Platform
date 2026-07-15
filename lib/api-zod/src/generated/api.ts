@@ -334,9 +334,14 @@ export const SubmitQuizAttemptBody = zod.object({
 })
 
 
+export const checkTaskBodyRequestIdMax = 64;
+
+
+
 export const CheckTaskBody = zod.object({
   "taskId": zod.number(),
-  "imageBase64": zod.string()
+  "imageBase64": zod.string(),
+  "requestId": zod.string().max(checkTaskBodyRequestIdMax).optional().describe('Optional client-generated id for polling live retry progress.')
 })
 
 export const CheckTaskResponse = zod.object({
@@ -345,17 +350,34 @@ export const CheckTaskResponse = zod.object({
 })
 
 
+export const lessonChatBodyRequestIdMax = 64;
+
+
+
 export const LessonChatBody = zod.object({
   "topicId": zod.number(),
   "message": zod.string(),
   "history": zod.array(zod.object({
   "role": zod.enum(['user', 'assistant']),
   "content": zod.string()
-})).optional()
+})).optional(),
+  "requestId": zod.string().max(lessonChatBodyRequestIdMax).optional().describe('Optional client-generated id for polling live retry progress.')
 })
 
 export const LessonChatResponse = zod.object({
   "reply": zod.string()
+})
+
+
+export const GetAiProgressParams = zod.object({
+  "requestId": zod.coerce.string()
+})
+
+export const GetAiProgressResponse = zod.object({
+  "phase": zod.enum(['queued', 'calling', 'retry-scheduled', 'done', 'failed']),
+  "attempt": zod.number(),
+  "maxAttempts": zod.number(),
+  "operation": zod.string()
 })
 
 
@@ -1977,7 +1999,13 @@ export const GetAiSettingsResponse = zod.object({
   "maxResponseLength": zod.number(),
   "errorMessage": zod.string(),
   "keyConfigured": zod.boolean(),
-  "envModel": zod.string()
+  "envModel": zod.string(),
+  "fallbackAlert": zod.object({
+  "count": zod.number(),
+  "lastAt": zod.string().nullable(),
+  "configuredModel": zod.string(),
+  "fallbackModel": zod.string()
+}).nullable().describe('Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged.')
 })
 
 
@@ -2000,7 +2028,13 @@ export const UpdateAiSettingsResponse = zod.object({
   "maxResponseLength": zod.number(),
   "errorMessage": zod.string(),
   "keyConfigured": zod.boolean(),
-  "envModel": zod.string()
+  "envModel": zod.string(),
+  "fallbackAlert": zod.object({
+  "count": zod.number(),
+  "lastAt": zod.string().nullable(),
+  "configuredModel": zod.string(),
+  "fallbackModel": zod.string()
+}).nullable().describe('Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged.')
 })
 
 
@@ -2013,6 +2047,35 @@ export const TestAiPromptResponse = zod.object({
   "reply": zod.string(),
   "model": zod.string(),
   "demo": zod.boolean()
+})
+
+
+export const getAiUsageStatsQueryDaysDefault = 7;
+export const getAiUsageStatsQueryDaysMax = 90;
+
+
+
+export const GetAiUsageStatsQueryParams = zod.object({
+  "days": zod.coerce.number().min(1).max(getAiUsageStatsQueryDaysMax).default(getAiUsageStatsQueryDaysDefault)
+})
+
+export const GetAiUsageStatsResponse = zod.object({
+  "days": zod.number(),
+  "since": zod.string(),
+  "operations": zod.array(zod.object({
+  "operation": zod.string(),
+  "total": zod.number(),
+  "completed": zod.number(),
+  "rescuedByRetry": zod.number().describe('Requests that failed at least once but succeeded on a retry.'),
+  "errors429": zod.number(),
+  "errors503": zod.number(),
+  "avgAttempts": zod.number(),
+  "avgInputTokens": zod.number().nullish(),
+  "avgOutputTokens": zod.number().nullish(),
+  "avgCostGrosz": zod.number().nullish(),
+  "totalCostGrosz": zod.number().nullish(),
+  "avgLatencyMs": zod.number().nullish()
+}))
 })
 
 

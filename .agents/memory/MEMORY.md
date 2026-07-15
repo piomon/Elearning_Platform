@@ -28,3 +28,5 @@
 - [Docker / VPS self-host deploy](docker-vps-deploy.md) — compose+Traefik one-command deploy; migrations auto-run but seed.ts is destructive (manual only); workspace dep changes need a fresh frozen lockfile.
 - [E2E login with external Clerk](e2e-clerk-login-testing.md) — testClerkAuth fails on external Clerk; use FAPI dev_browser + +clerk_test OTP 424242 + `?__clerk_db_jwt=` URL; ignore headless HLS codec error.
 - [Gemini model rot](gemini-model-rot.md) — never pin a dated Gemini model as default (1.5 retired, 2.5-flash gated for new keys); use gemini-flash-latest alias + retired-remap + 404 retry-once.
+- [Dev DB push vs migrations](dev-db-push-vs-migrations.md) — dev DB is push-managed (`migrate` fails there); always generate the migration file for VPS AND push-force to dev.
+- [Test DB shared state](test-db-shared-state.md) — settings singletons (ai_settings) aren't truncated between suites; gated-route tests must reset them in beforeEach or they 403 mysteriously.

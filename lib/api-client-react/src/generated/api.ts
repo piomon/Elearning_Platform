@@ -31,10 +31,12 @@ import type {
   AdminPayment,
   AdminUserDetail,
   AdminUserList,
+  AiProgress,
   AiSettings,
   AiSettingsInput,
   AiTestInput,
   AiTestResult,
+  AiUsageStats,
   BanInput,
   BunnyAssignInput,
   BunnyDiagnostics,
@@ -61,6 +63,7 @@ import type {
   FaqItem,
   FaqToggleInput,
   FaqUpdate,
+  GetAiUsageStatsParams,
   HealthStatus,
   ImportQuiz201,
   LandingSection,
@@ -1314,6 +1317,77 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getLessonChatMutationOptions(options));
     }
+
+export const getGetAiProgressUrl = (requestId: string,) => {
+
+
+
+
+  return `/api/ai/progress/${requestId}`
+}
+
+export const getAiProgress = async (requestId: string, options?: RequestInit): Promise<AiProgress> => {
+
+  return customFetch<AiProgress>(getGetAiProgressUrl(requestId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAiProgressQueryKey = (requestId: string,) => {
+    return [
+    `/api/ai/progress/${requestId}`
+    ] as const;
+    }
+
+
+export const getGetAiProgressQueryOptions = <TData = Awaited<ReturnType<typeof getAiProgress>>, TError = ErrorType<ErrorResponse>>(requestId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAiProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAiProgressQueryKey(requestId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAiProgress>>> = ({ signal }) => getAiProgress(requestId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(requestId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAiProgress>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAiProgressQueryResult = NonNullable<Awaited<ReturnType<typeof getAiProgress>>>
+export type GetAiProgressQueryError = ErrorType<ErrorResponse>
+
+
+
+export function useGetAiProgress<TData = Awaited<ReturnType<typeof getAiProgress>>, TError = ErrorType<ErrorResponse>>(
+ requestId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAiProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAiProgressQueryOptions(requestId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getGetCoursePriceUrl = () => {
 
@@ -7303,6 +7377,84 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getTestAiPromptMutationOptions(options));
     }
+
+export const getGetAiUsageStatsUrl = (params?: GetAiUsageStatsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/ai-usage/stats?${stringifiedParams}` : `/api/admin/ai-usage/stats`
+}
+
+export const getAiUsageStats = async (params?: GetAiUsageStatsParams, options?: RequestInit): Promise<AiUsageStats> => {
+
+  return customFetch<AiUsageStats>(getGetAiUsageStatsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAiUsageStatsQueryKey = (params?: GetAiUsageStatsParams,) => {
+    return [
+    `/api/admin/ai-usage/stats`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAiUsageStatsQueryOptions = <TData = Awaited<ReturnType<typeof getAiUsageStats>>, TError = ErrorType<unknown>>(params?: GetAiUsageStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAiUsageStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAiUsageStatsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAiUsageStats>>> = ({ signal }) => getAiUsageStats(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAiUsageStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAiUsageStatsQueryResult = NonNullable<Awaited<ReturnType<typeof getAiUsageStats>>>
+export type GetAiUsageStatsQueryError = ErrorType<unknown>
+
+
+
+export function useGetAiUsageStats<TData = Awaited<ReturnType<typeof getAiUsageStats>>, TError = ErrorType<unknown>>(
+ params?: GetAiUsageStatsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAiUsageStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAiUsageStatsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getListDiscountsUrl = () => {
 
