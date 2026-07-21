@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import {
@@ -112,6 +113,48 @@ function SummaryItem({ label, value }: { label: string; value: string }) {
   );
 }
 
+// Thumbnail of the student's stored solution photo, served by the admin-only
+// image endpoint; click opens a full-size preview dialog. Rows without a
+// stored image (chat, admin-test, pre-storage checks) render nothing — and if
+// the file has vanished from disk (endpoint 404s), the thumbnail hides itself.
+function CheckImagePreview({ checkId }: { checkId: number }) {
+  const [zoomed, setZoomed] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const src = `/api/admin/ai-checks/${checkId}/image`;
+  if (failed) return null;
+  return (
+    <div>
+      <p className="text-muted-foreground text-xs mb-1">Zdjęcie rozwiązania</p>
+      <button
+        type="button"
+        onClick={() => setZoomed(true)}
+        className="block rounded-lg border border-border/60 overflow-hidden hover:ring-2 hover:ring-primary/40 focus-visible:ring-2 focus-visible:ring-primary transition-shadow"
+        title="Kliknij, aby powiększyć"
+      >
+        <img
+          src={src}
+          alt={`Rozwiązanie ucznia — sprawdzenie #${checkId}`}
+          loading="lazy"
+          className="max-h-40 w-auto object-contain bg-white"
+          onError={() => setFailed(true)}
+        />
+      </button>
+      <Dialog open={zoomed} onOpenChange={setZoomed}>
+        <DialogContent className="max-w-4xl p-2 sm:p-4">
+          <DialogTitle className="sr-only">
+            Zdjęcie rozwiązania — sprawdzenie #{checkId}
+          </DialogTitle>
+          <img
+            src={src}
+            alt={`Rozwiązanie ucznia — sprawdzenie #${checkId}`}
+            className="max-h-[80vh] w-full object-contain bg-white rounded-md"
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
 function EntryDetails({ entry }: { entry: AiUsageLogEntry }) {
   const attemptLog = entry.attemptLog ?? [];
   return (
@@ -187,6 +230,7 @@ function EntryDetails({ entry }: { entry: AiUsageLogEntry }) {
               <p className="font-mono text-[11px] break-all">{entry.imageStoragePath ?? "—"}</p>
             </div>
           </div>
+          {entry.imageStoragePath && <CheckImagePreview checkId={entry.checkId} />}
           {entry.checkErrorMessage && entry.checkErrorMessage !== entry.errorMessage && (
             <p className="text-xs text-destructive break-words">
               Błąd sprawdzenia: {entry.checkErrorMessage}

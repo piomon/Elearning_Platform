@@ -41,6 +41,7 @@ services:
       CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY}
       ADMIN_EMAILS: ${ADMIN_EMAILS:-}
       SESSION_SECRET: ${SESSION_SECRET}
+      STORAGE_DIR: /data/storage
       APP_URL: ${APP_URL:-}
       API_URL: ${API_URL:-}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
@@ -70,6 +71,10 @@ services:
       SMTP_PORT: ${SMTP_PORT:-}
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
+    volumes:
+      # Zdjęcia rozwiązań uczniów (ai-checks/RRRR/MM/*.png) — muszą przetrwać
+      # przebudowę kontenera.
+      - api_storage:/data/storage
     depends_on:
       db:
         condition: service_healthy
@@ -96,6 +101,8 @@ services:
 
 volumes:
   db_data:
+    driver: local
+  api_storage:
     driver: local
 
 networks:

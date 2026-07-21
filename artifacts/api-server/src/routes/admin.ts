@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { db } from "@workspace/db";
 import {
   users,
@@ -38,6 +40,7 @@ import {
   validateSetting,
 } from "../lib/platform-settings";
 import { DISCOUNT_TYPES, normalizeCode, type DiscountType } from "../lib/discounts";
+import { resolveAiCheckImagePath, MIME_BY_EXT } from "../lib/ai-check-storage";
 import {
   probeBunnyVideo,
   mapWithConcurrency,
@@ -2754,6 +2757,46 @@ router.get("/admin/ai-usage/log", async (req: AuthRequest, res) => {
     });
   } catch (err) {
     req.log.error({ err }, "AI usage log error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Serves the stored student photo for one ai_checks row — admin-only (the
+// router-level guard above), never public. 404 when the row, the stored path
+// or the file itself is missing (old rows predate photo storage).
+router.get("/admin/ai-checks/:id/image", async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(404).json({ error: "Nie znaleziono obrazka" });
+      return;
+    }
+    const [row] = await db
+      .select({ imageStoragePath: aiChecks.imageStoragePath })
+      .from(aiChecks)
+      .where(eq(aiChecks.id, id))
+      .limit(1);
+    if (!row?.imageStoragePath) {
+      res.status(404).json({ error: "Nie znaleziono obrazka" });
+      return;
+    }
+    const absPath = resolveAiCheckImagePath(row.imageStoragePath);
+    if (!absPath) {
+      res.status(404).json({ error: "Nie znaleziono obrazka" });
+      return;
+    }
+    const mime = MIME_BY_EXT[path.extname(absPath).toLowerCase()];
+    try {
+      const data = await fs.readFile(absPath);
+      res.setHeader("Content-Type", mime ?? "application/octet-stream");
+      // Student photos are private — never let a shared proxy cache them.
+      res.setHeader("Cache-Control", "private, max-age=3600");
+      res.send(data);
+    } catch {
+      res.status(404).json({ error: "Nie znaleziono obrazka" });
+    }
+  } catch (err) {
+    req.log.error({ err }, "AI check image error");
     res.status(500).json({ error: "Błąd serwera" });
   }
 });

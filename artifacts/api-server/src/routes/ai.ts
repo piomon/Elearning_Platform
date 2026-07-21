@@ -42,6 +42,7 @@ import {
   isValidRequestId,
 } from "../lib/ai-progress";
 import { recordAiUsage, extractUsage, type RecordAiUsageInput } from "../lib/ai-usage";
+import { saveAiCheckImage } from "../lib/ai-check-storage";
 import {
   buildChatContext,
   trimHistory,
@@ -246,6 +247,11 @@ router.post(
         ? `${buildSystemPrompt(task.aiPromptConfig)}\n\n${globalExtras}`
         : buildSystemPrompt(task.aiPromptConfig);
 
+      // Persist the student's photo up front so BOTH outcomes (completed and
+      // failed) keep it — the admin log needs the image precisely when the AI
+      // stumbled. Best-effort: a storage failure only loses the preview.
+      const imageStoragePath = await saveAiCheckImage(image.data, image.mimeType, req.log);
+
       const logCheck = async (
         status: "completed" | "failed",
         fields: { aiResponse?: string; errorMessage?: string },
@@ -257,6 +263,7 @@ router.post(
             taskId,
             topicId: task.topicId,
             model,
+            imageStoragePath,
             requestBytes: image.sizeBytes,
             latencyMs: Date.now() - startedAt,
             status,

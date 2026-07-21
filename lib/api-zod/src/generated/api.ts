@@ -2162,6 +2162,14 @@ export const ListAiUsageLogResponse = zod.object({
 
 
 /**
+ * Serves the stored student solution photo for one AI check. Admin-only; 404 when the check, the stored path or the file itself is missing (rows created before photo storage have no image).
+ */
+export const GetAiCheckImageParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+/**
  * Streams ALL AI log rows matching the same filters as /admin/ai-usage/log (capped at 50 000) as a CSV file — Polish headers, ';' separator, UTF-8 BOM for Excel.
  */
 export const ExportAiUsageLogCsvQueryParams = zod.object({

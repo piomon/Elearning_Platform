@@ -7537,6 +7537,80 @@ export function useListAiUsageLog<TData = Awaited<ReturnType<typeof listAiUsageL
 
 
 
+export const getGetAiCheckImageUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/ai-checks/${id}/image`
+}
+
+/**
+ * Serves the stored student solution photo for one AI check. Admin-only; 404 when the check, the stored path or the file itself is missing (rows created before photo storage have no image).
+ */
+export const getAiCheckImage = async (id: number, options?: RequestInit): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetAiCheckImageUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAiCheckImageQueryKey = (id: number,) => {
+    return [
+    `/api/admin/ai-checks/${id}/image`
+    ] as const;
+    }
+
+
+export const getGetAiCheckImageQueryOptions = <TData = Awaited<ReturnType<typeof getAiCheckImage>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAiCheckImage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAiCheckImageQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAiCheckImage>>> = ({ signal }) => getAiCheckImage(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAiCheckImage>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAiCheckImageQueryResult = NonNullable<Awaited<ReturnType<typeof getAiCheckImage>>>
+export type GetAiCheckImageQueryError = ErrorType<void>
+
+
+
+export function useGetAiCheckImage<TData = Awaited<ReturnType<typeof getAiCheckImage>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAiCheckImage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAiCheckImageQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
 export const getExportAiUsageLogCsvUrl = (params?: ExportAiUsageLogCsvParams,) => {
   const normalizedParams = new URLSearchParams();
 

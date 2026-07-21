@@ -1,3 +1,5 @@
+import path from "node:path";
+
 const NODE_ENV = process.env.NODE_ENV ?? "development";
 
 export const isProd = NODE_ENV === "production";
@@ -116,6 +118,13 @@ export const config = {
     return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : 19900;
   })(),
   currency: "PLN",
+  // Root directory for server-side file storage (student AI-check photos live
+  // under <storageDir>/ai-checks/YYYY/MM/*.png|jpg). Relative values resolve
+  // against the process CWD; in Docker set STORAGE_DIR to a mounted volume so
+  // the images survive container rebuilds.
+  storageDir: path.resolve(
+    process.env.STORAGE_DIR?.trim() || path.join(process.cwd(), "storage"),
+  ),
   gemini: {
     apiKey: readOptional("GEMINI_API_KEY"),
     // Blank/unset GEMINI_MODEL falls back to Google's rolling alias for the
