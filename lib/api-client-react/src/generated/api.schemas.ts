@@ -1747,6 +1747,41 @@ export const ListAiUsageLogOperation = {
   'admin-test': 'admin-test',
 } as const;
 
+export type ExportAiUsageLogCsvParams = {
+status?: ExportAiUsageLogCsvStatus;
+operation?: ExportAiUsageLogCsvOperation;
+model?: string;
+/**
+ * Case-insensitive substring match on student e-mail or name.
+ */
+search?: string;
+/**
+ * ISO date (inclusive start of the created-at range).
+ */
+from?: string;
+/**
+ * ISO date (inclusive when date-only, e.g. 2026-07-21).
+ */
+to?: string;
+};
+
+export type ExportAiUsageLogCsvStatus = typeof ExportAiUsageLogCsvStatus[keyof typeof ExportAiUsageLogCsvStatus];
+
+
+export const ExportAiUsageLogCsvStatus = {
+  completed: 'completed',
+  failed: 'failed',
+} as const;
+
+export type ExportAiUsageLogCsvOperation = typeof ExportAiUsageLogCsvOperation[keyof typeof ExportAiUsageLogCsvOperation];
+
+
+export const ExportAiUsageLogCsvOperation = {
+  check: 'check',
+  chat: 'chat',
+  'admin-test': 'admin-test',
+} as const;
+
 export type ListAccessParams = {
 status?: ListAccessStatus;
 q?: string;

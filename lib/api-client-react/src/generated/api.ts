@@ -57,6 +57,7 @@ import type {
   DiscountPreview,
   DiscountUses,
   ErrorResponse,
+  ExportAiUsageLogCsvParams,
   ExportLessons200TwoItem,
   ExportLessonsParams,
   ExportQuiz200,
@@ -7524,6 +7525,87 @@ export function useListAiUsageLog<TData = Awaited<ReturnType<typeof listAiUsageL
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getListAiUsageLogQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getExportAiUsageLogCsvUrl = (params?: ExportAiUsageLogCsvParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/ai-usage/log.csv?${stringifiedParams}` : `/api/admin/ai-usage/log.csv`
+}
+
+/**
+ * Streams ALL AI log rows matching the same filters as /admin/ai-usage/log (capped at 50 000) as a CSV file — Polish headers, ';' separator, UTF-8 BOM for Excel.
+ */
+export const exportAiUsageLogCsv = async (params?: ExportAiUsageLogCsvParams, options?: RequestInit): Promise<string> => {
+
+  return customFetch<string>(getExportAiUsageLogCsvUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getExportAiUsageLogCsvQueryKey = (params?: ExportAiUsageLogCsvParams,) => {
+    return [
+    `/api/admin/ai-usage/log.csv`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getExportAiUsageLogCsvQueryOptions = <TData = Awaited<ReturnType<typeof exportAiUsageLogCsv>>, TError = ErrorType<unknown>>(params?: ExportAiUsageLogCsvParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportAiUsageLogCsv>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getExportAiUsageLogCsvQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof exportAiUsageLogCsv>>> = ({ signal }) => exportAiUsageLogCsv(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof exportAiUsageLogCsv>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ExportAiUsageLogCsvQueryResult = NonNullable<Awaited<ReturnType<typeof exportAiUsageLogCsv>>>
+export type ExportAiUsageLogCsvQueryError = ErrorType<unknown>
+
+
+
+export function useExportAiUsageLogCsv<TData = Awaited<ReturnType<typeof exportAiUsageLogCsv>>, TError = ErrorType<unknown>>(
+ params?: ExportAiUsageLogCsvParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportAiUsageLogCsv>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getExportAiUsageLogCsvQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

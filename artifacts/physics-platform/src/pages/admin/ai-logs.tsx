@@ -23,6 +23,7 @@ import {
   RefreshCw,
   ArrowRightLeft,
   X,
+  Download,
 } from "lucide-react";
 
 const LIMIT = 25;
@@ -249,6 +250,25 @@ export default function AdminAiLogs() {
     setExpandedId(null);
   };
 
+  // Downloads ALL rows matching the current filters (server caps at 50 000)
+  // as CSV — same filter params as the list query, minus page/limit.
+  const exportCsv = () => {
+    const query = new URLSearchParams();
+    if (status !== "all") query.set("status", status);
+    if (operation !== "all") query.set("operation", operation);
+    if (model !== "all") query.set("model", model);
+    if (search.trim()) query.set("search", search.trim());
+    if (from) query.set("from", from);
+    if (to) query.set("to", to);
+    const qs = query.toString();
+    const a = document.createElement("a");
+    a.href = `/api/admin/ai-usage/log.csv${qs ? `?${qs}` : ""}`;
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 space-y-6 max-w-7xl">
       <div className="flex items-center gap-3 mb-6">
@@ -363,6 +383,16 @@ export default function AdminAiLogs() {
                 <X className="w-4 h-4 mr-1" /> Wyczyść
               </Button>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportCsv}
+              disabled={isLoading || total === 0}
+              className="rounded-xl h-10 border-border/60"
+              data-testid="button-export-csv"
+            >
+              <Download className="w-4 h-4 mr-1.5" /> Eksportuj CSV
+            </Button>
           </div>
 
           <div className="overflow-x-auto">

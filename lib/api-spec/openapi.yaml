@@ -2192,6 +2192,58 @@ paths:
               schema:
                 $ref: "#/components/schemas/AiUsageLogPage"
 
+  /admin/ai-usage/log.csv:
+    get:
+      operationId: exportAiUsageLogCsv
+      tags: [admin]
+      description: >-
+        Streams ALL AI log rows matching the same filters as /admin/ai-usage/log
+        (capped at 50 000) as a CSV file — Polish headers, ';' separator,
+        UTF-8 BOM for Excel.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [completed, failed]
+        - name: operation
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [check, chat, admin-test]
+        - name: model
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          description: Case-insensitive substring match on student e-mail or name.
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          description: ISO date (inclusive start of the created-at range).
+          schema:
+            type: string
+        - name: to
+          in: query
+          required: false
+          description: ISO date (inclusive when date-only, e.g. 2026-07-21).
+          schema:
+            type: string
+      responses:
+        "200":
+          description: CSV export of the filtered AI request log.
+          content:
+            text/csv:
+              schema:
+                type: string
+
   # ─── DISCOUNT CODES ────────────────────────────────────────────────────────
   /admin/discounts:
     get:

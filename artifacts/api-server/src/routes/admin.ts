@@ -2616,6 +2616,50 @@ router.get("/admin/ai-usage/stats", async (req: AuthRequest, res) => {
 // counts, cost estimate, and for photo checks the linked ai_checks row (photo
 // size, stored response preview, task/topic). Paginated + filterable. Reads
 // metadata and the stored AI response only — never student photos themselves.
+// Shared filter builder for the AI usage log endpoints (JSON page + CSV
+// export) — both must interpret status/operation/model/search/from/to
+// IDENTICALLY, or the exported file won't match what the admin sees.
+function buildAiUsageLogWhere(query: Record<string, unknown>): SQL | undefined {
+  const conditions: SQL[] = [];
+  const status = typeof query.status === "string" ? query.status : "";
+  if (status === "completed" || status === "failed") {
+    conditions.push(eq(aiUsageLog.status, status));
+  }
+  const operation = typeof query.operation === "string" ? query.operation : "";
+  if (["check", "chat", "admin-test"].includes(operation)) {
+    conditions.push(eq(aiUsageLog.operation, operation));
+  }
+  const model = typeof query.model === "string" ? query.model.trim() : "";
+  if (model) conditions.push(eq(aiUsageLog.model, model));
+  const search = typeof query.search === "string" ? query.search.trim() : "";
+  if (search) {
+    const pattern = `%${search}%`;
+    const match = or(
+      ilike(users.email, pattern),
+      ilike(users.firstName, pattern),
+      ilike(users.lastName, pattern),
+    );
+    if (match) conditions.push(match);
+  }
+  const parseDate = (value: unknown): Date | null => {
+    if (typeof value !== "string" || !value.trim()) return null;
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+  const from = parseDate(query.from);
+  if (from) conditions.push(gte(aiUsageLog.createdAt, from));
+  const to = parseDate(query.to);
+  if (to) {
+    // A date-only "to" (2026-07-21) means "through the end of that day".
+    const end =
+      typeof query.to === "string" && query.to.trim().length === 10
+        ? new Date(to.getTime() + 86_400_000)
+        : to;
+    conditions.push(lt(aiUsageLog.createdAt, end));
+  }
+  return conditions.length > 0 ? and(...conditions) : undefined;
+}
+
 router.get("/admin/ai-usage/log", async (req: AuthRequest, res) => {
   try {
     const limitRaw = Number(req.query.limit);
@@ -2625,44 +2669,7 @@ router.get("/admin/ai-usage/log", async (req: AuthRequest, res) => {
     const pageRaw = Number(req.query.page);
     const page = Number.isFinite(pageRaw) ? Math.max(Math.round(pageRaw), 1) : 1;
 
-    const conditions: SQL[] = [];
-    const status = typeof req.query.status === "string" ? req.query.status : "";
-    if (status === "completed" || status === "failed") {
-      conditions.push(eq(aiUsageLog.status, status));
-    }
-    const operation = typeof req.query.operation === "string" ? req.query.operation : "";
-    if (["check", "chat", "admin-test"].includes(operation)) {
-      conditions.push(eq(aiUsageLog.operation, operation));
-    }
-    const model = typeof req.query.model === "string" ? req.query.model.trim() : "";
-    if (model) conditions.push(eq(aiUsageLog.model, model));
-    const search = typeof req.query.search === "string" ? req.query.search.trim() : "";
-    if (search) {
-      const pattern = `%${search}%`;
-      const match = or(
-        ilike(users.email, pattern),
-        ilike(users.firstName, pattern),
-        ilike(users.lastName, pattern),
-      );
-      if (match) conditions.push(match);
-    }
-    const parseDate = (value: unknown): Date | null => {
-      if (typeof value !== "string" || !value.trim()) return null;
-      const d = new Date(value);
-      return Number.isNaN(d.getTime()) ? null : d;
-    };
-    const from = parseDate(req.query.from);
-    if (from) conditions.push(gte(aiUsageLog.createdAt, from));
-    const to = parseDate(req.query.to);
-    if (to) {
-      // A date-only "to" (2026-07-21) means "through the end of that day".
-      const end =
-        typeof req.query.to === "string" && req.query.to.trim().length === 10
-          ? new Date(to.getTime() + 86_400_000)
-          : to;
-      conditions.push(lt(aiUsageLog.createdAt, end));
-    }
-    const whereExpr = conditions.length > 0 ? and(...conditions) : undefined;
+    const whereExpr = buildAiUsageLogWhere(req.query as Record<string, unknown>);
 
     const entries = await db
       .select({
@@ -2748,6 +2755,141 @@ router.get("/admin/ai-usage/log", async (req: AuthRequest, res) => {
   } catch (err) {
     req.log.error({ err }, "AI usage log error");
     res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// CSV export of the AI request log — same filters as GET /admin/ai-usage/log,
+// but ALL matching rows (capped at 50 000), streamed in batches. Polish
+// headers, ';' separator and a UTF-8 BOM so Polish Excel opens it correctly.
+const AI_LOG_EXPORT_MAX_ROWS = 50_000;
+const AI_LOG_EXPORT_BATCH = 2_000;
+
+router.get("/admin/ai-usage/log.csv", async (req: AuthRequest, res) => {
+  try {
+    const whereExpr = buildAiUsageLogWhere(req.query as Record<string, unknown>);
+
+    // Excel (PL) expects ';' — fields containing ';', '"' or newlines get quoted.
+    const csvField = (value: unknown): string => {
+      if (value === null || value === undefined) return "";
+      const s = value instanceof Date ? value.toISOString() : String(value);
+      return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csvRow = (fields: unknown[]): string => fields.map(csvField).join(";") + "\r\n";
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="logi-ai-${new Date().toISOString().slice(0, 10)}.csv"`,
+    );
+    // UTF-8 BOM so Polish Excel detects the encoding (ą, ł, ż in headers/names).
+    res.write("\uFEFF");
+    res.write(
+      csvRow([
+        "Data",
+        "Uczeń",
+        "E-mail",
+        "Operacja",
+        "Model",
+        "Status",
+        "Kod HTTP",
+        "Próby",
+        "Uratowane ponowieniem",
+        "Błędy 429",
+        "Błędy 503",
+        "Tokeny wejściowe",
+        "Tokeny wyjściowe",
+        "Tokeny łącznie",
+        "Koszt (grosze)",
+        "Czas (ms)",
+        "Komunikat błędu",
+        "Zadanie",
+        "Temat",
+        "Rozmiar obrazka (B)",
+      ]),
+    );
+
+    const OPERATION_PL: Record<string, string> = {
+      check: "Sprawdzenie",
+      chat: "Czat",
+      "admin-test": "Test admina",
+    };
+    const STATUS_PL: Record<string, string> = { completed: "Udane", failed: "Błąd" };
+
+    let exported = 0;
+    while (exported < AI_LOG_EXPORT_MAX_ROWS) {
+      const batchLimit = Math.min(AI_LOG_EXPORT_BATCH, AI_LOG_EXPORT_MAX_ROWS - exported);
+      const rows = await db
+        .select({
+          createdAt: aiUsageLog.createdAt,
+          operation: aiUsageLog.operation,
+          model: aiUsageLog.model,
+          status: aiUsageLog.status,
+          httpStatus: aiUsageLog.httpStatus,
+          attempts: aiUsageLog.attempts,
+          rescuedByRetry: aiUsageLog.rescuedByRetry,
+          transient429: aiUsageLog.transient429,
+          transient503: aiUsageLog.transient503,
+          inputTokens: aiUsageLog.inputTokens,
+          outputTokens: aiUsageLog.outputTokens,
+          totalTokens: aiUsageLog.totalTokens,
+          estCostGrosz: sql<number | null>`round(${aiUsageLog.estCostGrosz}::numeric, 4)::float`,
+          latencyMs: aiUsageLog.latencyMs,
+          errorMessage: aiUsageLog.errorMessage,
+          userEmail: users.email,
+          userName: sql<string | null>`nullif(trim(concat(${users.firstName}, ' ', ${users.lastName})), '')`,
+          requestBytes: aiChecks.requestBytes,
+          taskTitle: tasks.title,
+          topicTitle: topics.title,
+        })
+        .from(aiUsageLog)
+        .leftJoin(users, eq(aiUsageLog.userId, users.id))
+        .leftJoin(aiChecks, eq(aiUsageLog.aiCheckId, aiChecks.id))
+        .leftJoin(tasks, eq(aiChecks.taskId, tasks.id))
+        .leftJoin(topics, eq(aiChecks.topicId, topics.id))
+        .where(whereExpr)
+        .orderBy(desc(aiUsageLog.createdAt), desc(aiUsageLog.id))
+        .limit(batchLimit)
+        .offset(exported);
+
+      for (const row of rows) {
+        res.write(
+          csvRow([
+            row.createdAt,
+            row.userName,
+            row.userEmail,
+            OPERATION_PL[row.operation] ?? row.operation,
+            row.model,
+            STATUS_PL[row.status] ?? row.status,
+            row.httpStatus,
+            row.attempts,
+            row.rescuedByRetry ? "tak" : "nie",
+            row.transient429,
+            row.transient503,
+            row.inputTokens,
+            row.outputTokens,
+            row.totalTokens,
+            // Polish Excel expects ',' as the decimal separator.
+            row.estCostGrosz != null ? String(row.estCostGrosz).replace(".", ",") : "",
+            row.latencyMs,
+            row.errorMessage,
+            row.taskTitle,
+            row.topicTitle,
+            row.requestBytes,
+          ]),
+        );
+      }
+      exported += rows.length;
+      if (rows.length < batchLimit) break;
+    }
+
+    res.end();
+  } catch (err) {
+    req.log.error({ err }, "AI usage log CSV export error");
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Błąd serwera" });
+    } else {
+      res.end();
+    }
   }
 });
 

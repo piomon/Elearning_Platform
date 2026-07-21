@@ -2161,6 +2161,19 @@ export const ListAiUsageLogResponse = zod.object({
 })
 
 
+/**
+ * Streams ALL AI log rows matching the same filters as /admin/ai-usage/log (capped at 50 000) as a CSV file — Polish headers, ';' separator, UTF-8 BOM for Excel.
+ */
+export const ExportAiUsageLogCsvQueryParams = zod.object({
+  "status": zod.enum(['completed', 'failed']).optional(),
+  "operation": zod.enum(['check', 'chat', 'admin-test']).optional(),
+  "model": zod.coerce.string().optional(),
+  "search": zod.coerce.string().optional().describe('Case-insensitive substring match on student e-mail or name.'),
+  "from": zod.coerce.string().optional().describe('ISO date (inclusive start of the created-at range).'),
+  "to": zod.coerce.string().optional().describe('ISO date (inclusive when date-only, e.g. 2026-07-21).')
+})
+
+
 export const ListDiscountsResponseItem = zod.object({
   "id": zod.number(),
   "code": zod.string(),
