@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { exportToBlob } from "@excalidraw/excalidraw";
+import { exportToBlob, getCommonBounds } from "@excalidraw/excalidraw";
 import type { Task } from "@workspace/api-client-react";
 import { useCheckTask, useGetAiProgress } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,16 @@ import {
 } from "lucide-react";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+
+// Deterministyczna rozdzielczość eksportu do sprawdzania AI. Domyślny
+// appState.exportScale Excalidrawa podąża za devicePixelRatio urządzenia
+// (×2 na iPhone'ach/Retina, ×3 na części Androidów), więc TEN SAM rysunek
+// potrafił ważyć kilkukrotnie więcej zależnie od telefonu ucznia — limit
+// maxWidthOrHeight=1600 skaluje W DÓŁ tylko prace większe niż 1600 px.
+// Eksportujemy w ×1; jedynie drobne szkice (poniżej progu) w ×2, żeby pismo
+// odręczne pozostało czytelne dla Gemini. Eksport dodaje 2×10 px marginesu,
+// stąd próg 780: (780 + 20) × 2 = 1600 — także ta ścieżka mieści się w limicie.
+const SMALL_SKETCH_MAX_PX = 780;
 
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -119,12 +129,16 @@ function WhiteboardTask({ task }: { task: Task }) {
 
     let imageBase64: string;
     try {
+      const [minX, minY, maxX, maxY] = getCommonBounds(elements);
+      const contentPx = Math.max(maxX - minX, maxY - minY);
+      const exportScale = contentPx < SMALL_SKETCH_MAX_PX ? 2 : 1;
       const blob = await exportToBlob({
         elements: [...elements],
         appState: {
           ...api.getAppState(),
           exportBackground: true,
           viewBackgroundColor: "#ffffff",
+          exportScale,
         },
         files: api.getFiles(),
         mimeType: "image/png",

@@ -59,6 +59,12 @@ const RETIRED_MODEL_RE =
 // unlike pinned names. Used when config points at a dead model.
 export const FALLBACK_AI_MODEL = "gemini-flash-latest";
 
+// Rescue pool for peak-hour overload: the Flash-Lite rolling alias runs on a
+// separate (higher-limit) capacity pool that is usually still free while the
+// main Flash model answers 429/503. Used ONLY after a model exhausts its full
+// retry loop on a transient error — see the /ai/check route.
+export const OVERLOAD_FALLBACK_AI_MODEL = "gemini-flash-lite-latest";
+
 // The model actually sent to Gemini: the admin override when set, otherwise the
 // environment default. Keeps a blank "model" field meaning "use env default".
 // Retired models are silently upgraded to FALLBACK_AI_MODEL so the feature

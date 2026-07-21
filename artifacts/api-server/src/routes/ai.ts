@@ -15,17 +15,24 @@ import {
   isTopicPublished,
 } from "../lib/access";
 import { config, isGeminiConfigured } from "../config/env";
-import { getAiSettings, resolveAiModel, FALLBACK_AI_MODEL } from "../lib/ai-settings";
+import {
+  getAiSettings,
+  resolveAiModel,
+  FALLBACK_AI_MODEL,
+  OVERLOAD_FALLBACK_AI_MODEL,
+} from "../lib/ai-settings";
 import {
   AI_PROFILES,
   AiCallFailure,
   AiOperationAborted,
   callGeminiWithRetry,
   isModelUnavailable,
+  isTransientGeminiError,
   mapGeminiError,
   type AiAttemptLog,
   type AiCallOutcome,
   type AiProgressUpdate,
+  type AiRetryProfile,
 } from "../lib/gemini";
 import {
   beginAiProgress,
@@ -283,9 +290,10 @@ router.post(
         // for the SAME task share one upstream call instead of multiplying it.
         const imageHash = createHash("sha256").update(image.data).digest("hex").slice(0, 16);
 
-        const runModel = (modelName: string) =>
+        const runModel = (modelName: string, profile?: Partial<AiRetryProfile>) =>
           callGeminiWithRetry<GenerateContentResult>({
             operation: "check",
+            profile,
             signal: abortController.signal,
             dedupeKey: `check:${userId}:${taskId}:${imageHash}`,
             onAttempt,
@@ -302,31 +310,74 @@ router.post(
               ),
           });
 
+        // Attempts from an exhausted model run are pushed here ONLY when we
+        // chain to another model — a terminal error keeps carrying its own
+        // attemptLog to the outer catch, which appends it there. Pushing AND
+        // rethrowing the same error would double-count attempts in the stats.
+        // Logs shared from a deduped in-flight call stay out entirely: their
+        // accounting owner already records them.
         const earlierAttempts: AiAttemptLog[] = [];
+        const chainAttempts = (err: unknown) => {
+          if (err instanceof AiCallFailure && !err.sharedFromDedupe) {
+            earlierAttempts.push(...err.attemptLog);
+          }
+        };
+
+        // Last-resort rescue for peak-hour overload: when a model exhausts its
+        // FULL retry loop on a transient error (429/5xx/timeout), try ONCE on
+        // the Flash-Lite alias — a separate capacity pool that is usually
+        // still free while the main Flash model is saturated. A single
+        // attempt, not a second marathon: the student has already waited out
+        // one retry loop. Deliberately absent from the admin model test
+        // (there the true error is the point) and from the chat route
+        // (already on the lite model).
+        const rescueOnOverload = async (
+          err: unknown,
+        ): Promise<AiCallOutcome<GenerateContentResult>> => {
+          if (
+            err instanceof AiOperationAborted ||
+            !isTransientGeminiError(err) ||
+            model === OVERLOAD_FALLBACK_AI_MODEL
+          ) {
+            throw err;
+          }
+          chainAttempts(err);
+          req.log.warn(
+            { model, err },
+            "Gemini overloaded after full retry loop — one rescue attempt on the lite model",
+          );
+          model = OVERLOAD_FALLBACK_AI_MODEL;
+          return runModel(model, { maxAttempts: 1 });
+        };
+
         let outcome: AiCallOutcome<GenerateContentResult>;
         try {
           try {
             outcome = await runModel(model);
           } catch (aiErr) {
-            if (aiErr instanceof AiCallFailure) earlierAttempts.push(...aiErr.attemptLog);
-            // Self-healing: when Google rejects the configured model name
+            if (aiErr instanceof AiOperationAborted) throw aiErr;
+            // Self-healing: when Google rejects the configured model NAME
             // (retired or gated — exactly how gemini-1.5-flash broke this
-            // feature in production), retry once with the rolling fallback
-            // alias instead of failing the student. This is the ONLY 404 that
-            // gets a second chance; plain retry never touches 4xx.
-            if (
-              aiErr instanceof AiOperationAborted ||
-              !isModelUnavailable(aiErr) ||
-              model === FALLBACK_AI_MODEL
-            ) {
-              throw aiErr;
+            // feature in production), redo the full retry loop on the rolling
+            // fallback alias. This is the ONLY 4xx that gets a second model;
+            // plain retry never touches 4xx. Transient errors fall through to
+            // the single-shot overload rescue instead.
+            if (isModelUnavailable(aiErr) && model !== FALLBACK_AI_MODEL) {
+              chainAttempts(aiErr);
+              req.log.warn(
+                { model, err: aiErr },
+                "Gemini model unavailable — retrying with fallback model",
+              );
+              model = FALLBACK_AI_MODEL;
+              try {
+                outcome = await runModel(model);
+              } catch (fallbackErr) {
+                if (fallbackErr instanceof AiOperationAborted) throw fallbackErr;
+                outcome = await rescueOnOverload(fallbackErr);
+              }
+            } else {
+              outcome = await rescueOnOverload(aiErr);
             }
-            req.log.warn(
-              { model, err: aiErr },
-              "Gemini model unavailable — retrying with fallback model",
-            );
-            model = FALLBACK_AI_MODEL;
-            outcome = await runModel(model);
           }
         } catch (aiErr) {
           if (requestId) finishAiProgress(requestId, "failed");

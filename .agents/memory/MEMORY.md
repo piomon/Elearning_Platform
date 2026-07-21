@@ -31,3 +31,5 @@
 - [Dev DB push vs migrations](dev-db-push-vs-migrations.md) — dev DB is push-managed (`migrate` fails there); always generate the migration file for VPS AND push-force to dev.
 - [Test DB shared state](test-db-shared-state.md) — settings singletons (ai_settings) aren't truncated between suites; gated-route tests must reset them in beforeEach or they 403 mysteriously.
 - [Verify prod deploy w/o SSH](verify-prod-deploy-externally.md) — grep live bundle for new-only strings + asset Last-Modified; healthy /api/healthz ⇒ migrations ran; prod Clerk key is pk_test (dev instance).
+- [Excalidraw export scale](excalidraw-export-scale.md) — exportScale defaults to devicePixelRatio; maxWidthOrHeight only downscales — pin exportScale explicitly on every export path.
+- [AI overload rescue](ai-overload-rescue.md) — 404→flash full loop, transient exhaust→ONE lite attempt; push attemptLogs only when chaining onward or stats double-count.
