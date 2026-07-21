@@ -2804,8 +2804,9 @@ router.get("/admin/ai-checks/:id/image", async (req: AuthRequest, res) => {
 // CSV export of the AI request log — same filters as GET /admin/ai-usage/log,
 // but ALL matching rows (capped at 50 000), streamed in batches. Polish
 // headers, ';' separator and a UTF-8 BOM so Polish Excel opens it correctly.
-const AI_LOG_EXPORT_MAX_ROWS = 50_000;
-const AI_LOG_EXPORT_BATCH = 2_000;
+// Exported as a mutable object so tests can shrink the cap and prove the
+// export truncates instead of running out of memory on a huge table.
+export const aiLogExportLimits = { maxRows: 50_000, batch: 2_000 };
 
 router.get("/admin/ai-usage/log.csv", async (req: AuthRequest, res) => {
   try {
@@ -2859,8 +2860,8 @@ router.get("/admin/ai-usage/log.csv", async (req: AuthRequest, res) => {
     const STATUS_PL: Record<string, string> = { completed: "Udane", failed: "Błąd" };
 
     let exported = 0;
-    while (exported < AI_LOG_EXPORT_MAX_ROWS) {
-      const batchLimit = Math.min(AI_LOG_EXPORT_BATCH, AI_LOG_EXPORT_MAX_ROWS - exported);
+    while (exported < aiLogExportLimits.maxRows) {
+      const batchLimit = Math.min(aiLogExportLimits.batch, aiLogExportLimits.maxRows - exported);
       const rows = await db
         .select({
           createdAt: aiUsageLog.createdAt,
