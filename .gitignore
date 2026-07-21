@@ -65,3 +65,6 @@ backups/
 
 # Surowe wklejki promptów w attached_assets (nie są częścią aplikacji).
 attached_assets/Pasted-*.txt
+
+# Zdjęcia rozwiązań uczniów zapisywane przez API (PII) — poza Dockerem lądują w ./storage
+artifacts/api-server/storage/

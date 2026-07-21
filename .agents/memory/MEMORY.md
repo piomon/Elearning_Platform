@@ -34,3 +34,4 @@
 - [Excalidraw export scale](excalidraw-export-scale.md) — exportScale defaults to devicePixelRatio; maxWidthOrHeight only downscales — pin exportScale explicitly on every export path.
 - [AI usage log retention](ai-usage-retention.md) — rollup+delete in ONE tx over the same cutoff = idempotent; retention floor 4 months so the 90-day admin stats window always reads raw rows.
 - [AI overload rescue](ai-overload-rescue.md) — 404→flash full loop, transient exhaust→ONE lite attempt; push attemptLogs only when chaining onward or stats double-count.
+- [Task-merge conflict avoidance](task-merge-lock.md) — never edit regions an IMPLEMENTED/MERGING task touches; merge lock waits for turn end, land fixes after the merge.
