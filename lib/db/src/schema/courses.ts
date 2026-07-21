@@ -1,4 +1,4 @@
-import { pgTable, serial, text, boolean, integer, timestamp, jsonb, pgEnum, uniqueIndex, index, numeric } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, boolean, integer, timestamp, jsonb, pgEnum, uniqueIndex, index, numeric, date, bigint } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 // Publication lifecycle for educational content. `published` is the only state
@@ -244,5 +244,37 @@ export const aiUsageLog = pgTable(
     // The admin log browses newest-first with arbitrary filters; keep the
     // default (unfiltered) listing index-backed as the table grows.
     index("ai_usage_log_created_at_id_idx").on(table.createdAt, table.id),
+  ],
+);
+
+// Retention rollup for ai_usage_log (see api-server lib/ai-usage-retention.ts):
+// raw rows older than the retention window are summed into one row per
+// (day, operation, model) and then deleted, so aggregate cost/token history
+// survives forever while the raw table stays bounded. Idempotency comes from
+// the retention job's transaction (a raw row is aggregated exactly once,
+// because it is deleted in the same transaction that counted it) — the unique
+// index only merges multiple runs onto the same daily row additively.
+export const aiUsageDailyStats = pgTable(
+  "ai_usage_daily_stats",
+  {
+    id: serial("id").primaryKey(),
+    day: date("day").notNull(), // UTC calendar day of the aggregated raw rows
+    operation: text("operation").notNull(), // "check" | "chat" | "admin-test"
+    model: text("model").notNull(),
+    requests: integer("requests").notNull().default(0),
+    completed: integer("completed").notNull().default(0),
+    failed: integer("failed").notNull().default(0),
+    rescuedByRetry: integer("rescued_by_retry").notNull().default(0),
+    transient429: integer("transient_429").notNull().default(0),
+    transient503: integer("transient_503").notNull().default(0),
+    inputTokens: bigint("input_tokens", { mode: "number" }).notNull().default(0),
+    outputTokens: bigint("output_tokens", { mode: "number" }).notNull().default(0),
+    totalTokens: bigint("total_tokens", { mode: "number" }).notNull().default(0),
+    estCostGrosz: numeric("est_cost_grosz", { precision: 14, scale: 6 }).notNull().default("0"),
+    latencyMsSum: bigint("latency_ms_sum", { mode: "number" }).notNull().default(0),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("ai_usage_daily_stats_day_op_model_idx").on(table.day, table.operation, table.model),
   ],
 );

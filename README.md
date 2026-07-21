@@ -159,6 +159,7 @@ niej) · — = opcjonalna.
 | `GEMINI_MODEL` | — | Model Gemini do **sprawdzania zadań** (puste = alias `gemini-flash-latest`, zawsze aktualny; wycofane modele są automatycznie zastępowane). |
 | `GEMINI_CHAT_MODEL` | — | Model Gemini dla **asystenta tekstowego** lekcji (puste = tani `gemini-flash-lite-latest`; wycofane modele są automatycznie zastępowane). |
 | `AI_USD_PLN_RATE` | — | Kurs USD→PLN do szacowania kosztów AI w statystykach admina (domyślnie `4.0`). |
+| `AI_USAGE_RETENTION_MONTHS` | — | Ile miesięcy trzymać surowe wpisy dziennika żądań AI, zanim zostaną zsumowane do statystyk dziennych i usunięte (domyślnie `12`, minimum `4`). |
 | `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` | prod | Serwer SMTP do wysyłki e-mail. |
 | `SMTP_PORT` | — | Port SMTP (domyślnie `587`). |
 | `CONTACT_FROM_EMAIL` | prod | Adres nadawcy (From) wiadomości. |

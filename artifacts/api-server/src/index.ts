@@ -1,5 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { scheduleAiUsageRetention } from "./lib/ai-usage-retention";
 
 const rawPort = process.env["PORT"];
 
@@ -22,4 +23,7 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+
+  // Daily ai_usage_log retention (rollup into ai_usage_daily_stats + delete).
+  scheduleAiUsageRetention();
 });

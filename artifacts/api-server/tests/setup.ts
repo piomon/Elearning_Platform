@@ -54,6 +54,7 @@ const TABLES = [
   "pricing_settings",
   "ai_checks",
   "ai_usage_log",
+  "ai_usage_daily_stats",
   "quiz_attempt_answers",
   "quiz_attempts",
   "learning_progress",

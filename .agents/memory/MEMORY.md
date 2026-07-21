@@ -32,4 +32,5 @@
 - [Test DB shared state](test-db-shared-state.md) — settings singletons (ai_settings) aren't truncated between suites; gated-route tests must reset them in beforeEach or they 403 mysteriously.
 - [Verify prod deploy w/o SSH](verify-prod-deploy-externally.md) — grep live bundle for new-only strings + asset Last-Modified; healthy /api/healthz ⇒ migrations ran; prod Clerk key is pk_test (dev instance).
 - [Excalidraw export scale](excalidraw-export-scale.md) — exportScale defaults to devicePixelRatio; maxWidthOrHeight only downscales — pin exportScale explicitly on every export path.
+- [AI usage log retention](ai-usage-retention.md) — rollup+delete in ONE tx over the same cutoff = idempotent; retention floor 4 months so the 90-day admin stats window always reads raw rows.
 - [AI overload rescue](ai-overload-rescue.md) — 404→flash full loop, transient exhaust→ONE lite attempt; push attemptLogs only when chaining onward or stats double-count.

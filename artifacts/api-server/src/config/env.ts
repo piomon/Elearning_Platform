@@ -145,6 +145,15 @@ export const config = {
       const raw = Number(process.env.AI_USD_PLN_RATE);
       return Number.isFinite(raw) && raw > 0 ? raw : 4.0;
     })(),
+    // How long raw ai_usage_log rows (with full attemptLog JSONB) are kept
+    // before being rolled up into ai_usage_daily_stats and deleted. Floor of
+    // 4 months: the admin stats window maxes out at 90 days, so raw rows must
+    // always cover it or /admin/ai statistics would lie after cleanup.
+    usageRetentionMonths: (() => {
+      const raw = Number(process.env.AI_USAGE_RETENTION_MONTHS);
+      if (!Number.isFinite(raw)) return 12;
+      return Math.min(Math.max(Math.round(raw), 4), 120);
+    })(),
   },
   paynow: {
     apiKey: readOptional("PAYNOW_API_KEY"),
