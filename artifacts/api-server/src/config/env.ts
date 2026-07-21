@@ -154,6 +154,15 @@ export const config = {
       if (!Number.isFinite(raw)) return 12;
       return Math.min(Math.max(Math.round(raw), 4), 120);
     })(),
+    // How long student AI-check photos are kept on disk before being deleted.
+    // Default 90 days (~5 MB per photo → ~13 GB per 100 daily checks/month).
+    // Floor 1 day; ceiling 3 650 days (10 years). Set AI_CHECK_IMAGE_RETENTION_DAYS
+    // in the environment to override.
+    checkImageRetentionDays: (() => {
+      const raw = Number(process.env.AI_CHECK_IMAGE_RETENTION_DAYS);
+      if (!Number.isFinite(raw)) return 90;
+      return Math.min(Math.max(Math.round(raw), 1), 3650);
+    })(),
   },
   paynow: {
     apiKey: readOptional("PAYNOW_API_KEY"),
