@@ -2005,7 +2005,13 @@ export const GetAiSettingsResponse = zod.object({
   "lastAt": zod.string().nullable(),
   "configuredModel": zod.string(),
   "fallbackModel": zod.string()
-}).nullable().describe('Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged.')
+}).nullable().describe('Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged.'),
+  "overloadRescue": zod.object({
+  "rescued": zod.number(),
+  "failed": zod.number(),
+  "lastAt": zod.string().nullable(),
+  "rescueModel": zod.string()
+}).nullable().describe('Non-null when the peak-hour overload rescue engaged in the last 24 hours — checks that exhausted the full retry loop on an overloaded model (429\/5xx) and were retried once on the Flash-Lite alias. `rescued` completed on the lite model, `failed` still errored. Null when the window is clean.')
 })
 
 
@@ -2034,7 +2040,13 @@ export const UpdateAiSettingsResponse = zod.object({
   "lastAt": zod.string().nullable(),
   "configuredModel": zod.string(),
   "fallbackModel": zod.string()
-}).nullable().describe('Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged.')
+}).nullable().describe('Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged.'),
+  "overloadRescue": zod.object({
+  "rescued": zod.number(),
+  "failed": zod.number(),
+  "lastAt": zod.string().nullable(),
+  "rescueModel": zod.string()
+}).nullable().describe('Non-null when the peak-hour overload rescue engaged in the last 24 hours — checks that exhausted the full retry loop on an overloaded model (429\/5xx) and were retried once on the Flash-Lite alias. `rescued` completed on the lite model, `failed` still errored. Null when the window is clean.')
 })
 
 

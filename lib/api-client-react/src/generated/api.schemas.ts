@@ -1425,6 +1425,16 @@ export type AiSettingsFallbackAlert = {
   fallbackModel: string;
 } | null;
 
+/**
+ * Non-null when the peak-hour overload rescue engaged in the last 24 hours — checks that exhausted the full retry loop on an overloaded model (429/5xx) and were retried once on the Flash-Lite alias. `rescued` completed on the lite model, `failed` still errored. Null when the window is clean.
+ */
+export type AiSettingsOverloadRescue = {
+  rescued: number;
+  failed: number;
+  lastAt: string | null;
+  rescueModel: string;
+} | null;
+
 export interface AiSettings {
   enabled: boolean;
   model: string;
@@ -1437,6 +1447,8 @@ export interface AiSettings {
   envModel: string;
   /** Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged. */
   fallbackAlert: AiSettingsFallbackAlert;
+  /** Non-null when the peak-hour overload rescue engaged in the last 24 hours — checks that exhausted the full retry loop on an overloaded model (429/5xx) and were retried once on the Flash-Lite alias. `rescued` completed on the lite model, `failed` still errored. Null when the window is clean. */
+  overloadRescue: AiSettingsOverloadRescue;
 }
 
 export interface AiSettingsInput {

@@ -14,7 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { opts } from "@/components/admin/shared";
-import { Sparkles, Save, CheckCircle2, AlertTriangle, Loader2, Play, BarChart3 } from "lucide-react";
+import { Sparkles, Save, CheckCircle2, AlertTriangle, Loader2, Play, BarChart3, LifeBuoy } from "lucide-react";
 
 const OPERATION_LABELS: Record<string, string> = {
   check: "Sprawdzanie zadań (obraz)",
@@ -137,6 +137,33 @@ export default function AdminAiSettings() {
                     Wyczyść pole modelu
                   </Button>
                 )}
+              </div>
+            </div>
+          )}
+
+          {data?.overloadRescue && (
+            <div className="flex items-start gap-3 rounded-2xl border-2 border-sky-500/30 bg-sky-500/5 p-5">
+              <LifeBuoy className="w-5 h-5 text-sky-600 shrink-0 mt-0.5" />
+              <div className="space-y-1.5 text-sm">
+                <p className="font-bold text-foreground">Model rezerwowy ratuje sprawdzenia w godzinach szczytu</p>
+                <p className="text-muted-foreground">
+                  W ciągu ostatnich 24 godzin, po wyczerpaniu ponowień na przeciążonym modelu (błędy 429/5xx),
+                  model rezerwowy <span className="font-mono text-foreground">{data.overloadRescue.rescueModel}</span> uratował{" "}
+                  <span className="font-semibold text-foreground">{data.overloadRescue.rescued}</span>{" "}
+                  {data.overloadRescue.rescued === 1 ? "sprawdzenie" : "sprawdzeń"}
+                  {data.overloadRescue.failed > 0 && (
+                    <>
+                      , a <span className="font-semibold text-foreground">{data.overloadRescue.failed}</span> mimo to
+                      zakończyło się błędem
+                    </>
+                  )}
+                  {data.overloadRescue.lastAt && (
+                    <> (ostatnio: {new Date(data.overloadRescue.lastAt).toLocaleString("pl-PL")})</>
+                  )}.
+                </p>
+                <p className="text-muted-foreground">
+                  To znak, że dzienne przeciążenia Google wciąż dotykają uczniów. Wskaźnik zniknie, gdy przeciążenia ustaną.
+                </p>
               </div>
             </div>
           )}

@@ -47,7 +47,7 @@ import {
 import { isBunnyConfigured, isGeminiConfigured, config } from "../config/env";
 import { buildVideoEmbedUrl } from "../lib/video";
 import { getPricingSettings, getSeoSettings } from "../lib/settings";
-import { getAiSettings, resolveAiModel, getFallbackAlert, DEFAULT_AI_SETTINGS } from "../lib/ai-settings";
+import { getAiSettings, resolveAiModel, getFallbackAlert, getOverloadRescueStats, DEFAULT_AI_SETTINGS } from "../lib/ai-settings";
 import {
   callGeminiWithRetry,
   mapGeminiError,
@@ -2444,6 +2444,9 @@ router.get("/admin/ai-settings", async (req: AuthRequest, res) => {
       // Non-null when recent checks ran on the fallback model — the admin UI
       // shows a "configured model stopped working" warning.
       fallbackAlert: await getFallbackAlert(s.model),
+      // Non-null when the peak-hour overload rescue (lite model) engaged in
+      // the last 24 h — the admin UI shows how many checks it saved.
+      overloadRescue: await getOverloadRescueStats(),
     });
   } catch (err) {
     req.log.error({ err }, "Get AI settings error");
@@ -2477,6 +2480,7 @@ router.put("/admin/ai-settings", async (req: AuthRequest, res) => {
       // Recomputed against the NEW model value so the warning clears (or
       // appears) immediately in the response to the save.
       fallbackAlert: await getFallbackAlert(row.model),
+      overloadRescue: await getOverloadRescueStats(),
     });
   } catch (err) {
     req.log.error({ err }, "Update AI settings error");

@@ -35,6 +35,7 @@ export * from './aiProgressPhase';
 export * from './aiSettings';
 export * from './aiSettingsFallbackAlert';
 export * from './aiSettingsInput';
+export * from './aiSettingsOverloadRescue';
 export * from './aiTestInput';
 export * from './aiTestResult';
 export * from './aiUsageOperationStats';

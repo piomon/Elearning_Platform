@@ -1,6 +1,6 @@
 import { db } from "@workspace/db";
-import { aiSettings, aiChecks } from "@workspace/db";
-import { and, eq, gte, sql } from "drizzle-orm";
+import { aiSettings, aiChecks, aiUsageLog } from "@workspace/db";
+import { and, eq, gt, gte, sql } from "drizzle-orm";
 import { config } from "../config/env";
 
 // Global AI configuration is a singleton row (id = 1). The admin edits it in the
@@ -121,5 +121,52 @@ export async function getFallbackAlert(
     lastAt: row.lastAt ? new Date(row.lastAt).toISOString() : null,
     configuredModel: configured,
     fallbackModel: FALLBACK_AI_MODEL,
+  };
+}
+
+// ─── Overload-rescue stats ────────────────────────────────────────────────────
+
+export type AiOverloadRescueStats = {
+  /** Checks the lite model saved in the last 24 h (completed after chaining). */
+  rescued: number;
+  /** Checks that still failed even on the lite model. */
+  failed: number;
+  /** ISO timestamp of the most recent rescue attempt (either outcome). */
+  lastAt: string | null;
+  /** The rolling alias the rescue runs on. */
+  rescueModel: string;
+};
+
+// How often the peak-hour overload rescue (one attempt on the Flash-Lite
+// alias after a model exhausts its full retry loop on 429/5xx) is doing the
+// work — the best signal that Google's daily overloads still reach students.
+// A rescue row is an ai_usage_log "check" row whose model is the lite alias
+// with attempts > 1: the chained attemptLog from the exhausted model
+// guarantees >1, while attempts = 1 means the admin simply configured the
+// lite alias as the main model (not a rescue). Returns null when the last
+// 24 h are clean, so the indicator disappears the moment overloads stop.
+export async function getOverloadRescueStats(): Promise<AiOverloadRescueStats | null> {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const [row] = await db
+    .select({
+      rescued: sql<number>`count(*) filter (where ${aiUsageLog.status} = 'completed')::int`,
+      failed: sql<number>`count(*) filter (where ${aiUsageLog.status} = 'failed')::int`,
+      lastAt: sql<Date | string | null>`max(${aiUsageLog.createdAt})`,
+    })
+    .from(aiUsageLog)
+    .where(
+      and(
+        eq(aiUsageLog.operation, "check"),
+        eq(aiUsageLog.model, OVERLOAD_FALLBACK_AI_MODEL),
+        gt(aiUsageLog.attempts, 1),
+        gte(aiUsageLog.createdAt, since),
+      ),
+    );
+  if (!row || row.rescued + row.failed === 0) return null;
+  return {
+    rescued: row.rescued,
+    failed: row.failed,
+    lastAt: row.lastAt ? new Date(row.lastAt).toISOString() : null,
+    rescueModel: OVERLOAD_FALLBACK_AI_MODEL,
   };
 }

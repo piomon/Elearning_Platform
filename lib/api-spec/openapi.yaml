@@ -4488,7 +4488,7 @@ components:
 
     AiSettings:
       type: object
-      required: [enabled, model, systemPrompt, evalInstruction, tone, maxResponseLength, errorMessage, keyConfigured, envModel, fallbackAlert]
+      required: [enabled, model, systemPrompt, evalInstruction, tone, maxResponseLength, errorMessage, keyConfigured, envModel, fallbackAlert, overloadRescue]
       properties:
         enabled:
           type: boolean
@@ -4525,6 +4525,26 @@ components:
             configuredModel:
               type: string
             fallbackModel:
+              type: string
+        overloadRescue:
+          description: >-
+            Non-null when the peak-hour overload rescue engaged in the last
+            24 hours — checks that exhausted the full retry loop on an
+            overloaded model (429/5xx) and were retried once on the
+            Flash-Lite alias. `rescued` completed on the lite model,
+            `failed` still errored. Null when the window is clean.
+          type: object
+          nullable: true
+          required: [rescued, failed, lastAt, rescueModel]
+          properties:
+            rescued:
+              type: integer
+            failed:
+              type: integer
+            lastAt:
+              type: string
+              nullable: true
+            rescueModel:
               type: string
 
     AiSettingsInput:

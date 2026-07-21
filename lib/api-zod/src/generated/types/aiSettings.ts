@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { AiSettingsFallbackAlert } from './aiSettingsFallbackAlert';
+import type { AiSettingsOverloadRescue } from './aiSettingsOverloadRescue';
 
 export interface AiSettings {
   enabled: boolean;
@@ -19,4 +20,6 @@ export interface AiSettings {
   envModel: string;
   /** Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged. */
   fallbackAlert: AiSettingsFallbackAlert;
+  /** Non-null when the peak-hour overload rescue engaged in the last 24 hours — checks that exhausted the full retry loop on an overloaded model (429/5xx) and were retried once on the Flash-Lite alias. `rescued` completed on the lite model, `failed` still errored. Null when the window is clean. */
+  overloadRescue: AiSettingsOverloadRescue;
 }
