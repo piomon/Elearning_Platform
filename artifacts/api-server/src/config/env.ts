@@ -125,6 +125,16 @@ export const config = {
   storageDir: path.resolve(
     process.env.STORAGE_DIR?.trim() || path.join(process.cwd(), "storage"),
   ),
+  // Free-disk warning threshold (percent of the filesystem holding storageDir).
+  // When free space drops below this percentage, /admin/storage/stats flags
+  // lowDisk and the admin panel shows a warning banner. Default 10 %, clamped
+  // to 1–50 so a typo can never silence the warning entirely or make it
+  // permanently on.
+  storageWarnFreePercent: (() => {
+    const raw = Number(process.env.STORAGE_WARN_FREE_PERCENT);
+    if (!Number.isFinite(raw)) return 10;
+    return Math.min(Math.max(Math.round(raw), 1), 50);
+  })(),
   gemini: {
     apiKey: readOptional("GEMINI_API_KEY"),
     // Blank/unset GEMINI_MODEL falls back to Google's rolling alias for the

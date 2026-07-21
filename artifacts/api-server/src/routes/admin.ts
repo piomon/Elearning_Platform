@@ -2614,6 +2614,88 @@ router.get("/admin/ai-usage/stats", async (req: AuthRequest, res) => {
   }
 });
 
+// Storage stats for the AI-check photo directory. Walks <storageDir>/ai-checks
+// (bounded by retention, so at most ~retentionDays worth of files), reports
+// file count / total bytes / oldest file, the active retention policy, and
+// free-disk pressure on the filesystem that holds the storage dir. `lowDisk`
+// flips true when free space drops below config.storageWarnFreePercent — the
+// admin UI shows a warning banner off that flag.
+router.get("/admin/storage/stats", async (req: AuthRequest, res) => {
+  try {
+    const aiChecksDir = path.join(config.storageDir, "ai-checks");
+
+    let totalFiles = 0;
+    let totalBytes = 0;
+    let oldestFileAt: Date | null = null;
+
+    // Iterative walk (no recursion) over the YYYY/MM tree. A missing dir just
+    // means no photos have ever been stored — report zeros, not an error.
+    const stack = [aiChecksDir];
+    while (stack.length > 0) {
+      const dir = stack.pop()!;
+      let entries;
+      try {
+        entries = await fs.readdir(dir, { withFileTypes: true });
+      } catch (err: unknown) {
+        if ((err as NodeJS.ErrnoException).code === "ENOENT") continue;
+        throw err;
+      }
+      for (const entry of entries) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          stack.push(full);
+        } else if (entry.isFile()) {
+          try {
+            const st = await fs.stat(full);
+            totalFiles++;
+            totalBytes += st.size;
+            if (!oldestFileAt || st.mtime < oldestFileAt) oldestFileAt = st.mtime;
+          } catch {
+            // File deleted between readdir and stat (retention run) — skip.
+          }
+        }
+      }
+    }
+
+    // Free space on the filesystem holding the storage dir. statfs the storage
+    // root itself; fall back to its parent if the dir doesn't exist yet.
+    let disk: { totalBytes: number; freeBytes: number; freePercent: number } | null = null;
+    try {
+      let stat;
+      try {
+        stat = await fs.statfs(config.storageDir);
+      } catch {
+        stat = await fs.statfs(path.dirname(config.storageDir));
+      }
+      const total = stat.bsize * stat.blocks;
+      const free = stat.bsize * stat.bavail;
+      disk = {
+        totalBytes: total,
+        freeBytes: free,
+        freePercent: total > 0 ? Math.round((free / total) * 1000) / 10 : 0,
+      };
+    } catch (err) {
+      // statfs unsupported/failing — report usage without disk pressure info
+      // rather than 500ing the whole panel.
+      req.log.warn({ err }, "Storage stats: statfs failed");
+    }
+
+    const warnFreePercent = config.storageWarnFreePercent;
+    res.json({
+      totalFiles,
+      totalBytes,
+      oldestFileAt: oldestFileAt ? oldestFileAt.toISOString() : null,
+      retentionDays: config.ai.checkImageRetentionDays,
+      warnFreePercent,
+      disk,
+      lowDisk: disk != null && disk.freePercent < warnFreePercent,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Storage stats error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
 // Admin AI request log (brief §10): every Gemini call as one row — who, which
 // operation/model, final status, the full attempt timeline (attemptLog), token
 // counts, cost estimate, and for photo checks the linked ai_checks row (photo

@@ -1,6 +1,7 @@
 import { Fragment, useState } from "react";
 import {
   useListAiUsageLog,
+  useGetStorageStats,
   type AiUsageLogEntry,
   type AiAttemptLogEntry,
   type ListAiUsageLogParams,
@@ -25,6 +26,8 @@ import {
   ArrowRightLeft,
   X,
   Download,
+  HardDrive,
+  AlertTriangle,
 } from "lucide-react";
 
 const LIMIT = 25;
@@ -45,6 +48,8 @@ function formatGrosz(g: number | null | undefined): string {
 
 function formatBytes(b: number | null | undefined): string {
   if (b == null) return "—";
+  if (b >= 1024 * 1024 * 1024)
+    return `${(b / (1024 * 1024 * 1024)).toFixed(1).replace(".", ",")} GB`;
   if (b >= 1024 * 1024) return `${(b / (1024 * 1024)).toFixed(1).replace(".", ",")} MB`;
   if (b >= 1024) return `${Math.round(b / 1024)} KB`;
   return `${b} B`;
@@ -100,6 +105,73 @@ function AttemptTimeline({ log }: { log: AiAttemptLogEntry[] }) {
     );
   });
   return <ol className="text-xs space-y-0.5">{items}</ol>;
+}
+
+// Storage overview for stored AI-check photos: low-disk warning banner (driven
+// by the server-side threshold) plus a compact usage/retention summary line.
+function StorageStatsBlock() {
+  const { data } = useGetStorageStats();
+  if (!data) return null;
+  return (
+    <div className="space-y-3">
+      {data.lowDisk && data.disk && (
+        <div
+          className="flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/10 p-4"
+          role="alert"
+          data-testid="banner-low-disk"
+        >
+          <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-bold text-destructive">
+              Mało miejsca na dysku — wolne {data.disk.freePercent.toFixed(1).replace(".", ",")}%{" "}
+              ({formatBytes(data.disk.freeBytes)})
+            </p>
+            <p className="text-destructive/90 mt-0.5">
+              Próg ostrzeżenia: {data.warnFreePercent}%. Zdjęcia sprawdzeń AI zajmują{" "}
+              {formatBytes(data.totalBytes)}. Rozważ skrócenie okresu przechowywania (obecnie{" "}
+              {data.retentionDays} dni) lub zwolnienie miejsca na serwerze.
+            </p>
+          </div>
+        </div>
+      )}
+      <div
+        className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-2xl border border-border bg-card px-4 py-3 text-xs text-muted-foreground shadow-sm"
+        data-testid="storage-stats"
+      >
+        <span className="inline-flex items-center gap-1.5 font-semibold text-foreground">
+          <HardDrive className="w-4 h-4 text-primary" /> Magazyn zdjęć AI
+        </span>
+        <span>
+          Pliki: <span className="font-semibold text-foreground tabular-nums">{data.totalFiles}</span>
+        </span>
+        <span>
+          Rozmiar:{" "}
+          <span className="font-semibold text-foreground tabular-nums">{formatBytes(data.totalBytes)}</span>
+        </span>
+        <span>
+          Najstarsze zdjęcie:{" "}
+          <span className="font-semibold text-foreground">
+            {data.oldestFileAt
+              ? format(new Date(data.oldestFileAt), "dd.MM.yyyy", { locale: pl })
+              : "—"}
+          </span>
+        </span>
+        <span>
+          Retencja: <span className="font-semibold text-foreground">{data.retentionDays} dni</span>
+        </span>
+        {data.disk && (
+          <span>
+            Wolne miejsce:{" "}
+            <span
+              className={`font-semibold tabular-nums ${data.lowDisk ? "text-destructive" : "text-foreground"}`}
+            >
+              {data.disk.freePercent.toFixed(1).replace(".", ",")}% ({formatBytes(data.disk.freeBytes)})
+            </span>
+          </span>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function SummaryItem({ label, value }: { label: string; value: string }) {
@@ -326,6 +398,8 @@ export default function AdminAiLogs() {
           </p>
         </div>
       </div>
+
+      <StorageStatsBlock />
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <SummaryItem label="Żądania" value={isLoading ? "…" : String(data?.summary.total ?? 0)} />

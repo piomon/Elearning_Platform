@@ -2091,6 +2091,21 @@ export const GetAiUsageStatsResponse = zod.object({
 })
 
 
+export const GetStorageStatsResponse = zod.object({
+  "totalFiles": zod.number(),
+  "totalBytes": zod.number().describe('Total size of stored AI-check photos in bytes.'),
+  "oldestFileAt": zod.string().nullish().describe('Modification time of the oldest stored photo, ISO string.'),
+  "retentionDays": zod.number().describe('Active AI-check photo retention policy in days.'),
+  "warnFreePercent": zod.number().describe('Configured free-disk warning threshold (percent).'),
+  "disk": zod.union([zod.object({
+  "totalBytes": zod.number(),
+  "freeBytes": zod.number(),
+  "freePercent": zod.number().describe('Free space as a percentage of the filesystem holding the storage dir.')
+}),zod.null()]).optional().describe('Null when free-disk info is unavailable on this platform.'),
+  "lowDisk": zod.boolean().describe('True when free disk is below the warning threshold.')
+})
+
+
 export const listAiUsageLogQueryPageDefault = 1;
 
 export const listAiUsageLogQueryLimitDefault = 25;

@@ -120,6 +120,7 @@ import type {
   SeoSettings,
   SeoUpdate,
   StatusUpdate,
+  StorageStats,
   Task,
   TaskCheckInput,
   TaskCheckResult,
@@ -7447,6 +7448,77 @@ export function useGetAiUsageStats<TData = Awaited<ReturnType<typeof getAiUsageS
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetAiUsageStatsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetStorageStatsUrl = () => {
+
+
+
+
+  return `/api/admin/storage/stats`
+}
+
+export const getStorageStats = async ( options?: RequestInit): Promise<StorageStats> => {
+
+  return customFetch<StorageStats>(getGetStorageStatsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStorageStatsQueryKey = () => {
+    return [
+    `/api/admin/storage/stats`
+    ] as const;
+    }
+
+
+export const getGetStorageStatsQueryOptions = <TData = Awaited<ReturnType<typeof getStorageStats>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStorageStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStorageStatsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStorageStats>>> = ({ signal }) => getStorageStats({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStorageStats>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetStorageStatsQueryResult = NonNullable<Awaited<ReturnType<typeof getStorageStats>>>
+export type GetStorageStatsQueryError = ErrorType<unknown>
+
+
+
+export function useGetStorageStats<TData = Awaited<ReturnType<typeof getStorageStats>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStorageStats>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetStorageStatsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

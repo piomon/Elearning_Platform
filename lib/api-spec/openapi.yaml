@@ -2129,6 +2129,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/AiUsageStats"
 
+  /admin/storage/stats:
+    get:
+      operationId: getStorageStats
+      tags: [admin]
+      responses:
+        "200":
+          description: AI-check photo storage usage, retention policy and free-disk pressure.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorageStats"
+
   /admin/ai-usage/log:
     get:
       operationId: listAiUsageLog
@@ -4629,6 +4641,45 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AiUsageOperationStats"
+
+    StorageDiskInfo:
+      type: object
+      required: [totalBytes, freeBytes, freePercent]
+      properties:
+        totalBytes:
+          type: number
+        freeBytes:
+          type: number
+        freePercent:
+          type: number
+          description: Free space as a percentage of the filesystem holding the storage dir.
+
+    StorageStats:
+      type: object
+      required: [totalFiles, totalBytes, retentionDays, warnFreePercent, lowDisk]
+      properties:
+        totalFiles:
+          type: integer
+        totalBytes:
+          type: number
+          description: Total size of stored AI-check photos in bytes.
+        oldestFileAt:
+          type: ["string", "null"]
+          description: Modification time of the oldest stored photo, ISO string.
+        retentionDays:
+          type: integer
+          description: Active AI-check photo retention policy in days.
+        warnFreePercent:
+          type: integer
+          description: Configured free-disk warning threshold (percent).
+        disk:
+          anyOf:
+            - $ref: "#/components/schemas/StorageDiskInfo"
+            - type: "null"
+          description: Null when free-disk info is unavailable on this platform.
+        lowDisk:
+          type: boolean
+          description: True when free disk is below the warning threshold.
 
     AiAttemptLogEntry:
       type: object

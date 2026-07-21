@@ -171,6 +171,8 @@ export * from './seoSettings';
 export * from './seoUpdate';
 export * from './statusUpdate';
 export * from './statusUpdateStatus';
+export * from './storageDiskInfo';
+export * from './storageStats';
 export * from './task';
 export * from './taskAiPromptConfig';
 export * from './taskCheckInput';

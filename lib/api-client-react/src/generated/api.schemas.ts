@@ -1415,6 +1415,32 @@ export interface AiUsageStats {
   operations: AiUsageOperationStats[];
 }
 
+export interface StorageDiskInfo {
+  totalBytes: number;
+  freeBytes: number;
+  /** Free space as a percentage of the filesystem holding the storage dir. */
+  freePercent: number;
+}
+
+export interface StorageStats {
+  totalFiles: number;
+  /** Total size of stored AI-check photos in bytes. */
+  totalBytes: number;
+  /**
+     * Modification time of the oldest stored photo, ISO string.
+     * @nullable
+     */
+  oldestFileAt?: string | null;
+  /** Active AI-check photo retention policy in days. */
+  retentionDays: number;
+  /** Configured free-disk warning threshold (percent). */
+  warnFreePercent: number;
+  /** Null when free-disk info is unavailable on this platform. */
+  disk?: StorageDiskInfo | null;
+  /** True when free disk is below the warning threshold. */
+  lowDisk: boolean;
+}
+
 export interface AiAttemptLogEntry {
   attempt: number;
   ok: boolean;
