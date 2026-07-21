@@ -157,6 +157,8 @@ describe("POST /api/ai/check — overload rescue on the lite model", () => {
       expect(checks).toHaveLength(1);
       expect(checks[0].status).toBe("completed");
       expect(checks[0].model).toBe(OVERLOAD_FALLBACK_AI_MODEL);
+      // Admin-log linkage: the usage row points at the check row it produced.
+      expect(usage[0].aiCheckId).toBe(checks[0].id);
     },
     15_000,
   );
@@ -193,6 +195,9 @@ describe("POST /api/ai/check — overload rescue on the lite model", () => {
       const checks = await db.select().from(aiChecks);
       expect(checks).toHaveLength(1);
       expect(checks[0].status).toBe("failed");
+      // Failed calls link to their failed check row too — the admin log shows
+      // photo size and task context even for errors.
+      expect(usage[0].aiCheckId).toBe(checks[0].id);
     },
     15_000,
   );

@@ -73,6 +73,9 @@ export function sanitizeAiError(message: string): string {
 
 export interface RecordAiUsageInput {
   userId: number | null;
+  /** For "check" operations: the ai_checks row this call produced, so the
+   * admin log can show photo size, stored response and task context. */
+  aiCheckId?: number | null;
   operation: AiOperation;
   model: string;
   status: "completed" | "failed";
@@ -119,6 +122,7 @@ export async function recordAiUsage(input: RecordAiUsageInput): Promise<void> {
   try {
     await db.insert(aiUsageLog).values({
       userId: input.userId,
+      aiCheckId: input.aiCheckId ?? null,
       operation: input.operation,
       model: input.model,
       status: input.status,

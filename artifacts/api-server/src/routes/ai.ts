@@ -41,7 +41,7 @@ import {
   readAiProgress,
   isValidRequestId,
 } from "../lib/ai-progress";
-import { recordAiUsage, extractUsage } from "../lib/ai-usage";
+import { recordAiUsage, extractUsage, type RecordAiUsageInput } from "../lib/ai-usage";
 import {
   buildChatContext,
   trimHistory,
@@ -266,6 +266,11 @@ router.post(
           .returning();
 
       let feedback: string;
+      // Success-path usage is recorded only AFTER the completed ai_checks row
+      // exists, so the ai_usage_log row can reference it (aiCheckId) and the
+      // admin log can show photo size + stored response. Stays null in demo
+      // mode — there is no real Gemini call to account for.
+      let pendingUsage: RecordAiUsageInput | null = null;
       if (!isGeminiConfigured()) {
         if (config.isProd) {
           await logCheck("failed", { errorMessage: "Gemini not configured" });
@@ -393,11 +398,17 @@ router.post(
               : earlierAttempts;
           req.log.error({ err: aiErr, attempts: attemptLog.length }, "Gemini check failed");
           const failStatus = aiErr instanceof AiCallFailure ? aiErr.cause : aiErr;
+          // The failed ai_checks row goes in first so the usage row can point
+          // at it (photo size + task context for the admin log).
+          const [failedCheck] = await logCheck("failed", {
+            errorMessage: aiErr instanceof Error ? aiErr.message : "Unknown AI error",
+          });
           // A failure shared from a deduped in-flight call was already logged
           // by its accounting owner — a second row would inflate failure stats.
           if (!(aiErr instanceof AiCallFailure && aiErr.sharedFromDedupe)) {
             await recordAiUsage({
               userId,
+              aiCheckId: failedCheck.id,
               operation: "check",
               model,
               status: "failed",
@@ -410,9 +421,6 @@ router.post(
               errorMessage: aiErr instanceof Error ? aiErr.message : "Unknown AI error",
             });
           }
-          await logCheck("failed", {
-            errorMessage: aiErr instanceof Error ? aiErr.message : "Unknown AI error",
-          });
           const mapped = mapGeminiError(
             aiErr,
             "Wystąpił błąd podczas sprawdzania przez AI. Spróbuj ponownie.",
@@ -428,28 +436,42 @@ router.post(
         // with no text — treat it as a failure instead of showing an empty box.
         const empty = !feedback.trim();
         if (requestId) finishAiProgress(requestId, empty ? "failed" : "done");
-        await recordAiUsage({
-          userId,
-          operation: "check",
-          model,
-          status: empty ? "failed" : "completed",
-          attemptLog: combinedLog,
-          usage,
-          latencyMs: Date.now() - startedAt,
-          errorMessage: empty ? "Empty AI response" : undefined,
-          sharedFromDedupe: outcome.sharedFromDedupe,
-        });
         if (empty) {
           req.log.error("Gemini check returned an empty response");
-          await logCheck("failed", { errorMessage: "Empty AI response" });
+          const [failedCheck] = await logCheck("failed", { errorMessage: "Empty AI response" });
+          await recordAiUsage({
+            userId,
+            aiCheckId: failedCheck.id,
+            operation: "check",
+            model,
+            status: "failed",
+            attemptLog: combinedLog,
+            usage,
+            latencyMs: Date.now() - startedAt,
+            errorMessage: "Empty AI response",
+            sharedFromDedupe: outcome.sharedFromDedupe,
+          });
           res.status(502).json({
             error: "AI nie zwróciło odpowiedzi. Spróbuj ponownie za chwilę.",
           });
           return;
         }
+        pendingUsage = {
+          userId,
+          operation: "check",
+          model,
+          status: "completed",
+          attemptLog: combinedLog,
+          usage,
+          latencyMs: Date.now() - startedAt,
+          sharedFromDedupe: outcome.sharedFromDedupe,
+        };
       }
 
       const [check] = await logCheck("completed", { aiResponse: feedback });
+      if (pendingUsage) {
+        await recordAiUsage({ ...pendingUsage, aiCheckId: check.id });
+      }
 
       // Upsert: the student may reach the AI check before any progress row was
       // created for this topic, so insert one rather than no-op on a missing row.

@@ -19,6 +19,7 @@ import AdminUsers from "@/pages/admin/users";
 import AdminUserDetail from "@/pages/admin/user-detail";
 import AdminCourses from "@/pages/admin/courses";
 import AdminAiSettings from "@/pages/admin/ai-settings";
+import AdminAiLogs from "@/pages/admin/ai-logs";
 import AdminVideos from "@/pages/admin/videos";
 import AdminContact from "@/pages/admin/contact";
 import AdminLogs from "@/pages/admin/logs";
@@ -100,6 +101,9 @@ function Router() {
         </Route>
         <Route path="/admin/ai">
           {() => <AdminPage><AdminAiSettings /></AdminPage>}
+        </Route>
+        <Route path="/admin/ai-logs">
+          {() => <AdminPage><AdminAiLogs /></AdminPage>}
         </Route>
         <Route path="/admin/landing">
           {() => <AdminPage><AdminLanding /></AdminPage>}

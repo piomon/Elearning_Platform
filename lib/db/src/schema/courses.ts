@@ -218,6 +218,10 @@ export const aiUsageLog = pgTable(
   {
     id: serial("id").primaryKey(),
     userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+    // For "check" operations: the ai_checks row this call produced — photo
+    // size, stored AI response and task/topic context live there. Null for
+    // chat/admin-test and for legacy rows predating the link.
+    aiCheckId: integer("ai_check_id").references(() => aiChecks.id, { onDelete: "set null" }),
     operation: text("operation").notNull(), // "check" | "chat" | "admin-test"
     model: text("model").notNull(),
     status: text("status").notNull(), // "completed" | "failed"
@@ -237,5 +241,8 @@ export const aiUsageLog = pgTable(
   },
   (table) => [
     index("ai_usage_log_operation_created_at_idx").on(table.operation, table.createdAt),
+    // The admin log browses newest-first with arbitrary filters; keep the
+    // default (unfiltered) listing index-backed as the table grows.
+    index("ai_usage_log_created_at_id_idx").on(table.createdAt, table.id),
   ],
 );

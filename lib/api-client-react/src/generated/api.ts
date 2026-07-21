@@ -36,6 +36,7 @@ import type {
   AiSettingsInput,
   AiTestInput,
   AiTestResult,
+  AiUsageLogPage,
   AiUsageStats,
   BanInput,
   BunnyAssignInput,
@@ -79,6 +80,7 @@ import type {
   ListAdminLogsParams,
   ListAdminPaymentsParams,
   ListAdminUsersParams,
+  ListAiUsageLogParams,
   ListContactMessagesParams,
   LoginStats,
   MessageResponse,
@@ -7444,6 +7446,84 @@ export function useGetAiUsageStats<TData = Awaited<ReturnType<typeof getAiUsageS
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetAiUsageStatsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListAiUsageLogUrl = (params?: ListAiUsageLogParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/ai-usage/log?${stringifiedParams}` : `/api/admin/ai-usage/log`
+}
+
+export const listAiUsageLog = async (params?: ListAiUsageLogParams, options?: RequestInit): Promise<AiUsageLogPage> => {
+
+  return customFetch<AiUsageLogPage>(getListAiUsageLogUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAiUsageLogQueryKey = (params?: ListAiUsageLogParams,) => {
+    return [
+    `/api/admin/ai-usage/log`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListAiUsageLogQueryOptions = <TData = Awaited<ReturnType<typeof listAiUsageLog>>, TError = ErrorType<unknown>>(params?: ListAiUsageLogParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAiUsageLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAiUsageLogQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAiUsageLog>>> = ({ signal }) => listAiUsageLog(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAiUsageLog>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAiUsageLogQueryResult = NonNullable<Awaited<ReturnType<typeof listAiUsageLog>>>
+export type ListAiUsageLogQueryError = ErrorType<unknown>
+
+
+
+export function useListAiUsageLog<TData = Awaited<ReturnType<typeof listAiUsageLog>>, TError = ErrorType<unknown>>(
+ params?: ListAiUsageLogParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAiUsageLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAiUsageLogQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

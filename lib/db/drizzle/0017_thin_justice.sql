@@ -1,0 +1,2 @@
+ALTER TABLE "ai_usage_log" ADD COLUMN "ai_check_id" integer;--> statement-breakpoint
+ALTER TABLE "ai_usage_log" ADD CONSTRAINT "ai_usage_log_ai_check_id_ai_checks_id_fk" FOREIGN KEY ("ai_check_id") REFERENCES "public"."ai_checks"("id") ON DELETE set null ON UPDATE no action;

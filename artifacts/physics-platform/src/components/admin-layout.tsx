@@ -20,6 +20,7 @@ import {
   ListChecks,
   ClipboardList,
   Sparkles,
+  Activity,
   KeyRound,
   CreditCard,
   Ticket,
@@ -63,6 +64,7 @@ const NAV: NavGroup[] = [
       { href: "/admin/quizzes", label: "Quizy", icon: <ListChecks className="w-5 h-5" />, soon: true },
       { href: "/admin/tasks", label: "Zadania", icon: <ClipboardList className="w-5 h-5" />, soon: true },
       { href: "/admin/ai", label: "AI", icon: <Sparkles className="w-5 h-5" /> },
+      { href: "/admin/ai-logs", label: "Logi AI", icon: <Activity className="w-5 h-5" /> },
     ],
   },
   {

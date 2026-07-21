@@ -1,0 +1,1 @@
+CREATE INDEX "ai_usage_log_created_at_id_idx" ON "ai_usage_log" USING btree ("created_at","id");

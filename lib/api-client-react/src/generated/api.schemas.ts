@@ -1415,6 +1415,105 @@ export interface AiUsageStats {
   operations: AiUsageOperationStats[];
 }
 
+export interface AiAttemptLogEntry {
+  attempt: number;
+  ok: boolean;
+  /** @nullable */
+  httpStatus?: number | null;
+  /** Duration of this attempt in milliseconds. */
+  ms: number;
+  /** @nullable */
+  reason?: string | null;
+}
+
+export interface AiUsageLogEntry {
+  id: number;
+  createdAt: string;
+  /** check | chat | admin-test */
+  operation: string;
+  model: string;
+  /** completed | failed */
+  status: string;
+  /**
+     * Upstream HTTP status of the final failure, if any.
+     * @nullable
+     */
+  httpStatus?: number | null;
+  attempts: number;
+  rescuedByRetry: boolean;
+  transient429: number;
+  transient503: number;
+  /**
+     * Attempt-by-attempt timeline; attempt numbers reset on a model switch.
+     * @nullable
+     */
+  attemptLog?: AiAttemptLogEntry[] | null;
+  /** @nullable */
+  inputTokens?: number | null;
+  /** @nullable */
+  outputTokens?: number | null;
+  /** @nullable */
+  totalTokens?: number | null;
+  /** @nullable */
+  estCostGrosz?: number | null;
+  latencyMs: number;
+  /** @nullable */
+  errorMessage?: string | null;
+  /** @nullable */
+  userId?: number | null;
+  /** @nullable */
+  userEmail?: string | null;
+  /** @nullable */
+  userName?: string | null;
+  /**
+     * Linked ai_checks row for photo checks; null for chat/admin-test.
+     * @nullable
+     */
+  checkId?: number | null;
+  /**
+     * Size of the student's uploaded drawing/photo in bytes.
+     * @nullable
+     */
+  requestBytes?: number | null;
+  /** @nullable */
+  imageStoragePath?: string | null;
+  /**
+     * First 400 characters of the stored AI response.
+     * @nullable
+     */
+  aiResponsePreview?: string | null;
+  /** @nullable */
+  checkErrorMessage?: string | null;
+  /** @nullable */
+  taskId?: number | null;
+  /** @nullable */
+  taskTitle?: string | null;
+  /** @nullable */
+  topicTitle?: string | null;
+}
+
+export interface AiUsageLogSummary {
+  total: number;
+  failed: number;
+  rescuedByRetry: number;
+  /** @nullable */
+  avgLatencyMs?: number | null;
+  /** @nullable */
+  avgRequestBytes?: number | null;
+  /** @nullable */
+  totalCostGrosz?: number | null;
+}
+
+export interface AiUsageLogPage {
+  entries: AiUsageLogEntry[];
+  total: number;
+  page: number;
+  limit: number;
+  summary: AiUsageLogSummary;
+  /** Distinct models ever logged — for the filter dropdown. */
+  models: string[];
+}
+
 /**
  * Non-null when checks in the last 24 hours ran on the fallback model while the configuration points at a different one — i.e. the configured model stopped working and the safety net engaged.
  */
@@ -1603,6 +1702,50 @@ export type GetAiUsageStatsParams = {
  */
 days?: number;
 };
+
+export type ListAiUsageLogParams = {
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+status?: ListAiUsageLogStatus;
+operation?: ListAiUsageLogOperation;
+model?: string;
+/**
+ * Case-insensitive substring match on student e-mail or name.
+ */
+search?: string;
+/**
+ * ISO date (inclusive start of the created-at range).
+ */
+from?: string;
+/**
+ * ISO date (inclusive when date-only, e.g. 2026-07-21).
+ */
+to?: string;
+};
+
+export type ListAiUsageLogStatus = typeof ListAiUsageLogStatus[keyof typeof ListAiUsageLogStatus];
+
+
+export const ListAiUsageLogStatus = {
+  completed: 'completed',
+  failed: 'failed',
+} as const;
+
+export type ListAiUsageLogOperation = typeof ListAiUsageLogOperation[keyof typeof ListAiUsageLogOperation];
+
+
+export const ListAiUsageLogOperation = {
+  check: 'check',
+  chat: 'chat',
+  'admin-test': 'admin-test',
+} as const;
 
 export type ListAccessParams = {
 status?: ListAccessStatus;

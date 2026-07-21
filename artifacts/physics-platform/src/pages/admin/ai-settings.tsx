@@ -14,7 +14,8 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { opts } from "@/components/admin/shared";
-import { Sparkles, Save, CheckCircle2, AlertTriangle, Loader2, Play, BarChart3, LifeBuoy } from "lucide-react";
+import { Link } from "wouter";
+import { Sparkles, Save, CheckCircle2, AlertTriangle, Loader2, Play, BarChart3, LifeBuoy, Activity } from "lucide-react";
 
 const OPERATION_LABELS: Record<string, string> = {
   check: "Sprawdzanie zadań (obraz)",
@@ -265,6 +266,12 @@ export default function AdminAiSettings() {
                       {d} dni
                     </Button>
                   ))}
+                  <Link href="/admin/ai-logs">
+                    <Button size="sm" variant="outline" className="rounded-xl h-8 px-3 text-xs">
+                      <Activity className="w-3.5 h-3.5 mr-1" />
+                      Logi AI
+                    </Button>
+                  </Link>
                 </div>
               </div>
 

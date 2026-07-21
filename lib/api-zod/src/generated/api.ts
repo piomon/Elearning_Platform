@@ -2091,6 +2091,76 @@ export const GetAiUsageStatsResponse = zod.object({
 })
 
 
+export const listAiUsageLogQueryPageDefault = 1;
+
+export const listAiUsageLogQueryLimitDefault = 25;
+export const listAiUsageLogQueryLimitMax = 100;
+
+
+
+export const ListAiUsageLogQueryParams = zod.object({
+  "page": zod.coerce.number().min(1).default(listAiUsageLogQueryPageDefault),
+  "limit": zod.coerce.number().min(1).max(listAiUsageLogQueryLimitMax).default(listAiUsageLogQueryLimitDefault),
+  "status": zod.enum(['completed', 'failed']).optional(),
+  "operation": zod.enum(['check', 'chat', 'admin-test']).optional(),
+  "model": zod.coerce.string().optional(),
+  "search": zod.coerce.string().optional().describe('Case-insensitive substring match on student e-mail or name.'),
+  "from": zod.coerce.string().optional().describe('ISO date (inclusive start of the created-at range).'),
+  "to": zod.coerce.string().optional().describe('ISO date (inclusive when date-only, e.g. 2026-07-21).')
+})
+
+export const ListAiUsageLogResponse = zod.object({
+  "entries": zod.array(zod.object({
+  "id": zod.number(),
+  "createdAt": zod.string(),
+  "operation": zod.string().describe('check | chat | admin-test'),
+  "model": zod.string(),
+  "status": zod.string().describe('completed | failed'),
+  "httpStatus": zod.number().nullish().describe('Upstream HTTP status of the final failure, if any.'),
+  "attempts": zod.number(),
+  "rescuedByRetry": zod.boolean(),
+  "transient429": zod.number(),
+  "transient503": zod.number(),
+  "attemptLog": zod.array(zod.object({
+  "attempt": zod.number(),
+  "ok": zod.boolean(),
+  "httpStatus": zod.number().nullish(),
+  "ms": zod.number().describe('Duration of this attempt in milliseconds.'),
+  "reason": zod.string().nullish()
+})).nullish().describe('Attempt-by-attempt timeline; attempt numbers reset on a model switch.'),
+  "inputTokens": zod.number().nullish(),
+  "outputTokens": zod.number().nullish(),
+  "totalTokens": zod.number().nullish(),
+  "estCostGrosz": zod.number().nullish(),
+  "latencyMs": zod.number(),
+  "errorMessage": zod.string().nullish(),
+  "userId": zod.number().nullish(),
+  "userEmail": zod.string().nullish(),
+  "userName": zod.string().nullish(),
+  "checkId": zod.number().nullish().describe('Linked ai_checks row for photo checks; null for chat\/admin-test.'),
+  "requestBytes": zod.number().nullish().describe('Size of the student\'s uploaded drawing\/photo in bytes.'),
+  "imageStoragePath": zod.string().nullish(),
+  "aiResponsePreview": zod.string().nullish().describe('First 400 characters of the stored AI response.'),
+  "checkErrorMessage": zod.string().nullish(),
+  "taskId": zod.number().nullish(),
+  "taskTitle": zod.string().nullish(),
+  "topicTitle": zod.string().nullish()
+})),
+  "total": zod.number(),
+  "page": zod.number(),
+  "limit": zod.number(),
+  "summary": zod.object({
+  "total": zod.number(),
+  "failed": zod.number(),
+  "rescuedByRetry": zod.number(),
+  "avgLatencyMs": zod.number().nullish(),
+  "avgRequestBytes": zod.number().nullish(),
+  "totalCostGrosz": zod.number().nullish()
+}),
+  "models": zod.array(zod.string()).describe('Distinct models ever logged — for the filter dropdown.')
+})
+
+
 export const ListDiscountsResponseItem = zod.object({
   "id": zod.number(),
   "code": zod.string(),

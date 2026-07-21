@@ -24,11 +24,12 @@ import {
   lessonImages,
   aiSettings,
   aiUsageLog,
+  aiChecks,
   discountCodes,
   discountCodeUses,
   platformSettings,
 } from "@workspace/db";
-import { eq, ne, and, desc, asc, count, countDistinct, sum, gte, ilike, or, sql, inArray } from "drizzle-orm";
+import { eq, ne, and, desc, asc, count, countDistinct, sum, gte, lt, ilike, or, sql, inArray, type SQL } from "drizzle-orm";
 import { requireAuth, requireAdmin, type AuthRequest } from "../middlewares/auth";
 import {
   SETTINGS_CATALOG,
@@ -2606,6 +2607,146 @@ router.get("/admin/ai-usage/stats", async (req: AuthRequest, res) => {
     res.json({ days, since: since.toISOString(), operations: rows });
   } catch (err) {
     req.log.error({ err }, "AI usage stats error");
+    res.status(500).json({ error: "Błąd serwera" });
+  }
+});
+
+// Admin AI request log (brief §10): every Gemini call as one row — who, which
+// operation/model, final status, the full attempt timeline (attemptLog), token
+// counts, cost estimate, and for photo checks the linked ai_checks row (photo
+// size, stored response preview, task/topic). Paginated + filterable. Reads
+// metadata and the stored AI response only — never student photos themselves.
+router.get("/admin/ai-usage/log", async (req: AuthRequest, res) => {
+  try {
+    const limitRaw = Number(req.query.limit);
+    const limit = Number.isFinite(limitRaw)
+      ? Math.min(Math.max(Math.round(limitRaw), 1), 100)
+      : 25;
+    const pageRaw = Number(req.query.page);
+    const page = Number.isFinite(pageRaw) ? Math.max(Math.round(pageRaw), 1) : 1;
+
+    const conditions: SQL[] = [];
+    const status = typeof req.query.status === "string" ? req.query.status : "";
+    if (status === "completed" || status === "failed") {
+      conditions.push(eq(aiUsageLog.status, status));
+    }
+    const operation = typeof req.query.operation === "string" ? req.query.operation : "";
+    if (["check", "chat", "admin-test"].includes(operation)) {
+      conditions.push(eq(aiUsageLog.operation, operation));
+    }
+    const model = typeof req.query.model === "string" ? req.query.model.trim() : "";
+    if (model) conditions.push(eq(aiUsageLog.model, model));
+    const search = typeof req.query.search === "string" ? req.query.search.trim() : "";
+    if (search) {
+      const pattern = `%${search}%`;
+      const match = or(
+        ilike(users.email, pattern),
+        ilike(users.firstName, pattern),
+        ilike(users.lastName, pattern),
+      );
+      if (match) conditions.push(match);
+    }
+    const parseDate = (value: unknown): Date | null => {
+      if (typeof value !== "string" || !value.trim()) return null;
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? null : d;
+    };
+    const from = parseDate(req.query.from);
+    if (from) conditions.push(gte(aiUsageLog.createdAt, from));
+    const to = parseDate(req.query.to);
+    if (to) {
+      // A date-only "to" (2026-07-21) means "through the end of that day".
+      const end =
+        typeof req.query.to === "string" && req.query.to.trim().length === 10
+          ? new Date(to.getTime() + 86_400_000)
+          : to;
+      conditions.push(lt(aiUsageLog.createdAt, end));
+    }
+    const whereExpr = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const entries = await db
+      .select({
+        id: aiUsageLog.id,
+        createdAt: aiUsageLog.createdAt,
+        operation: aiUsageLog.operation,
+        model: aiUsageLog.model,
+        status: aiUsageLog.status,
+        httpStatus: aiUsageLog.httpStatus,
+        attempts: aiUsageLog.attempts,
+        rescuedByRetry: aiUsageLog.rescuedByRetry,
+        transient429: aiUsageLog.transient429,
+        transient503: aiUsageLog.transient503,
+        attemptLog: aiUsageLog.attemptLog,
+        inputTokens: aiUsageLog.inputTokens,
+        outputTokens: aiUsageLog.outputTokens,
+        totalTokens: aiUsageLog.totalTokens,
+        estCostGrosz: sql<number | null>`round(${aiUsageLog.estCostGrosz}::numeric, 4)::float`,
+        latencyMs: aiUsageLog.latencyMs,
+        errorMessage: aiUsageLog.errorMessage,
+        userId: aiUsageLog.userId,
+        userEmail: users.email,
+        userName: sql<string | null>`nullif(trim(concat(${users.firstName}, ' ', ${users.lastName})), '')`,
+        checkId: aiChecks.id,
+        requestBytes: aiChecks.requestBytes,
+        imageStoragePath: aiChecks.imageStoragePath,
+        aiResponsePreview: sql<string | null>`left(${aiChecks.aiResponse}, 400)`,
+        checkErrorMessage: aiChecks.errorMessage,
+        taskId: aiChecks.taskId,
+        taskTitle: tasks.title,
+        topicTitle: topics.title,
+      })
+      .from(aiUsageLog)
+      .leftJoin(users, eq(aiUsageLog.userId, users.id))
+      .leftJoin(aiChecks, eq(aiUsageLog.aiCheckId, aiChecks.id))
+      .leftJoin(tasks, eq(aiChecks.taskId, tasks.id))
+      .leftJoin(topics, eq(aiChecks.topicId, topics.id))
+      .where(whereExpr)
+      .orderBy(desc(aiUsageLog.createdAt), desc(aiUsageLog.id))
+      .limit(limit)
+      .offset((page - 1) * limit);
+
+    // Same filtered set as the page (users/aiChecks joins so search and size
+    // aggregates see the same rows) — count + the headline aggregates.
+    const [summary] = await db
+      .select({
+        total: sql<number>`count(*)::int`,
+        failed: sql<number>`count(*) filter (where ${aiUsageLog.status} = 'failed')::int`,
+        rescuedByRetry: sql<number>`count(*) filter (where ${aiUsageLog.rescuedByRetry} and ${aiUsageLog.status} = 'completed')::int`,
+        avgLatencyMs: sql<number | null>`round(avg(${aiUsageLog.latencyMs}))::int`,
+        avgRequestBytes: sql<number | null>`round(avg(${aiChecks.requestBytes}))::int`,
+        totalCostGrosz: sql<number | null>`round(sum(${aiUsageLog.estCostGrosz})::numeric, 2)::float`,
+      })
+      .from(aiUsageLog)
+      .leftJoin(users, eq(aiUsageLog.userId, users.id))
+      .leftJoin(aiChecks, eq(aiUsageLog.aiCheckId, aiChecks.id))
+      .where(whereExpr);
+
+    // Distinct models ever logged (unfiltered) — feeds the filter dropdown.
+    const modelRows = await db
+      .selectDistinct({ model: aiUsageLog.model })
+      .from(aiUsageLog)
+      .orderBy(asc(aiUsageLog.model));
+
+    res.json({
+      entries: entries.map((entry) => ({
+        ...entry,
+        createdAt: entry.createdAt.toISOString(),
+      })),
+      total: summary?.total ?? 0,
+      page,
+      limit,
+      summary: {
+        total: summary?.total ?? 0,
+        failed: summary?.failed ?? 0,
+        rescuedByRetry: summary?.rescuedByRetry ?? 0,
+        avgLatencyMs: summary?.avgLatencyMs ?? null,
+        avgRequestBytes: summary?.avgRequestBytes ?? null,
+        totalCostGrosz: summary?.totalCostGrosz ?? null,
+      },
+      models: modelRows.map((row) => row.model),
+    });
+  } catch (err) {
+    req.log.error({ err }, "AI usage log error");
     res.status(500).json({ error: "Błąd serwera" });
   }
 });
